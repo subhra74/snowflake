@@ -1,0 +1,105 @@
+package snowflake.components.main;
+
+import snowflake.App;
+import snowflake.components.files.FileComponentHolder;
+import snowflake.components.newsession.SessionInfo;
+import snowflake.components.terminal.TerminalHolder;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+
+public class SessionContent extends JPanel {
+    private SessionInfo info;
+    private JSplitPane verticalSplitter, horizontalSplitter;
+    //private FileStore fileStore;
+
+    public SessionContent(SessionInfo info) {
+        super(new BorderLayout());
+        this.info = info;
+        init();
+    }
+
+    Box createTab(String text, boolean closable, String icon) {
+        Box pan = Box.createHorizontalBox();
+
+        JLabel btn2 = new JLabel();
+        btn2.setFont(App.getFontAwesomeFont());
+        btn2.setText(icon);
+        pan.add(btn2);
+        pan.add(Box.createHorizontalStrut(5));
+        pan.add(new JLabel(text));
+        pan.add(Box.createHorizontalStrut(5));
+        if (closable) {
+            JLabel btn1 = new JLabel();
+            btn1.setFont(App.getFontAwesomeFont());
+            btn1.setText("\uf00d");
+            pan.add(btn1);
+        }
+        return pan;
+    }
+
+
+    public void init() {
+        JPanel topPanel = new JPanel(new BorderLayout());
+        horizontalSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        horizontalSplitter.setResizeWeight(0.5);
+        horizontalSplitter.setLeftComponent(new JScrollPane(new JTree()));
+
+        JTabbedPane tabs1 = new JTabbedPane();
+        JTabbedPane tabs2 = new JTabbedPane();
+
+        for (int i = 0; i < 3; i++) {
+            tabs1.addTab("Files", new JScrollPane(new JTable(new DefaultTableModel())));
+            tabs1.setTabComponentAt(i, createTab("Files", true, "\uf115"));
+        }
+
+        for (int i = 0; i < 3; i++) {
+            tabs2.addTab("Files", new JScrollPane(new JTable(new DefaultTableModel())));
+            tabs2.setTabComponentAt(i, createTab("Files", true, "\uf115"));
+        }
+
+        JPanel leftPanel=new JPanel(new BorderLayout());
+        JPanel rightPanel=new JPanel(new BorderLayout());
+
+        leftPanel.add(new JComboBox<String>(),BorderLayout.NORTH);
+        rightPanel.add(new JComboBox<String>(),BorderLayout.NORTH);
+//        leftPanel.add(tabs1);
+//        rightPanel.add(tabs2);
+
+        horizontalSplitter.setLeftComponent(leftPanel);
+        horizontalSplitter.setRightComponent(rightPanel);
+
+        topPanel.add(new FileComponentHolder(info));
+
+        JTabbedPane bottomTabs = new JTabbedPane();
+        TerminalHolder th = new TerminalHolder(info);
+        JToolBar toolBar = new JToolBar();
+        JButton btn = new JButton();
+        btn.setMargin(new Insets(5, 5, 5, 5));
+        btn.setFont(App.getFontAwesomeFont());
+        btn.setText("\uf120");
+        toolBar.add(btn);
+        btn.addActionListener(e -> {
+            th.createNewTerminal();
+        });
+
+        bottomTabs.addTab("Terminal", th);
+        bottomTabs.addTab("Transfers", new JPanel());
+        bottomTabs.addTab("Processes", new JPanel());
+        bottomTabs.addTab("System load", new JPanel());
+        bottomTabs.addTab("Process and port", new JPanel());
+
+
+//        bottomTabs.setTabComponentAt(0, createTab("Terminal", false, "\uf120"));
+//        bottomTabs.setTabComponentAt(1, createTab("Transfers", false, "\uf0ec"));
+
+        add(toolBar, BorderLayout.NORTH);
+        verticalSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        verticalSplitter.setDividerSize(2);
+        verticalSplitter.setResizeWeight(0.6);
+        verticalSplitter.setBottomComponent(bottomTabs);
+        add(verticalSplitter);
+        verticalSplitter.setTopComponent(topPanel);
+    }
+}
