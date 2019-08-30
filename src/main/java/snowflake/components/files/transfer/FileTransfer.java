@@ -27,7 +27,6 @@ public class FileTransfer {
     private long processedBytes;
     private int processedFilesCount;
     private long totalFiles;
-    private String inPrefix = "", outPrefix = "";
 
     public FileTransfer(FileSystem sourceFs,
                         FileSystem targetFs,
@@ -142,8 +141,8 @@ public class FileTransfer {
                                        InputTransferChannel inc,
                                        OutputTransferChannel outc) throws Exception {
         byte buf[] = new byte[8192];
-        String outPath = PathUtils.combine(targetDirectory, this.outPrefix + file.getName(), outc.getSeparator());
-        String inPath = PathUtils.combine(PathUtils.getParent(file.getPath()), inPrefix + file.getName(), inc.getSeparator());
+        String outPath = PathUtils.combine(targetDirectory, file.getName(), outc.getSeparator());
+        String inPath = file.getPath();
         System.out.println("Copying -- " + inPath + " to " + outPath);
         try (InputStream in = inc.getInputStream(inPath);
              OutputStream out = outc.getOutputStream(outPath)) {
@@ -227,21 +226,6 @@ public class FileTransfer {
         //threadPool.shutdownNow();
     }
 
-    public void setInPrefix(String inPrefix) {
-        if (inPrefix != null) {
-            this.inPrefix = inPrefix;
-        }
-    }
-
-    public String getOutPrefix() {
-        return outPrefix;
-    }
-
-    public void setOutPrefix(String outPrefix) {
-        if (outPrefix != null) {
-            this.outPrefix = outPrefix;
-        }
-    }
 
     static class FileInfoHolder {
         FileInfo info;
@@ -261,7 +245,5 @@ public class FileTransfer {
         return this.targetFolder;
     }
 
-    public String getInPrefix() {
-        return this.inPrefix;
-    }
+
 }

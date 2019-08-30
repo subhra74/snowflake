@@ -28,23 +28,19 @@ public class EditorTab extends JPanel implements SearchListener {
     private RTextScrollPane sp;
     private JComboBox<String> cmbSyntax;
     private String localFile;
-    private String prefix;
     private boolean hasChanges;
     private JPanel replaceToolBar;
-    private String actualLocalFile;
     private boolean replaceToolBarVisible = false;
 
-    public EditorTab(FileInfo info, String text, String localFile, String prefix, String actualLocalFile) {
+    public EditorTab(FileInfo info, String text, String localFile) {
         super(new BorderLayout());
         this.info = info;
         this.localFile = localFile;
-        this.prefix = prefix;
         this.textArea = new RSyntaxTextArea();
         this.textArea.setText(text);
         if (text.length() > 0) {
             this.textArea.setCaretPosition(0);
         }
-        this.actualLocalFile = actualLocalFile;
         this.sp = new RTextScrollPane(textArea);
         Gutter gutter = this.sp.getGutter();
         gutter.setBorder(new Gutter.GutterBorder(0, 0, 0, 0));
@@ -106,7 +102,7 @@ public class EditorTab extends JPanel implements SearchListener {
 
     public void saveContentsToLocal() throws Exception {
         //String path = PathUtils.combine(PathUtils.getParent(this.localFile), prefix + PathUtils.getFileName(this.localFile), File.separator);
-        Files.write(Paths.get(this.actualLocalFile), textArea.getText().getBytes("utf-8"));
+        Files.write(Paths.get(this.localFile), textArea.getText().getBytes("utf-8"));
     }
 
     public void openFile() {
@@ -121,9 +117,6 @@ public class EditorTab extends JPanel implements SearchListener {
         return localFile;
     }
 
-    public String getPrefix() {
-        return prefix;
-    }
 
     public boolean hasUnsavedChanges() {
         return hasChanges;

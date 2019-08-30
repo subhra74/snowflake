@@ -3,7 +3,6 @@ package snowflake.components.files;
 import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
-import snowflake.common.FileType;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
@@ -22,6 +21,7 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -110,8 +110,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
                         editor.fileSaved();
                     } else {
                         editor.openRemoteFile(fileTransfer.getFiles()[0],
-                                PathUtils.combine(tempFolder, fileTransfer.getFiles()[0].getName(),
-                                        File.separator), fileTransfer.getOutPrefix());
+                                PathUtils.combine(fileTransfer.getTargetFolder(), fileTransfer.getFiles()[0].getName(),
+                                        File.separator));
                     }
                 }
             }
@@ -137,19 +137,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
                                 String sourceFolder,
                                 String targetFolder,
                                 int dragsource) {
-        newFileTransfer(sourceFs, targetFs, files, sourceFolder, targetFolder, dragsource, null, null);
-    }
-
-    public void newFileTransfer(FileSystem sourceFs,
-                                FileSystem targetFs,
-                                FileInfo[] files,
-                                String sourceFolder,
-                                String targetFolder,
-                                int dragsource,
-                                String inPrefix, String outPrefix) {
         this.fileTransfer = new FileTransfer(sourceFs, targetFs, files, sourceFolder, targetFolder, this);
-        this.fileTransfer.setInPrefix(inPrefix);
-        this.fileTransfer.setOutPrefix(outPrefix);
         if (progressPanel == null) {
             progressPanel = new TransferProgressPanel(this.fileTransfer, dragsource);
         }
@@ -160,39 +148,44 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
         this.fileTransfer.start();
     }
 
-    public void reloadRemoteFile(FileInfo fileInfo, String prefix) {
+    public void reloadRemoteFile(FileInfo fileInfo) {
         newFileTransfer(this.fs,
                 new LocalFileSystem(),
                 new FileInfo[]{fileInfo},
                 PathUtils.getParent(fileInfo.getPath()),
                 tempFolder,
-                editor.hashCode(), null, prefix);
+                editor.hashCode());
     }
 
     public void editRemoteFileInternal(FileInfo fileInfo) {
         if (!editor.isAlreadyOpened(fileInfo.getPath())) {
-            tabs.setSelectedIndex(1);
-            editor.setSavingFile(false);
-            newFileTransfer(this.fs,
-                    new LocalFileSystem(),
-                    new FileInfo[]{fileInfo},
-                    PathUtils.getParent(fileInfo.getPath()),
-                    tempFolder,
-                    editor.hashCode(), null, UUID.randomUUID().toString());
+            String tempFolder = PathUtils.combine(this.tempFolder, UUID.randomUUID().toString(), File.separator);
+            Path tempFolderPath = Path.of(tempFolder);
+            if (!Files.exists(tempFolderPath)) {
+                try {
+                    Files.createDirectories(tempFolderPath);
+                    tabs.setSelectedIndex(1);
+                    editor.setSavingFile(false);
+                    newFileTransfer(this.fs,
+                            new LocalFileSystem(),
+                            new FileInfo[]{fileInfo},
+                            PathUtils.getParent(fileInfo.getPath()),
+                            tempFolder,
+                            editor.hashCode());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
-    public void saveRemoteFile(String localFile, FileInfo fileInfo, String prefix) throws IOException {
-        String path = PathUtils.combine(PathUtils.getParent(localFile), prefix + PathUtils.getFileName(localFile), File.separator);
+    public void saveRemoteFile(String localFile, FileInfo fileInfo) throws IOException {
+        String path = localFile;
         System.out.println("Saving file from: " + path + " to: " + fileInfo.getPath());
         editor.setSavingFile(true);
-        //LocalFileSystem localFileSystem = new LocalFileSystem();
-        FileInfo localFileInfo = new FileInfo(PathUtils.getFileName(localFile),
-                path, new File(path).length(), FileType.File, 0, 0, null,
-                null, 0, null);
         newFileTransfer(new LocalFileSystem(), this.fs,
-                new FileInfo[]{localFileInfo}, this.tempFolder,
-                PathUtils.getParent(fileInfo.getPath()), editor.hashCode(), prefix, null);
+                new FileInfo[]{new LocalFileSystem().getInfo(path)}, PathUtils.getParent(localFile),
+                PathUtils.getParent(fileInfo.getPath()), editor.hashCode());
     }
 
     public synchronized SshFileSystem getSshFileSystem() {

@@ -2,24 +2,18 @@ package snowflake.components.files.editor;
 
 import snowflake.App;
 import snowflake.common.FileInfo;
-import snowflake.common.FileSystem;
-import snowflake.common.InputTransferChannel;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.files.FileComponentHolder;
-import snowflake.components.newsession.SessionInfo;
-import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.HashMap;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TextEditor extends JPanel {
     private JTabbedPane tabs;
@@ -217,7 +211,7 @@ public class TextEditor extends JPanel {
 
     private void reloadFile() {
         EditorTab tab = (EditorTab) tabs.getSelectedComponent();
-        reloadTab(tab.getInfo(), tab.getPrefix());
+        reloadTab(tab.getInfo());
     }
 
     private void replaceText() {
@@ -240,7 +234,7 @@ public class TextEditor extends JPanel {
                 e.printStackTrace();
                 return;
             }
-            saveRemoteFile(tab.getInfo(), tab.getLocalFile(), tab.getPrefix());
+            saveRemoteFile(tab.getInfo(), tab.getLocalFile());
         }
     }
 
@@ -268,8 +262,8 @@ public class TextEditor extends JPanel {
         ((EditorTab) tabs.getSelectedComponent()).setText(sb.toString());
     }
 
-    private void createNewTab(FileInfo fileInfo, StringBuilder sb, String tempFile, String prefix, String path) {
-        EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile, prefix, path);
+    private void createNewTab(FileInfo fileInfo, StringBuilder sb, String tempFile) {
+        EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile);
         JPanel pan = new JPanel(new BorderLayout());
         pan.add(new JLabel(fileInfo.getName()));
         JLabel btnClose = new JLabel();
@@ -290,16 +284,16 @@ public class TextEditor extends JPanel {
         tabSet.add(tab);
     }
 
-    public void openRemoteFile(FileInfo fileInfo, String tempFile, String prefix) {
+    public void openRemoteFile(FileInfo fileInfo, String tempFile) {
         System.out.println("Local file: " + tempFile);
         this.executorService.submit(() -> {
-            String path = PathUtils.combine(PathUtils.getParent(tempFile), prefix + PathUtils.getFileName(tempFile), File.separator);
+            String path = tempFile;
             StringBuilder sb = readTempFile(path);
             SwingUtilities.invokeLater(() -> {
                 if (reloading) {
                     setTabContent(sb);
                 } else {
-                    createNewTab(fileInfo, sb, tempFile, prefix, path);
+                    createNewTab(fileInfo, sb, tempFile);
                 }
             });
         });
@@ -320,9 +314,9 @@ public class TextEditor extends JPanel {
         }
     }
 
-    public void saveRemoteFile(FileInfo fileInfo, String tempFile, String prefix) {
+    public void saveRemoteFile(FileInfo fileInfo, String tempFile) {
         try {
-            holder.saveRemoteFile(tempFile, fileInfo, prefix);
+            holder.saveRemoteFile(tempFile, fileInfo);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -353,8 +347,8 @@ public class TextEditor extends JPanel {
         return false;
     }
 
-    public void reloadTab(FileInfo fileInfo, String prefix) {
+    public void reloadTab(FileInfo fileInfo) {
         this.reloading = true;
-        holder.reloadRemoteFile(fileInfo, prefix);
+        holder.reloadRemoteFile(fileInfo);
     }
 }
