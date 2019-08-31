@@ -1,4 +1,4 @@
-package snowflake.components.files.ssh;
+package snowflake.components.files.browser.ssh;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;

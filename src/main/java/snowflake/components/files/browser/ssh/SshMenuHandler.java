@@ -1,4 +1,4 @@
-package snowflake.components.files.ssh;
+package snowflake.components.files.browser.ssh;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
@@ -82,7 +82,7 @@ public class SshMenuHandler {
         mOpenWithDefApp.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //openApp(OpenMode.Default);
+                openDefaultApp();
             }
         });
 
@@ -94,27 +94,11 @@ public class SshMenuHandler {
             }
         });
 
-        mOpenWithCustom = new JMenuItem("External editor");
+        mOpenWithCustom = new JMenuItem("Default editor");
         mOpenWithCustom.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                AppConfig config = AppContext.INSTANCE.getConfig();
-//                String str = config.getFileBrowser().getExternalEditor();
-//                if (str != null && str.length() > 0) {
-//                    openApp(OpenMode.External);
-//                } else {
-//                    if (JOptionPane.showConfirmDialog(remoteFolderView, TextHolder.getString("folderview.noeditor"),
-//                            TextHolder.getString("noeditortitle"),
-//                            JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-//                        JFileChooser jfc = new JFileChooser();
-//                        if (jfc.showOpenDialog(remoteFolderView) == JFileChooser.APPROVE_OPTION) {
-//                            AppContext.INSTANCE.getConfig().getFileBrowser()
-//                                    .setExternalEditor(jfc.getSelectedFile().getAbsolutePath());
-//                            AppContext.INSTANCE.getConfig().save();
-//                            openApp(OpenMode.External);
-//                        }
-//                    }
-//                }
+                openDefaultEditor();
             }
         });
 
@@ -128,8 +112,8 @@ public class SshMenuHandler {
 
         mOpenWith = new JMenu("Open with");
         mOpenWith.add(mOpenWithDefApp);
-        mOpenWith.add(mOpenWthInternalEdit);
         mOpenWith.add(mOpenWithCustom);
+        mOpenWith.add(mOpenWthInternalEdit);
         mOpenWith.add(mOpenWithLogView);
 
         aRename = new AbstractAction() {
@@ -459,5 +443,15 @@ public class SshMenuHandler {
                 fileBrowser.enableUi();
             }
         });
+    }
+
+    public void openDefaultApp() {
+        FileInfo fileInfo = folderView.getSelectedFiles()[0];
+        holder.openWithDefaultApp(fileInfo);
+    }
+
+    public void openDefaultEditor() {
+        FileInfo fileInfo = folderView.getSelectedFiles()[0];
+        holder.openWithDefaultEditor(fileInfo);
     }
 }

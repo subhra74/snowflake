@@ -4,6 +4,7 @@ import java.io.*;
 
 import com.jcraft.jsch.*;
 import snowflake.App;
+import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.newsession.*;
 
 import javax.swing.*;
@@ -74,7 +75,7 @@ public class SshWrapper implements Closeable {
 
         session = jsch.getSession(info.getUser(), info.getHost(), info.getPort());
 
-        session.setUserInfo(new SshUserInteractionPrompt(info, rootPane));
+        session.setUserInfo(new SshUserInteraction(info, rootPane));
 
         session.setPassword(info.getPassword());
         // session.setConfig("StrictHostKeyChecking", "no");

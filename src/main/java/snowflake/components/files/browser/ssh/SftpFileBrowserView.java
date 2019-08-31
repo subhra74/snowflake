@@ -1,22 +1,19 @@
-package snowflake.components.files.ssh;
+package snowflake.components.files.browser.ssh;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.*;
 import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.AddressBar;
 import snowflake.components.files.browser.FileBrowser;
-import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

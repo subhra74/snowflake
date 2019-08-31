@@ -7,12 +7,14 @@ import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.browser.FileBrowser;
+import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
+import snowflake.utils.PlatformAppLauncher;
 
 import javax.swing.*;
 import java.awt.*;
@@ -22,8 +24,8 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,9 +45,13 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
     private SshFileSystem fs;
     private String tempFolder;
     private TextEditor editor;
+    private ExternalEditor externalEditor;
+    private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
+    private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
 
-    public FileComponentHolder(SessionInfo info) {
+    public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor) {
         super(new BorderLayout());
+        this.externalEditor = externalEditor;
         this.info = info;
         contentPane = new JPanel(new BorderLayout());
         rootPane = new JRootPane();
@@ -102,7 +108,18 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
         SwingUtilities.invokeLater(() -> {
             progressPanel.setVisible(false);
             if (tabs.getSelectedIndex() == 0) {
-                fileBrowser.requestReload(progressPanel.getSource());
+                if (progressPanel.getSource() == DEFAULT_APP || progressPanel.getSource() == DEFAULT_EDITOR) {
+                    String localFile = PathUtils.combine(fileTransfer.getTargetFolder(), fileTransfer.getFiles()[0].getName(),
+                            File.separator);
+                    if (progressPanel.getSource() == DEFAULT_APP ?
+                            PlatformAppLauncher.shellLaunch(localFile) : PlatformAppLauncher.shellEdit(localFile)) {
+                        externalEditor.addForMonitoring(fileTransfer.getFiles()[0],
+                                localFile,
+                                this.hashCode());
+                    }
+                } else {
+                    fileBrowser.requestReload(progressPanel.getSource());
+                }
             } else if (tabs.getSelectedIndex() == 1) {
                 if (progressPanel.getSource() == editor.hashCode()) {
                     if (editor.isSavingFile()) {
@@ -115,7 +132,20 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
                     }
                 }
             }
+
+            if (this.pendingTransfers.size() > 0) {
+                processQueue();
+            }
         });
+    }
+
+    private void processQueue() {
+        ExternalEditor.FileModificationInfo fmi = pendingTransfers.remove(0);
+        try {
+            saveRemoteFile(fmi.file.getAbsolutePath(), fmi.fileInfo, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void disableUi() {
@@ -159,33 +189,37 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
 
     public void editRemoteFileInternal(FileInfo fileInfo) {
         if (!editor.isAlreadyOpened(fileInfo.getPath())) {
-            String tempFolder = PathUtils.combine(this.tempFolder, UUID.randomUUID().toString(), File.separator);
-            Path tempFolderPath = Path.of(tempFolder);
-            if (!Files.exists(tempFolderPath)) {
-                try {
-                    Files.createDirectories(tempFolderPath);
-                    tabs.setSelectedIndex(1);
-                    editor.setSavingFile(false);
-                    newFileTransfer(this.fs,
-                            new LocalFileSystem(),
-                            new FileInfo[]{fileInfo},
-                            PathUtils.getParent(fileInfo.getPath()),
-                            tempFolder,
-                            editor.hashCode());
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+            tabs.setSelectedIndex(1);
+            editor.setSavingFile(false);
+            downloadFileToTempFolder(fileInfo, editor.hashCode());
+        }
+    }
+
+    private void downloadFileToTempFolder(FileInfo fileInfo, int hashcode) {
+        String tempFolder = PathUtils.combine(this.tempFolder, UUID.randomUUID().toString(), File.separator);
+        Path tempFolderPath = Path.of(tempFolder);
+        if (!Files.exists(tempFolderPath)) {
+            try {
+                Files.createDirectories(tempFolderPath);
+                newFileTransfer(this.fs,
+                        new LocalFileSystem(),
+                        new FileInfo[]{fileInfo},
+                        PathUtils.getParent(fileInfo.getPath()),
+                        tempFolder,
+                        hashcode);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
 
-    public void saveRemoteFile(String localFile, FileInfo fileInfo) throws IOException {
+    public void saveRemoteFile(String localFile, FileInfo fileInfo, int hashCode) throws IOException {
         String path = localFile;
         System.out.println("Saving file from: " + path + " to: " + fileInfo.getPath());
         editor.setSavingFile(true);
         newFileTransfer(new LocalFileSystem(), this.fs,
                 new FileInfo[]{new LocalFileSystem().getInfo(path)}, PathUtils.getParent(localFile),
-                PathUtils.getParent(fileInfo.getPath()), editor.hashCode());
+                PathUtils.getParent(fileInfo.getPath()), hashCode);
     }
 
     public synchronized SshFileSystem getSshFileSystem() {
@@ -202,5 +236,20 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
 
     public SessionInfo getInfo() {
         return this.info;
+    }
+
+    public void filesChanged(List<ExternalEditor.FileModificationInfo> list) {
+        this.pendingTransfers.addAll(list);
+        if (!this.progressPanel.isVisible()) {
+            processQueue();
+        }
+    }
+
+    public void openWithDefaultApp(FileInfo fileInfo) {
+        downloadFileToTempFolder(fileInfo, DEFAULT_APP);
+    }
+
+    public void openWithDefaultEditor(FileInfo fileInfo) {
+        downloadFileToTempFolder(fileInfo, DEFAULT_EDITOR);
     }
 }

@@ -14,8 +14,7 @@ import java.util.function.Consumer;
 
 public class ExternalEditor {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private Map<FileInfo, File> fileMap = new ConcurrentHashMap<>();
-    private Map<FileInfo, Long> fileUpdateMap = new ConcurrentHashMap<>();
+    private List<FileModificationInfo> filesToWatch = new ArrayList<>();
     private AtomicBoolean skipMonitoring = new AtomicBoolean(false);
     private Consumer<List<FileModificationInfo>> callback;
     private long interval;
@@ -23,6 +22,15 @@ public class ExternalEditor {
     public ExternalEditor(Consumer<List<FileModificationInfo>> callback, long interval) {
         this.callback = callback;
         this.interval = interval;
+    }
+
+    public void addForMonitoring(FileInfo fileInfo, String localFile, int activeSessionId) {
+        FileModificationInfo item = new FileModificationInfo();
+        item.fileInfo = fileInfo;
+        item.file = new File(localFile);
+        item.lastModified = item.file.lastModified();
+        item.activeSessionId = activeSessionId;
+        filesToWatch.add(item);
     }
 
     public void startWatchingForChanges() {
@@ -34,16 +42,12 @@ public class ExternalEditor {
             while (true) {
                 if (!skipMonitoring.get()) {
                     List<FileModificationInfo> list = new ArrayList<>();
-                    for (FileInfo info : fileMap.keySet()) {
-                        File f = fileMap.get(info);
+                    for (FileModificationInfo info : filesToWatch) {
+                        File f = info.file;
                         long modified = f.lastModified();
-                        long lastModified = fileUpdateMap.get(info);
-                        if (modified > lastModified) {
-                            FileModificationInfo fileModificationInfo = new FileModificationInfo();
-                            fileModificationInfo.fileInfo = info;
-                            fileModificationInfo.file = f;
-                            list.add(fileModificationInfo);
-                            fileUpdateMap.put(info, modified);
+                        if (modified > info.lastModified) {
+                            list.add(info);
+                            info.lastModified = modified;
                         }
                     }
                     if (list.size() > 0) {
@@ -58,5 +62,15 @@ public class ExternalEditor {
     public static class FileModificationInfo {
         public FileInfo fileInfo;
         public File file;
+        public int activeSessionId;
+        public long lastModified;
+    }
+
+    public void setSkipMonitoring() {
+        this.skipMonitoring.set(true);
+    }
+
+    public void resumeMonitoring() {
+        this.skipMonitoring.set(false);
     }
 }

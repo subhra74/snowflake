@@ -1,4 +1,4 @@
-package snowflake.components.files.local;
+package snowflake.components.files.browser.local;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
@@ -14,7 +14,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 

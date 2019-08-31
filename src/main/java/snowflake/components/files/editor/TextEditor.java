@@ -316,7 +316,7 @@ public class TextEditor extends JPanel {
 
     public void saveRemoteFile(FileInfo fileInfo, String tempFile) {
         try {
-            holder.saveRemoteFile(tempFile, fileInfo);
+            holder.saveRemoteFile(tempFile, fileInfo, this.hashCode());
         } catch (Exception e) {
             e.printStackTrace();
         }

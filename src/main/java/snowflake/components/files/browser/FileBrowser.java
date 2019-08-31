@@ -4,8 +4,8 @@ import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.files.FileComponentHolder;
-import snowflake.components.files.local.LocalFileBrowserView;
-import snowflake.components.files.ssh.SftpFileBrowserView;
+import snowflake.components.files.browser.local.LocalFileBrowserView;
+import snowflake.components.files.browser.ssh.SftpFileBrowserView;
 import snowflake.components.newsession.SessionInfo;
 
 import javax.swing.*;

@@ -2,6 +2,7 @@ package snowflake.components.main;
 
 import snowflake.App;
 import snowflake.components.files.FileComponentHolder;
+import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.terminal.TerminalHolder;
 
@@ -12,11 +13,14 @@ import java.awt.*;
 public class SessionContent extends JPanel {
     private SessionInfo info;
     private JSplitPane verticalSplitter, horizontalSplitter;
+    private FileComponentHolder fileComponentHolder;
+    private ExternalEditor externalEditor;
     //private FileStore fileStore;
 
-    public SessionContent(SessionInfo info) {
+    public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
         super(new BorderLayout());
         this.info = info;
+        this.externalEditor = externalEditor;
         init();
     }
 
@@ -42,36 +46,8 @@ public class SessionContent extends JPanel {
 
     public void init() {
         JPanel topPanel = new JPanel(new BorderLayout());
-        horizontalSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        horizontalSplitter.setResizeWeight(0.5);
-        horizontalSplitter.setLeftComponent(new JScrollPane(new JTree()));
-
-        JTabbedPane tabs1 = new JTabbedPane();
-        JTabbedPane tabs2 = new JTabbedPane();
-
-        for (int i = 0; i < 3; i++) {
-            tabs1.addTab("Files", new JScrollPane(new JTable(new DefaultTableModel())));
-            tabs1.setTabComponentAt(i, createTab("Files", true, "\uf115"));
-        }
-
-        for (int i = 0; i < 3; i++) {
-            tabs2.addTab("Files", new JScrollPane(new JTable(new DefaultTableModel())));
-            tabs2.setTabComponentAt(i, createTab("Files", true, "\uf115"));
-        }
-
-        JPanel leftPanel=new JPanel(new BorderLayout());
-        JPanel rightPanel=new JPanel(new BorderLayout());
-
-        leftPanel.add(new JComboBox<String>(),BorderLayout.NORTH);
-        rightPanel.add(new JComboBox<String>(),BorderLayout.NORTH);
-//        leftPanel.add(tabs1);
-//        rightPanel.add(tabs2);
-
-        horizontalSplitter.setLeftComponent(leftPanel);
-        horizontalSplitter.setRightComponent(rightPanel);
-
-        topPanel.add(new FileComponentHolder(info));
-
+        this.fileComponentHolder = new FileComponentHolder(info, externalEditor);
+        topPanel.add(fileComponentHolder);
         JTabbedPane bottomTabs = new JTabbedPane();
         TerminalHolder th = new TerminalHolder(info);
         JToolBar toolBar = new JToolBar();
@@ -101,5 +77,9 @@ public class SessionContent extends JPanel {
         verticalSplitter.setBottomComponent(bottomTabs);
         add(verticalSplitter);
         verticalSplitter.setTopComponent(topPanel);
+    }
+
+    public FileComponentHolder getFileComponentHolder() {
+        return fileComponentHolder;
     }
 }

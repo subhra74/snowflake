@@ -1,4 +1,4 @@
-package snowflake.components.files.local;
+package snowflake.components.files.browser.local;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
