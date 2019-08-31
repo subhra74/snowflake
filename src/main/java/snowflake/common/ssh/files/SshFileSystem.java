@@ -426,6 +426,11 @@ public class SshFileSystem implements FileSystem {
                     }
 
                     @Override
+                    public InputStream getInputStream(String path, long offset) throws Exception {
+                        return sftp.get(path,null,offset);
+                    }
+
+                    @Override
                     public String getSeparator() {
                         return "/";
                     }

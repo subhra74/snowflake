@@ -234,7 +234,14 @@ public class LocalFileSystem implements FileSystem {
         InputTransferChannel tc = new InputTransferChannel() {
             @Override
             public InputStream getInputStream(String path) throws Exception {
-                return new FileInputStream(path);
+                return getInputStream(path, 0);
+            }
+
+            @Override
+            public InputStream getInputStream(String path, long offset) throws Exception {
+                FileInputStream fin = new FileInputStream(path);
+                fin.skip(offset);
+                return fin;
             }
 
             @Override

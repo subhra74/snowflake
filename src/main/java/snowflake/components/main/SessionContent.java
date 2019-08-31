@@ -4,6 +4,7 @@ import snowflake.App;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
 
 import javax.swing.*;
@@ -61,8 +62,8 @@ public class SessionContent extends JPanel {
         });
 
         bottomTabs.addTab("Terminal", th);
-        bottomTabs.addTab("Transfers", new JPanel());
-        bottomTabs.addTab("Processes", new JPanel());
+        bottomTabs.addTab("Search", new JPanel());
+        bottomTabs.addTab("System monitor", new TaskManager(this.info));
         bottomTabs.addTab("System load", new JPanel());
         bottomTabs.addTab("Process and port", new JPanel());
 

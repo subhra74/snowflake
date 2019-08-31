@@ -9,6 +9,7 @@ import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
+import snowflake.components.files.logviewer.LogViewerComponent;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
@@ -48,6 +49,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
     private ExternalEditor externalEditor;
     private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
     private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
+    private LogViewerComponent logViewerComponent;
 
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor) {
         super(new BorderLayout());
@@ -71,6 +73,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
             }
         });
 
+        logViewerComponent = new LogViewerComponent(this);
+
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
         JPanel panelHolder = new JPanel(new BorderLayout());
@@ -78,7 +82,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
         tabs.setFont(App.getFontAwesomeFont());
         tabs.addTab("\uf114", fileBrowser);
         tabs.addTab("\uf0f6", editor);
-        tabs.addTab("\uf002", new JPanel());
+        tabs.addTab("\uf022", logViewerComponent);
         panelHolder.add(tabs);
         contentPane.add(panelHolder);
     }
@@ -251,5 +255,14 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
 
     public void openWithDefaultEditor(FileInfo fileInfo) {
         downloadFileToTempFolder(fileInfo, DEFAULT_EDITOR);
+    }
+
+    public void openWithLogViewer(FileInfo fileInfo) {
+        this.tabs.setSelectedIndex(2);
+        this.logViewerComponent.openLog(fileInfo, this.tempFolder);
+    }
+
+    public String getTempFolder() {
+        return this.tempFolder;
     }
 }

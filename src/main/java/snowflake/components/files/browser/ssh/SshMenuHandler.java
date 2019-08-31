@@ -106,7 +106,7 @@ public class SshMenuHandler {
         mOpenWithLogView.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //openLogViewer();
+                openLogViewer();
             }
         });
 
@@ -268,6 +268,10 @@ public class SshMenuHandler {
         map.put(ksCreateLink, "ksCreateLink");
         act.put("ksCreateLink", aCreateLink);
         mCreateLink.setAccelerator(ksCreateLink);
+    }
+
+    private void openLogViewer() {
+        holder.openWithLogViewer(folderView.getSelectedFiles()[0]);
     }
 
     private void openWithInternalEditor() {
