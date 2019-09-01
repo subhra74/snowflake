@@ -8,7 +8,6 @@ import snowflake.components.taskmgr.plaformsupport.PlatformSupport;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -16,11 +15,13 @@ public class TaskManager extends JPanel {
     private JRootPane rootPane;
     private JPanel contentPane;
     private SshUserInteraction userInteraction;
-    private JTabbedPane tabs;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private SshClient client;
     private PlatformSupport nativePlatform;
     private boolean commandPending;
+    private int stats_interval = 2, ps_interval = 5;
+    private SystemLoadPanel systemLoadPanel;
+    private ProcessListPanel processListPanel;
 
     public TaskManager(SessionInfo info) {
         setLayout(new BorderLayout());
@@ -30,8 +31,10 @@ public class TaskManager extends JPanel {
         rootPane.setContentPane(contentPane);
         add(rootPane);
         client = new SshClient(userInteraction);
-        tabs = new JTabbedPane();
-        contentPane.add(tabs);
+        systemLoadPanel = new SystemLoadPanel();
+        processListPanel = new ProcessListPanel();
+        contentPane.add(systemLoadPanel, BorderLayout.WEST);
+        contentPane.add(processListPanel);
         init();
     }
 
@@ -46,19 +49,51 @@ public class TaskManager extends JPanel {
                     client.connect();
                 }
                 String platform = PlatformChecker.getPlatformName(client);
-                System.out.println(platform);
-                if ("Linux".equals("platform")) {
+                System.out.println("'" + platform + "'");
+                if ("Linux".equals(platform)) {
                     this.nativePlatform = new LinuxPlatformSupport();
                 }
+
+                if (this.nativePlatform == null) {
+                    throw new Exception("Platform not supported: " + platform);
+                }
+
+                long lastStatsTime = 0;
+                long lastPsTime = 0;
 
                 while (true) {
                     if (commandPending) {
                         executeCommand();
                     }
-                    this.nativePlatform.updateMetrics(client);
-                    SwingUtilities.invokeLater(()->{
-                        //update ui
+                    long time = System.currentTimeMillis();
+                    if (time - lastStatsTime > stats_interval * 1000) {
+                        this.nativePlatform.updateMetrics(client);
+                        System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
+                        lastStatsTime = time;
+                    }
+                    SwingUtilities.invokeLater(() -> {
+                        //update ui stat
+                        systemLoadPanel.setCpuUsage(this.nativePlatform.getCpuUsage());
+                        systemLoadPanel.setMemoryUsage(this.nativePlatform.getMemoryUsage());
+                        systemLoadPanel.setSwapUsage(this.nativePlatform.getSwapUsage());
+                        systemLoadPanel.setTotalMemory(this.nativePlatform.getTotalMemory());
+                        systemLoadPanel.setUsedMemory(this.nativePlatform.getUsedMemory());
+                        systemLoadPanel.setTotalSwap(this.nativePlatform.getTotalSwap());
+                        systemLoadPanel.setUsedSwap(this.nativePlatform.getUsedSwap());
+                        systemLoadPanel.refreshUi();
                     });
+                    if (commandPending) {
+                        executeCommand();
+                    }
+                    if (time - lastPsTime > ps_interval * 1000) {
+                        this.nativePlatform.updateProcessList(client);
+                        lastPsTime = time;
+                    }
+                    SwingUtilities.invokeLater(() -> {
+                        //update ui ps
+                        processListPanel.setProcessList(this.nativePlatform.getProcessList());
+                    });
+                    Thread.sleep(1000);
                 }
 
             } catch (Exception e) {

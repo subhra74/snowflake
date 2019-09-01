@@ -18,7 +18,9 @@ public class PlatformChecker {
         while (exec.isConnected()) {
             Thread.sleep(500);
         }
+        int ret = exec.getExitStatus();
         exec.disconnect();
-        return new String(bout.toByteArray(), "utf-8");
+        if (ret != 0) throw new Exception("Error while running uname");
+        return new String(bout.toByteArray(), "utf-8").replace("\n", "");
     }
 }
