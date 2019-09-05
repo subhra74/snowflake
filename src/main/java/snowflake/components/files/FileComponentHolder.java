@@ -78,11 +78,17 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
         JPanel panelHolder = new JPanel(new BorderLayout());
-        tabs = new JTabbedPane(JTabbedPane.LEFT);
-        tabs.setFont(App.getFontAwesomeFont());
-        tabs.addTab("\uf114", fileBrowser);
-        tabs.addTab("\uf0f6", editor);
-        tabs.addTab("\uf022", logViewerComponent);
+        //tabs = new JTabbedPane(JTabbedPane.LEFT);
+        tabs = new JTabbedPane();
+        //tabs.setFont(App.getFontAwesomeFont());
+//        tabs.addTab("\uf114", fileBrowser);
+//        tabs.addTab("\uf0f6", editor);
+//        tabs.addTab("\uf022", logViewerComponent);
+
+        tabs.addTab("File browser", fileBrowser);
+        tabs.addTab("Text editor", editor);
+        tabs.addTab("Log viewer", logViewerComponent);
+
         panelHolder.add(tabs);
         contentPane.add(panelHolder);
     }
@@ -226,8 +232,9 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
                 PathUtils.getParent(fileInfo.getPath()), hashCode);
     }
 
-    public synchronized SshFileSystem getSshFileSystem() {
+    public SshFileSystem getSshFileSystem() {
         if (fs == null) {
+            System.out.println("Creating file system from thread "+Thread.currentThread().getName());
             fs = new SshFileSystem(source);
             try {
                 fs.connect();

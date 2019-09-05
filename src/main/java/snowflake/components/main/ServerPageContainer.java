@@ -88,8 +88,6 @@ public class ServerPageContainer implements PageContainer {
 
     @Override
     public Component getPageComponent() {
-
-
         return pageTitleBox;
     }
 

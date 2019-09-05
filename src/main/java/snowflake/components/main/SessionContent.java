@@ -51,12 +51,12 @@ public class SessionContent extends JPanel {
         topPanel.add(fileComponentHolder);
         JTabbedPane bottomTabs = new JTabbedPane();
         TerminalHolder th = new TerminalHolder(info);
-        JToolBar toolBar = new JToolBar();
+        //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
         btn.setMargin(new Insets(5, 5, 5, 5));
         btn.setFont(App.getFontAwesomeFont());
         btn.setText("\uf120");
-        toolBar.add(btn);
+        //toolBar.add(btn);
         btn.addActionListener(e -> {
             th.createNewTerminal();
         });
@@ -71,7 +71,7 @@ public class SessionContent extends JPanel {
 //        bottomTabs.setTabComponentAt(0, createTab("Terminal", false, "\uf120"));
 //        bottomTabs.setTabComponentAt(1, createTab("Transfers", false, "\uf0ec"));
 
-        add(toolBar, BorderLayout.NORTH);
+        //add(toolBar, BorderLayout.NORTH);
         verticalSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         verticalSplitter.setDividerSize(2);
         verticalSplitter.setResizeWeight(0.6);
