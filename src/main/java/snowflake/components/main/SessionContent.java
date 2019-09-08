@@ -1,6 +1,7 @@
 package snowflake.components.main;
 
 import snowflake.App;
+import snowflake.components.common.TabbedPanel;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
@@ -52,7 +53,7 @@ public class SessionContent extends JPanel {
         topPanel.setOpaque(false);
         this.fileComponentHolder = new FileComponentHolder(info, externalEditor);
         topPanel.add(fileComponentHolder);
-        JTabbedPane bottomTabs = new JTabbedPane();
+        TabbedPanel bottomTabs = new TabbedPanel();
         TerminalHolder th = new TerminalHolder(info);
         //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
@@ -69,6 +70,7 @@ public class SessionContent extends JPanel {
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
         bottomTabs.addTab("System load", new JPanel());
         bottomTabs.addTab("Process and port", new JPanel());
+        bottomTabs.setSelectedIndex(0);
 
 
 //        bottomTabs.setTabComponentAt(0, createTab("Terminal", false, "\uf120"));
@@ -78,7 +80,7 @@ public class SessionContent extends JPanel {
         verticalSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         verticalSplitter.setBackground(Color.RED);
         verticalSplitter.setOpaque(false);
-        verticalSplitter.setDividerSize(2);
+        verticalSplitter.setDividerSize(10);
         verticalSplitter.setResizeWeight(0.6);
         verticalSplitter.setBottomComponent(bottomTabs);
         add(verticalSplitter);

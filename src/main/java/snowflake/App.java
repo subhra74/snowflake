@@ -38,48 +38,48 @@ public class App {
         //UIManager.put("ScrollBar.thumbHeight", 8);
         //UIManager.put("ScrollBar:\"ScrollBar.button\".size", 5);
         //UIManager.put("Panel.background", new Color(245, 245, 245));
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//                g.setColor(Color.BLACK);
-//                g.fill(new Rectangle(0,0,width,height));
-//            }
-//        });
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//                g.setColor(Color.BLACK);
-//                g.fill(new Rectangle(0,0,width,height));
-//            }
-//        });
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//                g.setColor(Color.BLACK);
-//                g.fill(new Rectangle(0,0,width,height));
-//            }
-//        });
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//                g.setColor(Color.BLACK);
-//                g.fill(new Rectangle(0,0,width,height));
-//            }
-//        });
-//        UIManager.put("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//                g.setColor(Color.BLACK);
-//                g.fill(new Rectangle(0,0,width,height));
-//            }
-//        });
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//                g.setColor(Color.BLACK);
-//                g.fill(new Rectangle(0,0,width,height));
-//            }
-//        });
+        UIManager.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        UIManager.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        UIManager.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        UIManager.put("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
 //
 //        UIManager.put("ComboBox[Enabled].backgroundPainter", new Painter() {
 //            @Override
@@ -90,18 +90,14 @@ public class App {
 //        });
 
 
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//
-//            }
-//        });
-//        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
-//
-//            }
-//        });
+
+        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.WHITE);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
 
 
         config.put("temp.dir",
@@ -131,7 +127,6 @@ public class App {
 //        createSampleWindow();
 //        createSampleWindow1();
     }
-
 
 
     static JButton createFontAwesomeButton(String text, Color foreColor) {

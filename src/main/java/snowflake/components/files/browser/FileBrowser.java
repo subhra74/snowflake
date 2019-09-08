@@ -9,6 +9,7 @@ import snowflake.components.files.browser.ssh.SftpFileBrowserView;
 import snowflake.components.newsession.SessionInfo;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
 import java.util.*;
@@ -80,6 +81,9 @@ public class FileBrowser extends JPanel {
         JPanel leftPanelHolder = new JPanel(new BorderLayout());
         JPanel rightPanelHolder = new JPanel(new BorderLayout());
 
+        leftPanelHolder.setBorder(new EmptyBorder(10,0,0,0));
+        rightPanelHolder.setBorder(new EmptyBorder(10,0,0,0));
+
         leftPanelHolder.add(leftDropdown, BorderLayout.NORTH);
         rightPanelHolder.add(rightDropdown, BorderLayout.NORTH);
         leftPanelHolder.add(leftPanel);
@@ -87,7 +91,7 @@ public class FileBrowser extends JPanel {
 
         horizontalSplitter.setLeftComponent(leftPanelHolder);
         horizontalSplitter.setRightComponent(rightPanelHolder);
-        horizontalSplitter.setDividerSize(2);
+        horizontalSplitter.setDividerSize(10);
 
         add(horizontalSplitter);
 

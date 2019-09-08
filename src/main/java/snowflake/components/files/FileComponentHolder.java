@@ -83,7 +83,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
         JPanel panelHolder = new JPanel(new BorderLayout());
-        panelHolder.setOpaque(false);
+        panelHolder.setOpaque(true);
+        panelHolder.setBackground(new Color(240,240,240));
         //tabs = new JTabbedPane(JTabbedPane.LEFT);
         tabs = new TabbedPanel();
         //tabs.setFont(App.getFontAwesomeFont());

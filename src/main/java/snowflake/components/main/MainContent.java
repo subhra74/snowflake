@@ -134,18 +134,19 @@ import java.awt.*;
 
 
 public class MainContent extends JPanel {
-    private GradientPaint gradientPaint;
+    //private GradientPaint gradientPaint;
 
     public MainContent() {
         super(new BorderLayout());
-        gradientPaint = new GradientPaint(0.0f, 0.0f, new Color(230, 230, 230),
-                0.0f, 50.0f, new Color(180, 180, 180));
+//        gradientPaint = new GradientPaint(0.0f, 0.0f, new Color(200, 200, 200),
+//                0.0f, 50.0f, new Color(150, 150, 150));
         init();
     }
 
     private void init() {
         SessionContentPanel contentPanel = new SessionContentPanel();
-        contentPanel.setOpaque(false);
+        //contentPanel.setBackground(new Color(80,80,80));
+        contentPanel.setOpaque(true);
         add(contentPanel);
 
         DefaultComboBoxModel<SessionInfo> model = new DefaultComboBoxModel<>();
@@ -193,11 +194,11 @@ public class MainContent extends JPanel {
         add(topPanel, BorderLayout.NORTH);
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setPaint(gradientPaint);
-        g2.fillRect(0, 0, getWidth(), getHeight());
-    }
+//    @Override
+//    protected void paintComponent(Graphics g) {
+//        super.paintComponent(g);
+//        Graphics2D g2 = (Graphics2D) g;
+//        g2.setPaint(gradientPaint);
+//        g2.fillRect(0, 0, getWidth(), getHeight());
+//    }
 }
