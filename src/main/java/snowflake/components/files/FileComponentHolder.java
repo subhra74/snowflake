@@ -6,6 +6,7 @@ import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
+import snowflake.components.common.TabbedPanel;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
@@ -42,7 +43,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private JPanel disabledPanel;
     private FileTransfer fileTransfer;
     private TransferProgressPanel progressPanel;
-    private JTabbedPane tabs;
+    private TabbedPanel tabs;
     private FileBrowser fileBrowser;
     private SshFileSystem fs;
     private String tempFolder;
@@ -54,10 +55,13 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor) {
         super(new BorderLayout());
+        setOpaque(false);
         this.externalEditor = externalEditor;
         this.info = info;
         contentPane = new JPanel(new BorderLayout());
+        contentPane.setOpaque(false);
         rootPane = new JRootPane();
+        rootPane.setOpaque(false);
         rootPane.setContentPane(contentPane);
         add(rootPane);
         this.source = new SshUserInteraction(info, rootPane);
@@ -79,8 +83,9 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
         JPanel panelHolder = new JPanel(new BorderLayout());
+        panelHolder.setOpaque(false);
         //tabs = new JTabbedPane(JTabbedPane.LEFT);
-        tabs = new JTabbedPane();
+        tabs = new TabbedPanel();
         //tabs.setFont(App.getFontAwesomeFont());
 //        tabs.addTab("\uf114", fileBrowser);
 //        tabs.addTab("\uf0f6", editor);
@@ -89,6 +94,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         tabs.addTab("File browser", fileBrowser);
         tabs.addTab("Text editor", editor);
         tabs.addTab("Log viewer", logViewerComponent);
+        tabs.setSelectedIndex(0);
 
         panelHolder.add(tabs);
         contentPane.add(panelHolder);

@@ -16,6 +16,8 @@ public class SessionContent extends JPanel {
     private JSplitPane verticalSplitter, horizontalSplitter;
     private FileComponentHolder fileComponentHolder;
     private ExternalEditor externalEditor;
+
+
     //private FileStore fileStore;
 
     public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
@@ -25,28 +27,29 @@ public class SessionContent extends JPanel {
         init();
     }
 
-    Box createTab(String text, boolean closable, String icon) {
-        Box pan = Box.createHorizontalBox();
-
-        JLabel btn2 = new JLabel();
-        btn2.setFont(App.getFontAwesomeFont());
-        btn2.setText(icon);
-        pan.add(btn2);
-        pan.add(Box.createHorizontalStrut(5));
-        pan.add(new JLabel(text));
-        pan.add(Box.createHorizontalStrut(5));
-        if (closable) {
-            JLabel btn1 = new JLabel();
-            btn1.setFont(App.getFontAwesomeFont());
-            btn1.setText("\uf00d");
-            pan.add(btn1);
-        }
-        return pan;
-    }
+//    Box createTab(String text, boolean closable, String icon) {
+//        Box pan = Box.createHorizontalBox();
+//
+//        JLabel btn2 = new JLabel();
+//        btn2.setFont(App.getFontAwesomeFont());
+//        btn2.setText(icon);
+//        pan.add(btn2);
+//        pan.add(Box.createHorizontalStrut(5));
+//        pan.add(new JLabel(text));
+//        pan.add(Box.createHorizontalStrut(5));
+//        if (closable) {
+//            JLabel btn1 = new JLabel();
+//            btn1.setFont(App.getFontAwesomeFont());
+//            btn1.setText("\uf00d");
+//            pan.add(btn1);
+//        }
+//        return pan;
+//    }
 
 
     public void init() {
         JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
         this.fileComponentHolder = new FileComponentHolder(info, externalEditor);
         topPanel.add(fileComponentHolder);
         JTabbedPane bottomTabs = new JTabbedPane();
@@ -73,6 +76,8 @@ public class SessionContent extends JPanel {
 
         //add(toolBar, BorderLayout.NORTH);
         verticalSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        verticalSplitter.setBackground(Color.RED);
+        verticalSplitter.setOpaque(false);
         verticalSplitter.setDividerSize(2);
         verticalSplitter.setResizeWeight(0.6);
         verticalSplitter.setBottomComponent(bottomTabs);
@@ -83,4 +88,6 @@ public class SessionContent extends JPanel {
     public FileComponentHolder getFileComponentHolder() {
         return fileComponentHolder;
     }
+
+
 }

@@ -37,6 +37,7 @@ public class SessionContentPanel extends JPanel {
 
     public void addNewSession(SessionInfo info) {
         SessionContent content = new SessionContent(info, externalEditor);
+        content.setOpaque(false);
         componentHashMap.put(info.hashCode() + "", content);
         add(content, info.hashCode() + "");
     }

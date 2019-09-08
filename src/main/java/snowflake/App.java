@@ -32,7 +32,7 @@ public class App {
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
         System.out.println("Hello");
         UIManager.setLookAndFeel(new NimbusLookAndFeel());
-//        UIManager.put("control", new Color(11, 11, 11));
+        UIManager.put("control", Color.WHITE);
 //        UIManager.put("text", new Color(208, 208, 208));
 
         //UIManager.put("ScrollBar.thumbHeight", 8);
