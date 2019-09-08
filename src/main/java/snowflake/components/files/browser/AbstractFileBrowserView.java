@@ -24,8 +24,15 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     protected String path;
     protected FileComponentHolder holder;
 
-    public AbstractFileBrowserView(JRootPane rootPane, FileComponentHolder holder) {
+    protected PanelOrientation orientation;
+
+    public enum PanelOrientation {
+        Left, Right
+    }
+
+    public AbstractFileBrowserView(JRootPane rootPane, FileComponentHolder holder, PanelOrientation orientation) {
         super(new BorderLayout());
+        this.orientation = orientation;
         this.rootPane = rootPane;
         this.holder = holder;
         JPanel toolBar = new JPanel(new BorderLayout());
@@ -134,8 +141,10 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     protected abstract void home();
 
     public void reload() {
-        if (this.path != null) {
-            this.render(this.path);
-        }
+        this.render(this.path);
+    }
+
+    public PanelOrientation getOrientation() {
+        return orientation;
     }
 }

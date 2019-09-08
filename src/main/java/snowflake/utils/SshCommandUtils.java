@@ -3,17 +3,46 @@ package snowflake.utils;
 import com.jcraft.jsch.ChannelExec;
 import snowflake.common.FileInfo;
 import snowflake.common.ssh.SshClient;
+import snowflake.components.taskmgr.TaskManager;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import javax.swing.*;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 
 public class SshCommandUtils {
+
     public static final String SCRIPT_START_TAG = "#----------SCRIPT START----------#";
+
+    public static boolean exec(SshClient client, String command, AtomicBoolean stopFlag, StringBuilder output) {
+        try {
+            if (!client.isConnected()) {
+                client.connect();
+            }
+            ChannelExec exec = client.getExecChannel();
+            exec.setCommand(command.toString());
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            exec.setOutputStream(bout);
+            exec.setErrStream(bout);
+            exec.connect();
+            while (exec.isConnected()) {
+                if (stopFlag.get()) {
+                    exec.disconnect();
+                    break;
+                }
+                Thread.sleep(500);
+            }
+            output.append(bout.toByteArray());
+            return exec.getExitStatus() == 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public static final int executeCommand(SshClient wrapper, String command,
                                            boolean compressed, List<String> output) {

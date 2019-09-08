@@ -1,7 +1,6 @@
 package snowflake.components.files;
 
 import snowflake.common.FileInfo;
-import snowflake.components.newsession.SessionInfo;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -11,6 +10,14 @@ public class DndTransferData implements Serializable {
     private FileInfo[] files;
     private String currentDirectory;
     private int source;
+    private TransferAction transferAction = TransferAction.DragDrop;
+
+    public DndTransferData(int sessionHashcode, FileInfo[] files, String currentDirectory, int source) {
+        this.sessionHashcode = sessionHashcode;
+        this.files = files;
+        this.currentDirectory = currentDirectory;
+        this.source = source;
+    }
 
     @Override
     public String toString() {
@@ -19,13 +26,6 @@ public class DndTransferData implements Serializable {
                 ", files=" + Arrays.toString(files) +
                 ", currentDirectory='" + currentDirectory + '\'' +
                 '}';
-    }
-
-    public DndTransferData(int sessionHashcode, FileInfo[] files, String currentDirectory, int source) {
-        this.sessionHashcode = sessionHashcode;
-        this.files = files;
-        this.currentDirectory = currentDirectory;
-        this.source = source;
     }
 
     public int getInfo() {
@@ -58,5 +58,19 @@ public class DndTransferData implements Serializable {
 
     public void setSource(int source) {
         this.source = source;
+    }
+
+    public TransferAction getTransferAction() {
+        return transferAction;
+    }
+
+    public void setTransferAction(TransferAction transferAction) {
+        this.transferAction = transferAction;
+    }
+
+    public enum TransferAction {
+        DragDrop,
+        Cut,
+        Copy
     }
 }

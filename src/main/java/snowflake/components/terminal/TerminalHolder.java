@@ -11,7 +11,7 @@ public class TerminalHolder extends JPanel {
     private SessionInfo info;
     private DefaultComboBoxModel<TerminalComponent> terminals;
     private JComboBox<TerminalComponent> cmbTerminals;
-    private JButton btnStartTerm,btnStopTerm;
+    private JButton btnStartTerm, btnStopTerm;
     private CardLayout card;
     private JPanel content;
 
@@ -35,26 +35,26 @@ public class TerminalHolder extends JPanel {
         this.btnStopTerm = new JButton();
         this.btnStopTerm.setFont(App.getFontAwesomeFont());
         this.btnStopTerm.setText("\uf0c8");
-        this.btnStopTerm.setMargin(new Insets(3,3,3,3));
+        this.btnStopTerm.setMargin(new Insets(3, 3, 3, 3));
 
         this.btnStartTerm = new JButton();
         this.btnStartTerm.setFont(App.getFontAwesomeFont());
         this.btnStartTerm.setText("\uf0fe");
-        this.btnStartTerm.setMargin(new Insets(3,3,3,3));
+        this.btnStartTerm.setMargin(new Insets(3, 3, 3, 3));
         this.btnStartTerm.addActionListener(e -> {
             createNewTerminal();
         });
 
-        JToolBar b1=new JToolBar();
-        b1.setBorder(new EmptyBorder(1,2,4,2));
+        JToolBar b1 = new JToolBar();
+        b1.setBorder(new EmptyBorder(1, 2, 4, 2));
         b1.setFloatable(false);
         b1.add(Box.createRigidArea(new Dimension(10, 10)));
 //        JLabel lbl=new JLabel();
 //        lbl.setFont(App.getFontAwesomeFont());
 //        lbl.setText("\uf120");
 //        b1.add(lbl);
-        JLabel lblTerminal=new JLabel("Terminal");
-        lblTerminal.setFont(new Font(Font.DIALOG,Font.PLAIN,14));
+        JLabel lblTerminal = new JLabel("Terminal");
+        lblTerminal.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
         b1.add(lblTerminal);
         b1.add(Box.createHorizontalGlue());
         b1.add(cmbTerminals);
@@ -69,11 +69,15 @@ public class TerminalHolder extends JPanel {
     public void createNewTerminal() {
         TerminalComponent tc = new TerminalComponent(info, c + "");
         c++;
-        content.add(tc, tc.hashCode()+"");
+        content.add(tc, tc.hashCode() + "");
         terminals.addElement(tc);
     }
 
     public void removeTerminal() {
+
+    }
+
+    public void close() {
 
     }
 }

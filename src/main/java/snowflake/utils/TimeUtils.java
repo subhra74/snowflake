@@ -12,4 +12,8 @@ public class TimeUtils {
     public static final String formatDate(LocalDateTime dateTime) {
         return dateTime.format(DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a"));
     }
+
+    public static final long toEpochMilli(LocalDateTime dateTime) {
+        return dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
+    }
 }

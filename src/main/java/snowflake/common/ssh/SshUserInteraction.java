@@ -2,7 +2,6 @@ package snowflake.common.ssh;
 
 import com.jcraft.jsch.*;
 import snowflake.App;
-import snowflake.common.UserInteraction;
 import snowflake.components.newsession.SessionInfo;
 
 import java.awt.*;
@@ -15,7 +14,7 @@ import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
-public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, UserInteraction {
+public class SshUserInteraction implements UserInfo, UIKeyboardInteractive {
     private static Map<String, String> passwordMap = new ConcurrentHashMap<>();
     private static Map<String, String> passphraseMap = new ConcurrentHashMap<>();
     private SessionInfo info;
@@ -24,6 +23,7 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
     private static AtomicBoolean suppressMessage = new AtomicBoolean(false);
     private AtomicLong attempt = new AtomicLong(0);
     private JRootPane rootPane;
+    private JPanel panel;
 
     public SshUserInteraction(SessionInfo info, JRootPane rootPane) {
         this.info = info;
@@ -34,7 +34,7 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
         return this.info;
     }
 
-    private boolean showModal(List<JComponent> components, boolean yesNo, JRootPane root) {
+    private boolean showModal(List<JComponent> components, boolean yesNo) {
         JPanel panel = new JPanel();
         panel.addMouseListener(new MouseAdapter() {
             @Override
@@ -92,8 +92,11 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
         panel.setOpaque(false);
 
         SwingUtilities.invokeLater(() -> {
+            System.out.println("Root pane: "+rootPane);
+            rootPane.getGlassPane().setVisible(false);
             rootPane.setGlassPane(panel);
             panel.setVisible(true);
+            System.out.println("Prompt made visible");
         });
 
         synchronized (this) {
@@ -140,7 +143,7 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
             }
         }
 
-        if (showModal(list, true, rootPane)) {
+        if (showModal(list, true)) {
             List<String> responses = new ArrayList<>();
             for (Object obj : list) {
                 if (obj instanceof JPasswordField) {
@@ -182,7 +185,7 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
             list.add(jsp);
             list.add(chkHideWarn);
 
-            showModal(list, false, rootPane);
+            showModal(list, false);
 
             if (chkHideWarn.isSelected()) {
                 SshUserInteraction.suppressMessage.set(true);
@@ -198,7 +201,7 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
             return true;
         }
 
-        if (showModal(Arrays.asList(new JLabel(message)), true, rootPane)) {
+        if (showModal(Arrays.asList(new JLabel(message)), true)) {
             if (!SshUserInteraction.confirmYes.get()) {
                 SshUserInteraction.confirmYes.set(true);
             }
@@ -221,7 +224,9 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
         attempt.getAndIncrement();
         password.setText("");
 
-        if (showModal(Arrays.asList(new JLabel(message), password), true, rootPane)) {
+        System.out.println("Showing modal for password");
+
+        if (showModal(Arrays.asList(new JLabel(message), password), true)) {
             SshUserInteraction.setPreEnteredPassword(info.getId(),
                     new String(password.getPassword()));
             return true;
@@ -242,7 +247,7 @@ public class SshUserInteraction implements UserInfo, UIKeyboardInteractive, User
         attempt.getAndIncrement();
         password.setText("");
 
-        if (showModal(Arrays.asList(new JLabel(message), password), true, rootPane)) {
+        if (showModal(Arrays.asList(new JLabel(message), password), true)) {
             SshUserInteraction.setPreEnteredPassphrase(info.getId(),
                     new String(password.getPassword()));
             return true;

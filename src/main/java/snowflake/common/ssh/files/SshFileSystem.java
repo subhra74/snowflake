@@ -195,6 +195,7 @@ public class SshFileSystem implements FileSystem {
 
     @Override
     public synchronized String getHome() throws Exception {
+        System.out.println("Getting home directory");
         ensureConnected();
         return sftp.getHome();
     }

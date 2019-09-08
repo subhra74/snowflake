@@ -13,6 +13,7 @@ import snowflake.components.files.logviewer.LogViewerComponent;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
+import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 import snowflake.utils.PlatformAppLauncher;
@@ -30,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FileComponentHolder extends JPanel implements FileTransferProgress {
+public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource {
     private JRootPane rootPane;
     private JPanel contentPane;
     private SessionInfo info;
@@ -232,15 +233,11 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
                 PathUtils.getParent(fileInfo.getPath()), hashCode);
     }
 
-    public SshFileSystem getSshFileSystem() {
+    public SshFileSystem getSshFileSystem() throws Exception {
         if (fs == null) {
-            System.out.println("Creating file system from thread "+Thread.currentThread().getName());
+            System.out.println("Creating file system from thread " + Thread.currentThread().getName());
             fs = new SshFileSystem(source);
-            try {
-                fs.connect();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            fs.connect();
         }
         return fs;
     }
@@ -271,5 +268,26 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress 
 
     public String getTempFolder() {
         return this.tempFolder;
+    }
+
+    @Override
+    public boolean isInitiated() {
+        return true;
+    }
+
+    @Override
+    public boolean isConnected() {
+        return !(fs == null || fs.isConnected());
+    }
+
+    @Override
+    public void close() {
+        if (fs != null) {
+            try {
+                fs.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }

@@ -1,17 +1,26 @@
 package snowflake.components.files.browser.ssh;
 
+import org.jetbrains.annotations.NotNull;
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
+import snowflake.components.files.DndTransferData;
+import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -79,36 +88,16 @@ public class SshMenuHandler {
         mOpen.setAccelerator(ksOpen);
 
         mOpenWithDefApp = new JMenuItem("Default application");
-        mOpenWithDefApp.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openDefaultApp();
-            }
-        });
+        mOpenWithDefApp.addActionListener(e -> openDefaultApp());
 
         mOpenWthInternalEdit = new JMenuItem("Internal editor");
-        mOpenWthInternalEdit.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openWithInternalEditor();
-            }
-        });
+        mOpenWthInternalEdit.addActionListener(e -> openWithInternalEditor());
 
         mOpenWithCustom = new JMenuItem("Default editor");
-        mOpenWithCustom.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openDefaultEditor();
-            }
-        });
+        mOpenWithCustom.addActionListener(e -> openDefaultEditor());
 
         mOpenWithLogView = new JMenuItem("Log viewer");
-        mOpenWithLogView.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                openLogViewer();
-            }
-        });
+        mOpenWithLogView.addActionListener(e -> openLogViewer());
 
         mOpenWith = new JMenu("Open with");
         mOpenWith.add(mOpenWithDefApp);
@@ -176,7 +165,7 @@ public class SshMenuHandler {
         aCopy = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //copyToClipboard(false);
+                copyToClipboard(false);
             }
         };
         mCopy = new JMenuItem("Copy");
@@ -189,7 +178,7 @@ public class SshMenuHandler {
         aCopyPath = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //copyPathToClipboard();
+                copyPathToClipboard();
             }
         };
         mCopyPath = new JMenuItem("Copy path");
@@ -202,13 +191,7 @@ public class SshMenuHandler {
         aPaste = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                if (AppClipboard.getContent() instanceof TransferFileInfo) {
-//                    TransferFileInfo info = (TransferFileInfo) AppClipboard.getContent();
-//                    remoteFolderView.pasteItem(info, folderView);
-//                    if (info.getAction() == Action.CUT) {
-//                        AppClipboard.setContent(null);
-//                    }
-//                }
+                handlePaste();
             }
         };
         mPaste = new JMenuItem("Paste");
@@ -270,6 +253,50 @@ public class SshMenuHandler {
         mCreateLink.setAccelerator(ksCreateLink);
     }
 
+    private void copyToClipboard(boolean cut) {
+        FileInfo[] selectedFiles = folderView.getSelectedFiles();
+        DndTransferData transferData = new DndTransferData(holder.getInfo().hashCode(), selectedFiles, fileBrowserView.getCurrentDirectory(), fileBrowserView.hashCode());
+        transferData.setTransferAction(cut ? DndTransferData.TransferAction.Cut : DndTransferData.TransferAction.Copy);
+
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new Transferable() {
+            @Override
+            public DataFlavor[] getTransferDataFlavors() {
+                return new DataFlavor[]{DndTransferHandler.DATA_FLAVOR};
+            }
+
+            @Override
+            public boolean isDataFlavorSupported(DataFlavor flavor) {
+                if (flavor.equals(DndTransferHandler.DATA_FLAVOR)) {
+                    return true;
+                }
+                return false;
+            }
+
+            @Override
+            public Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException, IOException {
+                return transferData;
+            }
+        }, (a, b) -> {
+        });
+    }
+
+    private void copyPathToClipboard() {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (FileInfo f : folderView.getSelectedFiles()) {
+            if (!first) {
+                sb.append("\n");
+            }
+            sb.append(f.getPath());
+            if (first) {
+                first = false;
+            }
+        }
+        if (sb.length() > 0) {
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(sb.toString()), null);
+        }
+    }
+
     private void openLogViewer() {
         holder.openWithLogViewer(folderView.getSelectedFiles()[0]);
     }
@@ -283,12 +310,12 @@ public class SshMenuHandler {
         popup.removeAll();
         int selectionCount = files.length;
         int count = 0;
-        count += createBuitinItems1(selectionCount, popup, files);
-        count += createBuitinItems2(selectionCount, popup, files);
+        count += createBuiltInItems1(selectionCount, popup, files);
+        count += createBuiltInItems2(selectionCount, popup, files);
         return count > 0;
     }
 
-    private int createBuitinItems1(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
+    private int createBuiltInItems1(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
         int count = 0;
         if (selectionCount == 1) {
             if (selectedFiles[0].getType() == FileType.Directory
@@ -313,9 +340,9 @@ public class SshMenuHandler {
             count += 3;
         }
 
-//        if (AppClipboard.getContent() instanceof TransferFileInfo) {
-//            popup.add(mPaste);
-//        }
+        if (hasSupportedContentOnClipboard()) {
+            popup.add(mPaste);
+        }
 
         if (selectionCount == 1) {
             popup.add(mRename);
@@ -325,7 +352,7 @@ public class SshMenuHandler {
         return count;
     }
 
-    private int createBuitinItems2(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
+    private int createBuiltInItems2(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
         int count = 0;
         if (selectionCount > 0) {
             popup.add(mDelete);
@@ -381,7 +408,7 @@ public class SshMenuHandler {
         if (files.length == 1) {
             FileInfo file = files[0];
             if (file.getType() == FileType.Directory || file.getType() == FileType.DirLink) {
-                fileBrowser.openSftpFileBrowserView(file.getPath());
+                fileBrowser.openSftpFileBrowserView(file.getPath(), this.fileBrowserView.getOrientation());
             }
         }
     }
@@ -397,9 +424,14 @@ public class SshMenuHandler {
     private void renameAsync(String oldName, String newName, String baseFolder) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            if (fileOperations.rename(oldName, newName, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
-                fileBrowserView.render(baseFolder);
-            } else {
+            try {
+                if (fileOperations.rename(oldName, newName, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
+                    fileBrowserView.render(baseFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
                 fileBrowser.enableUi();
             }
         });
@@ -408,44 +440,68 @@ public class SshMenuHandler {
     private void delete(FileInfo[] targetList, String baseFolder) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            if (fileOperations.delete(targetList, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
-                fileBrowserView.render(baseFolder);
-            } else {
+            try{
+                if (fileOperations.delete(targetList, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
+                    fileBrowserView.render(baseFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
                 fileBrowser.enableUi();
             }
+
         });
     }
 
     public void newFile(String baseFolder, FileInfo[] files) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            if (fileOperations.newFile(files, fileBrowserView.getFileSystem(), baseFolder, fileBrowserView.getSshClient())) {
-                fileBrowserView.render(baseFolder);
-            } else {
+            try{
+                if (fileOperations.newFile(files, fileBrowserView.getFileSystem(), baseFolder, fileBrowserView.getSshClient())) {
+                    fileBrowserView.render(baseFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
                 fileBrowser.enableUi();
             }
+
         });
     }
 
     public void newFolder(String baseFolder, FileInfo[] files) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            if (fileOperations.newFolder(files, baseFolder, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
-                fileBrowserView.render(baseFolder);
-            } else {
+            try{
+                if (fileOperations.newFolder(files, baseFolder, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
+                    fileBrowserView.render(baseFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
                 fileBrowser.enableUi();
             }
+
         });
     }
 
     public void createLink(String baseFolder, FileInfo[] files) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            if (fileOperations.createLink(files, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
-                fileBrowserView.render(baseFolder);
-            } else {
+            try{
+                if (fileOperations.createLink(files, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
+                    fileBrowserView.render(baseFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
                 fileBrowser.enableUi();
             }
+
         });
     }
 
@@ -457,5 +513,53 @@ public class SshMenuHandler {
     public void openDefaultEditor() {
         FileInfo fileInfo = folderView.getSelectedFiles()[0];
         holder.openWithDefaultEditor(fileInfo);
+    }
+
+    private void handlePaste() {
+        if (Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DndTransferHandler.DATA_FLAVOR)) {
+            try {
+                DndTransferData transferData = (DndTransferData) Toolkit.getDefaultToolkit().getSystemClipboard().getData(DndTransferHandler.DATA_FLAVOR);
+//                for(DataFlavor df:Toolkit.getDefaultToolkit().getSystemClipboard().getAvailableDataFlavors()){
+//                    Object obj=Toolkit.getDefaultToolkit().getSystemClipboard().getData(df);
+//                    System.out.println(obj);
+//                }
+                if (transferData != null) {
+                    fileBrowserView.handleDrop(transferData);
+                }
+            } catch (UnsupportedFlavorException e1) {
+                e1.printStackTrace();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } else {
+            DataFlavor[] flavors = Toolkit.getDefaultToolkit().getSystemClipboard().getAvailableDataFlavors();
+            for (DataFlavor flavor : flavors) {
+                if (flavor.isFlavorJavaFileListType()) {
+
+                }
+            }
+        }
+    }
+
+    private boolean hasSupportedContentOnClipboard() {
+        boolean ret = (Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DndTransferHandler.DATA_FLAVOR) ||
+                Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DataFlavor.javaFileListFlavor));
+        if (!ret) System.out.println("Nothing on clipboard");
+        return ret;
+    }
+
+    public void copy(List<FileInfo> files, String targetFolder) {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            try {
+                if (fileOperations.copyTo(fileBrowserView.getSshClient(), files, targetFolder, fileBrowserView.getFileSystem())) {
+                    fileBrowserView.render(targetFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

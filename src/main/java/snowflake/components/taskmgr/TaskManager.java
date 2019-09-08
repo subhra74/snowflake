@@ -2,16 +2,19 @@ package snowflake.components.taskmgr;
 
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
+import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.taskmgr.plaformsupport.LinuxPlatformSupport;
 import snowflake.components.taskmgr.plaformsupport.PlatformSupport;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TaskManager extends JPanel {
+public class TaskManager extends JPanel implements ConnectedResource {
     private JRootPane rootPane;
     private JPanel contentPane;
     private SshUserInteraction userInteraction;
@@ -22,14 +25,15 @@ public class TaskManager extends JPanel {
     private int stats_interval = 2, ps_interval = 5;
     private SystemLoadPanel systemLoadPanel;
     private ProcessListPanel processListPanel;
+    private AtomicBoolean running = new AtomicBoolean(false);
 
     public TaskManager(SessionInfo info) {
         setLayout(new BorderLayout());
-        userInteraction = new SshUserInteraction(info, rootPane);
         contentPane = new JPanel(new BorderLayout());
         rootPane = new JRootPane();
         rootPane.setContentPane(contentPane);
         add(rootPane);
+        userInteraction = new SshUserInteraction(info, rootPane);
         client = new SshClient(userInteraction);
         systemLoadPanel = new SystemLoadPanel();
         processListPanel = new ProcessListPanel();
@@ -43,6 +47,7 @@ public class TaskManager extends JPanel {
     }
 
     private void init() {
+        running.set(true);
         executorService.submit(() -> {
             try {
                 if (!client.isConnected()) {
@@ -68,7 +73,7 @@ public class TaskManager extends JPanel {
                     long time = System.currentTimeMillis();
                     if (time - lastStatsTime > stats_interval * 1000) {
                         this.nativePlatform.updateMetrics(client);
-                        System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
+                        // System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
                         lastStatsTime = time;
                     }
                     SwingUtilities.invokeLater(() -> {
@@ -100,5 +105,24 @@ public class TaskManager extends JPanel {
                 e.printStackTrace();
             }
         });
+    }
+
+    @Override
+    public boolean isInitiated() {
+        return running.get();
+    }
+
+    @Override
+    public boolean isConnected() {
+        return !(client == null || client.isConnected());
+    }
+
+    @Override
+    public void close() {
+        try {
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

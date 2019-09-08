@@ -53,6 +53,7 @@ public class FileBrowser extends JPanel {
         rightDropdown = new JComboBox<>(rightList);
 
         leftDropdown.addItemListener(e -> {
+            System.out.println("Left drop down changed");
             int index = leftDropdown.getSelectedIndex();
             if (index != -1) {
                 Object obj = leftList.getElementAt(index);
@@ -60,6 +61,18 @@ public class FileBrowser extends JPanel {
 
                 } else {
                     leftCard.show(leftPanel, obj.hashCode() + "");
+                }
+            }
+        });
+
+        rightDropdown.addItemListener(e -> {
+            int index = rightDropdown.getSelectedIndex();
+            if (index != -1) {
+                Object obj = rightList.getElementAt(index);
+                if (obj instanceof String) {
+
+                } else {
+                    rightCard.show(rightPanel, obj.hashCode() + "");
                 }
             }
         });
@@ -78,13 +91,15 @@ public class FileBrowser extends JPanel {
 
         add(horizontalSplitter);
 
-        SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder);
+        SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder,
+                null, AbstractFileBrowserView.PanelOrientation.Left);
         leftList.addElement(fv1);
         leftDropdown.setSelectedIndex(1);
         leftPanel.add(fv1, fv1.hashCode() + "");
         leftCard.show(leftPanel, fv1.hashCode() + "");
 
-        LocalFileBrowserView fv2 = new LocalFileBrowserView(this, rootPane, holder);
+        LocalFileBrowserView fv2 = new LocalFileBrowserView(this, rootPane, holder,
+                null, AbstractFileBrowserView.PanelOrientation.Right);
         rightList.addElement(fv2);
         rightDropdown.setSelectedIndex(1);
         rightPanel.add(fv2, fv2.hashCode() + "");
@@ -107,20 +122,32 @@ public class FileBrowser extends JPanel {
         holder.enableUi();
     }
 
-    public void openSftpFileBrowserView(String path) {
-        SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder);
-        leftList.addElement(fv1);
-        leftDropdown.setSelectedIndex(1);
-        leftPanel.add(fv1, fv1.hashCode() + "");
-        leftCard.show(leftPanel, fv1.hashCode() + "");
+    public void openSftpFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
+        SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder, path, orientation);
+        int c = orientation == AbstractFileBrowserView.PanelOrientation.Right ? rightList.getSize() : leftList.getSize();
+        if (orientation == AbstractFileBrowserView.PanelOrientation.Right) {
+            rightList.addElement(fv1);
+            rightPanel.add(fv1, fv1.hashCode() + "");
+            rightDropdown.setSelectedIndex(c);
+        } else {
+            leftList.addElement(fv1);
+            leftPanel.add(fv1, fv1.hashCode() + "");
+            leftDropdown.setSelectedIndex(c);
+        }
     }
 
-    public void openLocalFileBrowserView(String path) {
-        LocalFileBrowserView fv2 = new LocalFileBrowserView(this, rootPane, holder);
-        rightList.addElement(fv2);
-        rightDropdown.setSelectedIndex(1);
-        rightPanel.add(fv2, fv2.hashCode() + "");
-        rightCard.show(rightPanel, fv2.hashCode() + "");
+    public void openLocalFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
+        int c = orientation == AbstractFileBrowserView.PanelOrientation.Right ? rightList.getSize() : leftList.getSize();
+        LocalFileBrowserView fv1 = new LocalFileBrowserView(this, rootPane, holder, path, orientation);
+        if (orientation == AbstractFileBrowserView.PanelOrientation.Right) {
+            rightList.addElement(fv1);
+            rightPanel.add(fv1, fv1.hashCode() + "");
+            rightDropdown.setSelectedIndex(c);
+        } else {
+            leftList.addElement(fv1);
+            leftPanel.add(fv1, fv1.hashCode() + "");
+            leftDropdown.setSelectedIndex(c);
+        }
     }
 
     public void newFileTransfer(FileSystem sourceFs,

@@ -2,15 +2,39 @@ package snowflake.components.files.browser.local;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
+import snowflake.common.local.files.LocalFileSystem;
+import snowflake.components.files.FileComponentHolder;
+import snowflake.components.files.browser.FileBrowser;
+import snowflake.components.files.browser.folderview.FolderView;
+import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class LocalMenuHandler {
     private JMenuItem mOpen, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav;
 
-    public void initMenuHandler(JComponent folderView) {
+    private ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    private FileBrowser fileBrowser;
+    private FolderView folderView;
+    private LocalFileOperations fileOperations;
+    private LocalFileBrowserView fileBrowserView;
+    private FileComponentHolder holder;
+
+    public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView, FileComponentHolder holder) {
+        this.fileBrowser = fileBrowser;
+        this.holder = holder;
+        this.fileOperations = new LocalFileOperations();
+        this.fileBrowserView = fileBrowserView;
+    }
+
+
+    public void initMenuHandler(FolderView folderView) {
+        this.folderView = folderView;
         InputMap map = folderView.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         ActionMap act = folderView.getActionMap();
         this.initMenuItems();
@@ -21,7 +45,7 @@ public class LocalMenuHandler {
         mOpen.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //openNewTab();
+                openNewTab();
             }
         });
 
@@ -29,7 +53,7 @@ public class LocalMenuHandler {
         mRename.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //rename(folderView.getSelectedFiles()[0]);
+                rename(folderView.getSelectedFiles()[0], fileBrowserView.getCurrentDirectory());
             }
         });
 
@@ -37,7 +61,7 @@ public class LocalMenuHandler {
         mDelete.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //delete(folderView.getSelectedFiles());
+                delete(folderView.getSelectedFiles());
             }
         });
 
@@ -45,7 +69,7 @@ public class LocalMenuHandler {
         mNewFile.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//				newFile();
+                newFile();
             }
         });
 
@@ -53,7 +77,7 @@ public class LocalMenuHandler {
         mNewFolder.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //newFolder(folderView.getCurrentPath());
+                newFolder(fileBrowserView.getCurrentDirectory());
             }
         });
 
@@ -96,6 +120,7 @@ public class LocalMenuHandler {
         });
     }
 
+
     public void createMenu(JPopupMenu popup, FileInfo[] selectedFiles) {
         createMenuContext(popup, selectedFiles);
     }
@@ -103,11 +128,11 @@ public class LocalMenuHandler {
     private void createMenuContext(JPopupMenu popup, FileInfo[] files) {
         popup.removeAll();
         int selectionCount = files.length;
-        createBuitinItems1(selectionCount, popup,files);
+        createBuitinItems1(selectionCount, popup, files);
         createBuitinItems2(selectionCount, popup);
     }
 
-    private void createBuitinItems1(int selectionCount, JPopupMenu popup,FileInfo[] selectedFiles) {
+    private void createBuitinItems1(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
         if (selectedFiles[0].getType() == FileType.Directory
                 || selectedFiles[0].getType() == FileType.DirLink) {
             popup.add(mOpen);
@@ -117,10 +142,10 @@ public class LocalMenuHandler {
             popup.add(mRename);
         }
 
-        if (selectionCount > 0) {
-            popup.add(mCopy);
-            popup.add(mCut);
-        }
+//        if (selectionCount > 0) {
+//            popup.add(mCopy);
+//            popup.add(mCut);
+//        }
     }
 
     private void createBuitinItems2(int selectionCount, JPopupMenu popup) {
@@ -128,5 +153,72 @@ public class LocalMenuHandler {
         popup.add(mNewFile);
         // check only if folder is selected
         popup.add(mAddToFav);
+    }
+
+    private void openNewTab() {
+        FileInfo files[] = folderView.getSelectedFiles();
+        if (files.length == 1) {
+            FileInfo file = files[0];
+            if (file.getType() == FileType.Directory || file.getType() == FileType.DirLink) {
+                fileBrowser.openLocalFileBrowserView(file.getPath(), this.fileBrowserView.getOrientation());
+            }
+        }
+    }
+
+    private void rename(FileInfo info, String baseFolder) {
+        String text = JOptionPane
+                .showInputDialog("Please enter new name", info.getName());
+        if (text != null && text.length() > 0) {
+            renameAsync(info.getPath(), PathUtils.combineUnix(PathUtils.getParent(info.getPath()), text), baseFolder);
+        }
+    }
+
+    private void renameAsync(String oldName, String newName, String baseFolder) {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            if (fileOperations.rename(oldName, newName)) {
+                fileBrowserView.render(baseFolder);
+            } else {
+                fileBrowser.enableUi();
+            }
+        });
+    }
+
+    private void delete(FileInfo[] selectedFiles) {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            for (FileInfo f : selectedFiles) {
+                try {
+                    new LocalFileSystem().delete(f);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            fileBrowser.enableUi();
+        });
+    }
+
+    private void newFile() {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            String baseFolder = fileBrowserView.getCurrentDirectory();
+            if (fileOperations.newFile(baseFolder)) {
+                fileBrowserView.render(baseFolder);
+            } else {
+                fileBrowser.enableUi();
+            }
+        });
+    }
+
+    private void newFolder(String currentDirectory) {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            String baseFolder = currentDirectory;
+            if (fileOperations.newFile(baseFolder)) {
+                fileBrowserView.render(baseFolder);
+            } else {
+                fileBrowser.enableUi();
+            }
+        });
     }
 }

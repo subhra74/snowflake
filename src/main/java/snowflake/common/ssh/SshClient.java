@@ -25,19 +25,19 @@ public class SshClient implements Closeable {
         return session.isConnected();
     }
 
-    public int connectWithReturn() {
-        try {
-            connect();
-            return 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            try {
-                disconnect();
-            } catch (Exception e2) {
-            }
-            return 1;
-        }
-    }
+//    public int connectWithReturn() {
+//        try {
+//            connect();
+//            return 0;
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            try {
+//                disconnect();
+//            } catch (Exception e2) {
+//            }
+//            return 1;
+//        }
+//    }
 
     @Override
     public String toString() {

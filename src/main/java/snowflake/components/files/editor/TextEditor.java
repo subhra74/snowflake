@@ -263,6 +263,7 @@ public class TextEditor extends JPanel {
     }
 
     private void createNewTab(FileInfo fileInfo, StringBuilder sb, String tempFile) {
+        int index = tabs.getTabCount();
         EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile);
         JPanel pan = new JPanel(new BorderLayout());
         pan.add(new JLabel(fileInfo.getName()));
@@ -282,6 +283,7 @@ public class TextEditor extends JPanel {
         tabs.addTab(null, tab);
         tabs.setTabComponentAt(count, pan);
         tabSet.add(tab);
+        tabs.setSelectedIndex(index);
     }
 
     public void openRemoteFile(FileInfo fileInfo, String tempFile) {

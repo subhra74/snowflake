@@ -1,6 +1,5 @@
 package snowflake.components.files;
 
-import snowflake.common.FileSystem;
 import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.components.newsession.SessionInfo;
@@ -19,7 +18,7 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
     private AbstractFileBrowserView fileBrowserView;
     private DndTransferData transferData;
 
-    private final DataFlavor flavor = new DataFlavor(DndTransferData.class,
+    public static final DataFlavor DATA_FLAVOR = new DataFlavor(DndTransferData.class,
             "data-file");
 
     public DndTransferHandler(FolderView folderView, SessionInfo info, AbstractFileBrowserView fileBrowserView) {
@@ -47,9 +46,9 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
         }
 
         try {
-            if (support.isDataFlavorSupported(flavor)) {
+            if (support.isDataFlavorSupported(DATA_FLAVOR)) {
                 return (support
-                        .getTransferable().getTransferData(flavor) instanceof DndTransferData);
+                        .getTransferable().getTransferData(DATA_FLAVOR) instanceof DndTransferData);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -76,9 +75,9 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
         for (DataFlavor f : t.getTransferDataFlavors()) {
             if (f.isFlavorJavaFileListType()) {
 
-            } else if (f.equals(flavor)) {
+            } else if (f.equals(DATA_FLAVOR)) {
                 try {
-                    DndTransferData transferData = (DndTransferData) t.getTransferData(flavor);
+                    DndTransferData transferData = (DndTransferData) t.getTransferData(DATA_FLAVOR);
                     this.fileBrowserView.handleDrop(transferData);
                 } catch (UnsupportedFlavorException e) {
                     e.printStackTrace();
@@ -92,7 +91,7 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
 
     @Override
     public DataFlavor[] getTransferDataFlavors() {
-        return new DataFlavor[]{flavor};
+        return new DataFlavor[]{DATA_FLAVOR};
     }
 
     @Override

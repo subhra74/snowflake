@@ -25,19 +25,23 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     private LocalFileSystem fs;
 
     public LocalFileBrowserView(FileBrowser fileBrowser,
-                                JRootPane rootPane, FileComponentHolder holder) {
-        super(rootPane, holder);
+                                JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
+        super(rootPane, holder, orientation);
         this.fileBrowser = fileBrowser;
-        this.menuHandler = new LocalMenuHandler();
+        this.menuHandler = new LocalMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);
         this.transferHandler = new DndTransferHandler(this.folderView, null, this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
+        if (initialPath != null) {
+            this.path = initialPath;
+        }
         executor.submit(() -> {
             try {
                 this.fs = new LocalFileSystem();
-                path = fs.getHome();
-
+                if (this.path == null) {
+                    path = fs.getHome();
+                }
                 List<FileInfo> list = fs.list(path);
                 SwingUtilities.invokeLater(() -> {
                     addressBar.setText(path);
@@ -72,6 +76,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     public void render(String path) {
         this.path = path;
         executor.submit(() -> {
+            fileBrowser.disableUi();
             try {
                 if (this.path == null) {
                     this.path = fs.getHome();
@@ -84,6 +89,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            fileBrowser.enableUi();
         });
     }
 
@@ -117,18 +123,24 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     }
 
     public boolean handleDrop(DndTransferData transferData) {
-        System.out.println("Dropped: " + transferData);
-        int sessionHashCode = transferData.getInfo();
-        if (sessionHashCode == 0) return true;
-        SessionInfo info = holder.getInfo();
-        if (info != null && info.hashCode() == sessionHashCode) {
-            FileSystem sourceFs = holder.getSshFileSystem();
-            if (sourceFs == null) {
-                return false;
+        try {
+            System.out.println("Dropped: " + transferData);
+            int sessionHashCode = transferData.getInfo();
+            if (sessionHashCode == 0) return true;
+            SessionInfo info = holder.getInfo();
+            if (info != null && info.hashCode() == sessionHashCode) {
+                FileSystem sourceFs = holder.getSshFileSystem();
+                if (sourceFs == null) {
+                    return false;
+                }
+                FileSystem targetFs = this.fs;
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
             }
-            FileSystem targetFs = this.fs;
-            holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        return true;
+
     }
 }

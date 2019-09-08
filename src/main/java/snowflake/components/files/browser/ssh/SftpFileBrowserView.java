@@ -5,15 +5,22 @@ import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.files.SshFileSystem;
-import snowflake.components.files.*;
+import snowflake.components.files.DndTransferData;
+import snowflake.components.files.DndTransferHandler;
+import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.AddressBar;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.utils.PathUtils;
+import snowflake.utils.TimeUtils;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,18 +29,24 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private SshMenuHandler menuHandler;
     private FileBrowser fileBrowser;
+
     private DndTransferHandler transferHandler;
 
     public SftpFileBrowserView(FileBrowser fileBrowser,
-                               JRootPane rootPane, FileComponentHolder holder) {
-        super(rootPane, holder);
+                               JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
+        super(rootPane, holder, orientation);
         this.fileBrowser = fileBrowser;
         this.menuHandler = new SshMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);
         this.transferHandler = new DndTransferHandler(this.folderView, holder.getInfo(), this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
-        this.path = holder.getInfo().getRemoteFolder();
+        if (initialPath == null) {
+            this.path = holder.getInfo().getRemoteFolder();
+        } else {
+            this.path = initialPath;
+        }
+
         this.render(path);
     }
 
@@ -104,6 +117,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public void render(String path) {
+        System.out.println("Rendering: " + path);
         this.path = path;
         executor.submit(() -> {
             this.fileBrowser.disableUi();
@@ -115,6 +129,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
                     renderDirectory(this.path);
                     break;
                 } catch (Exception e) {
+                    System.out.println("Exception caught in sftp file browser");
                     e.printStackTrace();
                     if (JOptionPane.showConfirmDialog(null,
                             "Unable to connect to server " + holder.getInfo().getName() + " at " + holder.getInfo().getHost() +
@@ -133,11 +148,12 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     }
 
-
     protected void up() {
-        String parent = PathUtils.getParent(path);
-        addBack(path);
-        render(parent);
+        if (path != null) {
+            String parent = PathUtils.getParent(path);
+            addBack(path);
+            render(parent);
+        }
     }
 
     protected void home() {
@@ -152,28 +168,51 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public boolean createMenu(JPopupMenu popup, FileInfo[] files) {
+        if (this.path == null) {
+            return false;
+        }
         return menuHandler.createMenu(popup, files);
     }
 
     public boolean handleDrop(DndTransferData transferData) {
-        System.out.println("Dropped: " + transferData);
-        int sessionHashCode = transferData.getInfo();
-        FileSystem sourceFs = null;
-        if (sessionHashCode == 0) {
-            sourceFs = new LocalFileSystem();
+        try {
+            System.out.println("Dropped: " + transferData);
+            int sessionHashCode = transferData.getInfo();
+            FileSystem sourceFs = null;
+            if (sessionHashCode == 0) {
+                sourceFs = new LocalFileSystem();
+            } else if (sessionHashCode == holder.getInfo().hashCode()) {
+                sourceFs = holder.getSshFileSystem();
+            }
+            if (sourceFs instanceof LocalFileSystem) {
+                FileSystem targetFs = holder.getSshFileSystem();
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
+            } else if (sourceFs instanceof SshFileSystem) {
+                if (transferData.getTransferAction() == DndTransferData.TransferAction.Cut) {
+                    //rename or move files
+                } else if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
+                    menuHandler.copy(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
+                }
+            }
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
-        if (sourceFs instanceof LocalFileSystem) {
-            FileSystem targetFs = holder.getSshFileSystem();
-            holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
-        }
-        return true;
+
     }
 
-    public FileSystem getFileSystem() {
+    public FileSystem getFileSystem() throws Exception {
         return this.holder.getSshFileSystem();
     }
 
-    public SshClient getSshClient() {
+    public SshClient getSshClient() throws Exception {
         return ((SshFileSystem) this.holder.getSshFileSystem()).getWrapper();
     }
+
+    @Override
+    public TransferHandler getTransferHandler() {
+        return transferHandler;
+    }
+
 }
