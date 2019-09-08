@@ -13,6 +13,9 @@ public class MainContent extends JPanel {
         super(new BorderLayout());
         init();
     }
+private JButton createNewButton(){
+        JButton btn=new JButton();
+}
 
     private void init() {
         SessionContentPanel contentPanel = new SessionContentPanel();
@@ -21,8 +24,8 @@ public class MainContent extends JPanel {
         DefaultComboBoxModel<SessionInfo> model = new DefaultComboBoxModel<>();
         Box topPanel = Box.createHorizontalBox();
         topPanel.setOpaque(true);
-        topPanel.setBackground(new Color(200, 200, 200));
-        topPanel.setBorder(new EmptyBorder(5,5,5,5));
+        topPanel.setBackground(new Color(36, 41, 46));
+        topPanel.add(Box.createRigidArea(new Dimension(0,40)));
         JButton newConnection = new JButton("New connection");
         newConnection.addActionListener(e -> {
             SessionInfo info = new NewSessionDlg().newSession();
