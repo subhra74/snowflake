@@ -125,6 +125,7 @@
 
 package snowflake.components.main;
 
+import snowflake.App;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
 
@@ -168,6 +169,7 @@ public class MainContent extends JPanel {
         topPanel.add(newConnection);
         topPanel.add(Box.createHorizontalGlue());
         JComboBox<SessionInfo> cmb = new JComboBox<>(model);
+        cmb.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
         cmb.addItemListener(e -> {
             int index = cmb.getSelectedIndex();
             if (index >= 0) {

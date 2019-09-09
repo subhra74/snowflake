@@ -65,28 +65,33 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         };
 
         JButton btnBack = new JButton();
+        btnBack.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnBack.setFont(App.getFontAwesomeFont());
         btnBack.setText("\uf104");
         smallToolbar.add(btnBack);
 
         JButton btnNext = new JButton();
+        btnNext.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnNext.setFont(App.getFontAwesomeFont());
         btnNext.setText("\uf105");
         smallToolbar.add(btnNext);
 
         JButton btnHome = new JButton();
+        btnHome.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnHome.setFont(App.getFontAwesomeFont());
         btnHome.setText("\uf015");
         btnHome.addActionListener(e -> home());
         smallToolbar.add(btnHome);
 
         JButton btnUp = new JButton();
+        btnUp.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnUp.addActionListener(upAction);
         btnUp.setFont(App.getFontAwesomeFont());
         btnUp.setText("\uf062");
         smallToolbar.add(btnUp);
 
         JButton btnReload = new JButton();
+        btnReload.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnReload.addActionListener(reloadAction);
         btnReload.setFont(App.getFontAwesomeFont());
         btnReload.setText("\uf021");

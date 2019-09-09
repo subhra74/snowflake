@@ -131,7 +131,7 @@ public class AddressBreadCrumbView extends JComponent {
         // System.out.println(borderColor);
         Color bgColor = UIManager.getColor("control");
         Color color = UIManager.getColor("Label.foreground");
-        Color activeColor = Color.RED;//UIManager.getColor("Table.selectionBackground");
+        Color activeColor = new Color(240,240,240);//UIManager.getColor("Table.selectionBackground");
         Color activeForeground = UIManager.getColor("Label.foreground");
         Color hotColor = Color.LIGHT_GRAY;//UIManager.getColor("AddressBar.hot");
 
@@ -190,9 +190,9 @@ public class AddressBreadCrumbView extends JComponent {
                         Graphics2D g2bak = (Graphics2D) g2.create();
                         g2bak.setColor(activeColor);
                         g2bak.translate(x, y);
-                        Painter painter = (Painter) UIManager.get("Button[Default].backgroundPainter");
-                        painter.paint(g2bak, null, width, realHeight);
-                        //g2bak.fillRect(0, 0, width, realHeight);
+//                        Painter painter = (Painter) UIManager.get("Button[Default].backgroundPainter");
+//                        painter.paint(g2bak, null, width, realHeight);
+                        g2bak.fillRect(0, 0, width, realHeight);
                         g2bak.dispose();
 
 //                        g2.setColor(activeColor);
@@ -234,22 +234,22 @@ public class AddressBreadCrumbView extends JComponent {
                     int w = tr.width;
                     int sw = tr.stringWidth;
                     tr.x = x;
-                    Painter painter = (Painter) UIManager.get("Button[Default].backgroundPainter");
+                    //Painter painter = (Painter) UIManager.get("Button[Default].backgroundPainter");
                     if (i == rlist.size() - 1) {
                         if (activeColor != null) {
                             g2.setColor(activeColor);
-                            painter = (Painter) UIManager.get("Button[Pressed].backgroundPainter");
+                            //painter = (Painter) UIManager.get("Button[Pressed].backgroundPainter");
                         }
                     } else {
                         if (hotIndex == i) {
                             if (hotColor != null) {
                                 g2.setColor(hotColor);
-                                painter = (Painter) UIManager.get("Button[Default+MouseOver].backgroundPainter");
+                                //painter = (Painter) UIManager.get("Button[Default+MouseOver].backgroundPainter");
                             }
                         } else {
                             if (bgColor != null) {
                                 g2.setColor(bgColor);
-                                painter = (Painter) UIManager.get("Button[Default].backgroundPainter");
+                                //painter = (Painter) UIManager.get("Button[Default].backgroundPainter");
                             }
                         }
                     }
@@ -257,8 +257,8 @@ public class AddressBreadCrumbView extends JComponent {
                     Graphics2D g2bak = (Graphics2D) g2.create();
                     g2bak.translate(x, y);
                     //Painter painter=(Painter)UIManager.get("Button[Default].backgroundPainter");
-                    painter.paint(g2bak, null, w, realHeight);
-                    //g2bak.fillRect(0, 0, w, realHeight);
+                    //painter.paint(g2bak, null, w, realHeight);
+                    g2bak.fillRect(0, 0, w, realHeight);
                     g2bak.dispose();
 //-------------------------------------------------------------------------
                     //g2.fillRect(x, y, w, realHeight);

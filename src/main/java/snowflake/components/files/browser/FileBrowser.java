@@ -1,5 +1,6 @@
 package snowflake.components.files.browser;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.ssh.SshUserInteraction;
@@ -51,7 +52,9 @@ public class FileBrowser extends JPanel {
         rightPanel = new JPanel(rightCard);
 
         leftDropdown = new JComboBox<>(leftList);
+        leftDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
         rightDropdown = new JComboBox<>(rightList);
+        rightDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
 
         leftDropdown.addItemListener(e -> {
             System.out.println("Left drop down changed");

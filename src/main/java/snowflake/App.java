@@ -29,10 +29,14 @@ public class App {
         return globalSettings;
     }
 
+    public static UIDefaults comboBoxSkin = new UIDefaults();
+    public static UIDefaults toolBarButtonSkin = new UIDefaults();
+
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
         System.out.println("Hello");
         UIManager.setLookAndFeel(new NimbusLookAndFeel());
         UIManager.put("control", Color.WHITE);
+        //UIManager.put("nimbusBase", new Color(200, 200, 200));
 //        UIManager.put("text", new Color(208, 208, 208));
 
         //UIManager.put("ScrollBar.thumbHeight", 8);
@@ -80,15 +84,129 @@ public class App {
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
-//
-//        UIManager.put("ComboBox[Enabled].backgroundPainter", new Painter() {
-//            @Override
-//            public void paint(Graphics2D g, Object object, int width, int height) {
+
+        Painter<JComboBox> comboBoxPainterNormal = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(240, 240, 240));
+                g.drawRect(0, 0, width - 1, height - 1);
 //                g.setColor(Color.BLACK);
 //                g.fill(new Rectangle(0,0,width,height));
+            }
+        };
+
+        Painter<JComboBox> comboBoxPainterFocused = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(220, 220, 220));
+                g.drawRect(0, 0, width - 1, height - 1);
+//                g.setColor(Color.BLACK);
+//                g.fill(new Rectangle(0,0,width,height));
+            }
+        };
+
+        Painter<JComboBox> comboBoxPainterHot = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(230, 230, 230));
+                g.drawRect(0, 0, width - 1, height - 1);
+//                g.setColor(Color.BLACK);
+//                g.fill(new Rectangle(0,0,width,height));
+            }
+        };
+
+        Painter<JComboBox> comboBoxPainterPressed = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(220, 220, 220));
+                g.fillRect(0, 0, width - 1, height - 1);
+//                g.setColor(Color.BLACK);
+//                g.fill(new Rectangle(0,0,width,height));
+            }
+        };
+
+
+        comboBoxSkin.put("ComboBox[Enabled].backgroundPainter", comboBoxPainterNormal);
+        comboBoxSkin.put("ComboBox[Focused].backgroundPainter", comboBoxPainterFocused);
+        comboBoxSkin.put("ComboBox[MouseOver].backgroundPainter", comboBoxPainterHot);
+        comboBoxSkin.put("ComboBox[Pressed].backgroundPainter", comboBoxPainterPressed);
+
+        comboBoxSkin.put("ComboBox[Focused+Pressed].backgroundPainter", comboBoxPainterPressed);
+        comboBoxSkin.put("ComboBox[Focused+MouseOver].backgroundPainter", comboBoxPainterHot);
+        comboBoxSkin.put("ComboBox[Enabled+Selected].backgroundPainter", comboBoxPainterNormal);
+
+        Painter<JButton> toolBarButtonPainterNormal = new Painter<JButton>() {
+            @Override
+            public void paint(Graphics2D g, JButton object, int width, int height) {
+
+            }
+        };
+
+        Painter<JButton> toolBarButtonPainterHot = new Painter<JButton>() {
+            @Override
+            public void paint(Graphics2D g, JButton object, int width, int height) {
+                g.setColor(new Color(240, 240, 240));
+                g.fillRect(0, 0, width - 1, height - 1);
+            }
+        };
+
+        Painter<JButton> toolBarButtonPainterPressed = new Painter<JButton>() {
+            @Override
+            public void paint(Graphics2D g, JButton object, int width, int height) {
+                g.setColor(new Color(230, 230, 230));
+                g.fillRect(0, 0, width - 1, height - 1);
+            }
+        };
+
+        toolBarButtonSkin.put("Button[Enabled].backgroundPainter", toolBarButtonPainterNormal);
+        toolBarButtonSkin.put("Button[Focused].backgroundPainter", toolBarButtonPainterNormal);
+        toolBarButtonSkin.put("Button[Default].backgroundPainter", toolBarButtonPainterNormal);
+        toolBarButtonSkin.put("Button[Default+Focused].backgroundPainter", toolBarButtonPainterNormal);
+
+        toolBarButtonSkin.put("Button[Pressed].backgroundPainter", toolBarButtonPainterPressed);
+        toolBarButtonSkin.put("Button[Focused+Pressed].backgroundPainter", toolBarButtonPainterPressed);
+        toolBarButtonSkin.put("Button[Default+Focused+Pressed].backgroundPainter", toolBarButtonPainterPressed);
+        toolBarButtonSkin.put("Button[Default+Pressed].backgroundPainter", toolBarButtonPainterPressed);
+
+        toolBarButtonSkin.put("Button[MouseOver].backgroundPainter", toolBarButtonPainterHot);
+        toolBarButtonSkin.put("Button[Focused+MouseOver].backgroundPainter", toolBarButtonPainterHot);
+        toolBarButtonSkin.put("Button[Default+MouseOver].backgroundPainter", toolBarButtonPainterHot);
+        toolBarButtonSkin.put("Button[Default+Focused+MouseOver].backgroundPainter", toolBarButtonPainterHot);
+
+
+
+
+
+
+//        UIManager.put("ComboBox[Enabled+Selected].backgroundPainter", new Painter() {
+//            @Override
+//            public void paint(Graphics2D g, Object object, int width, int height) {
+//                g.setColor(new Color(240,240,240));
+//                g.drawRect(0,0,width-1,height-1);
+////                g.setColor(Color.BLACK);
+////                g.fill(new Rectangle(0,0,width,height));
 //            }
 //        });
 
+//        UIManager.put("ComboBox[Focused+MouseOver].backgroundPainter", new Painter() {
+//            @Override
+//            public void paint(Graphics2D g, Object object, int width, int height) {
+//                g.setColor(new Color(240,240,240));
+//                g.fillRect(0,0,width-1,height-1);
+////                g.setColor(Color.BLACK);
+////                g.fill(new Rectangle(0,0,width,height));
+//            }
+//        });
+
+//        UIManager.put("ComboBox[Focused+Pressed].backgroundPainter", new Painter() {
+//            @Override
+//            public void paint(Graphics2D g, Object object, int width, int height) {
+//                g.setColor(new Color(240,240,240));
+//                g.fillRect(0,0,width-1,height-1);
+////                g.setColor(Color.BLACK);
+////                g.fill(new Rectangle(0,0,width,height));
+//            }
+//        });
 
 
         UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
