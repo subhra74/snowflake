@@ -9,6 +9,8 @@ import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
@@ -22,7 +24,7 @@ public class SessionContent extends JPanel {
     //private FileStore fileStore;
 
     public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
-        super(new BorderLayout());
+        super(new BorderLayout(0,0));
         this.info = info;
         this.externalEditor = externalEditor;
         init();
@@ -49,10 +51,9 @@ public class SessionContent extends JPanel {
 
 
     public void init() {
-        JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.setOpaque(false);
+
         this.fileComponentHolder = new FileComponentHolder(info, externalEditor);
-        topPanel.add(fileComponentHolder);
+
         TabbedPanel bottomTabs = new TabbedPanel();
         TerminalHolder th = new TerminalHolder(info);
         //JToolBar toolBar = new JToolBar();
@@ -71,6 +72,7 @@ public class SessionContent extends JPanel {
         bottomTabs.addTab("System load", new JPanel());
         bottomTabs.addTab("Process and port", new JPanel());
         bottomTabs.setSelectedIndex(0);
+        bottomTabs.setBorder(new LineBorder(new Color(200,200,200),1));
 
 
 //        bottomTabs.setTabComponentAt(0, createTab("Terminal", false, "\uf120"));
@@ -78,13 +80,15 @@ public class SessionContent extends JPanel {
 
         //add(toolBar, BorderLayout.NORTH);
         verticalSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        verticalSplitter.putClientProperty("Nimbus.Overrides", App.splitPaneSkin1);
         verticalSplitter.setBackground(Color.RED);
         verticalSplitter.setOpaque(false);
         verticalSplitter.setDividerSize(10);
         verticalSplitter.setResizeWeight(0.6);
         verticalSplitter.setBottomComponent(bottomTabs);
+        verticalSplitter.setBorder(new EmptyBorder(0,0,0,0));
         add(verticalSplitter);
-        verticalSplitter.setTopComponent(topPanel);
+        verticalSplitter.setTopComponent(fileComponentHolder);
     }
 
     public FileComponentHolder getFileComponentHolder() {

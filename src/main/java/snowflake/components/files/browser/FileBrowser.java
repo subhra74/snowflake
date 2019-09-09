@@ -43,6 +43,7 @@ public class FileBrowser extends JPanel {
         rightList.addElement("New");
 
         horizontalSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        horizontalSplitter.putClientProperty("Nimbus.Overrides", App.splitPaneSkin);
         horizontalSplitter.setResizeWeight(0.5);
 
         leftCard = new CardLayout();
@@ -84,8 +85,8 @@ public class FileBrowser extends JPanel {
         JPanel leftPanelHolder = new JPanel(new BorderLayout());
         JPanel rightPanelHolder = new JPanel(new BorderLayout());
 
-        leftPanelHolder.setBorder(new EmptyBorder(10,0,0,0));
-        rightPanelHolder.setBorder(new EmptyBorder(10,0,0,0));
+        leftPanelHolder.setBorder(new EmptyBorder(10,10,10,0));
+        rightPanelHolder.setBorder(new EmptyBorder(10,0,10,10));
 
         leftPanelHolder.add(leftDropdown, BorderLayout.NORTH);
         rightPanelHolder.add(rightDropdown, BorderLayout.NORTH);

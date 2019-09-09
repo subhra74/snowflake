@@ -125,7 +125,7 @@
 
 package snowflake.components.main;
 
-import snowflake.App;
+import snowflake.components.common.CustomButtonPainter;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
 
@@ -138,26 +138,93 @@ public class MainContent extends JPanel {
     //private GradientPaint gradientPaint;
 
     public MainContent() {
-        super(new BorderLayout());
+        super(new BorderLayout(0, 0));
 //        gradientPaint = new GradientPaint(0.0f, 0.0f, new Color(200, 200, 200),
 //                0.0f, 50.0f, new Color(150, 150, 150));
         init();
     }
 
+    private UIDefaults getSkinnedDropDown() {
+        UIDefaults comboBoxSkin = new UIDefaults();
+        Painter<JComboBox> comboBoxPainterNormal = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(62, 68, 81));//g.setColor(new Color(62,68,81));
+                g.fillRect(0, 0, width - 1, height - 1);
+            }
+        };
+
+        Painter<JComboBox> comboBoxPainterHot = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(90, 90, 90));
+                g.fillRect(0, 0, width - 1, height - 1);
+            }
+        };
+
+        Painter<JComboBox> comboBoxPainterPressed = new Painter<JComboBox>() {
+            @Override
+            public void paint(Graphics2D g, JComboBox object, int width, int height) {
+                g.setColor(new Color(50, 50, 50));
+                g.fillRect(0, 0, width - 1, height - 1);
+            }
+        };
+
+
+        comboBoxSkin.put("ComboBox.foreground", Color.WHITE);
+        comboBoxSkin.put("ComboBox[Enabled].backgroundPainter", comboBoxPainterNormal);
+        comboBoxSkin.put("ComboBox[Focused].backgroundPainter", comboBoxPainterNormal);
+        comboBoxSkin.put("ComboBox[MouseOver].backgroundPainter", comboBoxPainterHot);
+        comboBoxSkin.put("ComboBox[Pressed].backgroundPainter", comboBoxPainterPressed);
+
+        comboBoxSkin.put("ComboBox[Focused+Pressed].backgroundPainter", comboBoxPainterPressed);
+        comboBoxSkin.put("ComboBox[Focused+MouseOver].backgroundPainter", comboBoxPainterHot);
+        comboBoxSkin.put("ComboBox[Enabled+Selected].backgroundPainter", comboBoxPainterNormal);
+
+
+        return comboBoxSkin;
+    }
+
+    private JButton createSkinnedButton(Color c1, Color c2, Color c3) {
+        UIDefaults btnSkin = new UIDefaults();
+        CustomButtonPainter cs = new CustomButtonPainter(c1, c2, c3);
+        btnSkin.put("Button[Default+Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Default+Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Default+Focused].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Default+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Default+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Default].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Enabled].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Focused].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Pressed].backgroundPainter", cs.getPressedPainter());
+        JButton btn = new JButton();
+        btn.putClientProperty("Nimbus.Overrides", btnSkin);
+        return btn;
+    }
+
     private void init() {
+        setBackground(new Color(245, 245, 245));
         SessionContentPanel contentPanel = new SessionContentPanel();
-        //contentPanel.setBackground(new Color(80,80,80));
+        //setBackground(new Color(80,80,80));
         contentPanel.setOpaque(true);
         add(contentPanel);
 
         DefaultComboBoxModel<SessionInfo> model = new DefaultComboBoxModel<>();
 
         Box topPanel = Box.createHorizontalBox();
-//        topPanel.setBackground(new Color(36,41,46));
-//        topPanel.setOpaque(true);
+//        topPanel.setBackground(new Color(33, 136, 255));
+        topPanel.setBackground(new Color(36, 41, 46));
+        topPanel.setOpaque(true);
 
-        topPanel.setBorder(new EmptyBorder(5, 5, 5, 5));
-        JButton newConnection = new JButton("New connection");
+        topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JButton newConnection = createSkinnedButton(new Color(92, 167, 25), new Color(128, 167, 25), new Color(50, 167, 25));// new JButton("New connection");
+        newConnection.setText("New connection");
+        //newConnection.setBackground(new Color(0, 105, 0));
+        //newConnection.setFocusPainted(false);
+        newConnection.setForeground(Color.WHITE);
         newConnection.addActionListener(e -> {
             SessionInfo info = new NewSessionDlg().newSession();
             if (info != null) {
@@ -168,8 +235,22 @@ public class MainContent extends JPanel {
         //newConnection.setBackground(Color.GREEN);
         topPanel.add(newConnection);
         topPanel.add(Box.createHorizontalGlue());
+
         JComboBox<SessionInfo> cmb = new JComboBox<>(model);
-        cmb.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
+        cmb.putClientProperty("Nimbus.Overrides", getSkinnedDropDown());
+        cmb.setRenderer(new ListCellRenderer<SessionInfo>() {
+            JLabel lbl = new JLabel();
+
+            @Override
+            public Component getListCellRendererComponent(JList<? extends SessionInfo> list, SessionInfo value, int index, boolean isSelected, boolean cellHasFocus) {
+                if (value != null) {
+                    lbl.setText(value.toString());
+                }
+                lbl.setForeground(Color.WHITE);
+                return lbl;
+            }
+        });
+
         cmb.addItemListener(e -> {
             int index = cmb.getSelectedIndex();
             if (index >= 0) {
@@ -178,7 +259,14 @@ public class MainContent extends JPanel {
         });
         topPanel.add(cmb);
 
-        JButton disconnect = new JButton("Disconnect");
+        Color c1 = new Color(3, 155, 229);
+        Color c2 = new Color(2, 132, 195);
+        Color c3 = new Color(70, 130, 180);
+
+        JButton disconnect = createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
+        disconnect.setText("Disconnect");
+        //disconnect.setBackground(new Color(100, 0, 0));
+        disconnect.setForeground(Color.WHITE);
         disconnect.addActionListener(e -> {
             int index = cmb.getSelectedIndex();
             if (index != -1) {
@@ -194,6 +282,7 @@ public class MainContent extends JPanel {
 
 
         add(topPanel, BorderLayout.NORTH);
+        setOpaque(true);
     }
 
 //    @Override

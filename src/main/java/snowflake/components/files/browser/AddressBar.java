@@ -59,7 +59,8 @@ public class AddressBar extends JPanel {
         btnEdit = new JButton();
         btnEdit.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnEdit.setFont(App.getFontAwesomeFont());
-        btnEdit.setText("\uf044");
+        btnEdit.setForeground(Color.DARK_GRAY);
+        btnEdit.setText("\uf1d8");
         //btnEdit.setBorder(new EmptyBorder(0,5,0,5));
 //        btnEdit.setMargin(new Insets(0, 0, 0, 0));
 //        btnEdit.setBorderPainted(false);

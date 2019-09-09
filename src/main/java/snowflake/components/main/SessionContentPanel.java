@@ -4,9 +4,14 @@ import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SessionContentPanel extends JPanel {
     CardLayout card;
@@ -19,6 +24,9 @@ public class SessionContentPanel extends JPanel {
 
     private void init() {
         card = new CardLayout();
+        setOpaque(true);
+        setBackground(new Color(240, 240, 240));
+        setBorder(new EmptyBorder(10, 10, 10, 10));
         setLayout(card);
         externalEditor = new ExternalEditor(a -> {
             List<ExternalEditor.FileModificationInfo> list = a;

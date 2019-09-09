@@ -20,6 +20,7 @@ import snowflake.utils.PathUtils;
 import snowflake.utils.PlatformAppLauncher;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -55,13 +56,16 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor) {
         super(new BorderLayout());
-        setOpaque(false);
+        setOpaque(true);
+        setBorder(new LineBorder(new Color(200,200,200),1));
         this.externalEditor = externalEditor;
         this.info = info;
         contentPane = new JPanel(new BorderLayout());
-        contentPane.setOpaque(false);
+        contentPane.setOpaque(true);
         rootPane = new JRootPane();
-        rootPane.setOpaque(false);
+        rootPane.setBorder(null);
+        contentPane.setBorder(null);
+        rootPane.setOpaque(true);
         rootPane.setContentPane(contentPane);
         add(rootPane);
         this.source = new SshUserInteraction(info, rootPane);
@@ -82,9 +86,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
-        JPanel panelHolder = new JPanel(new BorderLayout());
-        panelHolder.setOpaque(true);
-        panelHolder.setBackground(new Color(240,240,240));
+
         //tabs = new JTabbedPane(JTabbedPane.LEFT);
         tabs = new TabbedPanel();
         //tabs.setFont(App.getFontAwesomeFont());
@@ -97,8 +99,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         tabs.addTab("Log viewer", logViewerComponent);
         tabs.setSelectedIndex(0);
 
-        panelHolder.add(tabs);
-        contentPane.add(panelHolder);
+
+        contentPane.add(tabs);
     }
 
     @Override

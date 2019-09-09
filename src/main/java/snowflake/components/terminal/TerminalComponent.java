@@ -1,5 +1,8 @@
 package snowflake.components.terminal;
 
+import com.jediterm.terminal.TerminalColor;
+import com.jediterm.terminal.TextStyle;
+import com.jediterm.terminal.emulator.ColorPalette;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import snowflake.common.ssh.SshUserInteraction;
@@ -27,6 +30,95 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
         add(rootPane);
 
         tty = new SshTtyConnector(new SshUserInteraction(info, rootPane));
+
+//        Color background = new Color(40, 44, 52);
+//        Color foreground = new Color(171, 178, 191);
+//        Color selection = new Color(62, 68, 81);
+//
+//        DefaultSettingsProvider p = new DefaultSettingsProvider() {
+//
+//            /*
+//             * (non-Javadoc)
+//             *
+//             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
+//             * getTerminalColorPalette()
+//             */
+//            @Override
+//            public ColorPalette getTerminalColorPalette() {
+//                return ColorPalette.XTERM_PALETTE;
+//            }
+//
+//            /*
+//             * (non-Javadoc)
+//             *
+//             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
+//             * useAntialiasing()
+//             */
+//            @Override
+//            public boolean useAntialiasing() {
+//                return true;
+//            }
+//
+////			@Override
+////			public boolean copyOnSelect() {
+////				return true;
+////			}
+////
+////			@Override
+////			public boolean pasteOnMiddleMouseClick() {
+////				return true;
+////			}
+//
+//            @Override
+//            public TextStyle getDefaultStyle() {
+//                System.out.println("Default style called");
+//                return new TextStyle(
+//                        TerminalColor.awt(Color.WHITE),
+//                        TerminalColor.awt(Color.BLACK));
+//                // return new TextStyle(foreground, background)
+//            }
+//
+//            @Override
+//            public boolean emulateX11CopyPaste() {
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean enableMouseReporting() {
+//                return true;
+//            }
+//
+//            @Override
+//            public TextStyle getFoundPatternColor() {
+//                return new TextStyle(
+//                        TerminalColor
+//                                .awt(foreground),
+//                        TerminalColor.awt(selection));
+//            }
+//
+//            @Override
+//            public TextStyle getSelectionColor() {
+//                return new TextStyle(
+//                        TerminalColor
+//                                .awt(foreground),
+//                        TerminalColor.awt(selection));
+//            }
+//
+////			@Override
+////			public Font getTerminalFont() {
+////				return UIManager.getFont("Terminal.font");
+////			}
+//
+//            @Override
+//            public TextStyle getHyperlinkColor() {
+//                return new TextStyle(
+//                        TerminalColor
+//                                .awt(foreground),
+//                        TerminalColor.awt(
+//                                background));
+//            }
+//        };
+
         term = new CustomJediterm(new DefaultSettingsProvider());
         term.setTtyConnector(tty);
         term.start();

@@ -5,14 +5,24 @@ import snowflake.components.main.MainContent;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
+import javax.swing.plaf.basic.BasicScrollBarUI;
+import javax.swing.plaf.basic.BasicTableHeaderUI;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+import javax.swing.plaf.synth.Region;
+import javax.swing.plaf.synth.SynthScrollBarUI;
+import javax.swing.plaf.synth.SynthStyle;
+import javax.swing.plaf.synth.SynthStyleFactory;
 import java.awt.*;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.InputStream;
+import java.util.Properties;
 
 public class App {
+    public static UIDefaults comboBoxSkin = new UIDefaults();
+    public static UIDefaults toolBarButtonSkin = new UIDefaults();
+    public static UIDefaults scrollBarSkin = new UIDefaults();
+    public static UIDefaults splitPaneSkin = new UIDefaults();
+    public static UIDefaults splitPaneSkin1 = new UIDefaults();
     private static Properties config = new Properties();
     private static Font fontAwesomeFont;
     private static GlobalSettings globalSettings;
@@ -29,10 +39,18 @@ public class App {
         return globalSettings;
     }
 
-    public static UIDefaults comboBoxSkin = new UIDefaults();
-    public static UIDefaults toolBarButtonSkin = new UIDefaults();
+    class MySynthFactory extends SynthStyleFactory{
+
+        @Override
+        public SynthStyle getStyle(JComponent c, Region id) {
+            return null;
+        }
+    }
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
+
+
+
         System.out.println("Hello");
         UIManager.setLookAndFeel(new NimbusLookAndFeel());
         UIManager.put("control", Color.WHITE);
@@ -42,48 +60,52 @@ public class App {
         //UIManager.put("ScrollBar.thumbHeight", 8);
         //UIManager.put("ScrollBar:\"ScrollBar.button\".size", 5);
         //UIManager.put("Panel.background", new Color(245, 245, 245));
-        UIManager.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
-        UIManager.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
-        UIManager.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
-        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
-        UIManager.put("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
-        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
                 g.fill(new Rectangle(0, 0, width, height));
             }
         });
+
+        splitPaneSkin.put("SplitPane.contentMargins",new Insets(0,0,0,0));
+
+        createVerticalScrollSkin();
 
         Painter<JComboBox> comboBoxPainterNormal = new Painter<JComboBox>() {
             @Override
@@ -158,6 +180,7 @@ public class App {
             }
         };
 
+        toolBarButtonSkin.put("Button.contentMargins", new Insets(5,8,5,8));
         toolBarButtonSkin.put("Button[Enabled].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Focused].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Default].backgroundPainter", toolBarButtonPainterNormal);
@@ -173,9 +196,39 @@ public class App {
         toolBarButtonSkin.put("Button[Default+MouseOver].backgroundPainter", toolBarButtonPainterHot);
         toolBarButtonSkin.put("Button[Default+Focused+MouseOver].backgroundPainter", toolBarButtonPainterHot);
 
+        Painter scrollButtonPainter = new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(Color.RED);
+                g.fillRect(0, 0, width, height);
+            }
+        };
 
+        scrollBarSkin.put("ScrollBar.button.foregroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar.button.backgroundPainter", scrollButtonPainter);
 
+        scrollBarSkin.put("ScrollBar.button[Enabled].foregroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar.button[Enabled].backgroundPainter", scrollButtonPainter);
 
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\"[Enabled].foregroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\"[MouseOver].foregroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\"[Pressed].foregroundPainter", scrollButtonPainter);
+
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\"[Enabled].backgroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\"[MouseOver].backgroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\"[Pressed].backgroundPainter", scrollButtonPainter);
+
+        scrollBarSkin.put("ScrollBar:ScrollBarTrack[Disabled].backgroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar:ScrollBarTrack[Enabled].backgroundPainter", scrollButtonPainter);
+        scrollBarSkin.put("ScrollBar:\"ScrollBar.button\".size", Integer.valueOf(0));
+
+        UIManager.put("ScrollBar.width",7);
+
+        SynthScrollBarUI basic=new SynthScrollBarUI();
+//        BasicTableHeaderUI headerUI=new BasicTableHeaderUI();
+//
+//        UIManager.put("ScrollBarUI",basic);
+//        UIManager.put("TableHeaderUI",headerUI);
 
 
 //        UIManager.put("ComboBox[Enabled+Selected].backgroundPainter", new Painter() {
@@ -209,7 +262,7 @@ public class App {
 //        });
 
 
-        UIManager.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+        splitPaneSkin.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
                 g.setColor(Color.WHITE);
@@ -244,6 +297,53 @@ public class App {
 
 //        createSampleWindow();
 //        createSampleWindow1();
+    }
+
+    private static void createVerticalScrollSkin() {
+        Color c=new Color(240,240,240);
+        splitPaneSkin1.put("SplitPane.contentMargins",new Insets(0,0,0,0));
+        splitPaneSkin1.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin1.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin1.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin1.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin1.put("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin1.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
     }
 
 
