@@ -289,26 +289,25 @@ public class FolderView extends JPanel {
         listModel.addAll(list);
     }
 
-//    public final void resizeColumnWidth(JTable table) {
-//        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
-//        final TableColumnModel columnModel = table.getColumnModel();
-//        for (int column = 0; column < table.getColumnCount(); column++) {
-//            // System.out.println("running..");
-//            TableColumn col = columnModel.getColumn(column);
-////			col.getHeaderRenderer().getTableCellRendererComponent(table, col.getHeaderValue(),
-////					false, false, 0, 0).getpre;
-//            if (column == 0) {
-//                col.setPreferredWidth(200);
-//            } else if (column == 3) {
-//                col.setPreferredWidth(150);
-//            } else {
-//                col.setPreferredWidth(100);
-//            }
-//        }
-//    }
+    public final void resizeColumnWidth(JTable table) {
+        table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        final TableColumnModel columnModel = table.getColumnModel();
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            // System.out.println("running..");
+            TableColumn col = columnModel.getColumn(column);
+//			col.getHeaderRenderer().getTableCellRendererComponent(table, col.getHeaderValue(),
+//					false, false, 0, 0).getpre;
+            if (column == 0) {
+                col.setPreferredWidth(200);
+            } else if (column == 3) {
+                col.setPreferredWidth(150);
+            } else {
+                col.setPreferredWidth(100);
+            }
+        }
+    }
 
     public void setFolderViewTransferHandler(DndTransferHandler transferHandler) {
-        this.list.setTransferHandler(transferHandler);
 //        this.table.setTransferHandler(transferHandler);
     }
 }

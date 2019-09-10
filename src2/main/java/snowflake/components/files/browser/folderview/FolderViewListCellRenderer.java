@@ -32,7 +32,7 @@ public class FolderViewListCellRenderer implements ListCellRenderer<FileInfo> {
 //        lblIcon.setPreferredSize(new Dimension(40, 40));
 
         lblTitle = new JLabel();
-        lblTitle.setForeground(new Color(80,80,80));
+        lblTitle.setForeground(Color.DARK_GRAY);
         lblTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
         lblTitle.setAlignmentX(Box.LEFT_ALIGNMENT);
 

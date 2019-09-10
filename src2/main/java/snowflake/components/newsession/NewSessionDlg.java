@@ -8,11 +8,8 @@ import java.awt.event.*;
 
 import snowflake.*;
 import snowflake.utils.*;
-
 import java.awt.*;
 import java.util.UUID;
-
-import static snowflake.utils.GraphicsUtils.createButton;
 
 public class NewSessionDlg extends JDialog
         implements ActionListener, TreeSelectionListener, TreeModelListener {
@@ -40,11 +37,11 @@ public class NewSessionDlg extends JDialog
     }
 
     private void createUI() {
-        setBackground(new Color(245, 245, 245));
+        setBackground(new Color(245,245,245));
         //setIconImage(App.getAppIcon());
         setLayout(new BorderLayout());
 
-        setSize(640, 480);
+        setSize(640,480);
         setModal(true);
 
         setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
@@ -81,30 +78,29 @@ public class NewSessionDlg extends JDialog
         tree.setEditable(false);
         jsp = new JScrollPane(tree);
 
-        //btnNewHost = new JButton(TextHolder.getString("session.newHost"));
-        btnNewHost = createButton("New site");
+        btnNewHost = new JButton(TextHolder.getString("session.newHost"));
         btnNewHost.addActionListener(this);
         btnNewHost.putClientProperty("button.name", "btnNewHost");
         //btnNewHost.setFont(Utility.getFont(Constants.SMALL));
-        btnNewFolder = createButton("New folder");//new JButton(TextHolder.getString("session.newFolder"));
+        btnNewFolder = new JButton(TextHolder.getString("session.newFolder"));
         btnNewFolder.addActionListener(this);
         btnNewFolder.putClientProperty("button.name", "btnNewFolder");
         //btnNewFolder.setFont(Utility.getFont(Constants.SMALL));
-        btnDel = createButton("Remove");//new JButton(TextHolder.getString("session.remove"));
+        btnDel = new JButton(TextHolder.getString("session.remove"));
         btnDel.addActionListener(this);
         btnDel.putClientProperty("button.name", "btnDel");
         //btnDel.setFont(Utility.getFont(Constants.SMALL));
-        btnDup = createButton("Duplicate");// new JButton(TextHolder.getString("session.duplicate"));
+        btnDup = new JButton(TextHolder.getString("session.duplicate"));
         btnDup.addActionListener(this);
         btnDup.putClientProperty("button.name", "btnDup");
         //btnDup.setFont(Utility.getFont(Constants.SMALL));
 
-        btnConnect = createButton("Connect");// new JButton(TextHolder.getString("session.connect"));
+        btnConnect = new JButton(TextHolder.getString("session.connect"));
         btnConnect.addActionListener(this);
         btnConnect.putClientProperty("button.name", "btnConnect");
         //btnConnect.setFont(Utility.getFont(Constants.SMALL));
 
-        btnCancel = createButton("Cancel");// new JButton(TextHolder.getString("session.cancel"));
+        btnCancel = new JButton(TextHolder.getString("session.cancel"));
         btnCancel.addActionListener(this);
         btnCancel.putClientProperty("button.name", "btnCancel");
         //btnCancel.setFont(Utility.getFont(Constants.SMALL));
@@ -112,7 +108,7 @@ public class NewSessionDlg extends JDialog
         normalizeButtonSize();
 
         Box box1 = Box.createHorizontalBox();
-        box1.setBorder(new EmptyBorder(10, 10, 10, 10));
+        box1.setBorder(new EmptyBorder( 10, 10, 10, 10));
         box1.add(new JLabel("Warning: Passwords will be stored as plain text"));
         box1.add(Box.createHorizontalGlue());
         box1.add(Box.createHorizontalStrut(10));
@@ -137,20 +133,12 @@ public class NewSessionDlg extends JDialog
 
         sessionInfoPanel = new SessionInfoPanel();
 
-        namePanel = new JPanel();
-
-        JPanel pp=new JPanel(new BorderLayout());
-        pp.add(namePanel, BorderLayout.NORTH);
-        pp.add(sessionInfoPanel);
-
         pdet = new JPanel(new BorderLayout());
-        pdet.add(new JScrollPane(pp));
+        pdet.add(sessionInfoPanel);
         pdet.add(box1, BorderLayout.SOUTH);
         add(pdet);
 
-
-
-
+        namePanel = new JPanel();
 
         BoxLayout boxLayout = new BoxLayout(namePanel, BoxLayout.PAGE_AXIS);
         namePanel.setLayout(boxLayout);
@@ -188,9 +176,10 @@ public class NewSessionDlg extends JDialog
         });
 
 
+
         namePanel.add(lblName);
         namePanel.add(txtName);
-
+        pdet.add(namePanel, BorderLayout.NORTH);
 
         prgPanel = new JPanel();
 
@@ -223,7 +212,6 @@ public class NewSessionDlg extends JDialog
             e.printStackTrace();
         }
     }
-
 
     private boolean selectNode(String id, DefaultMutableTreeNode node) {
         if (id.equals((((NamedItem) node.getUserObject()).getId()))) {

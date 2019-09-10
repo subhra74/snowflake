@@ -1,11 +1,12 @@
 package snowflake.components.files.browser;
 
 import snowflake.App;
-import snowflake.components.common.AddressBar;
+import snowflake.common.FileSystem;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.components.files.browser.folderview.FolderViewEventListener;
+import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
@@ -13,6 +14,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Map;
 
 public abstract class AbstractFileBrowserView extends JPanel implements FolderViewEventListener {
     protected AddressBar addressBar;
@@ -36,7 +38,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         JPanel toolBar = new JPanel(new BorderLayout());
         createAddressBar();
         addressBar.addActionListener(e -> {
-            String text = e.getActionCommand();
+            String text = addressBar.getText();
             System.out.println("Address changed: " + text + " old: " + this.path);
             if (PathUtils.isSamePath(this.path, text)) {
                 System.out.println("Same text");

@@ -128,7 +128,6 @@ package snowflake.components.main;
 import snowflake.components.common.CustomButtonPainter;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
-import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -186,7 +185,25 @@ public class MainContent extends JPanel {
         return comboBoxSkin;
     }
 
-
+    private JButton createSkinnedButton(Color c1, Color c2, Color c3) {
+        UIDefaults btnSkin = new UIDefaults();
+        CustomButtonPainter cs = new CustomButtonPainter(c1, c2, c3);
+        btnSkin.put("Button[Default+Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Default+Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Default+Focused].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Default+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Default+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Default].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Enabled].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Focused].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Pressed].backgroundPainter", cs.getPressedPainter());
+        JButton btn = new JButton();
+        btn.putClientProperty("Nimbus.Overrides", btnSkin);
+        return btn;
+    }
 
     private void init() {
         setBackground(new Color(245, 245, 245));
@@ -203,7 +220,7 @@ public class MainContent extends JPanel {
         topPanel.setOpaque(true);
 
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        JButton newConnection = GraphicsUtils.createSkinnedButton(new Color(92, 167, 25), new Color(128, 167, 25), new Color(50, 167, 25));// new JButton("New connection");
+        JButton newConnection = createSkinnedButton(new Color(92, 167, 25), new Color(128, 167, 25), new Color(50, 167, 25));// new JButton("New connection");
         newConnection.setText("New connection");
         //newConnection.setBackground(new Color(0, 105, 0));
         //newConnection.setFocusPainted(false);
@@ -246,7 +263,7 @@ public class MainContent extends JPanel {
         Color c2 = new Color(2, 132, 195);
         Color c3 = new Color(70, 130, 180);
 
-        JButton disconnect = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
+        JButton disconnect = createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
         disconnect.setText("Disconnect");
         //disconnect.setBackground(new Color(100, 0, 0));
         disconnect.setForeground(Color.WHITE);

@@ -5,7 +5,7 @@ import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.components.files.*;
 import snowflake.components.files.browser.AbstractFileBrowserView;
-import snowflake.components.common.AddressBar;
+import snowflake.components.files.browser.AddressBar;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
 

@@ -6,8 +6,6 @@ import javax.swing.*;
 import javax.swing.event.*;
 import java.awt.*;
 
-import static snowflake.utils.GraphicsUtils.createButton;
-
 public class SessionInfoPanel extends JPanel {
 
     private static final long serialVersionUID = 6679029920589652547L;
@@ -235,7 +233,7 @@ public class SessionInfoPanel extends JPanel {
                     }
                 });
 
-        inpLocalBrowse = createButton("Browse");
+        inpLocalBrowse = new JButton(TextHolder.getString("host.browse"));
         inpLocalBrowse.addActionListener(e -> {
             JFileChooser jfc = new JFileChooser();
             jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
