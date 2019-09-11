@@ -106,10 +106,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         });
     }
 
-    @Override
-    public void addBack(String path) {
 
-    }
 
     @Override
     public void render(String path) {

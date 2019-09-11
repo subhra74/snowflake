@@ -55,7 +55,7 @@ public class App {
         GraphicsUtils.createTextFieldSkin(nimbusLookAndFeel.getDefaults());
         GraphicsUtils.createSpinnerSkin(nimbusLookAndFeel.getDefaults());
         GraphicsUtils.createComboBoxSkin(nimbusLookAndFeel.getDefaults());
-        nimbusLookAndFeel.getDefaults().put("ScrollBarUI",CustomScrollBarUI.class.getName());
+        nimbusLookAndFeel.getDefaults().put("ScrollBarUI", CustomScrollBarUI.class.getName());
 
         System.out.println("Hello");
         UIManager.setLookAndFeel(nimbusLookAndFeel);
@@ -187,6 +187,10 @@ public class App {
         };
 
         toolBarButtonSkin.put("Button.contentMargins", new Insets(5, 8, 5, 8));
+
+        toolBarButtonSkin.put("Button[Disabled].backgroundPainter", toolBarButtonPainterNormal);
+        toolBarButtonSkin.put("Button[Disabled].textForeground", Color.LIGHT_GRAY);
+
         toolBarButtonSkin.put("Button[Enabled].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Focused].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Default].backgroundPainter", toolBarButtonPainterNormal);

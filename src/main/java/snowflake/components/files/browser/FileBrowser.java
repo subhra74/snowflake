@@ -38,9 +38,11 @@ public class FileBrowser extends JPanel {
         this.holder = holder;
         this.rootPane = rootPane;
         leftList = new DefaultComboBoxModel<>();
-        leftList.addElement("New");
+        leftList.addElement("New local file browser");
+        leftList.addElement("New remote file browser");
         rightList = new DefaultComboBoxModel<>();
-        rightList.addElement("New");
+        rightList.addElement("New local file browser");
+        rightList.addElement("New remote file browser");
 
         horizontalSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         horizontalSplitter.putClientProperty("Nimbus.Overrides", App.splitPaneSkin);
@@ -53,9 +55,27 @@ public class FileBrowser extends JPanel {
         rightPanel = new JPanel(rightCard);
 
         leftDropdown = new JComboBox<>(leftList);
-        leftDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
+        //leftDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
         rightDropdown = new JComboBox<>(rightList);
-        rightDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
+        //rightDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
+
+        leftDropdown.addActionListener(e -> {
+            System.out.println("Left drop down changed");
+            int index = leftDropdown.getSelectedIndex();
+            if (index != -1) {
+                Object obj = leftList.getElementAt(index);
+                if (obj instanceof String) {
+                    if (index == 0) {
+                        openLocalFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Left);
+                    }
+                    if (index == 1) {
+                        openSftpFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Left);
+                    }
+                } else {
+                    //leftCard.show(leftPanel, obj.hashCode() + "");
+                }
+            }
+        });
 
         leftDropdown.addItemListener(e -> {
             System.out.println("Left drop down changed");
@@ -63,9 +83,25 @@ public class FileBrowser extends JPanel {
             if (index != -1) {
                 Object obj = leftList.getElementAt(index);
                 if (obj instanceof String) {
-
                 } else {
                     leftCard.show(leftPanel, obj.hashCode() + "");
+                }
+            }
+        });
+
+        rightDropdown.addActionListener(e -> {
+            int index = rightDropdown.getSelectedIndex();
+            if (index != -1) {
+                Object obj = rightList.getElementAt(index);
+                if (obj instanceof String) {
+                    if (index == 0) {
+                        openLocalFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Right);
+                    }
+                    if (index == 1) {
+                        openSftpFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Right);
+                    }
+                } else {
+                    //rightCard.show(rightPanel, obj.hashCode() + "");
                 }
             }
         });
@@ -75,7 +111,6 @@ public class FileBrowser extends JPanel {
             if (index != -1) {
                 Object obj = rightList.getElementAt(index);
                 if (obj instanceof String) {
-
                 } else {
                     rightCard.show(rightPanel, obj.hashCode() + "");
                 }
@@ -85,8 +120,8 @@ public class FileBrowser extends JPanel {
         JPanel leftPanelHolder = new JPanel(new BorderLayout());
         JPanel rightPanelHolder = new JPanel(new BorderLayout());
 
-        leftPanelHolder.setBorder(new EmptyBorder(10,10,10,0));
-        rightPanelHolder.setBorder(new EmptyBorder(10,0,10,10));
+        leftPanelHolder.setBorder(new EmptyBorder(10, 10, 10, 0));
+        rightPanelHolder.setBorder(new EmptyBorder(10, 0, 10, 10));
 
         leftPanelHolder.add(leftDropdown, BorderLayout.NORTH);
         rightPanelHolder.add(rightDropdown, BorderLayout.NORTH);
@@ -102,14 +137,14 @@ public class FileBrowser extends JPanel {
         SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder,
                 null, AbstractFileBrowserView.PanelOrientation.Left);
         leftList.addElement(fv1);
-        leftDropdown.setSelectedIndex(1);
+        leftDropdown.setSelectedIndex(2);
         leftPanel.add(fv1, fv1.hashCode() + "");
         leftCard.show(leftPanel, fv1.hashCode() + "");
 
         LocalFileBrowserView fv2 = new LocalFileBrowserView(this, rootPane, holder,
                 null, AbstractFileBrowserView.PanelOrientation.Right);
         rightList.addElement(fv2);
-        rightDropdown.setSelectedIndex(1);
+        rightDropdown.setSelectedIndex(2);
         rightPanel.add(fv2, fv2.hashCode() + "");
         rightCard.show(rightPanel, fv2.hashCode() + "");
     }

@@ -176,6 +176,7 @@ public class FolderView extends JPanel {
                     if (files[0].getType() == FileType.Directory || files[0].getType() == FileType.DirLink) {
                         String str = files[0].getPath();
                         System.out.println("Rendering: " + str);
+                        listener.addBack(str);
                         listener.render(str);
                     }
                 }

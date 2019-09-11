@@ -2,6 +2,7 @@ package snowflake.components.files.browser;
 
 import snowflake.App;
 import snowflake.components.common.AddressBar;
+import snowflake.components.common.NavigationHistory;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.folderview.FolderView;
@@ -21,6 +22,8 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     private AbstractAction upAction, reloadAction;
     protected String path;
     protected FileComponentHolder holder;
+    private NavigationHistory history;
+    private JButton btnBack, btnNext;
 
     protected PanelOrientation orientation;
 
@@ -33,6 +36,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         this.orientation = orientation;
         this.rootPane = rootPane;
         this.holder = holder;
+        history = new NavigationHistory();
         JPanel toolBar = new JPanel(new BorderLayout());
         createAddressBar();
         addressBar.addActionListener(e -> {
@@ -52,6 +56,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         upAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                addBack(path);
                 up();
             }
         };
@@ -62,18 +67,28 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
             }
         };
 
-        JButton btnBack = new JButton();
+        btnBack = new JButton();
         btnBack.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnBack.setForeground(Color.DARK_GRAY);
         btnBack.setFont(App.getFontAwesomeFont());
         btnBack.setText("\uf060");
+        btnBack.addActionListener(e -> {
+            String item = history.prevElement();
+            addNext(this.path);
+            render(item);
+        });
         smallToolbar.add(btnBack);
 
-        JButton btnNext = new JButton();
+        btnNext = new JButton();
         btnNext.setForeground(Color.DARK_GRAY);
         btnNext.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnNext.setFont(App.getFontAwesomeFont());
         btnNext.setText("\uf061");
+        btnNext.addActionListener(e -> {
+            String item = history.nextElement();
+            addBack(this.path);
+            render(item);
+        });
         smallToolbar.add(btnNext);
 
         JButton btnHome = new JButton();
@@ -81,7 +96,11 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         btnHome.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnHome.setFont(App.getFontAwesomeFont());
         btnHome.setText("\uf015");
-        btnHome.addActionListener(e -> home());
+        btnHome.addActionListener(e -> {
+                    addBack(this.path);
+                    home();
+                }
+        );
         smallToolbar.add(btnHome);
 
         JButton btnUp = new JButton();
@@ -103,19 +122,28 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
         Box b2 = Box.createHorizontalBox();
         b2.add(btnReload);
-        b2.setBorder(new EmptyBorder(3, 0, 3, 0));
+        b2.setBorder(new
+
+                EmptyBorder(3, 0, 3, 0));
         b2.add(btnReload);
 
         toolBar.add(smallToolbar, BorderLayout.WEST);
         toolBar.add(addressBar);
         toolBar.add(b2, BorderLayout.EAST);
+
         add(toolBar, BorderLayout.NORTH);
-        folderView = new FolderView(this);
+
+        folderView = new
+                FolderView(this);
+
         add(folderView);
 
-        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-                .put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "up");
+        this.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT).
+                put(KeyStroke.getKeyStroke(KeyEvent.VK_BACK_SPACE, 0), "up");
         this.getActionMap().put("up", upAction);
+
+        updateNavButtons();
+
     }
 
 
@@ -156,5 +184,21 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
     public PanelOrientation getOrientation() {
         return orientation;
+    }
+
+    @Override
+    public void addBack(String path) {
+        history.addBack(path);
+        updateNavButtons();
+    }
+
+    private void addNext(String path) {
+        history.addForward(this.path);
+        updateNavButtons();
+    }
+
+    private void updateNavButtons() {
+        btnBack.setEnabled(history.hasPrevElement());
+        btnNext.setEnabled(history.hasNextElement());
     }
 }

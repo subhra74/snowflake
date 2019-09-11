@@ -13,7 +13,7 @@ public class AddressBar extends JPanel {
     private AddressBarBreadCrumbs addressBar;
     private JComboBox<String> txtAddressBar;
     private DefaultComboBoxModel<String> model;
-    private JButton btnEdit;
+    private JButton btnEdit, btnRoot;
     private JPanel addrPanel;
     private boolean updating = false;
     private ActionListener a;
@@ -23,6 +23,13 @@ public class AddressBar extends JPanel {
         addrPanel = new JPanel(new BorderLayout());
         addrPanel.setBorder(
                 new EmptyBorder(3, 3, 3, 3));
+
+        btnRoot = new JButton();
+        btnRoot.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+        btnRoot.setFont(App.getFontAwesomeFont());
+        btnRoot.setForeground(Color.DARK_GRAY);
+        btnRoot.setText("\uf0a0");
+
         model = new DefaultComboBoxModel<>();
         txtAddressBar = new JComboBox<>(model);
         txtAddressBar.addActionListener(e -> {
@@ -57,6 +64,11 @@ public class AddressBar extends JPanel {
                 a.actionPerformed(new ActionEvent(this, 0, e.getActionCommand()));
             }
         });
+
+        JPanel panBtn2 = new JPanel(new BorderLayout());
+        panBtn2.setBorder(new EmptyBorder(3, 3, 3, 3));
+        panBtn2.add(btnRoot);
+
         btnEdit = new JButton();
         btnEdit.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnEdit.setFont(App.getFontAwesomeFont());
@@ -71,11 +83,13 @@ public class AddressBar extends JPanel {
             if (!isSelected()) {
                 addrPanel.remove(addressBar);
                 addrPanel.add(txtAddressBar);
+                remove(panBtn2);
                 btnEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
                 btnEdit.putClientProperty("toggle.selected", Boolean.TRUE);
                 txtAddressBar.getEditor().selectAll();
                 btnEdit.setText("\uf13e");
             } else {
+                add(panBtn2, BorderLayout.WEST);
                 addrPanel.remove(txtAddressBar);
                 addrPanel.add(addressBar);
                 btnEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
@@ -121,12 +135,15 @@ public class AddressBar extends JPanel {
 //            revalidate();
 //            repaint();
 //        });
+
+
         addrPanel.add(addressBar);
         add(addrPanel);
         JPanel panBtn = new JPanel(new BorderLayout());
         panBtn.setBorder(new EmptyBorder(3, 3, 3, 3));
         panBtn.add(btnEdit);
         add(panBtn, BorderLayout.EAST);
+        add(panBtn2, BorderLayout.WEST);
         btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
     }
 
