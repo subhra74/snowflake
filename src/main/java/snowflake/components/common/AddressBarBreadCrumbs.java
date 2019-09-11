@@ -133,7 +133,7 @@ public class AddressBarBreadCrumbs extends JPanel {
             }
         };
 
-        toolBarButtonSkin.put("Button.contentMargins", new Insets(5, 8, 5, 8));
+        toolBarButtonSkin.put("Button.contentMargins", new Insets(2, 8, 2, 8));
         toolBarButtonSkin.put("Button[Enabled].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Focused].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Default].backgroundPainter", toolBarButtonPainterNormal);

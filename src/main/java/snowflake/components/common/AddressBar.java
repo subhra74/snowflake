@@ -61,7 +61,7 @@ public class AddressBar extends JPanel {
         btnEdit.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnEdit.setFont(App.getFontAwesomeFont());
         btnEdit.setForeground(Color.DARK_GRAY);
-        btnEdit.setText("\uf1d8");
+        btnEdit.setText("\uf023");
         //btnEdit.setBorder(new EmptyBorder(0,5,0,5));
 //        btnEdit.setMargin(new Insets(0, 0, 0, 0));
 //        btnEdit.setBorderPainted(false);
@@ -74,11 +74,13 @@ public class AddressBar extends JPanel {
                 btnEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
                 btnEdit.putClientProperty("toggle.selected", Boolean.TRUE);
                 txtAddressBar.getEditor().selectAll();
+                btnEdit.setText("\uf13e");
             } else {
                 addrPanel.remove(txtAddressBar);
                 addrPanel.add(addressBar);
                 btnEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
                 btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
+                btnEdit.setText("\uf023");
             }
             revalidate();
             repaint();

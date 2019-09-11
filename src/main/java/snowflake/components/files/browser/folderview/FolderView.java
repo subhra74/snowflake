@@ -220,18 +220,15 @@ public class FolderView extends JPanel {
 
 //        table.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(list);
-        JScrollBar verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
-        verticalScroller.setUI(new CustomScrollBarUI());
-
-        //verticalScroller.putClientProperty("Nimbus.Overrides", App.scrollBarSkin);
-        scrollPane.setVerticalScrollBar(verticalScroller);
-
-        JScrollBar horizontalScroller = new JScrollBar(JScrollBar.HORIZONTAL);
-        horizontalScroller.setUI(new CustomScrollBarUI());
-        scrollPane.setHorizontalScrollBar(horizontalScroller);
-
-        scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+//        JScrollBar verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
+//        verticalScroller.setUI(new CustomScrollBarUI());
+//
+//        //verticalScroller.putClientProperty("Nimbus.Overrides", App.scrollBarSkin);
+//        scrollPane.setVerticalScrollBar(verticalScroller);
+//
+//        JScrollBar horizontalScroller = new JScrollBar(JScrollBar.HORIZONTAL);
+//        horizontalScroller.setUI(new CustomScrollBarUI());
+//        scrollPane.setHorizontalScrollBar(horizontalScroller);
 
         scrollPane.setBorder(new LineBorder(new Color(240, 240, 240), 1));
 

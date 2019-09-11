@@ -267,7 +267,7 @@ public class SessionInfoPanel extends JPanel {
             }
         });
 
-        inpKeyBrowse = new JButton(TextHolder.getString("host.browse"));
+        inpKeyBrowse = GraphicsUtils.createButton("Browse");// new JButton(TextHolder.getString("host.browse"));
         inpKeyBrowse.addActionListener(e -> {
             JFileChooser jfc = new JFileChooser();
             jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);

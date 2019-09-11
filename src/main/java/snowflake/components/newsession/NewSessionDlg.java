@@ -7,6 +7,7 @@ import javax.swing.tree.*;
 import java.awt.event.*;
 
 import snowflake.*;
+import snowflake.components.common.CustomScrollBarUI;
 import snowflake.utils.*;
 
 import java.awt.*;
@@ -139,17 +140,17 @@ public class NewSessionDlg extends JDialog
 
         namePanel = new JPanel();
 
-        JPanel pp=new JPanel(new BorderLayout());
+        JPanel pp = new JPanel(new BorderLayout());
         pp.add(namePanel, BorderLayout.NORTH);
         pp.add(sessionInfoPanel);
 
         pdet = new JPanel(new BorderLayout());
-        pdet.add(new JScrollPane(pp));
+
+        JScrollPane scrollPane = new JScrollPane(pp);
+        scrollPane.setBorder(null);
+        pdet.add(scrollPane);
         pdet.add(box1, BorderLayout.SOUTH);
         add(pdet);
-
-
-
 
 
         BoxLayout boxLayout = new BoxLayout(namePanel, BoxLayout.PAGE_AXIS);

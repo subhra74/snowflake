@@ -1,6 +1,7 @@
 package snowflake.components.common;
 
 import javax.swing.*;
+import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -9,6 +10,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class CustomScrollBarUI extends BasicScrollBarUI {
     private AtomicBoolean hot = new AtomicBoolean(false);
+
+    public static ComponentUI createUI(JComponent c)    {
+        return new CustomScrollBarUI();
+    }
 
     @Override
     public void installUI(JComponent c) {

@@ -1,7 +1,9 @@
 package snowflake;
 
 import snowflake.common.GlobalSettings;
+import snowflake.components.common.CustomScrollBarUI;
 import snowflake.components.main.MainContent;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
@@ -39,7 +41,7 @@ public class App {
         return globalSettings;
     }
 
-    class MySynthFactory extends SynthStyleFactory{
+    class MySynthFactory extends SynthStyleFactory {
 
         @Override
         public SynthStyle getStyle(JComponent c, Region id) {
@@ -49,10 +51,14 @@ public class App {
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
 
-
+        NimbusLookAndFeel nimbusLookAndFeel = new NimbusLookAndFeel();
+        GraphicsUtils.createTextFieldSkin(nimbusLookAndFeel.getDefaults());
+        GraphicsUtils.createSpinnerSkin(nimbusLookAndFeel.getDefaults());
+        GraphicsUtils.createComboBoxSkin(nimbusLookAndFeel.getDefaults());
+        nimbusLookAndFeel.getDefaults().put("ScrollBarUI",CustomScrollBarUI.class.getName());
 
         System.out.println("Hello");
-        UIManager.setLookAndFeel(new NimbusLookAndFeel());
+        UIManager.setLookAndFeel(nimbusLookAndFeel);
         UIManager.put("control", Color.WHITE);
         //UIManager.put("nimbusBase", new Color(200, 200, 200));
 //        UIManager.put("text", new Color(208, 208, 208));
@@ -103,7 +109,7 @@ public class App {
             }
         });
 
-        splitPaneSkin.put("SplitPane.contentMargins",new Insets(0,0,0,0));
+        splitPaneSkin.put("SplitPane.contentMargins", new Insets(0, 0, 0, 0));
 
         createVerticalScrollSkin();
 
@@ -180,7 +186,7 @@ public class App {
             }
         };
 
-        toolBarButtonSkin.put("Button.contentMargins", new Insets(5,8,5,8));
+        toolBarButtonSkin.put("Button.contentMargins", new Insets(5, 8, 5, 8));
         toolBarButtonSkin.put("Button[Enabled].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Focused].backgroundPainter", toolBarButtonPainterNormal);
         toolBarButtonSkin.put("Button[Default].backgroundPainter", toolBarButtonPainterNormal);
@@ -222,9 +228,9 @@ public class App {
         scrollBarSkin.put("ScrollBar:ScrollBarTrack[Enabled].backgroundPainter", scrollButtonPainter);
         scrollBarSkin.put("ScrollBar:\"ScrollBar.button\".size", Integer.valueOf(0));
 
-        UIManager.put("ScrollBar.width",7);
+        UIManager.put("ScrollBar.width", 7);
 
-        SynthScrollBarUI basic=new SynthScrollBarUI();
+        SynthScrollBarUI basic = new SynthScrollBarUI();
 //        BasicTableHeaderUI headerUI=new BasicTableHeaderUI();
 //
 //        UIManager.put("ScrollBarUI",basic);
@@ -300,8 +306,8 @@ public class App {
     }
 
     private static void createVerticalScrollSkin() {
-        Color c=new Color(240,240,240);
-        splitPaneSkin1.put("SplitPane.contentMargins",new Insets(0,0,0,0));
+        Color c = new Color(240, 240, 240);
+        splitPaneSkin1.put("SplitPane.contentMargins", new Insets(0, 0, 0, 0));
         splitPaneSkin1.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
             @Override
             public void paint(Graphics2D g, Object object, int width, int height) {
