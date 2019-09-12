@@ -108,7 +108,8 @@ public class SshFileSystem implements FileSystem {
                             (long) attrs.getMTime() * 1000,
                             attrs.getPermissions(), PROTO_SFTP,
                             attrs.getPermissionsString(), attrs.getATime(),
-                            longName);
+                            longName,
+                            name.startsWith("."));
                     return e;
                 }
             }
@@ -118,7 +119,7 @@ public class SshFileSystem implements FileSystem {
                 return new FileInfo(name, pathToResolve, 0, FileType.FileLink,
                         (long) attrs.getMTime() * 1000, attrs.getPermissions(),
                         PROTO_SFTP, attrs.getPermissionsString(),
-                        attrs.getATime(), longName);
+                        attrs.getATime(), longName, name.startsWith("."));
             }
             throw e;
         } catch (Exception e) {
@@ -160,7 +161,8 @@ public class SshFileSystem implements FileSystem {
                                     (long) attrs.getMTime() * 1000,
                                     ent.getAttrs().getPermissions(), PROTO_SFTP,
                                     ent.getAttrs().getPermissionsString(),
-                                    attrs.getATime(), ent.getLongname());
+                                    attrs.getATime(), ent.getLongname(),
+                                    ent.getFilename().startsWith("."));
                             childs.add(e);
                         }
                     }
@@ -219,12 +221,13 @@ public class SshFileSystem implements FileSystem {
                 return resolveSymlink(PathUtils.getFileName(path), path, attrs,
                         null);
             } else {
-                FileInfo e = new FileInfo(PathUtils.getFileName(path), path,
+                String name = PathUtils.getFileName(path);
+                FileInfo e = new FileInfo(name, path,
                         (attrs.isDir() ? -1 : attrs.getSize()),
                         attrs.isDir() ? FileType.Directory : FileType.File,
                         (long) attrs.getMTime() * 1000, attrs.getPermissions(),
                         PROTO_SFTP, attrs.getPermissionsString(),
-                        attrs.getATime(), null);
+                        attrs.getATime(), null, name.startsWith("."));
                 return e;
             }
         } catch (SftpException e) {
@@ -428,7 +431,7 @@ public class SshFileSystem implements FileSystem {
 
                     @Override
                     public InputStream getInputStream(String path, long offset) throws Exception {
-                        return sftp.get(path,null,offset);
+                        return sftp.get(path, null, offset);
                     }
 
                     @Override

@@ -7,7 +7,9 @@ import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.common.TabbedPanel;
+import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.FileBrowser;
+import snowflake.components.files.browser.ssh.SftpFileBrowserView;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
 import snowflake.components.files.logviewer.LogViewerComponent;
@@ -16,6 +18,7 @@ import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.newsession.SessionStore;
 import snowflake.utils.PathUtils;
 import snowflake.utils.PlatformAppLauncher;
 
@@ -57,7 +60,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor) {
         super(new BorderLayout());
         setOpaque(true);
-        setBorder(new LineBorder(new Color(200,200,200),1));
+        setBorder(new LineBorder(new Color(200, 200, 200), 1));
         this.externalEditor = externalEditor;
         this.info = info;
         contentPane = new JPanel(new BorderLayout());
@@ -298,5 +301,25 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                 e.printStackTrace();
             }
         }
+    }
+
+    public List<String> getFavouriteLocations(AbstractFileBrowserView fileBrowserView) {
+        if (fileBrowserView instanceof SftpFileBrowserView) {
+            return info.getFavouriteRemoteFolders();
+        } else {
+            return info.getFavouriteLocalFolders();
+        }
+    }
+
+    public void addFavouriteLocation(AbstractFileBrowserView fileBrowserView, String path) {
+        if (fileBrowserView instanceof SftpFileBrowserView) {
+            info.getFavouriteRemoteFolders().add(path);
+        } else {
+            info.getFavouriteLocalFolders().add(path);
+        }
+        System.out.println(info.getId() + " --- " + info.getFavouriteLocalFolders() + " " + info.getFavouriteRemoteFolders());
+        SessionStore.updateFavourites(info.getId(),
+                info.getFavouriteLocalFolders(),
+                info.getFavouriteRemoteFolders());
     }
 }

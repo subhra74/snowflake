@@ -10,10 +10,10 @@ import javax.swing.border.LineBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -25,6 +25,9 @@ public class FolderView extends JPanel {
     //private TableRowSorter<FolderViewTableModel> sorter;
     private FolderViewEventListener listener;
     private JPopupMenu popup;
+    private boolean showHiddenFiles = false;
+    private int sortIndex = 2;
+    private boolean sortAsc = false;
 
     public FolderView(FolderViewEventListener listener) {
         super(new BorderLayout());
@@ -283,8 +286,18 @@ public class FolderView extends JPanel {
 //    }
 
     public void setItems(List<FileInfo> list) {
-        listModel.clear();
-        listModel.addAll(list);
+        if (showHiddenFiles) {
+            sortAndAddItems(list);
+        } else {
+            List<FileInfo> list2 = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++) {
+                FileInfo info = list.get(i);
+                if (!info.isHidden()) {
+                    list2.add(info);
+                }
+            }
+            sortAndAddItems(list);
+        }
     }
 
 //    public final void resizeColumnWidth(JTable table) {
@@ -308,5 +321,88 @@ public class FolderView extends JPanel {
     public void setFolderViewTransferHandler(DndTransferHandler transferHandler) {
         this.list.setTransferHandler(transferHandler);
 //        this.table.setTransferHandler(transferHandler);
+    }
+
+    public void sortView(int index, boolean asc) {
+        this.sortIndex = index;
+        this.sortAsc = asc;
+        List<FileInfo> fileInfoList = new ArrayList<>();
+        for (int i = 0; i < listModel.getSize(); i++) {
+            fileInfoList.add(listModel.get(i));
+        }
+        sortAndAddItems(fileInfoList);
+    }
+
+    private void sortAndAddItems(List<FileInfo> fileInfoList) {
+        switch (this.sortIndex) {
+            case 0:
+                fileInfoList.sort(new Comparator<FileInfo>() {
+                    @Override
+                    public int compare(FileInfo info1, FileInfo info2) {
+                        if (info1.getType() == FileType.Directory || info1.getType() == FileType.DirLink) {
+                            if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+                                return info1.getName().compareToIgnoreCase(info2.getName());
+                            } else {
+                                return 1;
+                            }
+                        } else {
+                            if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+                                return -1;
+                            } else {
+                                return info1.getName().compareToIgnoreCase(info2.getName());
+                            }
+                        }
+                    }
+                });
+                break;
+            case 1:
+                fileInfoList.sort(new Comparator<FileInfo>() {
+                    @Override
+                    public int compare(FileInfo o1, FileInfo o2) {
+                        Long s1 = o1.getSize();
+                        Long s2 = o2.getSize();
+                        return s1.compareTo(s2);
+                    }
+                });
+                break;
+            case 2:
+                fileInfoList.sort(new Comparator<FileInfo>() {
+                    @Override
+                    public int compare(FileInfo info1, FileInfo info2) {
+                        if (info1.getType() == FileType.Directory || info1.getType() == FileType.DirLink) {
+                            if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+                                return info1.getLastModified().compareTo(info2.getLastModified());
+                            } else {
+                                return 1;
+                            }
+                        } else {
+                            if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+                                return -1;
+                            } else {
+                                return info1.getLastModified().compareTo(info2.getLastModified());
+                            }
+                        }
+                    }
+                });
+                break;
+        }
+        if (!this.sortAsc) {
+            Collections.reverse(fileInfoList);
+        }
+        listModel.removeAllElements();
+        listModel.addAll(fileInfoList);
+    }
+
+    public void setShowHiddenFiles(boolean showHiddenFiles) {
+        this.showHiddenFiles = showHiddenFiles;
+        this.listener.reload();
+    }
+
+    public int getSortIndex() {
+        return sortIndex;
+    }
+
+    public boolean isSortAsc() {
+        return sortAsc;
     }
 }

@@ -5,10 +5,13 @@ import snowflake.common.FileType;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
+import snowflake.components.files.browser.OverflowMenuHandler;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +28,9 @@ public class LocalMenuHandler {
     private LocalFileBrowserView fileBrowserView;
     private FileComponentHolder holder;
 
-    public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView, FileComponentHolder holder) {
+
+    public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView,
+                            FileComponentHolder holder) {
         this.fileBrowser = fileBrowser;
         this.holder = holder;
         this.fileOperations = new LocalFileOperations();
@@ -115,7 +120,7 @@ public class LocalMenuHandler {
         mAddToFav.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //addToFavourites();
+                addToFavourites();
             }
         });
     }
@@ -220,5 +225,49 @@ public class LocalMenuHandler {
                 fileBrowser.enableUi();
             }
         });
+    }
+
+    private void addToFavourites() {
+        FileInfo arr[] = folderView.getSelectedFiles();
+        if (arr.length == 1) {
+            holder.addFavouriteLocation(fileBrowserView, arr[0].getPath());
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        } else if (arr.length == 0) {
+            holder.addFavouriteLocation(fileBrowserView, fileBrowserView.getCurrentDirectory());
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        }
+    }
+
+    public JPopupMenu createAddressPopup() {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem mOpenInNewTab = new JMenuItem("Open in new tab");
+        JMenuItem mCopyPath = new JMenuItem("Copy path");
+        JMenuItem mOpenInTerminal = new JMenuItem("Open in terminal");
+        JMenuItem mBookmark = new JMenuItem("Bookmark");
+        popupMenu.add(mOpenInNewTab);
+        popupMenu.add(mCopyPath);
+        popupMenu.add(mOpenInTerminal);
+        popupMenu.add(mBookmark);
+
+        mOpenInNewTab.addActionListener(e -> {
+            String path = popupMenu.getName();
+            fileBrowser.openLocalFileBrowserView(path, this.fileBrowserView.getOrientation());
+        });
+
+        mOpenInTerminal.addActionListener(e -> {
+
+        });
+
+        mCopyPath.addActionListener(e -> {
+            String path = popupMenu.getName();
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(path), null);
+        });
+
+        mBookmark.addActionListener(e -> {
+            String path = popupMenu.getName();
+            holder.addFavouriteLocation(fileBrowserView, path);
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        });
+        return popupMenu;
     }
 }

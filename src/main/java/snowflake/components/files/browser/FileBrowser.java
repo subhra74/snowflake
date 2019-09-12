@@ -8,12 +8,14 @@ import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.local.LocalFileBrowserView;
 import snowflake.components.files.browser.ssh.SftpFileBrowserView;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.newsession.SessionStore;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileBrowser extends JPanel {

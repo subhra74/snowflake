@@ -93,6 +93,7 @@ public class SessionStore {
                                                      List<String> localFolders, List<String> remoteFolders) {
         SavedSessionTree tree = load();
         SessionFolder folder = tree.getFolder();
+
         updateFavourites(folder, id, localFolders, remoteFolders);
         save(folder, tree.getLastSelection());
     }
@@ -100,11 +101,13 @@ public class SessionStore {
     private static boolean updateFavourites(SessionFolder folder, String id,
                                             List<String> localFolders, List<String> remoteFolders) {
         for (SessionInfo info : folder.getItems()) {
-            if (info.id == id) {
+            if (info.id.equals(id)) {
                 if (remoteFolders != null) {
+                    System.out.println("Remote folders saving: " + remoteFolders);
                     info.setFavouriteRemoteFolders(remoteFolders);
                 }
                 if (localFolders != null) {
+                    System.out.println("Local folders saving: " + localFolders);
                     info.setFavouriteLocalFolders(localFolders);
                 }
                 return true;

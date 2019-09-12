@@ -7,6 +7,7 @@ import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
+import snowflake.components.files.browser.OverflowMenuHandler;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
 
@@ -45,7 +46,8 @@ public class SshMenuHandler {
     private SftpFileBrowserView fileBrowserView;
     private FileComponentHolder holder;
 
-    public SshMenuHandler(FileBrowser fileBrowser, SftpFileBrowserView fileBrowserView, FileComponentHolder holder) {
+    public SshMenuHandler(FileBrowser fileBrowser, SftpFileBrowserView fileBrowserView,
+                          FileComponentHolder holder) {
         this.fileBrowser = fileBrowser;
         this.holder = holder;
         this.fileOperations = new SftpFileOperations();
@@ -217,7 +219,7 @@ public class SshMenuHandler {
         aAddToFav = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //addToFavourites();
+                addToFavourites();
             }
         };
         mAddToFav = new JMenuItem("Bookmark");
@@ -440,13 +442,13 @@ public class SshMenuHandler {
     private void delete(FileInfo[] targetList, String baseFolder) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            try{
+            try {
                 if (fileOperations.delete(targetList, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
                     fileBrowserView.render(baseFolder);
                 } else {
                     fileBrowser.enableUi();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 fileBrowser.enableUi();
             }
@@ -457,13 +459,13 @@ public class SshMenuHandler {
     public void newFile(String baseFolder, FileInfo[] files) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            try{
+            try {
                 if (fileOperations.newFile(files, fileBrowserView.getFileSystem(), baseFolder, fileBrowserView.getSshClient())) {
                     fileBrowserView.render(baseFolder);
                 } else {
                     fileBrowser.enableUi();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 fileBrowser.enableUi();
             }
@@ -474,13 +476,13 @@ public class SshMenuHandler {
     public void newFolder(String baseFolder, FileInfo[] files) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            try{
+            try {
                 if (fileOperations.newFolder(files, baseFolder, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
                     fileBrowserView.render(baseFolder);
                 } else {
                     fileBrowser.enableUi();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 fileBrowser.enableUi();
             }
@@ -491,13 +493,13 @@ public class SshMenuHandler {
     public void createLink(String baseFolder, FileInfo[] files) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            try{
+            try {
                 if (fileOperations.createLink(files, fileBrowserView.getFileSystem(), fileBrowserView.getSshClient())) {
                     fileBrowserView.render(baseFolder);
                 } else {
                     fileBrowser.enableUi();
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 fileBrowser.enableUi();
             }
@@ -561,5 +563,49 @@ public class SshMenuHandler {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void addToFavourites() {
+        FileInfo arr[] = folderView.getSelectedFiles();
+        if (arr.length == 1) {
+            holder.addFavouriteLocation(fileBrowserView, arr[0].getPath());
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        } else if (arr.length == 0) {
+            holder.addFavouriteLocation(fileBrowserView, fileBrowserView.getCurrentDirectory());
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        }
+    }
+
+    public JPopupMenu createAddressPopup() {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem mOpenInNewTab = new JMenuItem("Open in new tab");
+        JMenuItem mCopyPath = new JMenuItem("Copy path");
+        JMenuItem mOpenInTerminal = new JMenuItem("Open in terminal");
+        JMenuItem mBookmark = new JMenuItem("Bookmark");
+        popupMenu.add(mOpenInNewTab);
+        popupMenu.add(mCopyPath);
+        popupMenu.add(mOpenInTerminal);
+        popupMenu.add(mBookmark);
+
+        mOpenInNewTab.addActionListener(e -> {
+            String path = popupMenu.getName();
+            fileBrowser.openSftpFileBrowserView(path, this.fileBrowserView.getOrientation());
+        });
+
+        mOpenInTerminal.addActionListener(e -> {
+
+        });
+
+        mCopyPath.addActionListener(e -> {
+            String path = popupMenu.getName();
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(path), null);
+        });
+
+        mBookmark.addActionListener(e -> {
+            String path = popupMenu.getName();
+            holder.addFavouriteLocation(fileBrowserView, path);
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        });
+        return popupMenu;
     }
 }

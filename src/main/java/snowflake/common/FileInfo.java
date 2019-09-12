@@ -1,4 +1,5 @@
 package snowflake.common;
+
 import snowflake.utils.TimeUtils;
 
 import java.io.Serializable;
@@ -17,11 +18,12 @@ public class FileInfo implements Serializable {
     private String permissionString;
     private String extra;
     private String user;
+    private boolean hidden;
 
     private static final Pattern USER_REGEX = Pattern.compile("^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)");
 
     public FileInfo(String name, String path, long size, FileType type, long lastModified, int permission,
-                    String protocol, String permissionString, long created, String extra) {
+                    String protocol, String permissionString, long created, String extra, boolean hidden) {
         super();
         this.name = name;
         this.path = path;
@@ -36,6 +38,7 @@ public class FileInfo implements Serializable {
         if (this.extra != null && this.extra.length() > 0) {
             this.user = getUserName();
         }
+        this.hidden = hidden;
     }
 
     private String getUserName() {
@@ -156,5 +159,13 @@ public class FileInfo implements Serializable {
 
     public void setUser(String user) {
         this.user = user;
+    }
+
+    public boolean isHidden() {
+        return hidden;
+    }
+
+    public void setHidden(boolean hidden) {
+        this.hidden = hidden;
     }
 }

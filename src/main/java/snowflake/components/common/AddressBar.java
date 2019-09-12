@@ -1,12 +1,14 @@
 package snowflake.components.common;
 
 import snowflake.App;
+import snowflake.utils.LayoutUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 public class AddressBar extends JPanel {
     //private AddressBreadCrumbView addressBar;
@@ -17,18 +19,23 @@ public class AddressBar extends JPanel {
     private JPanel addrPanel;
     private boolean updating = false;
     private ActionListener a;
+    private JPopupMenu popup;
+    private char separator;
 
     public AddressBar(char separator, ActionListener popupTriggeredListener) {
         setLayout(new BorderLayout());
         addrPanel = new JPanel(new BorderLayout());
         addrPanel.setBorder(
                 new EmptyBorder(3, 3, 3, 3));
-
+        this.separator = separator;
         btnRoot = new JButton();
         btnRoot.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnRoot.setFont(App.getFontAwesomeFont());
         btnRoot.setForeground(Color.DARK_GRAY);
         btnRoot.setText("\uf0a0");
+        btnRoot.addActionListener(e -> {
+            createAndShowPopup();
+        });
 
         model = new DefaultComboBoxModel<>();
         txtAddressBar = new JComboBox<>(model);
@@ -67,7 +74,7 @@ public class AddressBar extends JPanel {
 
         JPanel panBtn2 = new JPanel(new BorderLayout());
         panBtn2.setBorder(new EmptyBorder(3, 3, 3, 3));
-        panBtn2.add(btnRoot);
+
 
         btnEdit = new JButton();
         btnEdit.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
@@ -136,6 +143,9 @@ public class AddressBar extends JPanel {
 //            repaint();
 //        });
 
+        LayoutUtils.makeSameSize(btnRoot, btnEdit);
+
+        panBtn2.add(btnRoot);
 
         addrPanel.add(addressBar);
         add(addrPanel);
@@ -166,5 +176,40 @@ public class AddressBar extends JPanel {
 
     private boolean isSelected() {
         return btnEdit.getClientProperty("toggle.selected") == Boolean.TRUE;
+    }
+
+    private void createAndShowPopup() {
+        if (popup == null) {
+            popup = new JPopupMenu();
+        } else {
+            popup.removeAll();
+        }
+
+        if (separator == '/') {
+            JMenuItem item = new JMenuItem("ROOT");
+            item.putClientProperty("item.path", "/");
+            item.addActionListener(e -> {
+                String selectedText = (String) item.getClientProperty("item.path");
+                if (a != null) {
+                    a.actionPerformed(new ActionEvent(this, 0, selectedText));
+                }
+            });
+            popup.add(item);
+        } else {
+            File[] roots = File.listRoots();
+            for (File f : roots) {
+                JMenuItem item = new JMenuItem(f.getAbsolutePath());
+                item.putClientProperty("item.path", f.getAbsolutePath());
+                item.addActionListener(e -> {
+                    String selectedText = (String) item.getClientProperty("item.path");
+                    if (a != null) {
+                        a.actionPerformed(new ActionEvent(this, 0, selectedText));
+                    }
+                });
+                popup.add(item);
+            }
+        }
+
+        popup.show(this, 0, getHeight());
     }
 }

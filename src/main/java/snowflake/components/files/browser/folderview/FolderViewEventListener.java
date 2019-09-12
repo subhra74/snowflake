@@ -14,4 +14,6 @@ public interface FolderViewEventListener {
     boolean createMenu(JPopupMenu popupMenu, FileInfo[] files);
 
     void install(JComponent c);
+
+    void reload();
 }

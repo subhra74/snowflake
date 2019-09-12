@@ -12,6 +12,7 @@ import snowflake.components.newsession.SessionInfo;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +24,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     private FileBrowser fileBrowser;
     private DndTransferHandler transferHandler;
     private LocalFileSystem fs;
+    private JPopupMenu addressPopup;
 
     public LocalFileBrowserView(FileBrowser fileBrowser,
                                 JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
@@ -33,6 +35,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         this.transferHandler = new DndTransferHandler(this.folderView, null, this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
+        this.addressPopup = menuHandler.createAddressPopup();
         if (initialPath != null) {
             this.path = initialPath;
         }
@@ -57,6 +60,10 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         addressBar = new AddressBar(File.separatorChar, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String selectedPath = e.getActionCommand();
+                addressPopup.setName(selectedPath);
+                MouseEvent me = (MouseEvent) e.getSource();
+                addressPopup.show(me.getComponent(), me.getX(), me.getY());
                 System.out.println("clicked");
             }
         });

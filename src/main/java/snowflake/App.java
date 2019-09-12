@@ -41,13 +41,13 @@ public class App {
         return globalSettings;
     }
 
-    class MySynthFactory extends SynthStyleFactory {
-
-        @Override
-        public SynthStyle getStyle(JComponent c, Region id) {
-            return null;
-        }
-    }
+//    class MySynthFactory extends SynthStyleFactory {
+//
+//        @Override
+//        public SynthStyle getStyle(JComponent c, Region id) {
+//            return null;
+//        }
+//    }
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
 

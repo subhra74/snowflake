@@ -28,7 +28,7 @@ public class LocalFileSystem implements FileSystem {
         FileInfo info = new FileInfo(f.getName(), path, f.length(),
                 f.isDirectory() ? FileType.Directory : FileType.File,
                 f.lastModified(), -1, PROTO_LOCAL_FILE, "",
-                attrs.creationTime().toMillis(), "");
+                attrs.creationTime().toMillis(), "", f.isHidden());
         return info;
     }
 
@@ -59,7 +59,7 @@ public class LocalFileSystem implements FileSystem {
                     f.length(),
                     f.isDirectory() ? FileType.Directory : FileType.File,
                     f.lastModified(), -1, PROTO_LOCAL_FILE, "",
-                    attrs.creationTime().toMillis(), "");
+                    attrs.creationTime().toMillis(), "", f.isHidden());
             list.add(info);
         }
         return list;

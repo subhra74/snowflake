@@ -16,6 +16,7 @@ import snowflake.utils.PathUtils;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -25,7 +26,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private SshMenuHandler menuHandler;
     private FileBrowser fileBrowser;
-
+    private JPopupMenu addressPopup;
     private DndTransferHandler transferHandler;
 
     public SftpFileBrowserView(FileBrowser fileBrowser,
@@ -37,6 +38,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         this.transferHandler = new DndTransferHandler(this.folderView, holder.getInfo(), this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
+        this.addressPopup = menuHandler.createAddressPopup();
         if (initialPath == null) {
             this.path = holder.getInfo().getRemoteFolder();
         } else {
@@ -58,6 +60,10 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         addressBar = new AddressBar('/', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String selectedPath = e.getActionCommand();
+                addressPopup.setName(selectedPath);
+                MouseEvent me = (MouseEvent) e.getSource();
+                addressPopup.show(me.getComponent(), me.getX(), me.getY());
                 System.out.println("clicked");
             }
         });
@@ -105,7 +111,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             folderView.setItems(list);
         });
     }
-
 
 
     @Override
@@ -207,5 +212,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     public TransferHandler getTransferHandler() {
         return transferHandler;
     }
+
 
 }
