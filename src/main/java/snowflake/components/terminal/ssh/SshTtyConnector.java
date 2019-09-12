@@ -3,6 +3,7 @@ package snowflake.components.terminal.ssh;
 import java.awt.*;
 import java.io.*;
 import java.util.concurrent.atomic.*;
+
 import com.jcraft.jsch.*;
 import com.jediterm.terminal.*;
 import snowflake.common.ssh.SshClient;
@@ -20,9 +21,15 @@ public class SshTtyConnector implements DisposableTtyConnector {
     private Dimension myPendingTermSize;
     private Dimension myPendingPixelSize;
     private SshClient wr;
+    private String initialCommand;
+
+    public SshTtyConnector(SshUserInteraction source, String initialCommand) {
+        this.initialCommand = initialCommand;
+        this.source = source;
+    }
 
     public SshTtyConnector(SshUserInteraction source) {
-        this.source = source;
+        this(source, null);
     }
 
     @Override
@@ -48,7 +55,13 @@ public class SshTtyConnector implements DisposableTtyConnector {
             myOutputStream = pout2;// channel.getOutputStream();
             myInputStreamReader = new InputStreamReader(myInputStream, "utf-8");
             channel.connect();
+
+            resizeImmediately();
             System.out.println("Initiated");
+
+            if (initialCommand != null) {
+                pout2.write((initialCommand + "\n").getBytes("utf-8"));
+            }
 
             // resize(termSize, pixelSize);
             isInitiated.set(true);

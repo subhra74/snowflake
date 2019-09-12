@@ -1,13 +1,11 @@
 package snowflake.components.files.browser.ssh;
 
-import org.jetbrains.annotations.NotNull;
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
-import snowflake.components.files.browser.OverflowMenuHandler;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
 
@@ -24,6 +22,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SshMenuHandler {
     private AbstractAction aOpenInTab, aOpen, aRename, aDelete, aNewFile, aNewFolder, aCopy, aPaste, aCut, aAddToFav,
@@ -34,7 +33,8 @@ public class SshMenuHandler {
 
     private JMenuItem mOpenInTab, mOpen, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav,
             mChangePerm, mSendFiles, mUpload, mOpenWithDefApp, mOpenWthInternalEdit, mOpenWithCustom, mOpenWithLogView,
-            mDownload, mCreateLink, mCopyPath;
+            mDownload, mCreateLink, mCopyPath, mOpenFolderInTerminal, mOpenTerminalHere, mRunScriptInTerminal,
+            mRunScriptInBackground;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -106,6 +106,31 @@ public class SshMenuHandler {
         mOpenWith.add(mOpenWithCustom);
         mOpenWith.add(mOpenWthInternalEdit);
         mOpenWith.add(mOpenWithLogView);
+
+        mRunScriptInTerminal = new JMenuItem("Run in terminal");
+        mRunScriptInTerminal.addActionListener(e -> {
+
+        });
+
+        mOpenFolderInTerminal = new JMenuItem("Open folder in terminal");
+        mOpenFolderInTerminal.addActionListener(e -> {
+            openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
+        });
+
+        mOpenTerminalHere = new JMenuItem("Open terminal here");
+        mOpenTerminalHere.addActionListener(e -> {
+            openFolderInTerminal(fileBrowserView.getCurrentDirectory());
+        });
+
+        mRunScriptInTerminal = new JMenuItem("Run file in terminal");
+        mRunScriptInTerminal.addActionListener(e -> {
+            openRunInTerminal(fileBrowserView.getCurrentDirectory(), folderView.getSelectedFiles()[0].getPath());
+        });
+
+        mRunScriptInBackground = new JMenuItem("Run file in background");
+        mRunScriptInBackground.addActionListener(e -> {
+            openRunInBackground(fileBrowserView.getCurrentDirectory(), folderView.getSelectedFiles()[0].getPath());
+        });
 
         aRename = new AbstractAction() {
             @Override
@@ -206,7 +231,7 @@ public class SshMenuHandler {
         aCut = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //copyToClipboard(true);
+                copyToClipboard(true);
             }
         };
         mCut = new JMenuItem("Cut");
@@ -324,6 +349,8 @@ public class SshMenuHandler {
                     || selectedFiles[0].getType() == FileType.DirLink) {
                 popup.add(mOpenInTab);
                 count++;
+                popup.add(mOpenFolderInTerminal);
+                count++;
             }
 
             if ((selectedFiles[0].getType() == FileType.File
@@ -332,6 +359,8 @@ public class SshMenuHandler {
                 count++;
                 popup.add(mOpenWith);
                 count++;
+                popup.add(mRunScriptInTerminal);
+                popup.add(mRunScriptInBackground);
             }
         }
 
@@ -366,6 +395,7 @@ public class SshMenuHandler {
         if (selectionCount < 1) {
             popup.add(mNewFolder);
             popup.add(mNewFile);
+            popup.add(mOpenTerminalHere);
             count += 2;
         }
 
@@ -565,6 +595,21 @@ public class SshMenuHandler {
         });
     }
 
+    public void move(List<FileInfo> files, String targetFolder) {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            try {
+                if (fileOperations.moveTo(fileBrowserView.getSshClient(), files, targetFolder, fileBrowserView.getFileSystem())) {
+                    fileBrowserView.render(targetFolder);
+                } else {
+                    fileBrowser.enableUi();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
     private void addToFavourites() {
         FileInfo arr[] = folderView.getSelectedFiles();
         if (arr.length == 1) {
@@ -607,5 +652,28 @@ public class SshMenuHandler {
             this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
         });
         return popupMenu;
+    }
+
+    private void openFolderInTerminal(String folder) {
+        holder.openTerminal("cd \"" + folder + "\"");
+    }
+
+    private void openRunInTerminal(String folder, String file) {
+        holder.openTerminal("cd \"" + folder + "\"; \"" + file + "\"");
+    }
+
+    private void openRunInBackground(String folder, String file) {
+        executor.submit(() -> {
+            fileBrowser.disableUi();
+            try {
+                if (fileOperations.runScriptInBackground(fileBrowserView.getSshClient(),
+                        "cd \"" + folder + "\"; nohup \"" + file + "\" &",
+                        new AtomicBoolean())) {
+                }
+                fileBrowser.enableUi();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

@@ -1,21 +1,17 @@
 package snowflake.components.files.browser;
 
 import snowflake.App;
-import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.local.LocalFileBrowserView;
 import snowflake.components.files.browser.ssh.SftpFileBrowserView;
 import snowflake.components.newsession.SessionInfo;
-import snowflake.components.newsession.SessionStore;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-
 import java.awt.*;
-import java.util.*;
-import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileBrowser extends JPanel {
@@ -27,6 +23,7 @@ public class FileBrowser extends JPanel {
     private AtomicBoolean closeRequested;
     private FileComponentHolder holder;
     private JRootPane rootPane;
+    private boolean ignoreEvent = false;
 
     public FileBrowser(SessionInfo info,
                        SshUserInteraction source,
@@ -40,11 +37,9 @@ public class FileBrowser extends JPanel {
         this.holder = holder;
         this.rootPane = rootPane;
         leftList = new DefaultComboBoxModel<>();
-        leftList.addElement("New local file browser");
         leftList.addElement("New remote file browser");
         rightList = new DefaultComboBoxModel<>();
         rightList.addElement("New local file browser");
-        rightList.addElement("New remote file browser");
 
         horizontalSplitter = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         horizontalSplitter.putClientProperty("Nimbus.Overrides", App.splitPaneSkin);
@@ -67,57 +62,55 @@ public class FileBrowser extends JPanel {
             if (index != -1) {
                 Object obj = leftList.getElementAt(index);
                 if (obj instanceof String) {
-                    if (index == 0) {
-                        openLocalFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Left);
+                    if (ignoreEvent) {
+                        ignoreEvent = false;
+                        return;
                     }
-                    if (index == 1) {
-                        openSftpFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Left);
-                    }
-                } else {
-                    //leftCard.show(leftPanel, obj.hashCode() + "");
-                }
-            }
-        });
-
-        leftDropdown.addItemListener(e -> {
-            System.out.println("Left drop down changed");
-            int index = leftDropdown.getSelectedIndex();
-            if (index != -1) {
-                Object obj = leftList.getElementAt(index);
-                if (obj instanceof String) {
+                    openSftpFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Left);
                 } else {
                     leftCard.show(leftPanel, obj.hashCode() + "");
                 }
             }
         });
 
+//        leftDropdown.addItemListener(e -> {
+//            System.out.println("Left drop down changed");
+//            int index = leftDropdown.getSelectedIndex();
+//            if (index != -1) {
+//                Object obj = leftList.getElementAt(index);
+//                if (obj instanceof String) {
+//                } else {
+//                    leftCard.show(leftPanel, obj.hashCode() + "");
+//                }
+//            }
+//        });
+
         rightDropdown.addActionListener(e -> {
             int index = rightDropdown.getSelectedIndex();
             if (index != -1) {
                 Object obj = rightList.getElementAt(index);
                 if (obj instanceof String) {
-                    if (index == 0) {
-                        openLocalFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Right);
+                    if (ignoreEvent) {
+                        ignoreEvent = false;
+                        return;
                     }
-                    if (index == 1) {
-                        openSftpFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Right);
-                    }
-                } else {
-                    //rightCard.show(rightPanel, obj.hashCode() + "");
-                }
-            }
-        });
-
-        rightDropdown.addItemListener(e -> {
-            int index = rightDropdown.getSelectedIndex();
-            if (index != -1) {
-                Object obj = rightList.getElementAt(index);
-                if (obj instanceof String) {
+                    openLocalFileBrowserView(null, AbstractFileBrowserView.PanelOrientation.Right);
                 } else {
                     rightCard.show(rightPanel, obj.hashCode() + "");
                 }
             }
         });
+
+//        rightDropdown.addItemListener(e -> {
+//            int index = rightDropdown.getSelectedIndex();
+//            if (index != -1) {
+//                Object obj = rightList.getElementAt(index);
+//                if (obj instanceof String) {
+//                } else {
+//                    rightCard.show(rightPanel, obj.hashCode() + "");
+//                }
+//            }
+//        });
 
         JPanel leftPanelHolder = new JPanel(new BorderLayout());
         JPanel rightPanelHolder = new JPanel(new BorderLayout());
@@ -139,14 +132,14 @@ public class FileBrowser extends JPanel {
         SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder,
                 null, AbstractFileBrowserView.PanelOrientation.Left);
         leftList.addElement(fv1);
-        leftDropdown.setSelectedIndex(2);
+        leftDropdown.setSelectedIndex(1);
         leftPanel.add(fv1, fv1.hashCode() + "");
         leftCard.show(leftPanel, fv1.hashCode() + "");
 
         LocalFileBrowserView fv2 = new LocalFileBrowserView(this, rootPane, holder,
                 null, AbstractFileBrowserView.PanelOrientation.Right);
         rightList.addElement(fv2);
-        rightDropdown.setSelectedIndex(2);
+        rightDropdown.setSelectedIndex(1);
         rightPanel.add(fv2, fv2.hashCode() + "");
         rightCard.show(rightPanel, fv2.hashCode() + "");
     }
@@ -169,40 +162,30 @@ public class FileBrowser extends JPanel {
 
     public void openSftpFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
         SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder, path, orientation);
-        int c = orientation == AbstractFileBrowserView.PanelOrientation.Right ? rightList.getSize() : leftList.getSize();
-        if (orientation == AbstractFileBrowserView.PanelOrientation.Right) {
-            rightList.addElement(fv1);
-            rightPanel.add(fv1, fv1.hashCode() + "");
-            rightDropdown.setSelectedIndex(c);
-        } else {
-            leftList.addElement(fv1);
-            leftPanel.add(fv1, fv1.hashCode() + "");
-            leftDropdown.setSelectedIndex(c);
-        }
+        int c = leftList.getSize();
+        leftList.addElement(fv1);
+        leftPanel.add(fv1, fv1.hashCode() + "");
+        leftDropdown.setSelectedIndex(c);
+        leftCard.show(leftPanel, fv1.hashCode() + "");
     }
 
     public void openLocalFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
-        int c = orientation == AbstractFileBrowserView.PanelOrientation.Right ? rightList.getSize() : leftList.getSize();
+        int c = rightList.getSize();
         LocalFileBrowserView fv1 = new LocalFileBrowserView(this, rootPane, holder, path, orientation);
-        if (orientation == AbstractFileBrowserView.PanelOrientation.Right) {
-            rightList.addElement(fv1);
-            rightPanel.add(fv1, fv1.hashCode() + "");
-            rightDropdown.setSelectedIndex(c);
-        } else {
-            leftList.addElement(fv1);
-            leftPanel.add(fv1, fv1.hashCode() + "");
-            leftDropdown.setSelectedIndex(c);
-        }
+        rightList.addElement(fv1);
+        rightPanel.add(fv1, fv1.hashCode() + "");
+        rightDropdown.setSelectedIndex(c);
+        rightCard.show(rightPanel, fv1.hashCode() + "");
     }
 
-    public void newFileTransfer(FileSystem sourceFs,
-                                FileSystem targetFs,
-                                FileInfo[] files,
-                                String sourceFolder,
-                                String targetFolder,
-                                int dragsource) {
-        holder.newFileTransfer(sourceFs, targetFs, files, sourceFolder, targetFolder, dragsource);
-    }
+//    public void newFileTransfer(FileSystem sourceFs,
+//                                FileSystem targetFs,
+//                                FileInfo[] files,
+//                                String sourceFolder,
+//                                String targetFolder,
+//                                int dragsource) {
+//        holder.newFileTransfer(sourceFs, targetFs, files, sourceFolder, targetFolder, dragsource);
+//    }
 
     public void requestReload(int sourceHashcode) {
         for (int i = 0; i < this.leftList.getSize(); i++) {
@@ -216,6 +199,44 @@ public class FileBrowser extends JPanel {
             Object obj = rightList.getElementAt(i);
             if (obj.hashCode() == sourceHashcode) {
                 ((AbstractFileBrowserView) obj).reload();
+            }
+        }
+    }
+
+    public void removeFileView(AbstractFileBrowserView fileBrowserView) {
+        if (fileBrowserView instanceof SftpFileBrowserView) {
+            removeRemoteFileView(fileBrowserView);
+        } else {
+            removeLocalFileView(fileBrowserView);
+        }
+    }
+
+    public void removeRemoteFileView(AbstractFileBrowserView fileBrowserView) {
+        for (int i = 0; i < this.leftList.getSize(); i++) {
+            Object obj = leftList.getElementAt(i);
+            if (obj == fileBrowserView) {
+                ignoreEvent = true;
+                System.out.println("Remove remote");
+                leftPanel.remove((Component) obj);
+                leftList.removeElement(obj);
+                revalidate();
+                repaint();
+                return;
+            }
+        }
+    }
+
+    public void removeLocalFileView(AbstractFileBrowserView fileBrowserView) {
+        for (int i = 0; i < this.rightList.getSize(); i++) {
+            Object obj = rightList.getElementAt(i);
+            if (obj == fileBrowserView) {
+                ignoreEvent = true;
+                System.out.println("Remove local");
+                rightPanel.remove((Component) obj);
+                rightList.removeElement(obj);
+                revalidate();
+                repaint();
+                return;
             }
         }
     }

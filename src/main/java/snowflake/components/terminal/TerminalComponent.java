@@ -21,7 +21,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
     private DisposableTtyConnector tty;
     private String name;
 
-    public TerminalComponent(SessionInfo info, String name) {
+    public TerminalComponent(SessionInfo info, String name, String command) {
         setLayout(new BorderLayout());
         this.name = name;
         contentPane = new JPanel(new BorderLayout());
@@ -29,7 +29,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
         rootPane.setContentPane(contentPane);
         add(rootPane);
 
-        tty = new SshTtyConnector(new SshUserInteraction(info, rootPane));
+        tty = new SshTtyConnector(new SshUserInteraction(info, rootPane), command);
 
 //        Color background = new Color(40, 44, 52);
 //        Color foreground = new Color(171, 178, 191);

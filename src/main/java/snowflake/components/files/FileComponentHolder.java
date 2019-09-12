@@ -17,6 +17,7 @@ import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
 import snowflake.components.main.ConnectedResource;
+import snowflake.components.main.SessionContent;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.newsession.SessionStore;
 import snowflake.utils.PathUtils;
@@ -56,10 +57,12 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
     private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
     private LogViewerComponent logViewerComponent;
+    private SessionContent sessionContent;
 
-    public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor) {
+    public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor, SessionContent sessionContent) {
         super(new BorderLayout());
         setOpaque(true);
+        this.sessionContent = sessionContent;
         setBorder(new LineBorder(new Color(200, 200, 200), 1));
         this.externalEditor = externalEditor;
         this.info = info;
@@ -321,5 +324,9 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         SessionStore.updateFavourites(info.getId(),
                 info.getFavouriteLocalFolders(),
                 info.getFavouriteRemoteFolders());
+    }
+
+    public void openTerminal(String command) {
+        this.sessionContent.openTerminal(command);
     }
 }

@@ -23,10 +23,13 @@ public class OverflowMenuHandler {
     private FileComponentHolder holder;
     private AbstractFileBrowserView fileBrowserView;
     private JMenu favouriteLocations;
+    private JPopupMenu mSortMenu;
+    private FileBrowser fileBrowser;
 
-    public OverflowMenuHandler(FileComponentHolder holder, AbstractFileBrowserView fileBrowserView) {
+    public OverflowMenuHandler(FileComponentHolder holder, AbstractFileBrowserView fileBrowserView, FileBrowser fileBrowser) {
         this.holder = holder;
         this.fileBrowserView = fileBrowserView;
+        this.fileBrowser = fileBrowser;
         ksHideShow = KeyStroke.getKeyStroke(KeyEvent.VK_H,
                 InputEvent.CTRL_DOWN_MASK);
 
@@ -68,9 +71,7 @@ public class OverflowMenuHandler {
         this.favouriteLocations = new JMenu("Bookmarks");
 
         popup = new JPopupMenu();
-
-        JMenu mSortMenu = new JMenu("Sort by");
-        popup.add(mSortMenu);
+        mSortMenu = new JPopupMenu();
 
         mSortMenu.add(mSortName);
         mSortMenu.add(mSortSize);
@@ -81,6 +82,10 @@ public class OverflowMenuHandler {
 
         popup.add(mShowHiddenFiles);
         popup.add(favouriteLocations);
+
+        JMenuItem mClose = new JMenuItem("Close");
+        mClose.addActionListener(e -> close());
+        popup.add(mClose);
 
         loadFavourites();
     }
@@ -113,12 +118,14 @@ public class OverflowMenuHandler {
     }
 
     private void sortMenuClicked(JRadioButtonMenuItem mSortItem) {
-        if (sortingChanging.get()) {
-            return;
+        if (mSortItem == mSortAsc) {
+            folderView.sortView(folderView.getSortIndex(), true);
+        } else if (mSortItem == mSortDesc) {
+            folderView.sortView(folderView.getSortIndex(), false);
+        } else {
+            int index = (int) mSortItem.getClientProperty("sort.index");
+            folderView.sortView(index, folderView.isSortAsc());
         }
-        int index = (int) mSortItem.getClientProperty("sort.index");
-        boolean asc = mSortAsc.isSelected();
-        folderView.sortView(index, asc);
     }
 
     public JPopupMenu getOverflowMenu() {
@@ -145,6 +152,14 @@ public class OverflowMenuHandler {
         this.folderView = folderView;
         map.put(ksHideShow, "ksHideShow");
         act.put("ksHideShow", aHideShow);
+    }
+
+    public void close() {
+        fileBrowser.removeFileView(fileBrowserView);
+    }
+
+    public JPopupMenu getSortMenu() {
+        return this.mSortMenu;
     }
 
 }

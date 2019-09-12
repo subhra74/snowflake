@@ -6,10 +6,7 @@ import snowflake.common.FileType;
 import snowflake.utils.FormatUtils;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 
 public class FolderViewListCellRenderer implements ListCellRenderer<FileInfo> {
@@ -19,7 +16,7 @@ public class FolderViewListCellRenderer implements ListCellRenderer<FileInfo> {
     JLabel lblIcon;
 
     public FolderViewListCellRenderer() {
-         lblIcon = new JLabel();
+        lblIcon = new JLabel();
         lblIcon.setBorder(new EmptyBorder(5, 5, 5, 5));
         lblIcon.setText("\uf1c6");
         lblIcon.setFont(App.getFontAwesomeFont().deriveFont(Font.PLAIN, 25.f));
@@ -32,7 +29,7 @@ public class FolderViewListCellRenderer implements ListCellRenderer<FileInfo> {
 //        lblIcon.setPreferredSize(new Dimension(40, 40));
 
         lblTitle = new JLabel();
-        lblTitle.setForeground(new Color(80,80,80));
+        lblTitle.setForeground(new Color(80, 80, 80));
         lblTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
         lblTitle.setAlignmentX(Box.LEFT_ALIGNMENT);
 
@@ -75,8 +72,12 @@ public class FolderViewListCellRenderer implements ListCellRenderer<FileInfo> {
                     + " - " + FormatUtils.formatDate(value.getLastModified()));
         }
 
-        lx2.setText(value.getUser()
-                + " - " + value.getPermissionString());
+        if (value.getUser() == null || value.getPermissionString() == null || value.getPermissionString().length() < 1) {
+            lx2.setText("");
+        } else {
+            lx2.setText(value.getUser()
+                    + " - " + value.getPermissionString());
+        }
 
         if (isSelected) {
             lblTitle.setForeground(Color.WHITE);

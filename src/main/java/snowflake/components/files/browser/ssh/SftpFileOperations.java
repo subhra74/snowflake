@@ -22,6 +22,65 @@ public class SftpFileOperations {
     public SftpFileOperations() {
     }
 
+    public boolean runScriptInBackground(SshClient client, String command, AtomicBoolean stopFlag) {
+        System.out.println("Invoke command: " + command);
+        StringBuilder output = new StringBuilder();
+        boolean ret = SshCommandUtils.exec(client, command, stopFlag, output);
+        System.out.println("output: " + output.toString());
+        return ret;
+    }
+
+    public boolean moveTo(SshClient client, List<FileInfo> files, String targetFolder, FileSystem fs) throws Exception {
+        List<FileInfo> fileList = fs.list(targetFolder);
+        List<FileInfo> dupList = new ArrayList<>();
+        for (FileInfo file : files) {
+            for (FileInfo file1 : fileList) {
+                if (file.getName().equals(file1.getName())) {
+                    dupList.add(file);
+                }
+            }
+        }
+
+        int action = -1;
+        if (dupList.size() > 0) {
+            JComboBox<String> cmbs = new JComboBox<>(new String[]{"Auto rename", "Overwrite"});
+            if (JOptionPane.showOptionDialog(null, new Object[]{"Some file with the same name already exists. Please choose an action",
+                    cmbs}, "Action required", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.YES_OPTION) {
+                action = cmbs.getSelectedIndex();
+            } else {
+                return false;
+            }
+        }
+
+        StringBuilder command = new StringBuilder();
+        for (FileInfo fileInfo : files) {
+            if (fileInfo.getType() == FileType.DirLink || fileInfo.getType() == FileType.Directory) {
+                command.append("mv ");
+            } else {
+                command.append("mv -T ");
+            }
+            command.append("\"" + fileInfo.getPath() + "\" ");
+            if (dupList.contains(fileInfo) && action == 0) {
+                command.append("\"" + PathUtils.combineUnix(targetFolder, getUniqueName(fileList, fileInfo.getName())) + "\"; ");
+            } else {
+                command.append("\"" + PathUtils.combineUnix(targetFolder, fileInfo.getName()) + "\"; ");
+            }
+        }
+
+        System.out.println("Move: " + command);
+        if (!SshCommandUtils.exec(client, command.toString(), new AtomicBoolean(false), new StringBuilder())) {
+            int ret = SudoUtils.runSudo(command.toString(), client);
+            if (ret == -1) {
+                JOptionPane.showMessageDialog(null, "Operation failed");
+            } else {
+                return ret == 0;
+            }
+        } else {
+            return true;
+        }
+        return false;
+    }
+
     public boolean copyTo(SshClient client, List<FileInfo> files, String targetFolder, FileSystem fs) throws Exception {
         List<FileInfo> fileList = fs.list(targetFolder);
         List<FileInfo> dupList = new ArrayList<>();

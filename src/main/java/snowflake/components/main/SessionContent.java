@@ -18,13 +18,14 @@ public class SessionContent extends JPanel {
     private SessionInfo info;
     private JSplitPane verticalSplitter, horizontalSplitter;
     private FileComponentHolder fileComponentHolder;
+    private TerminalHolder terminalHolder;
     private ExternalEditor externalEditor;
 
 
     //private FileStore fileStore;
 
     public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
-        super(new BorderLayout(0,0));
+        super(new BorderLayout(0, 0));
         this.info = info;
         this.externalEditor = externalEditor;
         init();
@@ -51,11 +52,9 @@ public class SessionContent extends JPanel {
 
 
     public void init() {
-
-        this.fileComponentHolder = new FileComponentHolder(info, externalEditor);
-
+        this.fileComponentHolder = new FileComponentHolder(info, externalEditor, this);
         TabbedPanel bottomTabs = new TabbedPanel();
-        TerminalHolder th = new TerminalHolder(info);
+        terminalHolder = new TerminalHolder(info);
         //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
         btn.setMargin(new Insets(5, 5, 5, 5));
@@ -63,16 +62,16 @@ public class SessionContent extends JPanel {
         btn.setText("\uf120");
         //toolBar.add(btn);
         btn.addActionListener(e -> {
-            th.createNewTerminal();
+            terminalHolder.createNewTerminal();
         });
 
-        bottomTabs.addTab("Terminal", th);
+        bottomTabs.addTab("Terminal", terminalHolder);
         bottomTabs.addTab("Search", new JPanel());
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
         bottomTabs.addTab("System load", new JPanel());
         bottomTabs.addTab("Process and port", new JPanel());
         bottomTabs.setSelectedIndex(0);
-        bottomTabs.setBorder(new LineBorder(new Color(200,200,200),1));
+        bottomTabs.setBorder(new LineBorder(new Color(200, 200, 200), 1));
 
 
 //        bottomTabs.setTabComponentAt(0, createTab("Terminal", false, "\uf120"));
@@ -86,7 +85,7 @@ public class SessionContent extends JPanel {
         verticalSplitter.setDividerSize(10);
         verticalSplitter.setResizeWeight(0.6);
         verticalSplitter.setBottomComponent(bottomTabs);
-        verticalSplitter.setBorder(new EmptyBorder(0,0,0,0));
+        verticalSplitter.setBorder(new EmptyBorder(0, 0, 0, 0));
         add(verticalSplitter);
         verticalSplitter.setTopComponent(fileComponentHolder);
     }
@@ -95,5 +94,8 @@ public class SessionContent extends JPanel {
         return fileComponentHolder;
     }
 
+    public void openTerminal(String command) {
+        this.terminalHolder.createNewTerminal(command);
+    }
 
 }

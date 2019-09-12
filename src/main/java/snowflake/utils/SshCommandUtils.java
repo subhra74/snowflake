@@ -35,7 +35,7 @@ public class SshCommandUtils {
                 }
                 Thread.sleep(500);
             }
-            output.append(bout.toByteArray());
+            output.append(new String(bout.toByteArray(), "utf-8"));
             return exec.getExitStatus() == 0;
         } catch (Exception e) {
             e.printStackTrace();

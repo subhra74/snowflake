@@ -2,15 +2,15 @@ package snowflake.components.files.browser.folderview;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
-import snowflake.components.common.CustomScrollBarUI;
 import snowflake.components.files.DndTransferHandler;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -28,6 +28,7 @@ public class FolderView extends JPanel {
     private boolean showHiddenFiles = false;
     private int sortIndex = 2;
     private boolean sortAsc = false;
+    private List<FileInfo> files;
 
     public FolderView(FolderViewEventListener listener) {
         super(new BorderLayout());
@@ -270,12 +271,15 @@ public class FolderView extends JPanel {
     }
 
     public FileInfo[] getFiles() {
-
-        FileInfo fs[] = new FileInfo[listModel.getSize()];
-        for (int i = 0; i < fs.length; i++) {
-            fs[i] = listModel.get(i);
+        if (this.files == null) {
+            return new FileInfo[0];
+        } else {
+            FileInfo fs[] = new FileInfo[files.size()];
+            for (int i = 0; i < files.size(); i++) {
+                fs[i] = files.get(i);
+            }
+            return fs;
         }
-        return fs;
     }
 
 //    private int getRow(int r) {
@@ -286,6 +290,7 @@ public class FolderView extends JPanel {
 //    }
 
     public void setItems(List<FileInfo> list) {
+        this.files = list;
         if (showHiddenFiles) {
             sortAndAddItems(list);
         } else {
@@ -296,7 +301,7 @@ public class FolderView extends JPanel {
                     list2.add(info);
                 }
             }
-            sortAndAddItems(list);
+            sortAndAddItems(list2);
         }
     }
 
@@ -326,11 +331,14 @@ public class FolderView extends JPanel {
     public void sortView(int index, boolean asc) {
         this.sortIndex = index;
         this.sortAsc = asc;
-        List<FileInfo> fileInfoList = new ArrayList<>();
-        for (int i = 0; i < listModel.getSize(); i++) {
-            fileInfoList.add(listModel.get(i));
-        }
-        sortAndAddItems(fileInfoList);
+        System.out.println("Sort click- index: " + index + " asc: " + asc);
+        this.setItems(this.files);
+
+//        List<FileInfo> fileInfoList = new ArrayList<>();
+//        for (int i = 0; i < listModel.getSize(); i++) {
+//            fileInfoList.add(listModel.get(i));
+//        }
+//        sortAndAddItems(fileInfoList);
     }
 
     private void sortAndAddItems(List<FileInfo> fileInfoList) {

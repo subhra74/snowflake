@@ -15,32 +15,26 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.util.List;
 
 public abstract class AbstractFileBrowserView extends JPanel implements FolderViewEventListener {
     protected AddressBar addressBar;
     protected FolderView folderView;
     protected JRootPane rootPane;
-    private AbstractAction upAction, reloadAction;
     protected String path;
     protected FileComponentHolder holder;
+    protected PanelOrientation orientation;
+    private AbstractAction upAction, reloadAction;
     private NavigationHistory history;
     private JButton btnBack, btnNext;
     private OverflowMenuHandler overflowMenuHandler;
 
-    protected PanelOrientation orientation;
-
-    public enum PanelOrientation {
-        Left, Right
-    }
-
-    public AbstractFileBrowserView(JRootPane rootPane, FileComponentHolder holder, PanelOrientation orientation) {
+    public AbstractFileBrowserView(JRootPane rootPane, FileComponentHolder holder, PanelOrientation orientation, FileBrowser fileBrowser) {
         super(new BorderLayout());
         this.orientation = orientation;
         this.rootPane = rootPane;
         this.holder = holder;
 
-        overflowMenuHandler = new OverflowMenuHandler(holder, this);
+        overflowMenuHandler = new OverflowMenuHandler(holder, this, fileBrowser);
         history = new NavigationHistory();
         JPanel toolBar = new JPanel(new BorderLayout());
         createAddressBar();
@@ -125,6 +119,20 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         btnReload.setFont(App.getFontAwesomeFont());
         btnReload.setText("\uf021");
 
+        JButton btnSort = new JButton();
+        btnSort.setForeground(Color.DARK_GRAY);
+        btnSort.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+        btnSort.addActionListener(e -> {
+            JPopupMenu sortMenu = overflowMenuHandler.getSortMenu();
+            sortMenu.pack();
+            Dimension d = sortMenu.getPreferredSize();
+            int x = btnSort.getWidth() - d.width;
+            int y = btnSort.getHeight();
+            sortMenu.show(btnSort, x, y);
+        });
+        btnSort.setFont(App.getFontAwesomeFont());
+        btnSort.setText("\uf161");
+
         JButton btnMore = new JButton();
         btnMore.setForeground(Color.DARK_GRAY);
         btnMore.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
@@ -139,7 +147,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
             popupMenu.show(btnMore, x, y);
         });
 
-        LayoutUtils.makeSameSize(btnMore, btnReload, btnUp, btnHome, btnNext, btnBack);
+        LayoutUtils.makeSameSize(btnMore, btnReload, btnUp, btnHome, btnNext, btnBack, btnSort);
 
         smallToolbar.add(btnBack);
         smallToolbar.add(btnNext);
@@ -150,6 +158,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         b2.add(btnReload);
         b2.setBorder(new EmptyBorder(3, 0, 3, 0));
         b2.add(btnReload);
+        b2.add(btnSort);
         b2.add(btnMore);
 
         toolBar.add(smallToolbar, BorderLayout.WEST);
@@ -171,7 +180,6 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         updateNavButtons();
 
     }
-
 
     protected abstract void createAddressBar();
 
@@ -231,5 +239,9 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
     public OverflowMenuHandler getOverflowMenuHandler() {
         return this.overflowMenuHandler;
+    }
+
+    public enum PanelOrientation {
+        Left, Right
     }
 }

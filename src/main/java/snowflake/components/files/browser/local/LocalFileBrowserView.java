@@ -3,9 +3,11 @@ package snowflake.components.files.browser.local;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
-import snowflake.components.files.*;
-import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.common.AddressBar;
+import snowflake.components.files.DndTransferData;
+import snowflake.components.files.DndTransferHandler;
+import snowflake.components.files.FileComponentHolder;
+import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
 
@@ -28,7 +30,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 
     public LocalFileBrowserView(FileBrowser fileBrowser,
                                 JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation);
+        super(rootPane, holder, orientation, fileBrowser);
         this.fileBrowser = fileBrowser;
         this.menuHandler = new LocalMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);

@@ -5,11 +5,11 @@ import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.files.SshFileSystem;
+import snowflake.components.common.AddressBar;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.AbstractFileBrowserView;
-import snowflake.components.common.AddressBar;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.utils.PathUtils;
 
@@ -31,7 +31,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     public SftpFileBrowserView(FileBrowser fileBrowser,
                                JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation);
+        super(rootPane, holder, orientation, fileBrowser);
         this.fileBrowser = fileBrowser;
         this.menuHandler = new SshMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);
@@ -186,10 +186,11 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
                 FileSystem targetFs = holder.getSshFileSystem();
                 holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
             } else if (sourceFs instanceof SshFileSystem) {
-                if (transferData.getTransferAction() == DndTransferData.TransferAction.Cut) {
-                    //rename or move files
-                } else if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
+                System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
+                if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
                     menuHandler.copy(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
+                } else {
+                    menuHandler.move(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
                 }
             }
             return true;
