@@ -1,5 +1,6 @@
 package snowflake.components.files.editor;
 
+import org.fife.rsta.ui.GoToDialog;
 import org.fife.rsta.ui.search.ReplaceDialog;
 import org.fife.rsta.ui.search.ReplaceToolBar;
 import org.fife.rsta.ui.search.SearchEvent;
@@ -31,6 +32,7 @@ public class EditorTab extends JPanel implements SearchListener {
     private boolean hasChanges;
     private JPanel replaceToolBar;
     private boolean replaceToolBarVisible = false;
+    private GoToDialog goToDialog;
 
     public EditorTab(FileInfo info, String text, String localFile) {
         super(new BorderLayout());
@@ -41,6 +43,7 @@ public class EditorTab extends JPanel implements SearchListener {
         if (text.length() > 0) {
             this.textArea.setCaretPosition(0);
         }
+        this.goToDialog = new GoToDialog((JFrame) SwingUtilities.windowForComponent(this));
         this.sp = new RTextScrollPane(textArea);
         Gutter gutter = this.sp.getGutter();
         gutter.setBorder(new Gutter.GutterBorder(0, 0, 0, 0));
@@ -181,5 +184,21 @@ public class EditorTab extends JPanel implements SearchListener {
 
     public JComboBox<String> getCmbSyntax() {
         return cmbSyntax;
+    }
+
+    public void cutText() {
+        textArea.cut();
+    }
+
+    public void copyText() {
+        textArea.copy();
+    }
+
+    public void pasteText() {
+        textArea.paste();
+    }
+
+    public void gotoLine() {
+
     }
 }

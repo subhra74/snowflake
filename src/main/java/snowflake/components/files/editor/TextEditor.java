@@ -41,6 +41,7 @@ public class TextEditor extends JPanel {
         });
         btnSave.setFont(App.getFontAwesomeFont());
         btnSave.setText("\uf0c7");
+        btnSave.setToolTipText("Save");
 
         JButton btnReload = new JButton();
         btnReload.addActionListener(e -> {
@@ -48,6 +49,7 @@ public class TextEditor extends JPanel {
         });
         btnReload.setFont(App.getFontAwesomeFont());
         btnReload.setText("\uf021");
+        btnReload.setToolTipText("Reload");
 
         JButton btnFind = new JButton();
         btnFind.addActionListener(e -> {
@@ -55,10 +57,56 @@ public class TextEditor extends JPanel {
         });
         btnFind.setFont(App.getFontAwesomeFont());
         btnFind.setText("\uf002");
+        btnFind.setToolTipText("Find and replace");
+
+        JButton btnCut = new JButton();
+        btnCut.addActionListener(e -> {
+            //cutText();
+        });
+        btnCut.setFont(App.getFontAwesomeFont());
+        btnCut.setText("\uf002");
+        btnCut.setToolTipText("Cut");
+
+        JButton btnCopy = new JButton();
+        btnCopy.addActionListener(e -> {
+            //cutText();
+        });
+        btnCopy.setFont(App.getFontAwesomeFont());
+        btnCopy.setText("\uf002");
+        btnCopy.setToolTipText("Copy");
+
+        JButton btnPaste = new JButton();
+        btnPaste.addActionListener(e -> {
+            //cutText();
+        });
+        btnPaste.setFont(App.getFontAwesomeFont());
+        btnPaste.setText("\uf002");
+        btnPaste.setToolTipText("Paste");
+
+        JButton btnWrapText = new JButton();
+        btnWrapText.addActionListener(e -> {
+            //cutText();
+        });
+        btnWrapText.setFont(App.getFontAwesomeFont());
+        btnWrapText.setText("\uf002");
+        btnWrapText.setToolTipText("Wrap text");
+
+        JButton btnGotoLine = new JButton();
+        btnGotoLine.addActionListener(e -> {
+            //cutText();
+        });
+        btnGotoLine.setFont(App.getFontAwesomeFont());
+        btnGotoLine.setText("\uf002");
+        btnGotoLine.setToolTipText("Goto line");
 
         toolBox.add(btnSave);
         toolBox.add(btnReload);
         toolBox.add(btnFind);
+        toolBox.add(btnCut);
+        toolBox.add(btnCopy);
+        toolBox.add(btnPaste);
+        toolBox.add(btnWrapText);
+        toolBox.add(btnGotoLine);
 
         add(toolBox, BorderLayout.NORTH);
 
