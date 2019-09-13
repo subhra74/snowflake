@@ -1,7 +1,6 @@
 package snowflake.components.files.editor;
 
 import org.fife.rsta.ui.GoToDialog;
-import org.fife.rsta.ui.search.ReplaceDialog;
 import org.fife.rsta.ui.search.ReplaceToolBar;
 import org.fife.rsta.ui.search.SearchEvent;
 import org.fife.rsta.ui.search.SearchListener;
@@ -10,15 +9,12 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.*;
 import snowflake.App;
 import snowflake.common.FileInfo;
-import snowflake.common.FileSystem;
-import snowflake.components.newsession.SessionInfo;
-import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.BadLocationException;
 import java.awt.*;
-import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Set;
@@ -33,18 +29,22 @@ public class EditorTab extends JPanel implements SearchListener {
     private JPanel replaceToolBar;
     private boolean replaceToolBarVisible = false;
     private GoToDialog goToDialog;
+    private boolean wrapText = false;
+    private TextEditor editor;
 
-    public EditorTab(FileInfo info, String text, String localFile) {
+    public EditorTab(FileInfo info, String text, String localFile, TextEditor editor) {
         super(new BorderLayout());
         this.info = info;
         this.localFile = localFile;
         this.textArea = new RSyntaxTextArea();
+        this.editor = editor;
         this.textArea.setText(text);
         if (text.length() > 0) {
             this.textArea.setCaretPosition(0);
         }
         this.goToDialog = new GoToDialog((JFrame) SwingUtilities.windowForComponent(this));
         this.sp = new RTextScrollPane(textArea);
+        this.sp.setBorder(null);
         Gutter gutter = this.sp.getGutter();
         gutter.setBorder(new Gutter.GutterBorder(0, 0, 0, 0));
         add(sp);
@@ -86,19 +86,19 @@ public class EditorTab extends JPanel implements SearchListener {
             @Override
             public void removeUpdate(DocumentEvent e) {
                 System.out.println("document change event");
-                hasChanges = true;
+                setHasChanges(true);
             }
 
             @Override
             public void insertUpdate(DocumentEvent e) {
                 System.out.println("document change event");
-                hasChanges = true;
+                setHasChanges(true);
             }
 
             @Override
             public void changedUpdate(DocumentEvent e) {
                 System.out.println("document change event");
-                hasChanges = true;
+                setHasChanges(true);
             }
         });
     }
@@ -126,6 +126,7 @@ public class EditorTab extends JPanel implements SearchListener {
     }
 
     public void setHasChanges(boolean value) {
+        editor.hasUnsavedChanges(value);
         this.hasChanges = value;
     }
 
@@ -199,6 +200,28 @@ public class EditorTab extends JPanel implements SearchListener {
     }
 
     public void gotoLine() {
-
+        goToDialog.setMaxLineNumberAllowed(textArea.getLineCount());
+        goToDialog.setVisible(true);
+        int line = goToDialog.getLineNumber();
+        if (line > 0) {
+            try {
+                textArea.setCaretPosition(
+                        textArea.getLineStartOffset(line - 1));
+            } catch (BadLocationException ble) { // Never happens
+                UIManager.getLookAndFeel().provideErrorFeedback(textArea);
+                ble.printStackTrace();
+            }
+        }
     }
+
+    public boolean getWrapText() {
+        return wrapText;
+    }
+
+    public void setWrapText(boolean value) {
+        this.textArea.setLineWrap(value);
+        this.textArea.setWrapStyleWord(value);
+        this.wrapText = true;
+    }
+
 }

@@ -233,4 +233,81 @@ public class GraphicsUtils {
         scrollPane.setHorizontalScrollBar(horizontalScroller);
         return scrollPane;
     }
+
+    public static UIDefaults createCheckboxSkin(UIDefaults uiDefaults) {
+        Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
+            @Override
+            public void paint(Graphics2D g, JComponent object, int width, int height) {
+                g.setColor(new Color(200, 200, 200));
+                g.drawRect(2, 2, width - 5, height - 5);
+            }
+        };
+
+        Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
+            @Override
+            public void paint(Graphics2D g, JComponent object, int width, int height) {
+                g.setColor(new Color(200, 200, 200));
+                g.drawRect(2, 2, width - 5, height - 5);
+                g.fillRect(4, 4, width - 8, height - 8);
+            }
+        };
+
+        uiDefaults.put("CheckBox[Disabled].iconPainter", painter1);
+        uiDefaults.put("CheckBox[Enabled].iconPainter", painter1);
+        uiDefaults.put("CheckBox[Focused+MouseOver+Selected].iconPainter", painter2);
+        uiDefaults.put("CheckBox[Focused+Pressed+Selected].iconPainter", painter2);
+        uiDefaults.put("CheckBox[Focused+Selected].iconPainter", painter2);
+        uiDefaults.put("CheckBox[MouseOver+Selected].iconPainter", painter2);
+        uiDefaults.put("CheckBox[Pressed+Selected].iconPainter", painter2);
+
+        uiDefaults.put("CheckBox[Focused+MouseOver].iconPainter", painter1);
+        uiDefaults.put("CheckBox[Focused+Pressed].iconPainter", painter1);
+        uiDefaults.put("CheckBox[Pressed].iconPainter", painter1);
+        uiDefaults.put("CheckBox[Selected].iconPainter", painter2);
+        uiDefaults.put("CheckBox[Focused].iconPainter", painter1);
+        uiDefaults.put("CheckBox[MouseOver].iconPainter", painter1);
+
+        return uiDefaults;
+    }
+
+    public static UIDefaults createTabbedPaneSkin(UIDefaults uiDefaults) {
+        Color c1 = new Color(3, 155, 229);
+
+        Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
+            @Override
+            public void paint(Graphics2D g, JComponent object, int width, int height) {
+                g.setColor(new Color(240, 240, 240));
+                g.fillRect(0, 0, width, height);
+            }
+        };
+
+        Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
+            @Override
+            public void paint(Graphics2D g, JComponent object, int width, int height) {
+                g.setColor(new Color(220, 220, 220));
+                g.fillRect(0, 0, width, height);
+                g.setColor(c1);
+                g.fillRect(0, height-2, width, height);
+            }
+        };
+
+        uiDefaults.put("TabbedPane:TabbedPaneTabArea.contentMargins", new Insets(0,0,0,0));
+
+        uiDefaults.put("TabbedPane:TabbedPaneTabArea[Disabled].backgroundPainter", painter1);
+        uiDefaults.put("TabbedPane:TabbedPaneTabArea[Enabled].backgroundPainter", painter1);
+        uiDefaults.put("TabbedPane:TabbedPaneTabArea[Enabled+Pressed].backgroundPainter", painter1);
+        uiDefaults.put("TabbedPane:TabbedPaneTabArea[Enabled+MouseOver].backgroundPainter", painter1);
+
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Selected].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Pressed+Selected].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[MouseOver+Selected].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Focused+Pressed+Selected].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Focused+MouseOver+Selected].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Enabled].backgroundPainter", painter1);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Enabled+Pressed].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Enabled+MouseOver].backgroundPainter", painter2);
+        uiDefaults.put("TabbedPane:TabbedPaneTab[Focused+Selected].backgroundPainter", painter2);
+
+        return uiDefaults;
+    }
 }

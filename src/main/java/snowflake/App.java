@@ -55,6 +55,8 @@ public class App {
         GraphicsUtils.createTextFieldSkin(nimbusLookAndFeel.getDefaults());
         GraphicsUtils.createSpinnerSkin(nimbusLookAndFeel.getDefaults());
         GraphicsUtils.createComboBoxSkin(nimbusLookAndFeel.getDefaults());
+        GraphicsUtils.createCheckboxSkin(nimbusLookAndFeel.getDefaults());
+        GraphicsUtils.createTabbedPaneSkin(nimbusLookAndFeel.getDefaults());
         nimbusLookAndFeel.getDefaults().put("ScrollBarUI", CustomScrollBarUI.class.getName());
 
         System.out.println("Hello");

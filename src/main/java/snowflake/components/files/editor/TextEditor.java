@@ -3,8 +3,10 @@ package snowflake.components.files.editor;
 import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.components.files.FileComponentHolder;
+import snowflake.utils.LayoutUtils;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.FileInputStream;
@@ -42,6 +44,7 @@ public class TextEditor extends JPanel {
         btnSave.setFont(App.getFontAwesomeFont());
         btnSave.setText("\uf0c7");
         btnSave.setToolTipText("Save");
+        btnSave.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
         JButton btnReload = new JButton();
         btnReload.addActionListener(e -> {
@@ -50,6 +53,7 @@ public class TextEditor extends JPanel {
         btnReload.setFont(App.getFontAwesomeFont());
         btnReload.setText("\uf021");
         btnReload.setToolTipText("Reload");
+        btnReload.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
         JButton btnFind = new JButton();
         btnFind.addActionListener(e -> {
@@ -58,55 +62,62 @@ public class TextEditor extends JPanel {
         btnFind.setFont(App.getFontAwesomeFont());
         btnFind.setText("\uf002");
         btnFind.setToolTipText("Find and replace");
+        btnFind.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
         JButton btnCut = new JButton();
         btnCut.addActionListener(e -> {
-            //cutText();
+            cutText();
         });
         btnCut.setFont(App.getFontAwesomeFont());
-        btnCut.setText("\uf002");
+        btnCut.setText("\uf0c4");
         btnCut.setToolTipText("Cut");
+        btnCut.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
         JButton btnCopy = new JButton();
         btnCopy.addActionListener(e -> {
-            //cutText();
+            copyText();
         });
         btnCopy.setFont(App.getFontAwesomeFont());
-        btnCopy.setText("\uf002");
+        btnCopy.setText("\uf0c5");
         btnCopy.setToolTipText("Copy");
+        btnCopy.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
         JButton btnPaste = new JButton();
         btnPaste.addActionListener(e -> {
-            //cutText();
+            pasteText();
         });
         btnPaste.setFont(App.getFontAwesomeFont());
-        btnPaste.setText("\uf002");
+        btnPaste.setText("\uf0ea");
         btnPaste.setToolTipText("Paste");
+        btnPaste.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
-        JButton btnWrapText = new JButton();
+        JCheckBox btnWrapText = new JCheckBox("Wrap text");
         btnWrapText.addActionListener(e -> {
-            //cutText();
+            wrapText(btnWrapText.isSelected());
         });
-        btnWrapText.setFont(App.getFontAwesomeFont());
-        btnWrapText.setText("\uf002");
-        btnWrapText.setToolTipText("Wrap text");
 
         JButton btnGotoLine = new JButton();
         btnGotoLine.addActionListener(e -> {
-            //cutText();
+            gotoLine();
         });
         btnGotoLine.setFont(App.getFontAwesomeFont());
-        btnGotoLine.setText("\uf002");
+        btnGotoLine.setText("\uf0cb");
         btnGotoLine.setToolTipText("Goto line");
+        btnGotoLine.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
+        toolBox.add(Box.createHorizontalStrut(10));
         toolBox.add(btnSave);
         toolBox.add(btnReload);
         toolBox.add(btnFind);
         toolBox.add(btnCut);
         toolBox.add(btnCopy);
         toolBox.add(btnPaste);
-        toolBox.add(btnWrapText);
         toolBox.add(btnGotoLine);
+        toolBox.add(Box.createHorizontalStrut(10));
+        toolBox.add(btnWrapText);
+        toolBox.add(Box.createHorizontalGlue());
+
+        LayoutUtils.makeSameSize(btnSave, btnReload, btnFind, btnCut, btnCopy, btnPaste, btnGotoLine);
 
         add(toolBox, BorderLayout.NORTH);
 
@@ -161,6 +172,7 @@ public class TextEditor extends JPanel {
         JPanel content = new JPanel(new BorderLayout());
         //content.add(toolBar, BorderLayout.NORTH);
         content.add(tabs);
+        content.setBorder(new EmptyBorder(5, 5, 5, 5));
 
         add(content);
 
@@ -171,11 +183,13 @@ public class TextEditor extends JPanel {
                 if (this.cmbSyntax != null) toolBox.remove(this.cmbSyntax);
                 this.cmbSyntax = tab.getCmbSyntax();
                 toolBox.add(this.cmbSyntax);
+                btnWrapText.setSelected(tab.getWrapText());
                 revalidate();
                 repaint();
             }
         });
     }
+
 
     private void installKeyboardShortcuts() {
         InputMap inpMap = getInputMap(
@@ -255,6 +269,55 @@ public class TextEditor extends JPanel {
     }
 
     private void gotoLine() {
+        System.out.println("Goto line");
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        if (tab != null) {
+            try {
+                tab.gotoLine();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    private void pasteText() {
+        System.out.println("pasteText");
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        if (tab != null) {
+            try {
+                tab.pasteText();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    private void copyText() {
+        System.out.println("copyText");
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        if (tab != null) {
+            try {
+                tab.copyText();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    private void cutText() {
+        System.out.println("cutText");
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        if (tab != null) {
+            try {
+                tab.cutText();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
     }
 
     private void reloadFile() {
@@ -312,24 +375,19 @@ public class TextEditor extends JPanel {
 
     private void createNewTab(FileInfo fileInfo, StringBuilder sb, String tempFile) {
         int index = tabs.getTabCount();
-        EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile);
-        JPanel pan = new JPanel(new BorderLayout());
-        pan.add(new JLabel(fileInfo.getName()));
-        JLabel btnClose = new JLabel();
-        btnClose.setFont(App.getFontAwesomeFont());
-        btnClose.setText("\uf2d3");
+        EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile, this);
+        TabHeader tabHeader = new TabHeader(fileInfo.getName());
         int count = tabs.getTabCount();
-        btnClose.addMouseListener(new MouseAdapter() {
+        tabHeader.getBtnClose().addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                int index = tabs.indexOfTabComponent(pan);
+                int index = tabs.indexOfTabComponent(tabHeader);
                 System.out.println("Closing tab at: " + index);
                 closeTab(index);
             }
         });
-        pan.add(btnClose, BorderLayout.EAST);
         tabs.addTab(null, tab);
-        tabs.setTabComponentAt(count, pan);
+        tabs.setTabComponentAt(count, tabHeader);
         tabSet.add(tab);
         tabs.setSelectedIndex(index);
     }
@@ -366,6 +424,7 @@ public class TextEditor extends JPanel {
 
     public void saveRemoteFile(FileInfo fileInfo, String tempFile) {
         try {
+            System.out.println("Saving to remote: " + tempFile + " -> " + fileInfo.getPath());
             holder.saveRemoteFile(tempFile, fileInfo, this.hashCode());
         } catch (Exception e) {
             e.printStackTrace();
@@ -385,6 +444,10 @@ public class TextEditor extends JPanel {
         tab.setHasChanges(false);
     }
 
+    public void fileSavedWithError() {
+        JOptionPane.showMessageDialog(this, "Error saving file", "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
     public boolean isAlreadyOpened(String file) {
         int c = tabs.getTabCount();
         for (int i = 0; i < c; i++) {
@@ -400,5 +463,25 @@ public class TextEditor extends JPanel {
     public void reloadTab(FileInfo fileInfo) {
         this.reloading = true;
         holder.reloadRemoteFile(fileInfo);
+    }
+
+    private void wrapText(boolean selected) {
+        System.out.println("wrapText");
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        if (tab != null) {
+            try {
+                tab.setWrapText(selected);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    public void hasUnsavedChanges(boolean value) {
+        int index = tabs.getSelectedIndex();
+        TabHeader header = (TabHeader) tabs.getTabComponentAt(index);
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        header.setTitle(tab.getInfo().getName() + (value ? "*" : ""));
     }
 }

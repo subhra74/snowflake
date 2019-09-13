@@ -1,6 +1,5 @@
 package snowflake.components.files;
 
-import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
@@ -38,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource {
+    private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
     private JRootPane rootPane;
     private JPanel contentPane;
     private SessionInfo info;
@@ -55,7 +55,6 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private TextEditor editor;
     private ExternalEditor externalEditor;
     private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
-    private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
     private LogViewerComponent logViewerComponent;
     private SessionContent sessionContent;
 
@@ -116,7 +115,11 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     @Override
     public void progress(long processedBytes, long totalBytes, long processedCount, long totalCount) {
-        progressPanel.setProgress((int) ((processedBytes * 100) / totalBytes));
+        if (totalBytes == 0) {
+            progressPanel.setProgress(0);
+        } else {
+            progressPanel.setProgress((int) ((processedBytes * 100) / totalBytes));
+        }
     }
 
     @Override
@@ -125,6 +128,13 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
             progressPanel.setVisible(false);
             if (tabs.getSelectedIndex() == 0) {
                 fileBrowser.requestReload(progressPanel.getSource());
+            } else if (tabs.getSelectedIndex() == 1) {
+                if (progressPanel.getSource() == editor.hashCode()) {
+                    if (editor.isSavingFile()) {
+                        System.out.println("Saved with error");
+                        editor.fileSavedWithError();
+                    }
+                }
             }
         });
     }
