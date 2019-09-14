@@ -169,6 +169,7 @@ public class FolderView extends JPanel {
 
         list.setVisibleRowCount(-1);
         list.setDragEnabled(true);
+        list.setVisibleRowCount(20);
 
         list.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");

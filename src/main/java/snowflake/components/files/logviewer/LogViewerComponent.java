@@ -5,6 +5,7 @@ import snowflake.common.FileInfo;
 import snowflake.common.InputTransferChannel;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.FileComponentHolder;
+import snowflake.components.files.editor.TabHeader;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
@@ -26,12 +27,31 @@ public class LogViewerComponent extends JPanel {
     private FileComponentHolder holder;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
+    private CardLayout cardLayout;
 
     public LogViewerComponent(FileComponentHolder holder) {
-        super(new BorderLayout());
+        cardLayout = new CardLayout();
+        setLayout(cardLayout);
         this.holder = holder;
         tabs = new JTabbedPane();
-        add(tabs);
+        add(tabs, "Tabs");
+
+        JPanel msgPanel = new JPanel(new BorderLayout());
+        JLabel noTabMsg = new JLabel("No files opened, please open a file from file browser");
+        noTabMsg.setHorizontalAlignment(JLabel.CENTER);
+        msgPanel.add(noTabMsg);
+        add(msgPanel, "Labels");
+
+        cardLayout.show(this, "Labels");
+
+        tabs.addChangeListener(e -> {
+            System.out.println("Tab changed");
+            if (tabs.getTabCount() == 0) {
+                cardLayout.show(this, "Labels");
+            } else {
+                cardLayout.show(this, "Tabs");
+            }
+        });
     }
 
     public void getLatestLog() {
@@ -46,13 +66,23 @@ public class LogViewerComponent extends JPanel {
                          InputStream in = ch.getInputStream(item.getFileInfo().getPath(), item.getFileInfo().getSize());
                          OutputStream out = new FileOutputStream(item.getLocalTempFile(), true)) {
                         byte[] buf = new byte[8192];
+                        int c = 0;
                         while (!stopFlag.get()) {
                             int x = in.read(buf);
                             if (x == -1) break;
                             out.write(buf, 0, x);
+                            c += x;
+                            out.flush();
                         }
+                        System.out.println("New file with extra byte: " + c);
                         SwingUtilities.invokeLater(() -> {
-                            LineIndexer.IndexLines lines = LineIndexer.indexLines(item.getLocalTempFile(), item.getFileInfo().getSize() + 1, stopFlag);
+                            LineEntry lastLine = item.getLastLine();
+                            long offset = item.getFileInfo().getSize();
+                            if (lastLine != null) {
+                                offset -= lastLine.length;
+                                item.removeLastLine();
+                            }
+                            LineIndexer.IndexLines lines = LineIndexer.indexLines(item.getLocalTempFile(), offset, stopFlag);
                             item.addLines(lines.lines);
                             item.setMaxLine(lines.maxLen);
                             item.setFileInfo(fileInfo1);
@@ -61,12 +91,12 @@ public class LogViewerComponent extends JPanel {
                         e.printStackTrace();
                     }
                 } else if (fileInfo1.getSize() < item.getFileInfo().getSize()) {
+                    System.out.println("Old size: " + fileInfo1.getSize() + " new size: " + item.getFileInfo().getSize());
                     if (JOptionPane.showConfirmDialog(this,
                             "File has been truncated, would you like to reload the file?",
                             "Reload?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                        LogViewerItem item2 = (LogViewerItem) tabs.getSelectedComponent();
                         closeTab(index);
-                        openLog2(item2.getFileInfo(), holder.getTempFolder());
+                        openLog2(fileInfo1, holder.getTempFolder());
                     }
                 }
             } catch (Exception e) {
@@ -97,23 +127,24 @@ public class LogViewerComponent extends JPanel {
             SwingUtilities.invokeLater(() -> {
                 try {
                     LogViewerItem item = new LogViewerItem(this, fileInfo, localTempFile, lines);
-                    JPanel pan = new JPanel(new BorderLayout());
-                    pan.add(new JLabel(fileInfo.getName()));
-                    JLabel btnClose = new JLabel();
-                    btnClose.setFont(App.getFontAwesomeFont());
-                    btnClose.setText("\uf2d3");
+                    TabHeader tabHeader = new TabHeader(fileInfo.getName());
+//                    JPanel pan = new JPanel(new BorderLayout());
+//                    pan.add(new JLabel(fileInfo.getName()));
+//                    JLabel btnClose = new JLabel();
+//                    btnClose.setFont(App.getFontAwesomeFont());
+//                    btnClose.setText("\uf2d3");
                     int count = tabs.getTabCount();
-                    btnClose.addMouseListener(new MouseAdapter() {
+                    tabHeader.getBtnClose().addMouseListener(new MouseAdapter() {
                         @Override
                         public void mouseClicked(MouseEvent e) {
-                            int index = tabs.indexOfTabComponent(pan);
+                            int index = tabs.indexOfTabComponent(tabHeader);
                             System.out.println("Closing tab at: " + index);
                             closeTab(index);
                         }
                     });
-                    pan.add(btnClose, BorderLayout.EAST);
+//                    pan.add(btnClose, BorderLayout.EAST);
                     tabs.addTab(null, item);
-                    tabs.setTabComponentAt(count, pan);
+                    tabs.setTabComponentAt(count, tabHeader);
                     tabs.setSelectedIndex(count);
                 } catch (Exception e) {
                     e.printStackTrace();

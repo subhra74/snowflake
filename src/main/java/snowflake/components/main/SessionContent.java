@@ -83,7 +83,7 @@ public class SessionContent extends JPanel {
         verticalSplitter.setBackground(Color.RED);
         verticalSplitter.setOpaque(false);
         verticalSplitter.setDividerSize(10);
-        verticalSplitter.setResizeWeight(0.6);
+        verticalSplitter.setResizeWeight(0.5);
         verticalSplitter.setBottomComponent(bottomTabs);
         verticalSplitter.setBorder(new EmptyBorder(0, 0, 0, 0));
         add(verticalSplitter);

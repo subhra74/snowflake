@@ -19,7 +19,7 @@ public class FileTransfer {
     //private ExecutorService threadPool = Executors.newFixedThreadPool(2);
     private FileInfo[] files;
     private String sourceFolder, targetFolder;
-    private BlockingQueue<ByteChunk> dataQueue = new ArrayBlockingQueue<ByteChunk>(10);
+    private BlockingQueue<ByteChunk> dataQueue = new ArrayBlockingQueue<>(10);
     private ExecutorService runningThread = Executors.newSingleThreadExecutor();
     private long totalSize;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
@@ -27,33 +27,58 @@ public class FileTransfer {
     private long processedBytes;
     private int processedFilesCount;
     private long totalFiles;
+    private int conflictOnOverwrite = -1; // 0 -> overwrite, 1 -> auto rename, 2 -> skip
 
     public FileTransfer(FileSystem sourceFs,
                         FileSystem targetFs,
                         FileInfo[] files,
                         String sourceFolder,
                         String targetFolder,
-                        FileTransferProgress callback) {
+                        FileTransferProgress callback,
+                        int defaultConflictAction) {
         this.sourceFs = sourceFs;
         this.targetFs = targetFs;
         this.files = files;
         this.sourceFolder = sourceFolder;
         this.targetFolder = targetFolder;
         this.callback = callback;
+        this.conflictOnOverwrite = defaultConflictAction;
     }
 
     private void transfer(String targetFolder) throws Exception {
         System.out.println("Copying to " + targetFolder);
         List<FileInfoHolder> fileList = new ArrayList<>();
+        List<FileInfo> list = targetFs.list(targetFolder);
+        List<FileInfo> dupList = new ArrayList<>();
+
+        if (this.conflictOnOverwrite == -1) {
+            this.conflictOnOverwrite = checkForConflict(dupList);
+        }
+
+        if (this.conflictOnOverwrite == -1) {
+            return;
+        }
+
         totalSize = 0;
         for (FileInfo file : files) {
             if (stopFlag.get()) {
                 return;
             }
+
+            String proposedName = null;
+            if (isDuplicate(list, file.getName())) {
+                if (conflictOnOverwrite == 1) {
+                    proposedName = generateNewName(list, file.getName());
+                    System.out.println("new name: " + proposedName);
+                } else if (conflictOnOverwrite == 3) {
+                    continue;
+                }
+            }
+
             if (file.getType() == FileType.Directory || file.getType() == FileType.DirLink) {
-                fileList.addAll(createFileList(file, targetFolder));
+                fileList.addAll(createFileList(file, targetFolder, proposedName));
             } else {
-                fileList.add(new FileInfoHolder(file, targetFolder));
+                fileList.add(new FileInfoHolder(file, targetFolder, proposedName));
                 totalSize += file.getSize();
             }
         }
@@ -67,12 +92,13 @@ public class FileTransfer {
                     System.out.println("Operation cancelled by user");
                     return;
                 }
-                copyFile(file.info, file.targetPath, inc, outc);
+                copyFile(file.info, file.targetPath, file.proposedName, inc, outc);
                 System.out.println("Copying done: " + file.info.getPath());
                 processedFilesCount++;
             }
         }
     }
+
 
     public void start() {
         runningThread.submit(() -> {
@@ -113,11 +139,11 @@ public class FileTransfer {
         });
     }
 
-    private List<FileInfoHolder> createFileList(FileInfo folder, String target) throws Exception {
+    private List<FileInfoHolder> createFileList(FileInfo folder, String target, String proposedName) throws Exception {
         if (stopFlag.get()) {
             throw new Exception("Interrupted");
         }
-        String folderTarget = PathUtils.combineUnix(target, folder.getName());
+        String folderTarget = PathUtils.combineUnix(target, proposedName == null ? folder.getName() : proposedName);
         targetFs.mkdir(folderTarget);
         List<FileInfoHolder> fileInfoHolders = new ArrayList<>();
         List<FileInfo> list = sourceFs.list(folder.getPath());
@@ -126,9 +152,9 @@ public class FileTransfer {
                 throw new Exception("Interrupted");
             }
             if (file.getType() == FileType.Directory) {
-                fileInfoHolders.addAll(createFileList(file, folderTarget));
+                fileInfoHolders.addAll(createFileList(file, folderTarget, null));
             } else if (file.getType() == FileType.File) {
-                fileInfoHolders.add(new FileInfoHolder(file, folderTarget));
+                fileInfoHolders.add(new FileInfoHolder(file, folderTarget, null));
                 totalSize += file.getSize();
             }
         }
@@ -137,11 +163,11 @@ public class FileTransfer {
     }
 
     private synchronized void copyFile(FileInfo file,
-                                       String targetDirectory,
+                                       String targetDirectory, String proposedName,
                                        InputTransferChannel inc,
                                        OutputTransferChannel outc) throws Exception {
         byte buf[] = new byte[8192];
-        String outPath = PathUtils.combine(targetDirectory, file.getName(), outc.getSeparator());
+        String outPath = PathUtils.combine(targetDirectory, proposedName == null ? file.getName() : proposedName, outc.getSeparator());
         String inPath = file.getPath();
         System.out.println("Copying -- " + inPath + " to " + outPath);
         try (InputStream in = inc.getInputStream(inPath);
@@ -230,10 +256,12 @@ public class FileTransfer {
     static class FileInfoHolder {
         FileInfo info;
         String targetPath;
+        String proposedName;
 
-        public FileInfoHolder(FileInfo info, String targetPath) {
+        public FileInfoHolder(FileInfo info, String targetPath, String proposedName) {
             this.info = info;
             this.targetPath = targetPath;
+            this.proposedName = proposedName;
         }
     }
 
@@ -245,5 +273,45 @@ public class FileTransfer {
         return this.targetFolder;
     }
 
+    private int checkForConflict(List<FileInfo> dupList) throws Exception {
+        List<FileInfo> fileList = targetFs.list(targetFolder);
+        for (FileInfo file : files) {
+            for (FileInfo file1 : fileList) {
+                if (file.getName().equals(file1.getName())) {
+                    dupList.add(file);
+                }
+            }
+        }
 
+        int action = 0;
+        if (dupList.size() > 0) {
+            JComboBox<String> cmbs = new JComboBox<>(new String[]{"Overwrite", "Auto rename", "Skip"});
+            if (JOptionPane.showOptionDialog(null, new Object[]{"Some file with the same name already exists. Please choose an action",
+                    cmbs}, "Action required", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.YES_OPTION) {
+                action = cmbs.getSelectedIndex();
+            } else {
+                return -1;
+            }
+        }
+
+        return action;
+    }
+
+    private boolean isDuplicate(List<FileInfo> list, String name) {
+        for (FileInfo s : list) {
+            System.out.println("Checking for duplicate: " + s.getName() + " --- " + name);
+            if (s.getName().equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        System.out.println("Not duplicate: " + name);
+        return false;
+    }
+
+    public String generateNewName(List<FileInfo> list, String name) {
+        while (isDuplicate(list, name)) {
+            name = "Copy-of-" + name;
+        }
+        return name;
+    }
 }

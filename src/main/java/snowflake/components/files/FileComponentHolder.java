@@ -202,8 +202,10 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                                 FileInfo[] files,
                                 String sourceFolder,
                                 String targetFolder,
-                                int dragsource) {
-        this.fileTransfer = new FileTransfer(sourceFs, targetFs, files, sourceFolder, targetFolder, this);
+                                int dragsource,
+                                int defaultOverwriteAction) {
+        this.fileTransfer = new FileTransfer(sourceFs, targetFs, files,
+                sourceFolder, targetFolder, this, defaultOverwriteAction);
         if (progressPanel == null) {
             progressPanel = new TransferProgressPanel(this.fileTransfer, dragsource);
         }
@@ -220,7 +222,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                 new FileInfo[]{fileInfo},
                 PathUtils.getParent(fileInfo.getPath()),
                 tempFolder,
-                editor.hashCode());
+                editor.hashCode(), 0);
     }
 
     public void editRemoteFileInternal(FileInfo fileInfo) {
@@ -242,7 +244,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                         new FileInfo[]{fileInfo},
                         PathUtils.getParent(fileInfo.getPath()),
                         tempFolder,
-                        hashcode);
+                        hashcode,
+                        0);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -255,7 +258,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         editor.setSavingFile(true);
         newFileTransfer(new LocalFileSystem(), this.fs,
                 new FileInfo[]{new LocalFileSystem().getInfo(path)}, PathUtils.getParent(localFile),
-                PathUtils.getParent(fileInfo.getPath()), hashCode);
+                PathUtils.getParent(fileInfo.getPath()), hashCode, 0);
     }
 
     public SshFileSystem getSshFileSystem() throws Exception {

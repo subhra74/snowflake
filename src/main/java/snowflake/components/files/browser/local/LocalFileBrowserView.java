@@ -139,7 +139,8 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
                     return false;
                 }
                 FileSystem targetFs = this.fs;
-                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
+                        transferData.getCurrentDirectory(), this.path, this.hashCode(), -1);
             }
             return true;
         } catch (Exception e) {

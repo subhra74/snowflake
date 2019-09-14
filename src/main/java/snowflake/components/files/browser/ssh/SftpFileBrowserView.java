@@ -184,7 +184,8 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             }
             if (sourceFs instanceof LocalFileSystem) {
                 FileSystem targetFs = holder.getSshFileSystem();
-                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
+                        this.path, this.hashCode(), -1);
             } else if (sourceFs instanceof SshFileSystem) {
                 System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {

@@ -17,7 +17,7 @@ public class SystemLoadPanel extends JPanel {
     public SystemLoadPanel() {
         super(new BorderLayout());
         setMinimumSize(new Dimension(100, 100));
-        setPreferredSize(new Dimension(200, 400));
+        setPreferredSize(new Dimension(300, 400));
         Box b1 = Box.createVerticalBox();
 
         cpuLabel = new JLabel("Cpu usage");

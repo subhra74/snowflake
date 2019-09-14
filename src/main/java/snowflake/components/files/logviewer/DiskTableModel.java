@@ -28,6 +28,18 @@ public class DiskTableModel extends AbstractTableModel {
         this.fireTableRowsInserted(index1, index1 + lines.size());
     }
 
+    public void removeLastLine() {
+        if (list.size() > 0) {
+            list.remove(list.size() - 1);
+            this.fireTableRowsDeleted(list.size(), list.size());
+        }
+    }
+
+    public LineEntry getLastLine() {
+        if (list.size() < 1) return null;
+        return list.get(list.size() - 1);
+    }
+
     @Override
     public int getRowCount() {
         return list.size();

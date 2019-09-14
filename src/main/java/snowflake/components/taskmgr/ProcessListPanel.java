@@ -15,12 +15,14 @@ public class ProcessListPanel extends JPanel {
         JPanel pan = new JPanel(new BorderLayout());
         model = new ProcessTableModel();
         table = new JTable(model);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
+        table.getColumnModel().getColumn(0).setPreferredWidth(200);
         JScrollPane jsp = new JScrollPane(table);
         pan.add(jsp);
 
         Box b1 = Box.createHorizontalBox();
-        b1.add(new JLabel("Filter process"));
+        b1.add(new JLabel("Processes"));
         txtFilter = new JTextField(30);
         b1.add(txtFilter);
         JButton btnFilter = new JButton("Filter");
@@ -37,12 +39,27 @@ public class ProcessListPanel extends JPanel {
 
         pan.add(b1, BorderLayout.NORTH);
         pan.add(b2, BorderLayout.SOUTH);
-
-        add(new JLabel("Processes"), BorderLayout.NORTH);
         add(pan);
     }
 
     public void setProcessList(List<ProcessTableEntry> list) {
+        int x = table.getSelectedRow();
+        int selectedPid = -1;
+        if (x != -1) {
+            int xc = table.convertRowIndexToModel(x);
+            selectedPid = this.model.get(xc).getPid();
+        }
         this.model.setProcessList(list);
+        if (selectedPid != -1) {
+            int i = 0;
+            for (ProcessTableEntry ent : this.model.getProcessList()) {
+                if (ent.getPid() == selectedPid) {
+                    int r = table.convertRowIndexToView(i);
+                    table.setRowSelectionInterval(r, r);
+                    break;
+                }
+                i++;
+            }
+        }
     }
 }

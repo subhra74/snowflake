@@ -11,6 +11,7 @@ import snowflake.App;
 import snowflake.common.FileInfo;
 
 import javax.swing.*;
+import javax.swing.border.LineBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
@@ -39,6 +40,7 @@ public class EditorTab extends JPanel implements SearchListener {
         this.textArea = new RSyntaxTextArea();
         this.editor = editor;
         this.textArea.setText(text);
+        setBorder(new LineBorder(new Color(240, 240, 240), 1));
         if (text.length() > 0) {
             this.textArea.setCaretPosition(0);
         }

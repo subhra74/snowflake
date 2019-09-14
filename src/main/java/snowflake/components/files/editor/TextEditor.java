@@ -26,12 +26,16 @@ public class TextEditor extends JPanel {
     private boolean savingFile = false;
     private boolean reloading = false;
     private JComboBox<String> cmbSyntax;
+    private CardLayout cardLayout;
+    private JPanel content;
 
     public TextEditor(
             FileComponentHolder holder) {
         super(new BorderLayout());
         this.holder = holder;
         tabs = new JTabbedPane();
+
+        cardLayout = new CardLayout();
 
         installKeyboardShortcuts();
 
@@ -119,7 +123,6 @@ public class TextEditor extends JPanel {
 
         LayoutUtils.makeSameSize(btnSave, btnReload, btnFind, btnCut, btnCopy, btnPaste, btnGotoLine);
 
-        add(toolBox, BorderLayout.NORTH);
 
 //        JMenuBar menuBar = new JMenuBar();
 //        add(menuBar, BorderLayout.NORTH);
@@ -169,14 +172,29 @@ public class TextEditor extends JPanel {
 //            save();
 //        });
 
-        JPanel content = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(toolBox, BorderLayout.NORTH);
+        panel.add(tabs);
+
+        content = new JPanel(cardLayout);
         //content.add(toolBar, BorderLayout.NORTH);
-        content.add(tabs);
+        content.add(panel, "Tabs");
         content.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        JPanel msgPanel = new JPanel(new BorderLayout());
+        JLabel noTabMsg = new JLabel("No files opened, please open a file from file browser");
+        noTabMsg.setHorizontalAlignment(JLabel.CENTER);
+        msgPanel.add(noTabMsg);
+        content.add(msgPanel, "Labels");
 
         add(content);
 
+        cardLayout.show(content, "Labels");
+
         tabs.addChangeListener(e -> {
+            if (tabs.getTabCount() == 0) {
+                cardLayout.show(content, "Labels");
+            }
             int index = tabs.getSelectedIndex();
             if (index >= 0) {
                 EditorTab tab = (EditorTab) tabs.getComponentAt(index);
@@ -374,6 +392,7 @@ public class TextEditor extends JPanel {
     }
 
     private void createNewTab(FileInfo fileInfo, StringBuilder sb, String tempFile) {
+        cardLayout.show(content, "Tabs");
         int index = tabs.getTabCount();
         EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile, this);
         TabHeader tabHeader = new TabHeader(fileInfo.getName());

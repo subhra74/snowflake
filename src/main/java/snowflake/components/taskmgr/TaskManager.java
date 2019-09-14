@@ -8,6 +8,7 @@ import snowflake.components.taskmgr.plaformsupport.LinuxPlatformSupport;
 import snowflake.components.taskmgr.plaformsupport.PlatformSupport;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
@@ -30,6 +31,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
     public TaskManager(SessionInfo info) {
         setLayout(new BorderLayout());
         contentPane = new JPanel(new BorderLayout());
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         rootPane = new JRootPane();
         rootPane.setContentPane(contentPane);
         add(rootPane);

@@ -8,6 +8,14 @@ public class ProcessTableModel extends AbstractTableModel {
     private String[] columns = {"Command", "PID", "CPU", "Memory", "Time", "PPID", "User", "Nice"};
     private List<ProcessTableEntry> processList = new ArrayList<>();
 
+    public ProcessTableEntry get(int index) {
+        return processList.get(index);
+    }
+
+    public List<ProcessTableEntry> getProcessList() {
+        return processList;
+    }
+
     @Override
     public String getColumnName(int column) {
         return columns[column];

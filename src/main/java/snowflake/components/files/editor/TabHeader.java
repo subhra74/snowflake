@@ -15,7 +15,7 @@ public class TabHeader extends JPanel {
         add(lblTitle);
         btnClose = new JLabel();
         btnClose.setFont(App.getFontAwesomeFont());
-        btnClose.setText("\uf2d3");
+        btnClose.setText("\uf00d");
         add(btnClose, BorderLayout.EAST);
     }
 

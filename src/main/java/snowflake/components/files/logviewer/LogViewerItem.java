@@ -35,10 +35,14 @@ public class LogViewerItem extends JPanel implements SearchListener {
         this.table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         add(new JScrollPane(table));
         Box b1 = Box.createHorizontalBox();
-        b1.add(new JTextField(fileInfo.getPath()));
+        JTextField textField = new JTextField(fileInfo.getPath());
+        textField.setBorder(null);
+        textField.setEditable(false);
+        b1.add(textField);
         JButton btnReload = new JButton();
         btnReload.setFont(App.getFontAwesomeFont());
         btnReload.setText("\uf021");
+        btnReload.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnReload.addActionListener(e -> {
             logViewerComponent.getLatestLog();
         });
@@ -50,11 +54,24 @@ public class LogViewerItem extends JPanel implements SearchListener {
     public void setMaxLine(int maxLine) {
         if (this.maxLine < maxLine) {
             this.maxLine = maxLine;
+            adjustColumns();
         }
     }
 
     public void addLines(List<LineEntry> lines) {
         this.model.addLines(lines);
+    }
+
+    public int getLineCount() {
+        return this.model.getRowCount();
+    }
+
+    public LineEntry getLastLine() {
+        return this.model.getLastLine();
+    }
+
+    public void removeLastLine() {
+        model.removeLastLine();
     }
 
     public String getLocalTempFile() {

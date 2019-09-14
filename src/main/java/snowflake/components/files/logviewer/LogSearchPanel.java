@@ -3,6 +3,7 @@ package snowflake.components.files.logviewer;
 import snowflake.App;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.util.*;
 import java.awt.BorderLayout;
 
@@ -20,6 +21,7 @@ public class LogSearchPanel extends JPanel {
         txtSearch = new JTextField(20);
 
         JButton btnSearch = new JButton();
+        btnSearch.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnSearch.setFont(App.getFontAwesomeFont());
         btnSearch.setText("\uf002");
         btnSearch.addActionListener(e -> {
@@ -29,6 +31,7 @@ public class LogSearchPanel extends JPanel {
         });
 
         JButton btnNext = new JButton();
+        btnNext.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnNext.setFont(App.getFontAwesomeFont());
         btnNext.setText("\uf107");
         btnNext.addActionListener(e -> {
@@ -41,6 +44,7 @@ public class LogSearchPanel extends JPanel {
         });
 
         JButton btnPrev = new JButton();
+        btnPrev.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnPrev.setFont(App.getFontAwesomeFont());
         btnPrev.setText("\uf106");
         btnPrev.addActionListener(e -> {
@@ -68,14 +72,20 @@ public class LogSearchPanel extends JPanel {
 
         Box b1 = Box.createHorizontalBox();
         b1.add(new JLabel("Search"));
+        b1.add(Box.createHorizontalStrut(10));
         b1.add(txtSearch);
         b1.add(btnSearch);
         b1.add(btnPrev);
         b1.add(btnNext);
         b1.add(chkRegEx);
+        b1.add(Box.createHorizontalStrut(5));
         b1.add(chkMatchCase);
+        b1.add(Box.createHorizontalStrut(5));
         b1.add(chkFullWord);
+        b1.add(Box.createHorizontalStrut(5));
         b1.add(lblResults);
+
+        setBorder(new EmptyBorder(3, 5, 3, 5));
 
         add(b1);
     }
