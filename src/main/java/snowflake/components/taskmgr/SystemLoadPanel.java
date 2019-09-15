@@ -15,7 +15,7 @@ public class SystemLoadPanel extends JPanel {
     private JLabel cpuLabel, memoryLabel, swapLabel;
 
     public SystemLoadPanel() {
-        super(new BorderLayout());
+        super(new BorderLayout(5, 5));
         setMinimumSize(new Dimension(100, 100));
         setPreferredSize(new Dimension(300, 400));
         Box b1 = Box.createVerticalBox();

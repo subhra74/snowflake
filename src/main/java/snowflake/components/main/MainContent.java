@@ -187,7 +187,6 @@ public class MainContent extends JPanel {
     }
 
 
-
     private void init() {
         setBackground(new Color(245, 245, 245));
         SessionContentPanel contentPanel = new SessionContentPanel();
@@ -224,12 +223,23 @@ public class MainContent extends JPanel {
         cmb.setRenderer(new ListCellRenderer<SessionInfo>() {
             JLabel lbl = new JLabel();
 
+            {
+                setOpaque(true);
+                lbl.setBackground(Color.DARK_GRAY);
+                lbl.setForeground(Color.WHITE);
+            }
+
             @Override
             public Component getListCellRendererComponent(JList<? extends SessionInfo> list, SessionInfo value, int index, boolean isSelected, boolean cellHasFocus) {
                 if (value != null) {
                     lbl.setText(value.toString());
                 }
-                lbl.setForeground(Color.WHITE);
+                if (isSelected) {
+                    lbl.setBackground(Color.BLACK);
+                } else {
+                    lbl.setBackground(Color.DARK_GRAY);
+                }
+
                 return lbl;
             }
         });

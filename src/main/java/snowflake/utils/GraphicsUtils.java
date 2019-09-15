@@ -8,6 +8,27 @@ import javax.swing.*;
 import java.awt.*;
 
 public class GraphicsUtils {
+    public static UIDefaults createSkinnedButton(UIDefaults btnSkin) {
+        Color c1 = new Color(3, 155, 229);
+        Color c2 = new Color(2, 132, 195);
+        Color c3 = new Color(70, 130, 180);
+        CustomButtonPainter cs = new CustomButtonPainter(c1, c2, c3);
+        btnSkin.put("Button[Default+Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Default+Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Default+Focused].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Default+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Default+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Default].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Enabled].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button[Focused].backgroundPainter", cs.getNormalPainter());
+        btnSkin.put("Button[MouseOver].backgroundPainter", cs.getHotPainter());
+        btnSkin.put("Button[Pressed].backgroundPainter", cs.getPressedPainter());
+        btnSkin.put("Button.foreground", Color.WHITE);
+        return btnSkin;
+    }
+
     public static JButton createSkinnedButton(Color c1, Color c2, Color c3) {
         UIDefaults btnSkin = new UIDefaults();
         CustomButtonPainter cs = new CustomButtonPainter(c1, c2, c3);
@@ -287,11 +308,11 @@ public class GraphicsUtils {
                 g.setColor(new Color(220, 220, 220));
                 g.fillRect(0, 0, width, height);
                 g.setColor(c1);
-                g.fillRect(0, height-2, width, height);
+                g.fillRect(0, height - 2, width, height);
             }
         };
 
-        uiDefaults.put("TabbedPane:TabbedPaneTabArea.contentMargins", new Insets(0,0,0,0));
+        uiDefaults.put("TabbedPane:TabbedPaneTabArea.contentMargins", new Insets(0, 0, 0, 0));
 
         uiDefaults.put("TabbedPane:TabbedPaneTabArea[Disabled].backgroundPainter", painter1);
         uiDefaults.put("TabbedPane:TabbedPaneTabArea[Enabled].backgroundPainter", painter1);
