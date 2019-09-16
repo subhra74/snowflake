@@ -1,5 +1,6 @@
 package snowflake.components.files.browser.folderview;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
 import snowflake.utils.FormatUtils;
@@ -11,17 +12,48 @@ import java.awt.*;
 
 public class FolderViewRenderer implements TableCellRenderer {
     private JLabel label;
+    private JLabel iconLabel;
     private Font plainFont, boldFont;
+    private JPanel panel;
+    private JLabel textLabel;
 //	private FileIcon folderIcon, fileIcon;
 
     public FolderViewRenderer() {
+        panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBorder(new EmptyBorder(5, 5,
+                5, 5));
+
         label = new JLabel();
         label.setOpaque(true);
-        label.setBorder(new EmptyBorder(3, 5,
-                3, 0));
         label.setIconTextGap(5);
         plainFont = new Font(Font.DIALOG, Font.PLAIN, 14);
-        boldFont = new Font(Font.DIALOG, Font.BOLD, 14);
+
+        iconLabel = new JLabel();
+        iconLabel.setFont(App.getFontAwesomeFont().deriveFont(Font.PLAIN, 25.f));
+        iconLabel.setForeground(new Color(92, 167, 25));
+        //iconLabel.setBorder(new EmptyBorder(5,5,5,5));
+        iconLabel.setHorizontalAlignment(JLabel.CENTER);
+        panel.add(label);
+        panel.add(iconLabel, BorderLayout.WEST);
+
+        label.setFont(plainFont);
+
+        textLabel = new JLabel();
+        textLabel.setFont(plainFont);
+
+        iconLabel.setText("\uf114");
+        Dimension d1 = iconLabel.getPreferredSize();
+        iconLabel.setText("\uf016");
+        Dimension d2 = iconLabel.getPreferredSize();
+
+        int iconW = Math.max(d1.width, d2.width);
+        int iconH = Math.max(d1.height, d2.height);
+
+        Dimension dm = new Dimension(iconW + 10, iconH);
+
+//        iconLabel.setPreferredSize(dm);
+//        iconLabel.setMinimumSize(dm);
+//        iconLabel.setMaximumSize(dm);
 
 //		label.setBorder(new CompoundBorder(
 //				new MatteBorder(0, Utility.toPixel(0), Utility.toPixel(0), 0, UIManager.getColor("Panel.background")),
@@ -32,7 +64,16 @@ public class FolderViewRenderer implements TableCellRenderer {
     }
 
     public int getPreferredHeight() {
-        label.setIcon((Icon) UIManager.get("FileChooser.directoryIcon"));
+        iconLabel.setText("\uf114");
+        Dimension d1 = iconLabel.getPreferredSize();
+        iconLabel.setText("\uf016");
+        Dimension d2 = iconLabel.getPreferredSize();
+
+        int iconW = Math.max(d1.width, d2.width);
+        int iconH = Math.max(d1.height, d2.height);
+
+        iconLabel.setPreferredSize(new Dimension(iconW, iconH));
+
         int h1 = getPrefHeight();
         label.setText("ABC");
         int h2 = getPrefHeight();
@@ -46,16 +87,24 @@ public class FolderViewRenderer implements TableCellRenderer {
         int r = table.convertRowIndexToModel(row);
         int c = table.convertColumnIndexToModel(column);
         FileInfo ent = folderViewModel.getItemAt(r);
-        label.setFont(plainFont);
+
+        panel.setBackground(isSelected ? table.getSelectionBackground()
+                : Color.WHITE);
+        label.setBackground(isSelected ? table.getSelectionBackground()
+                : Color.WHITE);
+        label.setForeground(Color.BLACK);
+
         switch (c) {
             case 0:
-                label.setIcon(ent.getType() == FileType.Directory || ent.getType() == FileType.DirLink ?
-                        (Icon) UIManager.get("FileChooser.directoryIcon") :
-                        (Icon) UIManager.get("FileChooser.fileIcon"));
+                iconLabel.setText(ent.getType() == FileType.Directory || ent.getType() == FileType.DirLink
+                        ? "\uf07b" : "\uf016");
+//                label.setIcon(ent.getType() == FileType.Directory || ent.getType() == FileType.DirLink ?
+//                        (Icon) UIManager.get("FileChooser.directoryIcon") :
+//                        (Icon) UIManager.get("FileChooser.fileIcon"));
                 label.setText(ent.getName());
-                break;
+                return panel;
             case 1:
-                label.setIcon(null);
+                iconLabel.setText("");
                 if (ent.getType() == FileType.Directory
                         || ent.getType() == FileType.DirLink) {
                     label.setText("");
@@ -63,36 +112,35 @@ public class FolderViewRenderer implements TableCellRenderer {
                     label.setText(
                             FormatUtils.humanReadableByteCount(ent.getSize(), true));
                 }
-                break;
+                return label;
             case 2:
-                label.setIcon(null);
+                iconLabel.setText("");
                 label.setText(ent.getType() + "");
-                break;
+                return label;
             case 3:
-                label.setIcon(null);
+                iconLabel.setText("");
                 label.setText(FormatUtils.formatDate(ent.getLastModified()));
-                break;
+                return label;
             case 4:
-                label.setIcon(null);
+                iconLabel.setText("");
                 label.setText(ent.getPermissionString());
-                break;
+                return label;
             case 5:
-                label.setIcon(null);
+                iconLabel.setText("");
                 label.setText(ent.getUser());
-                break;
+                return label;
             default:
                 break;
         }
 
-        label.setBackground(isSelected ? table.getSelectionBackground()
-                : table.getBackground());
-        label.setForeground(isSelected ? table.getSelectionForeground()
-                : table.getForeground());
         return label;
+//        iconLabel.setForeground(isSelected ? table.getSelectionForeground()
+//                : table.getForeground());
+
     }
 
     public int getPrefHeight() {
-        return label.getPreferredSize().height;
+        return panel.getPreferredSize().height;
     }
 
 }

@@ -638,7 +638,8 @@ public class SshMenuHandler {
         });
 
         mOpenInTerminal.addActionListener(e -> {
-
+            String path = popupMenu.getName();
+            this.openFolderInTerminal(path);
         });
 
         mCopyPath.addActionListener(e -> {

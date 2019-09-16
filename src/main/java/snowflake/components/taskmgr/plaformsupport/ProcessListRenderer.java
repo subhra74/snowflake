@@ -12,7 +12,8 @@ public class ProcessListRenderer extends JLabel implements TableCellRenderer {
 
     public ProcessListRenderer() {
         setText("HHH");
-        setBorder(new EmptyBorder(3, 3, 3, 3));
+        setBorder(new EmptyBorder(5, 5, 5, 5));
+        setBackground(Color.WHITE);
         setOpaque(true);
     }
 
@@ -20,7 +21,7 @@ public class ProcessListRenderer extends JLabel implements TableCellRenderer {
     public Component getTableCellRendererComponent(JTable table, Object value,
                                                    boolean isSelected, boolean hasFocus,
                                                    int row, int column) {
-        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        setBackground(isSelected ? table.getSelectionBackground() : Color.WHITE);
         setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
         if (column == 3) {
             double mem = ((Float) value) * 1024;

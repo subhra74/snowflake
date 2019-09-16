@@ -331,4 +331,23 @@ public class GraphicsUtils {
 
         return uiDefaults;
     }
+
+    public static void customizeTableHeader(UIDefaults uiDefaults) {
+        Color c1 = new Color(220, 220, 220);
+        Painter painterNormal = new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c1);
+                g.drawLine(width-1, 0, width-1, height);
+            }
+        };
+        uiDefaults.put("TableHeader.background", Color.WHITE);//new Color(240, 240, 240));
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\".opaque", false);
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Enabled+Focused+Sorted].backgroundPainter", painterNormal);
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Enabled+Focused].backgroundPainter", painterNormal);
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Enabled+Sorted].backgroundPainter", painterNormal);
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Enabled].backgroundPainter", painterNormal);
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\"[MouseOver].backgroundPainter", painterNormal);
+        uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Pressed].backgroundPainter", painterNormal);
+    }
 }

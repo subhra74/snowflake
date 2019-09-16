@@ -118,14 +118,14 @@ public class OverflowMenuHandler {
     }
 
     private void sortMenuClicked(JRadioButtonMenuItem mSortItem) {
-        if (mSortItem == mSortAsc) {
-            folderView.sortView(folderView.getSortIndex(), true);
-        } else if (mSortItem == mSortDesc) {
-            folderView.sortView(folderView.getSortIndex(), false);
-        } else {
-            int index = (int) mSortItem.getClientProperty("sort.index");
-            folderView.sortView(index, folderView.isSortAsc());
-        }
+//        if (mSortItem == mSortAsc) {
+//            folderView.sortView(folderView.getSortIndex(), true);
+//        } else if (mSortItem == mSortDesc) {
+//            folderView.sortView(folderView.getSortIndex(), false);
+//        } else {
+//            int index = (int) mSortItem.getClientProperty("sort.index");
+//            folderView.sortView(index, folderView.isSortAsc());
+//        }
     }
 
     public JPopupMenu getOverflowMenu() {
@@ -133,20 +133,20 @@ public class OverflowMenuHandler {
     }
 
     public void setFolderView(FolderView folderView) {
-        mSortAsc.setSelected(folderView.isSortAsc());
-        mSortDesc.setSelected(!folderView.isSortAsc());
-        int sortIndex = folderView.getSortIndex();
-        switch (sortIndex) {
-            case 0:
-                mSortName.setSelected(true);
-                break;
-            case 1:
-                mSortSize.setSelected(true);
-                break;
-            case 2:
-                mSortModified.setSelected(true);
-                break;
-        }
+//        mSortAsc.setSelected(folderView.isSortAsc());
+//        mSortDesc.setSelected(!folderView.isSortAsc());
+//        int sortIndex = folderView.getSortIndex();
+//        switch (sortIndex) {
+//            case 0:
+//                mSortName.setSelected(true);
+//                break;
+//            case 1:
+//                mSortSize.setSelected(true);
+//                break;
+//            case 2:
+//                mSortModified.setSelected(true);
+//                break;
+//        }
         InputMap map = folderView.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         ActionMap act = folderView.getActionMap();
         this.folderView = folderView;
