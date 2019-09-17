@@ -1,37 +1,42 @@
-package snowflake.components.files.browser.local;
+package snowflake.components.files.browser.sftp;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
 import snowflake.common.local.files.LocalFileSystem;
+import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LocalMenuHandler {
+public class SftpMenuHandler {
     private JMenuItem mOpen, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav;
-
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-
     private FileBrowser fileBrowser;
     private FolderView folderView;
-    private LocalFileOperations fileOperations;
-    private LocalFileBrowserView fileBrowserView;
     private FileComponentHolder holder;
+    private SftpFileBrowserView fileBrowserView;
+    private SftpFileOperations fileOperations;
+    private SshFileSystem fs;
 
-    public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView, FileComponentHolder holder) {
+    public SftpMenuHandler(FileBrowser fileBrowser,
+                           SftpFileBrowserView fileBrowserView,
+                           FileComponentHolder holder,
+                           SshFileSystem fs) {
         this.fileBrowser = fileBrowser;
         this.holder = holder;
-        this.fileOperations = new LocalFileOperations();
+        this.fileOperations = new SftpFileOperations();
         this.fileBrowserView = fileBrowserView;
+        this.fs = fs;
     }
-
 
     public void initMenuHandler(FolderView folderView) {
         this.folderView = folderView;
@@ -115,7 +120,7 @@ public class LocalMenuHandler {
         mAddToFav.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //addToFavourites();
+                addToFavourites();
             }
         });
     }
@@ -176,7 +181,7 @@ public class LocalMenuHandler {
     private void renameAsync(String oldName, String newName, String baseFolder) {
         executor.submit(() -> {
             fileBrowser.disableUi();
-            if (fileOperations.rename(oldName, newName)) {
+            if (fileOperations.rename(fs, oldName, newName)) {
                 fileBrowserView.render(baseFolder);
             } else {
                 fileBrowser.enableUi();
@@ -202,7 +207,7 @@ public class LocalMenuHandler {
         executor.submit(() -> {
             fileBrowser.disableUi();
             String baseFolder = fileBrowserView.getCurrentDirectory();
-            if (fileOperations.newFile(baseFolder)) {
+            if (fileOperations.newFile(fs, baseFolder)) {
                 fileBrowserView.render(baseFolder);
             } else {
                 fileBrowser.enableUi();
@@ -214,11 +219,55 @@ public class LocalMenuHandler {
         executor.submit(() -> {
             fileBrowser.disableUi();
             String baseFolder = currentDirectory;
-            if (fileOperations.newFile(baseFolder)) {
+            if (fileOperations.newFolder(fs, baseFolder)) {
                 fileBrowserView.render(baseFolder);
             } else {
                 fileBrowser.enableUi();
             }
         });
+    }
+
+    private void addToFavourites() {
+        FileInfo arr[] = folderView.getSelectedFiles();
+        if (arr.length == 1) {
+            holder.addFavouriteLocation(fileBrowserView, arr[0].getPath());
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        } else if (arr.length == 0) {
+            holder.addFavouriteLocation(fileBrowserView, fileBrowserView.getCurrentDirectory());
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        }
+    }
+
+    public JPopupMenu createAddressPopup() {
+        JPopupMenu popupMenu = new JPopupMenu();
+        JMenuItem mOpenInNewTab = new JMenuItem("Open in new tab");
+        JMenuItem mCopyPath = new JMenuItem("Copy path");
+        JMenuItem mOpenInTerminal = new JMenuItem("Open in terminal");
+        JMenuItem mBookmark = new JMenuItem("Bookmark");
+        popupMenu.add(mOpenInNewTab);
+        popupMenu.add(mCopyPath);
+        popupMenu.add(mOpenInTerminal);
+        popupMenu.add(mBookmark);
+
+        mOpenInNewTab.addActionListener(e -> {
+            String path = popupMenu.getName();
+            fileBrowser.openLocalFileBrowserView(path, this.fileBrowserView.getOrientation());
+        });
+
+        mOpenInTerminal.addActionListener(e -> {
+
+        });
+
+        mCopyPath.addActionListener(e -> {
+            String path = popupMenu.getName();
+            Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(path), null);
+        });
+
+        mBookmark.addActionListener(e -> {
+            String path = popupMenu.getName();
+            holder.addFavouriteLocation(fileBrowserView, path);
+            this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+        });
+        return popupMenu;
     }
 }

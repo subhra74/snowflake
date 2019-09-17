@@ -1,7 +1,10 @@
 package snowflake.common;
 
-import java.util.*;
-import java.io.*;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Map;
 
 public interface FileSystem {
     public void connect() throws Exception;
@@ -55,4 +58,6 @@ public interface FileSystem {
     public InputTransferChannel inputTransferChannel() throws Exception;
 
     public OutputTransferChannel outputTransferChannel() throws Exception;
+
+    public String getSeparator();
 }

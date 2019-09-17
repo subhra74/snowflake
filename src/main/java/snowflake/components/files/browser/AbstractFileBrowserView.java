@@ -28,7 +28,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     private JButton btnBack, btnNext;
     private OverflowMenuHandler overflowMenuHandler;
 
-    public AbstractFileBrowserView(JRootPane rootPane, FileComponentHolder holder, PanelOrientation orientation, FileBrowser fileBrowser) {
+    public AbstractFileBrowserView(JRootPane rootPane, FileComponentHolder holder, PanelOrientation orientation, FileBrowser fileBrowser, Color viewBackground) {
         super(new BorderLayout());
         this.orientation = orientation;
         this.rootPane = rootPane;
@@ -167,7 +167,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
         add(toolBar, BorderLayout.NORTH);
 
-        folderView = new FolderView(this);
+        folderView = new FolderView(this, viewBackground);
 
         this.overflowMenuHandler.setFolderView(folderView);
 

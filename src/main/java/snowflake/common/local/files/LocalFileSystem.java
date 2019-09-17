@@ -1,13 +1,16 @@
 package snowflake.common.local.files;
 
 import snowflake.common.*;
+import snowflake.common.FileSystem;
 import snowflake.utils.PathUtils;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 public class LocalFileSystem implements FileSystem {
     private static final String PROTO_LOCAL_FILE = "local";
@@ -280,5 +283,9 @@ public class LocalFileSystem implements FileSystem {
             }
         };
         return tc;
+    }
+
+    public String getSeparator() {
+        return File.separator;
     }
 }

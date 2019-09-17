@@ -14,7 +14,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.*;
+import java.util.Date;
 import java.util.List;
 
 
@@ -31,7 +31,7 @@ public class FolderView extends JPanel {
 //    private boolean sortAsc = false;
     private List<FileInfo> files;
 
-    public FolderView(FolderViewEventListener listener) {
+    public FolderView(FolderViewEventListener listener, Color viewBackground) {
         super(new BorderLayout());
         this.listener = listener;
         this.popup = new JPopupMenu();
@@ -43,84 +43,86 @@ public class FolderView extends JPanel {
         folderViewModel = new FolderViewTableModel(false);
         //TableCellTextRenderer r = new TableCellTextRenderer();
 
-        TableCellLabelRenderer r1 = new TableCellLabelRenderer();
+        TableCellLabelRenderer r1 = new TableCellLabelRenderer(viewBackground);
 
         table = new JTable(folderViewModel);
-        table.setDefaultRenderer(Object.class, r1);
+        table.setBackground(viewBackground);
+        table.setDefaultRenderer(FileInfo.class, r1);
         table.setDefaultRenderer(Long.class, r1);
         table.setDefaultRenderer(Date.class, r1);
+        table.setDefaultRenderer(Object.class, r1);
         table.setFillsViewportHeight(true);
-
+        table.setShowGrid(false);
 
         listener.install(this);
 
         table.setIntercellSpacing(new Dimension(0, 0));
-        table.setBorder(null);
+        //table.setBorder(null);
         table.setDragEnabled(true);
         table.setDropMode(DropMode.ON);
         //table.setShowGrid(false);
         //table.setRowHeight(r.getPreferredHeight());
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        sorter = new TableRowSorter<FolderViewTableModel>(folderViewModel);
-//        sorter.setComparator(0,(a,b)->{
-//            System.out.println("called new sorter");
-//            return 1;
+//        sorter = new TableRowSorter<FolderViewTableModel>(folderViewModel);
+////        sorter.setComparator(0,(a,b)->{
+////            System.out.println("called new sorter");
+////            return 1;
+////        });
+//        sorter.setComparator(0, new Comparator<Object>() {
+//            @Override
+//            public int compare(Object s1, Object s2) {
+//                FileInfo info1 = (FileInfo) s1;
+//                FileInfo info2 = (FileInfo) s2;
+//                if (info1.getType() == FileType.Directory || info1.getType() == FileType.DirLink) {
+//                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+//                        return info1.getName().compareToIgnoreCase(info2.getName());
+//                    } else {
+//                        return 1;
+//                    }
+//                } else {
+//                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+//                        return -1;
+//                    } else {
+//                        return info1.getName().compareToIgnoreCase(info2.getName());
+//                    }
+//                }
+//            }
 //        });
-        sorter.setComparator(0, new Comparator<Object>() {
-            @Override
-            public int compare(Object s1, Object s2) {
-                FileInfo info1 = (FileInfo) s1;
-                FileInfo info2 = (FileInfo) s2;
-                if (info1.getType() == FileType.Directory || info1.getType() == FileType.DirLink) {
-                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
-                        return info1.getName().compareToIgnoreCase(info2.getName());
-                    } else {
-                        return 1;
-                    }
-                } else {
-                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
-                        return -1;
-                    } else {
-                        return info1.getName().compareToIgnoreCase(info2.getName());
-                    }
-                }
-            }
-        });
+//
+//        sorter.setComparator(1, new Comparator<Long>() {
+//            @Override
+//            public int compare(Long s1, Long s2) {
+//                System.out.println("Sorter 1 called");
+//                return s1.compareTo(s2);
+//            }
+//        });
+//
+//        sorter.setComparator(3, new Comparator<FileInfo>() {
+//
+//            @Override
+//            public int compare(FileInfo info1, FileInfo info2) {
+//                System.out.println("Sorter 3 called");
+//                if (info1.getType() == FileType.Directory || info1.getType() == FileType.DirLink) {
+//                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+//                        return info1.getLastModified().compareTo(info2.getLastModified());
+//                    } else {
+//                        return 1;
+//                    }
+//                } else {
+//                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
+//                        return -1;
+//                    } else {
+//                        return info1.getLastModified().compareTo(info2.getLastModified());
+//                    }
+//                }
+//            }
+//
+//        });
 
-        sorter.setComparator(1, new Comparator<Long>() {
-            @Override
-            public int compare(Long s1, Long s2) {
-                System.out.println("Sorter 1 called");
-                return s1.compareTo(s2);
-            }
-        });
+        table.setAutoCreateRowSorter(true);
 
-        sorter.setComparator(3, new Comparator<FileInfo>() {
-
-            @Override
-            public int compare(FileInfo info1, FileInfo info2) {
-                System.out.println("Sorter 3 called");
-                if (info1.getType() == FileType.Directory || info1.getType() == FileType.DirLink) {
-                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
-                        return info1.getLastModified().compareTo(info2.getLastModified());
-                    } else {
-                        return 1;
-                    }
-                } else {
-                    if (info2.getType() == FileType.Directory || info2.getType() == FileType.DirLink) {
-                        return -1;
-                    } else {
-                        return info1.getLastModified().compareTo(info2.getLastModified());
-                    }
-                }
-            }
-
-        });
-
-        table.setAutoCreateRowSorter(false);
-
-        table.setRowSorter(sorter);
+        //table.setRowSorter(sorter);
 //
 //		ArrayList<RowSorter.SortKey> list = new ArrayList<>();
 //		list.add(new RowSorter.SortKey(3, SortOrder.DESCENDING));
@@ -237,7 +239,7 @@ public class FolderView extends JPanel {
 //            }
 //        });
 
-        table.setBorder(null);
+        //table.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(table);
 //        JScrollBar verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
 //        verticalScroller.setUI(new CustomScrollBarUI());
@@ -250,7 +252,7 @@ public class FolderView extends JPanel {
 //        scrollPane.setHorizontalScrollBar(horizontalScroller);
 
         scrollPane.setBorder(new LineBorder(new Color(240, 240, 240), 1));
-
+        scrollPane.getViewport().setBackground(viewBackground);
         add(scrollPane);
 
         table.setRowHeight(r1.getHeight());

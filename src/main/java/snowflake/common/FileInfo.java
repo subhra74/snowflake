@@ -3,10 +3,12 @@ package snowflake.common;
 import snowflake.utils.TimeUtils;
 
 import java.io.Serializable;
-import java.time.*;
-import java.util.regex.*;
+import java.time.LocalDateTime;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public class FileInfo implements Serializable {
+public class FileInfo implements Serializable, Comparable<FileInfo> {
+    private static final Pattern USER_REGEX = Pattern.compile("^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)");
     private String name;
     private String path;
     private long size;
@@ -19,8 +21,6 @@ public class FileInfo implements Serializable {
     private String extra;
     private String user;
     private boolean hidden;
-
-    private static final Pattern USER_REGEX = Pattern.compile("^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)");
 
     public FileInfo(String name, String path, long size, FileType type, long lastModified, int permission,
                     String protocol, String permissionString, long created, String extra, boolean hidden) {
@@ -61,10 +61,6 @@ public class FileInfo implements Serializable {
         return path;
     }
 
-    public void setName(String name) {
-        this.path = name;
-    }
-
     public long getSize() {
         return size;
     }
@@ -91,6 +87,10 @@ public class FileInfo implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(String name) {
+        this.path = name;
     }
 
     @Override
@@ -167,5 +167,26 @@ public class FileInfo implements Serializable {
 
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
+    }
+
+    @Override
+    public int compareTo(FileInfo o) {
+        if (getType() == FileType.Directory || getType() == FileType.DirLink) {
+            if (o.getType() == FileType.Directory || o.getType() == FileType.DirLink) {
+                return getName().compareToIgnoreCase(o.getName());
+            } else {
+                return 1;
+            }
+        } else {
+            if (o.getType() == FileType.Directory || o.getType() == FileType.DirLink) {
+                return -1;
+            } else {
+                return getName().compareToIgnoreCase(o.getName());
+            }
+        }
+//        if (o != null && o.getName() != null) {
+//            return getName().compareToIgnoreCase(o.getName());
+//        }
+//        return 1;
     }
 }

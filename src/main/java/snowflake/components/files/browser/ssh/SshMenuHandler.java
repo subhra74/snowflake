@@ -42,15 +42,15 @@ public class SshMenuHandler {
 
     private FileBrowser fileBrowser;
     private FolderView folderView;
-    private SftpFileOperations fileOperations;
-    private SftpFileBrowserView fileBrowserView;
+    private SshFileOperations fileOperations;
+    private SshFileBrowserView fileBrowserView;
     private FileComponentHolder holder;
 
-    public SshMenuHandler(FileBrowser fileBrowser, SftpFileBrowserView fileBrowserView,
+    public SshMenuHandler(FileBrowser fileBrowser, SshFileBrowserView fileBrowserView,
                           FileComponentHolder holder) {
         this.fileBrowser = fileBrowser;
         this.holder = holder;
-        this.fileOperations = new SftpFileOperations();
+        this.fileOperations = new SshFileOperations();
         this.fileBrowserView = fileBrowserView;
     }
 
@@ -440,7 +440,7 @@ public class SshMenuHandler {
         if (files.length == 1) {
             FileInfo file = files[0];
             if (file.getType() == FileType.Directory || file.getType() == FileType.DirLink) {
-                fileBrowser.openSftpFileBrowserView(file.getPath(), this.fileBrowserView.getOrientation());
+                fileBrowser.openSshFileBrowserView(file.getPath(), this.fileBrowserView.getOrientation());
             }
         }
     }
@@ -634,7 +634,7 @@ public class SshMenuHandler {
 
         mOpenInNewTab.addActionListener(e -> {
             String path = popupMenu.getName();
-            fileBrowser.openSftpFileBrowserView(path, this.fileBrowserView.getOrientation());
+            fileBrowser.openSshFileBrowserView(path, this.fileBrowserView.getOrientation());
         });
 
         mOpenInTerminal.addActionListener(e -> {

@@ -5,42 +5,41 @@ import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.files.SshFileSystem;
+import snowflake.components.common.AddressBar;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.AbstractFileBrowserView;
-import snowflake.components.files.browser.AddressBar;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.utils.PathUtils;
-import snowflake.utils.TimeUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.ArrayList;
+import java.awt.event.MouseEvent;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class SftpFileBrowserView extends AbstractFileBrowserView {
+public class SshFileBrowserView extends AbstractFileBrowserView {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private SshMenuHandler menuHandler;
     private FileBrowser fileBrowser;
-
+    private JPopupMenu addressPopup;
     private DndTransferHandler transferHandler;
 
-    public SftpFileBrowserView(FileBrowser fileBrowser,
-                               JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation);
+    public SshFileBrowserView(FileBrowser fileBrowser,
+                              JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
+        super(rootPane, holder, orientation, fileBrowser,  new Color(255, 240, 240));
         this.fileBrowser = fileBrowser;
         this.menuHandler = new SshMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);
         this.transferHandler = new DndTransferHandler(this.folderView, holder.getInfo(), this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
+        this.addressPopup = menuHandler.createAddressPopup();
         if (initialPath == null) {
             this.path = holder.getInfo().getRemoteFolder();
         } else {
@@ -62,6 +61,10 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         addressBar = new AddressBar('/', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String selectedPath = e.getActionCommand();
+                addressPopup.setName(selectedPath);
+                MouseEvent me = (MouseEvent) e.getSource();
+                addressPopup.show(me.getComponent(), me.getX(), me.getY());
                 System.out.println("clicked");
             }
         });
@@ -110,10 +113,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         });
     }
 
-    @Override
-    public void addBack(String path) {
-
-    }
 
     @Override
     public void render(String path) {
@@ -186,12 +185,14 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             }
             if (sourceFs instanceof LocalFileSystem) {
                 FileSystem targetFs = holder.getSshFileSystem();
-                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
+                        this.path, this.hashCode(), -1);
             } else if (sourceFs instanceof SshFileSystem) {
-                if (transferData.getTransferAction() == DndTransferData.TransferAction.Cut) {
-                    //rename or move files
-                } else if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
+                System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
+                if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
                     menuHandler.copy(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
+                } else {
+                    menuHandler.move(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
                 }
             }
             return true;
@@ -214,5 +215,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     public TransferHandler getTransferHandler() {
         return transferHandler;
     }
+
 
 }

@@ -1,27 +1,29 @@
 package snowflake.common.ssh.files;
 
 import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.*;
+import com.jcraft.jsch.SftpATTRS;
+import com.jcraft.jsch.SftpException;
 import snowflake.common.*;
 import snowflake.common.FileSystem;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.utils.PathUtils;
 
-import java.nio.file.AccessDeniedException;
-import java.util.*;
 import java.io.*;
+import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SshFileSystem implements FileSystem {
+    public static final String PROTO_SFTP = "sftp";
     private Object lock = new Object();
-
     private SshUserInteraction source;
     private SshClient wrapper;
     private ChannelSftp sftp;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
-
-    public static final String PROTO_SFTP = "sftp";
 
     public SshFileSystem(SshUserInteraction source) {
         this.source = source;
@@ -494,5 +496,9 @@ public class SshFileSystem implements FileSystem {
                 throw new Exception();
             }
         }
+    }
+
+    public String getSeparator() {
+        return "/";
     }
 }

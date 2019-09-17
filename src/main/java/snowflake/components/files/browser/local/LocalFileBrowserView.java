@@ -12,6 +12,7 @@ import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -30,7 +31,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 
     public LocalFileBrowserView(FileBrowser fileBrowser,
                                 JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation, fileBrowser);
+        super(rootPane, holder, orientation, fileBrowser, new Color(240, 255, 240));
         this.fileBrowser = fileBrowser;
         this.menuHandler = new LocalMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);

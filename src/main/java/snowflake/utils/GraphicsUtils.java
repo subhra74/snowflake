@@ -1,6 +1,5 @@
 package snowflake.utils;
 
-import snowflake.App;
 import snowflake.components.common.CustomButtonPainter;
 import snowflake.components.common.CustomScrollBarUI;
 
@@ -333,15 +332,14 @@ public class GraphicsUtils {
     }
 
     public static void customizeTableHeader(UIDefaults uiDefaults) {
-        Color c1 = new Color(220, 220, 220);
-        Painter painterNormal = new Painter() {
-            @Override
-            public void paint(Graphics2D g, Object object, int width, int height) {
-                g.setColor(c1);
-                g.drawLine(width-1, 0, width-1, height);
-            }
+        Color c1 = new Color(240, 240, 240);
+        Painter painterNormal = (Graphics2D g, Object object, int width, int height) -> {
+            g.setColor(c1);
+            g.drawLine(width - 1, 3, width - 1, height - 6);
         };
+        uiDefaults.put("TableHeader.font", new Font(Font.DIALOG, Font.PLAIN, 14));
         uiDefaults.put("TableHeader.background", Color.WHITE);//new Color(240, 240, 240));
+        uiDefaults.put("TableHeader.foreground", new Color(190, 150, 150));
         uiDefaults.put("TableHeader:\"TableHeader.renderer\".opaque", false);
         uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Enabled+Focused+Sorted].backgroundPainter", painterNormal);
         uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Enabled+Focused].backgroundPainter", painterNormal);

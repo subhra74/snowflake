@@ -7,14 +7,10 @@ import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicScrollBarUI;
-import javax.swing.plaf.basic.BasicTableHeaderUI;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.plaf.synth.Region;
 import javax.swing.plaf.synth.SynthScrollBarUI;
-import javax.swing.plaf.synth.SynthStyle;
-import javax.swing.plaf.synth.SynthStyleFactory;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.InputStream;
 import java.util.Properties;
@@ -308,6 +304,8 @@ public class App {
         f.setLocationRelativeTo(null);
         f.setVisible(true);
 
+//        testDraw();
+
 //        createSampleWindow();
 //        createSampleWindow1();
     }
@@ -380,4 +378,39 @@ public class App {
             e.printStackTrace();
         }
     }
+
+//    static void testDraw() {
+//        JComponent component = new JComponent() {
+//            BufferedImage bufferedImage;
+//
+//            {
+//                bufferedImage = new BufferedImage(400, 400, BufferedImage.TYPE_INT_ARGB);
+//                Graphics2D g3 = bufferedImage.createGraphics();
+//                g3.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB);
+//                g3.setColor(Color.BLACK);
+//                g3.setFont(getFontAwesomeFont().deriveFont(150.0f));
+//                g3.drawString("\uf07b", 20, g3.getFontMetrics().getAscent() + 20);
+//                g3.dispose();
+//            }
+//
+//            @Override
+//            protected void paintComponent(Graphics g) {
+//
+//
+//                Graphics2D g2 = (Graphics2D) g;
+//                g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_VRGB);
+//                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//                g2.setColor(Color.PINK);
+//                g2.fillRect(0, 0, this.getWidth(), this.getHeight());
+//                g2.drawImage(bufferedImage, 0, 0, this);
+//            }
+//        };
+//
+//        JFrame f = new JFrame("Title");
+//        f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+//        f.setSize(640, 480);
+//        f.setLocationRelativeTo(null);
+//        f.add(component);
+//        f.setVisible(true);
+//    }
 }

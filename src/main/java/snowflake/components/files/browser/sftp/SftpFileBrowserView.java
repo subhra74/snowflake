@@ -1,48 +1,57 @@
-package snowflake.components.files.browser.local;
+package snowflake.components.files.browser.sftp;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
-import snowflake.common.local.files.LocalFileSystem;
-import snowflake.components.files.*;
+import snowflake.common.ssh.SshUserInteraction;
+import snowflake.common.ssh.files.SshFileSystem;
+import snowflake.components.common.AddressBar;
+import snowflake.components.files.DndTransferData;
+import snowflake.components.files.DndTransferHandler;
+import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.AbstractFileBrowserView;
-import snowflake.components.files.browser.AddressBar;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.PathUtils;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class LocalFileBrowserView extends AbstractFileBrowserView {
+public class SftpFileBrowserView extends AbstractFileBrowserView {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
-    private LocalMenuHandler menuHandler;
     private FileBrowser fileBrowser;
     private DndTransferHandler transferHandler;
-    private LocalFileSystem fs;
+    private JPopupMenu addressPopup;
+    private SftpMenuHandler menuHandler;
+    private SshFileSystem fs;
 
-    public LocalFileBrowserView(FileBrowser fileBrowser,
-                                JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation);
+    public SftpFileBrowserView(FileBrowser fileBrowser,
+                               JRootPane rootPane, FileComponentHolder holder,
+                               String initialPath, PanelOrientation orientation, SessionInfo foreignInfo) {
+        super(rootPane, holder, orientation, fileBrowser, new Color(240, 240, 255));
         this.fileBrowser = fileBrowser;
-        this.menuHandler = new LocalMenuHandler(fileBrowser, this, holder);
+        this.fs = new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
+        this.menuHandler = new SftpMenuHandler(fileBrowser, this, holder, fs);
         this.menuHandler.initMenuHandler(this.folderView);
         this.transferHandler = new DndTransferHandler(this.folderView, null, this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
+        this.addressPopup = menuHandler.createAddressPopup();
         if (initialPath != null) {
             this.path = initialPath;
         }
+
         executor.submit(() -> {
             try {
-                this.fs = new LocalFileSystem();
                 if (this.path == null) {
                     path = fs.getHome();
                 }
-                List<FileInfo> list = fs.list(path);
+                java.util.List<FileInfo> list = fs.list(path);
                 SwingUtilities.invokeLater(() -> {
                     addressBar.setText(path);
                     folderView.setItems(list);
@@ -54,9 +63,13 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     }
 
     public void createAddressBar() {
-        addressBar = new AddressBar(File.separatorChar, new ActionListener() {
+        addressBar = new AddressBar('/', new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                String selectedPath = e.getActionCommand();
+                addressPopup.setName(selectedPath);
+                MouseEvent me = (MouseEvent) e.getSource();
+                addressPopup.show(me.getComponent(), me.getX(), me.getY());
                 System.out.println("clicked");
             }
         });
@@ -67,10 +80,6 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         return "Local files [" + this.path + "]";
     }
 
-    @Override
-    public void addBack(String path) {
-
-    }
 
     @Override
     public void render(String path) {
@@ -105,7 +114,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
     }
 
     protected void up() {
-        String s = new File(path).getParent();
+        String s = PathUtils.getParent(path);// new File(path).getParent();
         if (s != null) {
             addBack(path);
             render(s);
@@ -134,7 +143,8 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
                     return false;
                 }
                 FileSystem targetFs = this.fs;
-                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(), this.path, this.hashCode());
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
+                        transferData.getCurrentDirectory(), this.path, this.hashCode(), -1);
             }
             return true;
         } catch (Exception e) {
@@ -142,5 +152,17 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
             return false;
         }
 
+    }
+
+    @Override
+    public void close() {
+        executor.submit(() -> {
+            try {
+                this.fs.close();
+                System.out.println("Closed sftp foreign fs");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
     }
 }

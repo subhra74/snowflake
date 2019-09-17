@@ -17,9 +17,9 @@ import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SftpFileOperations {
+public class SshFileOperations {
 
-    public SftpFileOperations() {
+    public SshFileOperations() {
     }
 
     public boolean runScriptInBackground(SshClient client, String command, AtomicBoolean stopFlag) {

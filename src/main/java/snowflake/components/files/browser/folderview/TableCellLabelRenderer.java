@@ -17,10 +17,13 @@ public class TableCellLabelRenderer implements TableCellRenderer {
     private JLabel label;
     private int height;
     private Color foreground;
+    private Color viewBackground;
 
-    public TableCellLabelRenderer() {
+    public TableCellLabelRenderer(Color viewBackground) {
+        this.viewBackground = viewBackground;
         foreground = new Color(100, 100, 100);
         panel = new JPanel(new BorderLayout(5, 5));
+        panel.setBackground(viewBackground);
         panel.setBorder(new EmptyBorder(5, 5, 5, 5));
         textLabel = new JLabel();
         textLabel.setForeground(foreground);
@@ -67,7 +70,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
         FileInfo ent = folderViewModel.getItemAt(r);
 
         panel.setBackground(isSelected ? table.getSelectionBackground()
-                : Color.WHITE);
+                : viewBackground);
 
         textLabel.setForeground(isSelected ? table.getSelectionForeground() : foreground);
         iconLabel.setForeground(isSelected ? table.getSelectionForeground() : foreground);
@@ -76,7 +79,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
         textLabel.setText(ent.getName());
 
         label.setBackground(isSelected ? table.getSelectionBackground()
-                : Color.WHITE);
+                : viewBackground);
         label.setForeground(isSelected ? table.getSelectionForeground() : foreground);
 
         switch (c) {

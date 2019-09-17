@@ -8,7 +8,7 @@ import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.common.TabbedPanel;
 import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.FileBrowser;
-import snowflake.components.files.browser.ssh.SftpFileBrowserView;
+import snowflake.components.files.browser.ssh.SshFileBrowserView;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
 import snowflake.components.files.logviewer.LogViewerComponent;
@@ -320,7 +320,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     public List<String> getFavouriteLocations(AbstractFileBrowserView fileBrowserView) {
-        if (fileBrowserView instanceof SftpFileBrowserView) {
+        if (fileBrowserView instanceof SshFileBrowserView) {
             return info.getFavouriteRemoteFolders();
         } else {
             return info.getFavouriteLocalFolders();
@@ -328,7 +328,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     public void addFavouriteLocation(AbstractFileBrowserView fileBrowserView, String path) {
-        if (fileBrowserView instanceof SftpFileBrowserView) {
+        if (fileBrowserView instanceof SshFileBrowserView) {
             info.getFavouriteRemoteFolders().add(path);
         } else {
             info.getFavouriteLocalFolders().add(path);

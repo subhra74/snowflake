@@ -44,7 +44,7 @@ public class LocalFileOperations {
         }
         FileSystem fs = new LocalFileSystem();
         try {
-            fs.mkdir(PathUtils.combineUnix(folder, text));
+            fs.mkdir(PathUtils.combine(folder, text, fs.getSeparator()));
             return true;
         } catch (Exception e1) {
             e1.printStackTrace();

@@ -2,8 +2,10 @@ package snowflake.components.files.browser.folderview;
 
 import snowflake.common.FileInfo;
 
-import javax.swing.table.*;
-import java.util.*;
+import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 public class FolderViewTableModel extends AbstractTableModel {
 
@@ -24,10 +26,15 @@ public class FolderViewTableModel extends AbstractTableModel {
     @Override
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
+            case 0:
+                return FileInfo.class;
             case 1:
                 return Long.class;
+            case 2:
+                return Date.class;
             case 3:
-            case 0:
+            case 4:
+                return Object.class;
             default:
                 return Object.class;
         }

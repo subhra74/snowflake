@@ -219,7 +219,7 @@ public class LocalMenuHandler {
         executor.submit(() -> {
             fileBrowser.disableUi();
             String baseFolder = currentDirectory;
-            if (fileOperations.newFile(baseFolder)) {
+            if (fileOperations.newFolder(baseFolder)) {
                 fileBrowserView.render(baseFolder);
             } else {
                 fileBrowser.enableUi();

@@ -68,8 +68,8 @@ public class SessionContent extends JPanel {
         bottomTabs.addTab("Terminal", terminalHolder);
         bottomTabs.addTab("Search", new JPanel());
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
-        bottomTabs.addTab("System load", new JPanel());
-        bottomTabs.addTab("Process and port", new JPanel());
+        bottomTabs.addTab("Disk space analyzer", new JPanel());
+        bottomTabs.addTab("Send/receive files", new JPanel());
         bottomTabs.setSelectedIndex(0);
         bottomTabs.setBorder(new LineBorder(new Color(200, 200, 200), 1));
 
