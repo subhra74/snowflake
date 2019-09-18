@@ -1,5 +1,6 @@
 package snowflake.components.taskmgr;
 
+import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.main.ConnectedResource;
@@ -71,8 +72,15 @@ public class TaskManager extends JPanel implements ConnectedResource {
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        panel.add(systemLoadPanel, BorderLayout.WEST);
-        panel.add(processListPanel);
+        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        jSplitPane.setDividerSize(5);
+        jSplitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin2);
+        jSplitPane.setLeftComponent(systemLoadPanel);
+        jSplitPane.setRightComponent(processListPanel);
+
+        //panel.add(systemLoadPanel, BorderLayout.WEST);
+        //panel.add(processListPanel);
+        panel.add(jSplitPane);
 
         contentPane.add(panel, "content");
 
@@ -104,13 +112,13 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 }
                 String platform = PlatformChecker.getPlatformName(client);
                 System.out.println("'" + platform + "'");
-                if(!running.get()){
+                if (!running.get()) {
                     throw new Exception("Stopped by user");
                 }
                 if ("Linux".equals(platform)) {
                     this.nativePlatform = new LinuxPlatformSupport();
                 }
-                if(!running.get()){
+                if (!running.get()) {
                     throw new Exception("Stopped by user");
                 }
                 if (this.nativePlatform == null) {
@@ -124,7 +132,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                     if (commandPending) {
                         executeCommand();
                     }
-                    if(!running.get()){
+                    if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
                     long time = System.currentTimeMillis();
@@ -133,7 +141,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                         // System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
                         lastStatsTime = time;
                     }
-                    if(!running.get()){
+                    if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
                     SwingUtilities.invokeLater(() -> {
@@ -147,13 +155,13 @@ public class TaskManager extends JPanel implements ConnectedResource {
                         systemLoadPanel.setUsedSwap(this.nativePlatform.getUsedSwap());
                         systemLoadPanel.refreshUi();
                     });
-                    if(!running.get()){
+                    if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
                     if (commandPending) {
                         executeCommand();
                     }
-                    if(!running.get()){
+                    if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
                     if (time - lastPsTime > ps_interval * 1000) {
@@ -164,7 +172,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                         //update ui ps
                         processListPanel.setProcessList(this.nativePlatform.getProcessList());
                     });
-                    if(!running.get()){
+                    if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
                     try {

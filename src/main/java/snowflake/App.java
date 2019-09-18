@@ -21,6 +21,7 @@ public class App {
     public static UIDefaults scrollBarSkin = new UIDefaults();
     public static UIDefaults splitPaneSkin = new UIDefaults();
     public static UIDefaults splitPaneSkin1 = new UIDefaults();
+    public static UIDefaults splitPaneSkin2 = new UIDefaults();
     private static Properties config = new Properties();
     private static Font fontAwesomeFont;
     private static GlobalSettings globalSettings;
@@ -111,6 +112,7 @@ public class App {
         splitPaneSkin.put("SplitPane.contentMargins", new Insets(0, 0, 0, 0));
 
         createVerticalScrollSkin();
+        createVerticalScrollSkin1();
 
         Painter<JComboBox> comboBoxPainterNormal = new Painter<JComboBox>() {
             @Override
@@ -357,6 +359,52 @@ public class App {
         });
     }
 
+    private static void createVerticalScrollSkin1() {
+        Color c = Color.WHITE;
+        splitPaneSkin2.put("SplitPane.contentMargins", new Insets(0, 0, 0, 0));
+        splitPaneSkin2.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin2.put("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin2.put("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin2.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin2.put("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+        splitPaneSkin2.put("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c);
+                g.fill(new Rectangle(0, 0, width, height));
+            }
+        });
+    }
 
     static JButton createFontAwesomeButton(String text, Color foreColor) {
         JButton btn = new JButton();

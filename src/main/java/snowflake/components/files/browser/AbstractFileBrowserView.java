@@ -119,19 +119,19 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         btnReload.setFont(App.getFontAwesomeFont());
         btnReload.setText("\uf021");
 
-        JButton btnSort = new JButton();
-        btnSort.setForeground(Color.DARK_GRAY);
-        btnSort.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
-        btnSort.addActionListener(e -> {
-            JPopupMenu sortMenu = overflowMenuHandler.getSortMenu();
-            sortMenu.pack();
-            Dimension d = sortMenu.getPreferredSize();
-            int x = btnSort.getWidth() - d.width;
-            int y = btnSort.getHeight();
-            sortMenu.show(btnSort, x, y);
-        });
-        btnSort.setFont(App.getFontAwesomeFont());
-        btnSort.setText("\uf161");
+//        JButton btnSort = new JButton();
+//        btnSort.setForeground(Color.DARK_GRAY);
+//        btnSort.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+//        btnSort.addActionListener(e -> {
+//            JPopupMenu sortMenu = overflowMenuHandler.getSortMenu();
+//            sortMenu.pack();
+//            Dimension d = sortMenu.getPreferredSize();
+//            int x = btnSort.getWidth() - d.width;
+//            int y = btnSort.getHeight();
+//            sortMenu.show(btnSort, x, y);
+//        });
+//        btnSort.setFont(App.getFontAwesomeFont());
+//        btnSort.setText("\uf161");
 
         JButton btnMore = new JButton();
         btnMore.setForeground(Color.DARK_GRAY);
@@ -147,7 +147,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
             popupMenu.show(btnMore, x, y);
         });
 
-        LayoutUtils.makeSameSize(btnMore, btnReload, btnUp, btnHome, btnNext, btnBack, btnSort);
+        LayoutUtils.makeSameSize(btnMore, btnReload, btnUp, btnHome, btnNext, btnBack);//, btnSort);
 
         smallToolbar.add(btnBack);
         smallToolbar.add(btnNext);
@@ -158,7 +158,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         b2.add(btnReload);
         b2.setBorder(new EmptyBorder(3, 0, 3, 0));
         b2.add(btnReload);
-        b2.add(btnSort);
+        //b2.add(btnSort);
         b2.add(btnMore);
 
         toolBar.add(smallToolbar, BorderLayout.WEST);
