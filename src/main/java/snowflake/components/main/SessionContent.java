@@ -5,6 +5,7 @@ import snowflake.components.common.TabbedPanel;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.search.FileSearchPanel;
 import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
 
@@ -65,7 +66,7 @@ public class SessionContent extends JPanel {
         });
 
         bottomTabs.addTab("Terminal", terminalHolder);
-        bottomTabs.addTab("Search", new JPanel());
+        bottomTabs.addTab("Search", new FileSearchPanel(this.info));
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
         bottomTabs.addTab("Disk space analyzer", new JPanel());
         bottomTabs.addTab("Tools", new JPanel());
