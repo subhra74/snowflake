@@ -25,6 +25,7 @@ public class GraphicsUtils {
         btnSkin.put("Button[MouseOver].backgroundPainter", cs.getHotPainter());
         btnSkin.put("Button[Pressed].backgroundPainter", cs.getPressedPainter());
         btnSkin.put("Button.foreground", Color.WHITE);
+        btnSkin.put("Button[Disabled].textForeground", Color.WHITE);
         return btnSkin;
     }
 

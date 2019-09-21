@@ -2,6 +2,7 @@ package snowflake.components.main;
 
 import snowflake.App;
 import snowflake.components.common.TabbedPanel;
+import snowflake.components.diskusage.DiskUsageAnalyzer;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
@@ -12,7 +13,6 @@ import snowflake.components.terminal.TerminalHolder;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 
 public class SessionContent extends JPanel {
@@ -68,7 +68,7 @@ public class SessionContent extends JPanel {
         bottomTabs.addTab("Terminal", terminalHolder);
         bottomTabs.addTab("Search", new FileSearchPanel(this.info));
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
-        bottomTabs.addTab("Disk space analyzer", new JPanel());
+        bottomTabs.addTab("Disk space analyzer", new DiskUsageAnalyzer(this.info));
         bottomTabs.addTab("Tools", new JPanel());
         bottomTabs.setSelectedIndex(0);
         bottomTabs.setBorder(new LineBorder(new Color(200, 200, 200), 1));
