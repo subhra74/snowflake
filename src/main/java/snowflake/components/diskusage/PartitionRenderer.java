@@ -14,6 +14,8 @@ public class PartitionRenderer extends JLabel implements TableCellRenderer {
         setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
         if (value instanceof Long) {
             setText(FormatUtils.humanReadableByteCount((long) value, true));
+        } else {
+            setText(value.toString());
         }
         return this;
     }

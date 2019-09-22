@@ -23,7 +23,7 @@ public class SshCommandUtils {
                 client.connect();
             }
             ChannelExec exec = client.getExecChannel();
-            exec.setCommand(command.toString());
+            exec.setCommand(command);
             ByteArrayOutputStream bout = new ByteArrayOutputStream();
             exec.setOutputStream(bout);
             exec.setErrStream(bout);

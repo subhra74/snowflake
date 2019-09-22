@@ -5,6 +5,7 @@ import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
+import snowflake.utils.ScriptLoader;
 import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
@@ -489,7 +490,7 @@ public class FileSearchPanel extends JPanel {
             client = new SshClient(source);
 
             if (searchScript == null) {
-                searchScript = loadShellScript("/search.sh");
+                searchScript = ScriptLoader.loadShellScript("/search.sh");
             }
 
             StringBuilder criteriaBuffer = new StringBuilder();
@@ -606,25 +607,6 @@ public class FileSearchPanel extends JPanel {
 
     }
 
-    public String loadShellScript(String path) {
-        try {
-            StringBuilder sb = new StringBuilder();
-            try (BufferedReader r = new BufferedReader(new InputStreamReader(
-                    FileSearchPanel.class.getResourceAsStream(path)))) {
-                while (true) {
-                    String s = r.readLine();
-                    if (s == null) {
-                        break;
-                    }
-                    sb.append(s + "\n");
-                }
-            }
-            return sb.toString();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
 
     private SearchResult parseOutput(String text) {
         if (this.pattern == null) {
