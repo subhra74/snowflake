@@ -30,6 +30,10 @@ public final class DuOutputParser {
     }
 
     private void addEntry(String type, long size, String path) {
+        if (path.length() < 1) {
+            root.setSize(size);
+            return;
+        }
         String arr[] = path.split("\\/");
         DiskUsageEntry node = root;
         for (int i = 1; i < arr.length - 1; i++) {
@@ -45,6 +49,7 @@ public final class DuOutputParser {
             }
             if (!found) {
                 DiskUsageEntry entry = new DiskUsageEntry(s, node.getPath() + "/" + s, -1, 0, true);
+                entry.setDirectory(true);
                 node.getChildren().add(entry);
                 node = entry;
             }

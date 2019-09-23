@@ -11,6 +11,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -106,8 +107,12 @@ public class DiskUsageAnalyzer extends JPanel {
 
     private void createTree(DefaultMutableTreeNode treeNode, DiskUsageEntry entry) {
 //        DefaultMutableTreeNode node = new DefaultMutableTreeNode(entry);
+        Collections.sort(entry.getChildren(), (a, b) -> {
+            return a.getSize() < b.getSize() ? 1 : (a.getSize() > b.getSize() ? -1 : 0);
+        });
         for (DiskUsageEntry ent : entry.getChildren()) {
             DefaultMutableTreeNode child = new DefaultMutableTreeNode(ent);
+            child.setAllowsChildren(ent.isDirectory());
             treeNode.add(child);
             createTree(child, ent);
         }
@@ -120,8 +125,8 @@ public class DiskUsageAnalyzer extends JPanel {
                     System.out.println("Result found");
 
 
-
                     DefaultMutableTreeNode root = new DefaultMutableTreeNode(res);
+                    root.setAllowsChildren(true);
                     createTree(root, res);
                     resultPanel.add(new JScrollPane(new JTree(root)));
                     cardLayout.show(contentPane, "Results");

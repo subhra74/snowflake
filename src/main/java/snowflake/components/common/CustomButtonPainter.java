@@ -15,7 +15,6 @@ public class CustomButtonPainter {
 
         normalPainter = (Graphics2D g, JButton object, int width, int height) -> {
             g.setColor(bgColor);
-            System.out.println("normal painter called");
             g.fillRect(0, 0, width, height);
         };
 
