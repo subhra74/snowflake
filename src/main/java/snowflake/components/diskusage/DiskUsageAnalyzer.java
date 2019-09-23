@@ -9,6 +9,7 @@ import snowflake.utils.SshCommandUtils;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -30,13 +31,30 @@ public class DiskUsageAnalyzer extends JPanel {
     private PartitionTableModel model;
     private JPanel resultPanel;
     private JTextField textField;
+    private JTable table;
 
     public DiskUsageAnalyzer(SessionInfo info) {
         setLayout(new BorderLayout());
         cardLayout = new CardLayout();
         contentPane = new JPanel(cardLayout);
 
-        resultPanel = new JPanel(new BorderLayout());
+        resultPanel = new JPanel(new BorderLayout(10, 10));
+        JButton btnNext = new JButton("Analyze another folder/partition");
+        btnNext.addActionListener(e -> {
+            cardLayout.show(contentPane, "Partitions");
+        });
+        JButton btnExit = new JButton("Finish analysis");
+        btnExit.addActionListener(e -> {
+            cardLayout.show(contentPane, "Welcome");
+        });
+
+        Box resultBox = Box.createHorizontalBox();
+        resultBox.add(Box.createHorizontalGlue());
+        resultBox.add(btnNext);
+        resultBox.add(Box.createHorizontalStrut(10));
+        resultBox.add(btnExit);
+        resultPanel.add(resultBox, BorderLayout.SOUTH);
+        resultPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         waitPanel = new JPanel();
         JButton btnStop = new JButton("Stop");
@@ -123,13 +141,15 @@ public class DiskUsageAnalyzer extends JPanel {
             SwingUtilities.invokeLater(() -> {
                 if (res != null) {
                     System.out.println("Result found");
-
-
                     DefaultMutableTreeNode root = new DefaultMutableTreeNode(res);
                     root.setAllowsChildren(true);
                     createTree(root, res);
-                    resultPanel.add(new JScrollPane(new JTree(root)));
+                    JTree tree = new JTree(root);
+                    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
                     cardLayout.show(contentPane, "Results");
+                    resultPanel.add(new JScrollPane(tree));
+                    resultPanel.revalidate();
+                    resultPanel.repaint();
                 }
             });
         }, source);
@@ -160,7 +180,8 @@ public class DiskUsageAnalyzer extends JPanel {
         btop.add(btnRefresh);
 
         model = new PartitionTableModel();
-        JTable table = new JTable(model);
+        table = new JTable(model);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoCreateRowSorter(true);
         table.setDefaultRenderer(Object.class, new PartitionRenderer());
         JScrollPane jsp = new JScrollPane(table);
@@ -201,7 +222,22 @@ public class DiskUsageAnalyzer extends JPanel {
 
         JButton btnNext = new JButton("Next");
         btnNext.addActionListener(e -> {
-            analyze(textField.getText());
+            if (radPartition.isSelected()) {
+                int x = table.getSelectedRow();
+                if (x != -1) {
+                    int r = table.convertRowIndexToModel(x);
+                    analyze(model.get(r).getMountPoint());
+                } else {
+                    JOptionPane.showMessageDialog(this, "Please select a partition");
+                    return;
+                }
+            } else {
+                if (!textField.getText().startsWith("/")) {
+                    JOptionPane.showMessageDialog(this, "Please enter absolute path");
+                    return;
+                }
+                analyze(textField.getText());
+            }
         });
 
         partitionPanel.add(panel);

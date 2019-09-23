@@ -39,7 +39,7 @@ public class DiskAnalysisTask implements Runnable {
             if (SshCommandUtils.exec(client, scriptBuffer.toString(), stopFlag, output)) {
                 System.out.println("output\n" + output);
                 List<String> lines = Arrays.asList(output.toString().split("\n"));
-                DuOutputParser duOutputParser = new DuOutputParser();
+                DuOutputParser duOutputParser = new DuOutputParser(folder);
                 int prefixLen = folder.endsWith("/") ? folder.length() - 1 : folder.length();
                 root = duOutputParser.parseList(lines, prefixLen);
             }
@@ -47,6 +47,10 @@ public class DiskAnalysisTask implements Runnable {
             e.printStackTrace();
         } finally {
             callback.accept(root);
+            try {
+                this.client.disconnect();
+            } catch (Exception e) {
+            }
         }
     }
 }

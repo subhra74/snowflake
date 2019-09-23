@@ -9,6 +9,10 @@ public class PartitionTableModel extends AbstractTableModel {
 
     private List<PartitionEntry> list = new ArrayList<>();
 
+    public PartitionEntry get(int index) {
+        return list.get(index);
+    }
+
     @Override
     public int getRowCount() {
         return list.size();

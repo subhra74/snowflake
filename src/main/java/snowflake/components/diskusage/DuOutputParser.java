@@ -9,7 +9,11 @@ import java.util.regex.Pattern;
 
 public final class DuOutputParser {
     private static final Pattern duPattern = Pattern.compile("([df])\\s([\\d]+)\\s+(.+)");
-    private DiskUsageEntry root = new DiskUsageEntry("", "", 0, 0, true);
+    private DiskUsageEntry root;
+
+    public DuOutputParser(String folder) {
+        root = new DiskUsageEntry(PathUtils.getFileName(folder), "", 0, 0, true);
+    }
 
     public final DiskUsageEntry parseList(List<String> lines, int prefixLen) {
         for (String line : lines) {
@@ -30,7 +34,7 @@ public final class DuOutputParser {
     }
 
     private void addEntry(String type, long size, String path) {
-        if (path.length() < 1) {
+        if (path.length() < 1 || path.equals("/")) {
             root.setSize(size);
             return;
         }
