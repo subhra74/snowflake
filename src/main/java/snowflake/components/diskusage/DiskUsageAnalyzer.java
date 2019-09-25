@@ -9,6 +9,7 @@ import snowflake.utils.SshCommandUtils;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.util.ArrayList;
@@ -32,6 +33,9 @@ public class DiskUsageAnalyzer extends JPanel {
     private JPanel resultPanel;
     private JTextField textField;
     private JTable table;
+    private Box resultBox;
+    private JTree resultTree;
+    private DefaultTreeModel treeModel;
 
     public DiskUsageAnalyzer(SessionInfo info) {
         setLayout(new BorderLayout());
@@ -48,12 +52,17 @@ public class DiskUsageAnalyzer extends JPanel {
             cardLayout.show(contentPane, "Welcome");
         });
 
-        Box resultBox = Box.createHorizontalBox();
+        treeModel = new DefaultTreeModel(new DefaultMutableTreeNode("results"));
+        resultTree = new JTree(treeModel);
+        resultTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        resultBox = Box.createHorizontalBox();
         resultBox.add(Box.createHorizontalGlue());
         resultBox.add(btnNext);
         resultBox.add(Box.createHorizontalStrut(10));
         resultBox.add(btnExit);
         resultPanel.add(resultBox, BorderLayout.SOUTH);
+        resultPanel.add(new JScrollPane(resultTree));
         resultPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         waitPanel = new JPanel();
@@ -137,6 +146,7 @@ public class DiskUsageAnalyzer extends JPanel {
     }
 
     private void analyze(String path) {
+        System.out.println("Analyzing path: " + path);
         DiskAnalysisTask task = new DiskAnalysisTask(path, stopFlag, res -> {
             SwingUtilities.invokeLater(() -> {
                 if (res != null) {
@@ -144,12 +154,8 @@ public class DiskUsageAnalyzer extends JPanel {
                     DefaultMutableTreeNode root = new DefaultMutableTreeNode(res);
                     root.setAllowsChildren(true);
                     createTree(root, res);
-                    JTree tree = new JTree(root);
-                    tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+                    treeModel.setRoot(root);
                     cardLayout.show(contentPane, "Results");
-                    resultPanel.add(new JScrollPane(tree));
-                    resultPanel.revalidate();
-                    resultPanel.repaint();
                 }
             });
         }, source);
