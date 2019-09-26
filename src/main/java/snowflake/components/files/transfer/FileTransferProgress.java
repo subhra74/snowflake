@@ -1,11 +1,11 @@
 package snowflake.components.files.transfer;
 
 public interface FileTransferProgress {
-    void init(String sourceName, String targetName, long totalSize, long files);
+    void init(String sourceName, String targetName, long totalSize, long files, FileTransfer fileTransfer);
 
-    void progress(long processedBytes, long totalBytes, long processedCount, long totalCount);
+    void progress(long processedBytes, long totalBytes, long processedCount, long totalCount, FileTransfer fileTransfer);
 
-    void error(String cause);
+    void error(String cause, FileTransfer fileTransfer);
 
-    void done();
+    void done(FileTransfer fileTransfer);
 }

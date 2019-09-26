@@ -4,6 +4,7 @@ import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
+import snowflake.common.ssh.SshModalUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.common.AddressBar;
 import snowflake.components.files.DndTransferData;
@@ -29,6 +30,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
     private FileBrowser fileBrowser;
     private JPopupMenu addressPopup;
     private DndTransferHandler transferHandler;
+    private JComboBox<String> cmbOptions = new JComboBox<>(new String[]{"Transfer normally", "Transfer in background"});
 
     public SshFileBrowserView(FileBrowser fileBrowser,
                               JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
@@ -175,6 +177,17 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
     public boolean handleDrop(DndTransferData transferData) {
         try {
+            if (JOptionPane.showOptionDialog(holder,
+                    new Object[]{"Please select a transfer mode", cmbOptions},
+                    "Transfer options",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    null) != JOptionPane.OK_OPTION) {
+                return false;
+            }
+            boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
             System.out.println("Dropped: " + transferData);
             int sessionHashCode = transferData.getInfo();
             FileSystem sourceFs = null;
@@ -184,11 +197,21 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 sourceFs = holder.getSshFileSystem();
             }
             if (sourceFs instanceof LocalFileSystem) {
+                if (backgroundTransfer) {
+                    FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
+                    holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
+                            this.path, this.hashCode(), -1, true);
+                    return true;
+                }
                 FileSystem targetFs = holder.getSshFileSystem();
                 holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
-                        this.path, this.hashCode(), -1);
+                        this.path, this.hashCode(), -1, false);
             } else if (sourceFs instanceof SshFileSystem) {
                 System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
+                if ((sourceFs == holder.getSshFileSystem())) {
+                    JOptionPane.showMessageDialog(null, "Cant move files like this!");
+                    return false;
+                }
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
                     menuHandler.copy(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
                 } else {

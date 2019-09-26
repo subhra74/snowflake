@@ -34,9 +34,12 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource {
+    private ExecutorService threadPool = Executors.newSingleThreadExecutor();
     private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
     private JRootPane rootPane;
     private JPanel contentPane;
@@ -46,7 +49,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private Map<FileSystem, Integer> fileViewMap = new ConcurrentHashMap<>();
     private AtomicBoolean closeRequested = new AtomicBoolean(false);
     private JPanel disabledPanel;
-    private FileTransfer fileTransfer;
+    private FileTransfer ongoingFileTransfer;
     private TransferProgressPanel progressPanel;
     private TabbedPanel tabs;
     private FileBrowser fileBrowser;
@@ -109,12 +112,12 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     @Override
-    public void init(String sourceName, String targetName, long totalSize, long files) {
+    public void init(String sourceName, String targetName, long totalSize, long files, FileTransfer fileTransfer) {
 
     }
 
     @Override
-    public void progress(long processedBytes, long totalBytes, long processedCount, long totalCount) {
+    public void progress(long processedBytes, long totalBytes, long processedCount, long totalCount, FileTransfer fileTransfer) {
         if (totalBytes == 0) {
             progressPanel.setProgress(0);
         } else {
@@ -123,7 +126,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     @Override
-    public void error(String cause) {
+    public void error(String cause, FileTransfer fileTransfer) {
         SwingUtilities.invokeLater(() -> {
             progressPanel.setVisible(false);
             if (tabs.getSelectedIndex() == 0) {
@@ -140,16 +143,16 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     @Override
-    public void done() {
+    public void done(FileTransfer fileTransfer) {
         SwingUtilities.invokeLater(() -> {
             progressPanel.setVisible(false);
             if (tabs.getSelectedIndex() == 0) {
                 if (progressPanel.getSource() == DEFAULT_APP || progressPanel.getSource() == DEFAULT_EDITOR) {
-                    String localFile = PathUtils.combine(fileTransfer.getTargetFolder(), fileTransfer.getFiles()[0].getName(),
+                    String localFile = PathUtils.combine(ongoingFileTransfer.getTargetFolder(), ongoingFileTransfer.getFiles()[0].getName(),
                             File.separator);
                     if (progressPanel.getSource() == DEFAULT_APP ?
                             PlatformAppLauncher.shellLaunch(localFile) : PlatformAppLauncher.shellEdit(localFile)) {
-                        externalEditor.addForMonitoring(fileTransfer.getFiles()[0],
+                        externalEditor.addForMonitoring(ongoingFileTransfer.getFiles()[0],
                                 localFile,
                                 this.hashCode());
                     }
@@ -162,8 +165,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                         System.out.println("Saved");
                         editor.fileSaved();
                     } else {
-                        editor.openRemoteFile(fileTransfer.getFiles()[0],
-                                PathUtils.combine(fileTransfer.getTargetFolder(), fileTransfer.getFiles()[0].getName(),
+                        editor.openRemoteFile(ongoingFileTransfer.getFiles()[0],
+                                PathUtils.combine(ongoingFileTransfer.getTargetFolder(), ongoingFileTransfer.getFiles()[0].getName(),
                                         File.separator));
                     }
                 }
@@ -203,17 +206,23 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                                 String sourceFolder,
                                 String targetFolder,
                                 int dragsource,
-                                int defaultOverwriteAction) {
-        this.fileTransfer = new FileTransfer(sourceFs, targetFs, files,
+                                int defaultOverwriteAction,
+                                boolean backgroundTransfer) {
+        if (backgroundTransfer) {
+            sessionContent.transferInBackground(new FileTransfer(sourceFs, targetFs, files,
+                    sourceFolder, targetFolder, null, defaultOverwriteAction));
+            return;
+        }
+        this.ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files,
                 sourceFolder, targetFolder, this, defaultOverwriteAction);
         if (progressPanel == null) {
-            progressPanel = new TransferProgressPanel(this.fileTransfer, dragsource);
+            progressPanel = new TransferProgressPanel(this.ongoingFileTransfer, dragsource);
         }
         progressPanel.clear();
         progressPanel.setSource(dragsource);
         rootPane.setGlassPane(progressPanel);
         progressPanel.setVisible(true);
-        this.fileTransfer.start();
+        this.threadPool.submit(this.ongoingFileTransfer);
     }
 
     public void reloadRemoteFile(FileInfo fileInfo) {
@@ -222,7 +231,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                 new FileInfo[]{fileInfo},
                 PathUtils.getParent(fileInfo.getPath()),
                 tempFolder,
-                editor.hashCode(), 0);
+                editor.hashCode(), 0, false);
     }
 
     public void editRemoteFileInternal(FileInfo fileInfo) {
@@ -245,7 +254,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                         PathUtils.getParent(fileInfo.getPath()),
                         tempFolder,
                         hashcode,
-                        0);
+                        0,
+                        false);
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -258,7 +268,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         editor.setSavingFile(true);
         newFileTransfer(new LocalFileSystem(), this.fs,
                 new FileInfo[]{new LocalFileSystem().getInfo(path)}, PathUtils.getParent(localFile),
-                PathUtils.getParent(fileInfo.getPath()), hashCode, 0);
+                PathUtils.getParent(fileInfo.getPath()), hashCode, 0, false);
     }
 
     public SshFileSystem getSshFileSystem() throws Exception {

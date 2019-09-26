@@ -11,10 +11,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SshClient implements Closeable {
     private JSch jsch;
     private Session session;
-    private SshUserInteraction source;
+    private AbstractUserInteraction source;
     private AtomicBoolean closed = new AtomicBoolean(false);
 
-    public SshClient(SshUserInteraction source) {
+    public SshClient(AbstractUserInteraction source) {
         System.out.println("New wrapper session");
         this.source = source;
     }
@@ -76,14 +76,14 @@ public class SshClient implements Closeable {
         // session.setConfig("StrictHostKeyChecking", "no");
         session.setConfig("PreferredAuthentications", "publickey,keyboard-interactive,password");
 
-        if(closed.get()){
+        if (closed.get()) {
             return;
         }
 
         //session.setTimeout(AppContext.INSTANCE.getConfig().getConnectionTimeout() * 1000);
         session.connect();
 
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             return;
         }
@@ -105,13 +105,13 @@ public class SshClient implements Closeable {
     }
 
     public ChannelSftp getSftpChannel() throws Exception {
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             throw new IOException("Closed by user");
         }
         ChannelSftp sftp = (ChannelSftp) session.openChannel("sftp");
         sftp.connect();
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             throw new IOException("Closed by user");
         }
@@ -119,12 +119,12 @@ public class SshClient implements Closeable {
     }
 
     public ChannelShell getShellChannel() throws Exception {
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             throw new IOException("Closed by user");
         }
         ChannelShell shell = (ChannelShell) session.openChannel("shell");
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             throw new IOException("Closed by user");
         }
@@ -132,12 +132,12 @@ public class SshClient implements Closeable {
     }
 
     public ChannelExec getExecChannel() throws Exception {
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             throw new IOException("Closed by user");
         }
         ChannelExec exec = (ChannelExec) session.openChannel("exec");
-        if(closed.get()){
+        if (closed.get()) {
             disconnect();
             throw new IOException("Closed by user");
         }

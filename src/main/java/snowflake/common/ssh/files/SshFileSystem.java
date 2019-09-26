@@ -5,6 +5,7 @@ import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
 import snowflake.common.*;
 import snowflake.common.FileSystem;
+import snowflake.common.ssh.AbstractUserInteraction;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.utils.PathUtils;
@@ -20,12 +21,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class SshFileSystem implements FileSystem {
     public static final String PROTO_SFTP = "sftp";
     private Object lock = new Object();
-    private SshUserInteraction source;
+    private AbstractUserInteraction source;
     private SshClient wrapper;
     private ChannelSftp sftp;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
 
-    public SshFileSystem(SshUserInteraction source) {
+    public SshFileSystem(AbstractUserInteraction source) {
         this.source = source;
     }
 
@@ -472,7 +473,14 @@ public class SshFileSystem implements FileSystem {
                 OutputTransferChannel tc = new OutputTransferChannel() {
                     @Override
                     public OutputStream getOutputStream(String path) throws Exception {
-                        return sftp.put(path);
+                        try {
+                            return sftp.put(path);
+                        } catch (SftpException e) {
+                            if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
+                                throw new AccessDeniedException(e.getMessage());
+                            }
+                            throw e;
+                        }
                     }
 
                     @Override

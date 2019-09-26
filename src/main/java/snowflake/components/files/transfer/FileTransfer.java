@@ -14,15 +14,16 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class FileTransfer {
+public class FileTransfer implements Runnable, AutoCloseable {
     private FileSystem sourceFs, targetFs;
     //private ExecutorService threadPool = Executors.newFixedThreadPool(2);
     private FileInfo[] files;
     private String sourceFolder, targetFolder;
     private BlockingQueue<ByteChunk> dataQueue = new ArrayBlockingQueue<>(10);
-    private ExecutorService runningThread = Executors.newSingleThreadExecutor();
+    //private ExecutorService runningThread = Executors.newSingleThreadExecutor();
     private long totalSize;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
+
     private FileTransferProgress callback;
     private long processedBytes;
     private int processedFilesCount;
@@ -83,7 +84,7 @@ public class FileTransfer {
             }
         }
         totalFiles = fileList.size();
-        callback.init(sourceFs.getName(), targetFs.getName(), totalSize, totalFiles);
+        callback.init(sourceFs.getName(), targetFs.getName(), totalSize, totalFiles, this);
         try (InputTransferChannel inc = sourceFs.inputTransferChannel();
              OutputTransferChannel outc = targetFs.outputTransferChannel()) {
             for (FileInfoHolder file : fileList) {
@@ -100,43 +101,43 @@ public class FileTransfer {
     }
 
 
-    public void start() {
-        runningThread.submit(() -> {
+    public void run() {
+        try {
             try {
-                try {
-                    transfer(this.targetFolder);
-                } catch (AccessDeniedException e) {
-                    if (targetFs instanceof SshFileSystem) {
-                        if (JOptionPane.showConfirmDialog(null, "Permission denied, do you want to copy files to a temporary folder first and copy them to destination with sudo?", "Insufficient permission", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
-                            throw e;
-                        }
-                        String tmpDir = "/tmp/" + UUID.randomUUID();
-                        targetFs.mkdir(tmpDir);
-                        transfer(tmpDir);
-                        String command = "sh -c  \"cd '" + tmpDir + "'; cp -r * '" + this.targetFolder + "'\"";
-                        //String command = "sh -c      cp -r \"" + tmpDir + "/*\" \"" + this.targetFolder + "\"";
-                        System.out.println("Invoke sudo: " + command);
-                        int ret = SudoUtils.runSudo(command.toString(), ((SshFileSystem) targetFs).getWrapper());
-                        if (ret == -1) {
-                            callback.error("Error");
-                            return;
-                        }
+                transfer(this.targetFolder);
+            } catch (AccessDeniedException e) {
+                if (targetFs instanceof SshFileSystem) {
+                    if (JOptionPane.showConfirmDialog(null,
+                            "Permission denied, do you want to copy files to a temporary folder first and copy them to destination with sudo?",
+                            "Insufficient permission", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                        throw e;
+                    }
+                    String tmpDir = "/tmp/" + UUID.randomUUID();
+                    targetFs.mkdir(tmpDir);
+                    transfer(tmpDir);
+                    String command = "sh -c  \"cd '" + tmpDir + "'; cp -r * '" + this.targetFolder + "'\"";
+                    //String command = "sh -c      cp -r \"" + tmpDir + "/*\" \"" + this.targetFolder + "\"";
+                    System.out.println("Invoke sudo: " + command);
+                    int ret = SudoUtils.runSudo(command.toString(), ((SshFileSystem) targetFs).getWrapper());
+                    if (ret == -1) {
+                        callback.error("Error", this);
+                        return;
                     }
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                if (stopFlag.get()) {
-                    System.out.println("Operation cancelled by user");
-                    callback.done();
-                    return;
-                }
-                callback.error("Error");
-                return;
-            } finally {
-                callback.done();
-                System.out.println("Copying done total ");
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (stopFlag.get()) {
+                System.out.println("Operation cancelled by user");
+                callback.done(this);
+                return;
+            }
+            callback.error("Error", this);
+            return;
+        } finally {
+            callback.done(this);
+            System.out.println("Copying done total ");
+        }
     }
 
     private List<FileInfoHolder> createFileList(FileInfo folder, String target, String proposedName) throws Exception {
@@ -180,7 +181,7 @@ public class FileTransfer {
                 Thread.sleep(0);
                 len -= x;
                 processedBytes += x;
-                callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles);
+                callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles, this);
             }
         }
 
@@ -241,15 +242,29 @@ public class FileTransfer {
                 out.write(chunk.getBuf(), 0, (int) chunk.getLen());
                 len -= chunk.getLen();
                 processedBytes += chunk.getLen();
-                callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles);
+                callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles, this);
             }
         }
     }
 
     public void stop() {
         stopFlag.set(true);
-        runningThread.shutdownNow();
+        //runningThread.shutdownNow();
         //threadPool.shutdownNow();
+    }
+
+    @Override
+    public void close() {
+        try {
+            this.sourceFs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        try {
+            this.targetFs.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -313,5 +328,17 @@ public class FileTransfer {
             name = "Copy-of-" + name;
         }
         return name;
+    }
+
+    public String getSourceName() {
+        return this.sourceFs.getName();
+    }
+
+    public String getTargetName() {
+        return this.targetFs.getName();
+    }
+
+    public void setCallback(FileTransferProgress callback) {
+        this.callback = callback;
     }
 }

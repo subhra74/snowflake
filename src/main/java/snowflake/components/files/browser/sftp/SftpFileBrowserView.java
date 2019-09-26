@@ -2,6 +2,7 @@ package snowflake.components.files.browser.sftp;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
+import snowflake.common.ssh.SshModalUserInteraction;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.common.AddressBar;
@@ -29,12 +30,15 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     private JPopupMenu addressPopup;
     private SftpMenuHandler menuHandler;
     private SshFileSystem fs;
+    private SessionInfo foreignInfo;
+    private JComboBox<String> cmbOptions = new JComboBox<>(new String[]{"Transfer normally", "Transfer in background"});
 
     public SftpFileBrowserView(FileBrowser fileBrowser,
                                JRootPane rootPane, FileComponentHolder holder,
                                String initialPath, PanelOrientation orientation, SessionInfo foreignInfo) {
         super(rootPane, holder, orientation, fileBrowser, new Color(240, 240, 255));
         this.fileBrowser = fileBrowser;
+        this.foreignInfo = foreignInfo;
         this.fs = new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
         this.menuHandler = new SftpMenuHandler(fileBrowser, this, holder, fs);
         this.menuHandler.initMenuHandler(this.folderView);
@@ -133,18 +137,41 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     public boolean handleDrop(DndTransferData transferData) {
         try {
+            System.out.println("### " + transferData.getSource() + " " + this.hashCode());
+            if (transferData.getSource() == this.hashCode()) {
+                return false;
+            }
+            if (JOptionPane.showOptionDialog(holder,
+                    new Object[]{"Please select a transfer mode", cmbOptions},
+                    "Transfer options",
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.PLAIN_MESSAGE,
+                    null,
+                    null,
+                    null) != JOptionPane.OK_OPTION) {
+                return false;
+            }
+            boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
             System.out.println("Dropped: " + transferData);
             int sessionHashCode = transferData.getInfo();
             if (sessionHashCode == 0) return true;
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
+                if (backgroundTransfer) {
+                    FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
+                    FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(this.foreignInfo));
+                    holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
+                            this.path, this.hashCode(), -1, true);
+                    return true;
+                }
                 FileSystem sourceFs = holder.getSshFileSystem();
                 if (sourceFs == null) {
                     return false;
                 }
                 FileSystem targetFs = this.fs;
                 holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
-                        transferData.getCurrentDirectory(), this.path, this.hashCode(), -1);
+                        transferData.getCurrentDirectory(), this.path, this.hashCode(),
+                        -1, false);
             }
             return true;
         } catch (Exception e) {

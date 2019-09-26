@@ -5,6 +5,8 @@ import snowflake.components.common.TabbedPanel;
 import snowflake.components.diskusage.DiskUsageAnalyzer;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
+import snowflake.components.files.transfer.BackgroundTransferPanel;
+import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.search.FileSearchPanel;
 import snowflake.components.taskmgr.TaskManager;
@@ -21,6 +23,7 @@ public class SessionContent extends JPanel {
     private FileComponentHolder fileComponentHolder;
     private TerminalHolder terminalHolder;
     private ExternalEditor externalEditor;
+    private BackgroundTransferPanel backgroundTransferPanel;
 
     //private FileStore fileStore;
 
@@ -55,6 +58,7 @@ public class SessionContent extends JPanel {
         this.fileComponentHolder = new FileComponentHolder(info, externalEditor, this);
         TabbedPanel bottomTabs = new TabbedPanel();
         terminalHolder = new TerminalHolder(info);
+        backgroundTransferPanel = new BackgroundTransferPanel();
         //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
         btn.setMargin(new Insets(5, 5, 5, 5));
@@ -69,6 +73,7 @@ public class SessionContent extends JPanel {
         bottomTabs.addTab("Search", new FileSearchPanel(this.info));
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
         bottomTabs.addTab("Disk space analyzer", new DiskUsageAnalyzer(this.info));
+        bottomTabs.addTab("Active transfers", backgroundTransferPanel);
         bottomTabs.addTab("Tools", new JPanel());
         bottomTabs.setSelectedIndex(0);
         bottomTabs.setBorder(new LineBorder(new Color(200, 200, 200), 1));
@@ -88,6 +93,10 @@ public class SessionContent extends JPanel {
         verticalSplitter.setBorder(new EmptyBorder(0, 0, 0, 0));
         add(verticalSplitter);
         verticalSplitter.setTopComponent(fileComponentHolder);
+    }
+
+    public void transferInBackground(FileTransfer transfer) {
+        this.backgroundTransferPanel.addNewBackgroundTransfer(transfer);
     }
 
     public FileComponentHolder getFileComponentHolder() {
