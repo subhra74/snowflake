@@ -13,14 +13,19 @@ public class SudoUtils {
     private static JPasswordField passwordField = new JPasswordField(30);
 
     public static int runSudo(String command, SshClient sshClient) {
+        StringBuilder output = new StringBuilder();
+        return runSudo(command, sshClient, output);
+    }
+
+    public static int runSudo(String command, SshClient sshClient, StringBuilder output) {
         String prompt = UUID.randomUUID().toString();
         try {
             ChannelExec exec = sshClient.getExecChannel();
             String fullCommand = "sudo -S -p '" + prompt + "' " + command;
             System.out.println("Full sudo: " + fullCommand + " prompt: " + prompt);
             exec.setCommand(fullCommand);
-            PipedInputStream pin=new PipedInputStream();
-            PipedOutputStream put=new PipedOutputStream(pin);
+            PipedInputStream pin = new PipedInputStream();
+            PipedOutputStream put = new PipedOutputStream(pin);
             //InputStream in = exec.getInputStream();
             OutputStream out = exec.getOutputStream();
             exec.setErrStream(put);
@@ -32,6 +37,7 @@ public class SudoUtils {
                 if (x == -1) break;
                 char ch = (char) x;
                 sb.append(ch);
+                output.append(ch);
                 System.out.println(sb);
                 if (sb.toString().contains(prompt)) {
                     if (JOptionPane.showOptionDialog(null, new Object[]{"Root password", passwordField},

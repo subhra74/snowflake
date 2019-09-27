@@ -9,6 +9,7 @@ import snowflake.components.files.transfer.BackgroundTransferPanel;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.search.FileSearchPanel;
+import snowflake.components.sysinfo.SystemInfoPanel;
 import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
 
@@ -74,7 +75,7 @@ public class SessionContent extends JPanel {
         bottomTabs.addTab("System monitor", new TaskManager(this.info));
         bottomTabs.addTab("Disk space analyzer", new DiskUsageAnalyzer(this.info));
         bottomTabs.addTab("Active transfers", backgroundTransferPanel);
-        bottomTabs.addTab("Tools", new JPanel());
+        bottomTabs.addTab("Tools", new SystemInfoPanel(this.info));
         bottomTabs.setSelectedIndex(0);
         bottomTabs.setBorder(new LineBorder(new Color(200, 200, 200), 1));
 
@@ -93,6 +94,17 @@ public class SessionContent extends JPanel {
         verticalSplitter.setBorder(new EmptyBorder(0, 0, 0, 0));
         add(verticalSplitter);
         verticalSplitter.setTopComponent(fileComponentHolder);
+
+//        JPanel sidePanel = new JPanel(new BorderLayout());
+//        sidePanel.setMinimumSize(new Dimension(200, 200));
+//        sidePanel.setPreferredSize(new Dimension(200, 200));
+//
+//        Box vbox = Box.createVerticalBox();
+//        sidePanel.add(vbox);
+//
+        verticalSplitter.setBorder(new EmptyBorder(10, 10, 10, 10));
+//
+//        add(sidePanel, BorderLayout.WEST);
     }
 
     public void transferInBackground(FileTransfer transfer) {

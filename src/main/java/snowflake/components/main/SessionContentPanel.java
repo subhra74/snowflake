@@ -26,7 +26,6 @@ public class SessionContentPanel extends JPanel {
         card = new CardLayout();
         setOpaque(true);
         setBackground(new Color(240, 240, 240));
-        setBorder(new EmptyBorder(10, 10, 10, 10));
         setLayout(card);
         externalEditor = new ExternalEditor(a -> {
             List<ExternalEditor.FileModificationInfo> list = a;

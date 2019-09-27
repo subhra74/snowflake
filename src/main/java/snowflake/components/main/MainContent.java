@@ -198,6 +198,8 @@ public class MainContent extends JPanel {
 
         Box topPanel = Box.createHorizontalBox();
 //        topPanel.setBackground(new Color(33, 136, 255));
+        //topPanel.setBackground(new Color(36, 41, 46));
+        //topPanel.setBackground(new Color(36, 41, 46));
         topPanel.setBackground(new Color(36, 41, 46));
         topPanel.setOpaque(true);
 
