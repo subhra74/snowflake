@@ -6,6 +6,7 @@ import snowflake.components.newsession.SessionInfo;
 import snowflake.components.sysinfo.platforms.SystemInfo;
 import snowflake.components.sysinfo.platforms.linux.LinuxSysInfo;
 import snowflake.components.taskmgr.PlatformChecker;
+import snowflake.utils.SudoUtils;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -43,6 +44,7 @@ public class SystemInfoPanel extends JPanel {
     private SystemInfo systemInfo;
     private JTextArea txtSystemOverview;
     private ServicePanel servicePanel;
+    private SocketPanel socketPanel;
 
     public SystemInfoPanel(SessionInfo info) {
         super(new BorderLayout());
@@ -58,11 +60,12 @@ public class SystemInfoPanel extends JPanel {
         client = new SshClient(userInteraction);
 
         servicePanel = createServicePanel();
+        socketPanel = createSocketPanel();
 
         pageComponent = new Component[]{
                 createSystemOverviewPanel(),
                 servicePanel,
-                new JPanel(),
+                socketPanel,
                 new JPanel(),
                 new JPanel(),
         };
@@ -163,9 +166,51 @@ public class SystemInfoPanel extends JPanel {
                 txtSystemOverview.setText(systemInfo.getSystemOverview());
                 servicePanel.setServiceData(systemInfo.getServices());
                 txtSystemOverview.setCaretPosition(0);
+                socketPanel.setSocketData(systemInfo.getSockets());
             }
             mainCardLayout.show(contentPane, "Main");
         });
+    }
+
+    private void getListingSockets() {
+        String cmd = SocketPanel.LSOF_COMMAND;
+
+        mainCardLayout.show(contentPane, "Wait");
+
+        boolean elevated = socketPanel.getUseSuperUser();
+        if (cmd != null) {
+            threadPool.submit(() -> {
+                try {
+                    StringBuilder output = new StringBuilder();
+                    if (elevated) {
+                        try {
+                            if (SudoUtils.runSudo(cmd, client, output) == 0) {
+                                java.util.List<SocketEntry> list = SocketPanel.parseSocketList(output.toString());
+                                systemInfo.setSockets(list);
+                                return;
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        JOptionPane.showMessageDialog(null, "Operation failed");
+                    } else {
+                        try {
+                            if (LinuxSysInfo.runCommand(client, stopFlag, cmd)) {
+                                getSysInfo();
+                                return;
+                            }
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+                        JOptionPane.showMessageDialog(null, "Operation failed");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    updateView();
+                }
+            });
+        }
     }
 
     private void performServiceAction(int option) {
@@ -262,6 +307,14 @@ public class SystemInfoPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(jScrollPane);
         return panel;
+    }
+
+    private SocketPanel createSocketPanel() {
+        SocketPanel socketPanel = new SocketPanel();
+        socketPanel.setRefreshActionListener(e -> {
+            getListingSockets();
+        });
+        return socketPanel;
     }
 
     void labelClicked(JLabel label) {

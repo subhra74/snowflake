@@ -2,6 +2,7 @@ package snowflake.components.sysinfo.platforms.linux;
 
 import snowflake.common.ssh.SshClient;
 import snowflake.components.sysinfo.ServicePanel;
+import snowflake.components.sysinfo.SocketPanel;
 import snowflake.components.sysinfo.platforms.SystemInfo;
 import snowflake.utils.ScriptLoader;
 import snowflake.utils.SshCommandUtils;
@@ -21,8 +22,8 @@ public class LinuxSysInfo {
             systemInfo.setServices(ServicePanel.parseServiceEntries(output));
         }
         output = new StringBuilder();
-        if (SshCommandUtils.exec(client, ServicePanel.SYSTEMD_COMMAND, stopFlag, output)) {
-            systemInfo.setServices(ServicePanel.parseServiceEntries(output));
+        if (SshCommandUtils.exec(client, SocketPanel.LSOF_COMMAND, stopFlag, output)) {
+            systemInfo.setSockets(SocketPanel.parseSocketList(output.toString()));
         }
         return systemInfo;
     }
