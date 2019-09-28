@@ -65,7 +65,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         super(new BorderLayout());
         setOpaque(true);
         this.sessionContent = sessionContent;
-        setBorder(new LineBorder(new Color(200, 200, 200), 1));
+        //setBorder(new LineBorder(new Color(200, 200, 200), 1));
         this.externalEditor = externalEditor;
         this.info = info;
         contentPane = new JPanel(new BorderLayout());

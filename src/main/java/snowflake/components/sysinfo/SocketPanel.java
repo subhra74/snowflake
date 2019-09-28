@@ -19,7 +19,7 @@ public class SocketPanel extends JPanel {
     private List<SocketEntry> list;
     private static final String SEPARATOR = UUID.randomUUID().toString();
 
-    public static final String LSOF_COMMAND = "sh -c \"echo " + SEPARATOR + ";lsof -b -n -i tcp -P -s tcp:LISTEN -F cn\"";
+    public static final String LSOF_COMMAND = "sh -c \"echo;echo " + SEPARATOR + ";lsof -b -n -i tcp -P -s tcp:LISTEN -F cn\"";
 
     public SocketPanel() {
         super(new BorderLayout(5, 5));
@@ -91,12 +91,16 @@ public class SocketPanel extends JPanel {
     }
 
     public static List<SocketEntry> parseSocketList(String text) {
+        System.err.println(text);
+        System.out.println("---------------SEPARATOR------------\n" + SEPARATOR);
         List<SocketEntry> list = new ArrayList<>();
         SocketEntry ent = null;
         boolean start = false;
         for (String line : text.split("\n")) {
+            System.out.println("LINE=" + line);
             if (!start) {
                 if (line.trim().equals(SEPARATOR)) {
+                    System.out.println("Start position found-------------------------------");
                     start = true;
                 }
                 continue;
@@ -116,7 +120,7 @@ public class SocketPanel extends JPanel {
                 String hostStr = line.substring(1);
                 int index = hostStr.lastIndexOf(":");
                 if (index != -1) {
-                    int port = Integer.parseInt(hostStr.substring(index) + 1);
+                    int port = Integer.parseInt(hostStr.substring(index + 1));
                     String host = hostStr.substring(0, index);
                     if (ent.getHost() != null) {
                         //if listening on multiple interfaces, ports
@@ -126,9 +130,10 @@ public class SocketPanel extends JPanel {
                         ent1.setApp(ent.getApp());
                         ent1.setPid(ent.getPid());
                         list.add(ent1);
+                    } else {
+                        ent.setPort(port);
+                        ent.setHost(host);
                     }
-                    ent.setPort(port);
-                    ent.setHost(host);
                 }
             }
         }

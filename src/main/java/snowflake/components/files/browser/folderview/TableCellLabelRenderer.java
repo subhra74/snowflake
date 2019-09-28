@@ -31,7 +31,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
         textLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
 
         iconLabel = new JLabel();
-        iconLabel.setFont(App.getFontAwesomeFont().deriveFont(Font.PLAIN, 25.f));
+        iconLabel.setFont(App.getFontAwesomeFont().deriveFont(Font.PLAIN, 24.f));
         iconLabel.setText("\uf016");
         iconLabel.setForeground(foreground);
         //iconLabel.setForeground(new Color(92, 167, 25));

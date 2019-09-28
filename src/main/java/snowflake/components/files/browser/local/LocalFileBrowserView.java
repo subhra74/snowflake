@@ -34,7 +34,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 
     public LocalFileBrowserView(FileBrowser fileBrowser,
                                 JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation, fileBrowser, new Color(255, 255, 240));
+        super(rootPane, holder, orientation, fileBrowser, new Color(250, 250, 250));//new Color(255, 255, 240));
         this.fileBrowser = fileBrowser;
         this.menuHandler = new LocalMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);

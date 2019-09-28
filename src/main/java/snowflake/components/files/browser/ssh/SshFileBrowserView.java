@@ -34,7 +34,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
     public SshFileBrowserView(FileBrowser fileBrowser,
                               JRootPane rootPane, FileComponentHolder holder, String initialPath, PanelOrientation orientation) {
-        super(rootPane, holder, orientation, fileBrowser, new Color(240, 255, 240));
+        super(rootPane, holder, orientation, fileBrowser, new Color(250, 250, 250));// new Color(240, 255, 240));
         this.fileBrowser = fileBrowser;
         this.menuHandler = new SshMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);

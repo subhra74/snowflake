@@ -200,7 +200,8 @@ public class MainContent extends JPanel {
 //        topPanel.setBackground(new Color(33, 136, 255));
         //topPanel.setBackground(new Color(36, 41, 46));
         //topPanel.setBackground(new Color(36, 41, 46));
-        topPanel.setBackground(new Color(36, 41, 46));
+//        topPanel.setBackground(new Color(20, 23, 41));
+        topPanel.setBackground(new Color(29,32,51));
         topPanel.setOpaque(true);
 
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));

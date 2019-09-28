@@ -36,7 +36,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     public SftpFileBrowserView(FileBrowser fileBrowser,
                                JRootPane rootPane, FileComponentHolder holder,
                                String initialPath, PanelOrientation orientation, SessionInfo foreignInfo) {
-        super(rootPane, holder, orientation, fileBrowser, new Color(240, 240, 255));
+        super(rootPane, holder, orientation, fileBrowser, new Color(250, 250, 250));//new Color(240, 240, 255));
         this.fileBrowser = fileBrowser;
         this.foreignInfo = foreignInfo;
         this.fs = new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
