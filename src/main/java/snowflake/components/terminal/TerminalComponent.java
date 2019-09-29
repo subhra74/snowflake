@@ -12,6 +12,7 @@ import snowflake.components.terminal.ssh.DisposableTtyConnector;
 import snowflake.components.terminal.ssh.SshTtyConnector;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class TerminalComponent extends JPanel implements ConnectedResource {
@@ -20,6 +21,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
     private JediTermWidget term;
     private DisposableTtyConnector tty;
     private String name;
+    private Box reconnectionBox;
 
     public TerminalComponent(SessionInfo info, String name, String command) {
         setLayout(new BorderLayout());
@@ -119,7 +121,32 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 //            }
 //        };
 
+        reconnectionBox = Box.createHorizontalBox();
+        reconnectionBox.setOpaque(true);
+        reconnectionBox.setBackground(Color.RED);
+        reconnectionBox.add(new JLabel("Session not connected"));
+        JButton btnReconnect = new JButton("Reconnect");
+        btnReconnect.addActionListener(e -> {
+            contentPane.remove(reconnectionBox);
+            contentPane.revalidate();
+            contentPane.repaint();
+            tty = new SshTtyConnector(new SshUserInteraction(info, rootPane), command);
+            term.setTtyConnector(tty);
+            term.start();
+        });
+        reconnectionBox.add(Box.createHorizontalGlue());
+        reconnectionBox.add(btnReconnect);
+        reconnectionBox.setBorder(new EmptyBorder(10, 10, 10, 10));
+
         term = new CustomJediterm(new DefaultSettingsProvider());
+        term.addListener((e) -> {
+            System.out.println("Disconnected");
+            SwingUtilities.invokeLater(() -> {
+                contentPane.add(reconnectionBox, BorderLayout.NORTH);
+                contentPane.revalidate();
+                contentPane.repaint();
+            });
+        });
         term.setTtyConnector(tty);
         term.start();
         contentPane.add(term);

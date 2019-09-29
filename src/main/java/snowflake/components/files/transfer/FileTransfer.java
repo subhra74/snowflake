@@ -105,6 +105,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
         try {
             try {
                 transfer(this.targetFolder);
+                callback.done(this);
             } catch (AccessDeniedException e) {
                 if (targetFs instanceof SshFileSystem) {
                     if (JOptionPane.showConfirmDialog(null,
@@ -119,10 +120,11 @@ public class FileTransfer implements Runnable, AutoCloseable {
                     //String command = "sh -c      cp -r \"" + tmpDir + "/*\" \"" + this.targetFolder + "\"";
                     System.out.println("Invoke sudo: " + command);
                     int ret = SudoUtils.runSudo(command.toString(), ((SshFileSystem) targetFs).getWrapper());
-                    if (ret == -1) {
-                        callback.error("Error", this);
+                    if (ret == 0) {
+                        callback.done(this);
                         return;
                     }
+                    throw e;
                 }
             }
         } catch (Exception e) {
@@ -134,9 +136,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
             }
             callback.error("Error", this);
             return;
-        } finally {
-            callback.done(this);
-            System.out.println("Copying done total ");
         }
     }
 

@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DiskUsageAnalyzer extends JPanel {
+public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
     private CardLayout cardLayout;
     private JRootPane rootPane;
     private JPanel contentPane;
@@ -36,6 +36,7 @@ public class DiskUsageAnalyzer extends JPanel {
     private Box resultBox;
     private JTree resultTree;
     private DefaultTreeModel treeModel;
+    private DiskAnalysisTask task;
 
     public DiskUsageAnalyzer(SessionInfo info) {
         setLayout(new BorderLayout());
@@ -147,7 +148,7 @@ public class DiskUsageAnalyzer extends JPanel {
 
     private void analyze(String path) {
         System.out.println("Analyzing path: " + path);
-        DiskAnalysisTask task = new DiskAnalysisTask(path, stopFlag, res -> {
+        task = new DiskAnalysisTask(path, stopFlag, res -> {
             SwingUtilities.invokeLater(() -> {
                 if (res != null) {
                     System.out.println("Result found");
@@ -261,5 +262,19 @@ public class DiskUsageAnalyzer extends JPanel {
         partitionPanel.add(b3, BorderLayout.NORTH);
         partitionPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         return partitionPanel;
+    }
+
+    public void close() {
+        try {
+            this.client.disconnect();
+        } catch (Exception e) {
+
+        }
+
+        try {
+            task.close();
+        } catch (Exception e) {
+
+        }
     }
 }

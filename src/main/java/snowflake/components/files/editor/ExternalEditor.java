@@ -12,12 +12,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public class ExternalEditor {
+public class ExternalEditor  implements AutoCloseable{
     private ExecutorService executor = Executors.newSingleThreadExecutor();
     private List<FileModificationInfo> filesToWatch = new ArrayList<>();
     private AtomicBoolean skipMonitoring = new AtomicBoolean(false);
     private Consumer<List<FileModificationInfo>> callback;
     private long interval;
+    private AtomicBoolean stopFlag = new AtomicBoolean(false);
 
     public ExternalEditor(Consumer<List<FileModificationInfo>> callback, long interval) {
         this.callback = callback;
@@ -39,7 +40,7 @@ public class ExternalEditor {
 
     private void monitorFileChanges() {
         executor.submit(() -> {
-            while (true) {
+            while (!stopFlag.get()) {
                 if (!skipMonitoring.get()) {
                     List<FileModificationInfo> list = new ArrayList<>();
                     for (FileModificationInfo info : filesToWatch) {
@@ -54,7 +55,11 @@ public class ExternalEditor {
                         callback.accept(list);
                     }
                 }
-                Thread.sleep(interval);
+                try {
+                    Thread.sleep(interval);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
         });
     }
@@ -72,5 +77,9 @@ public class ExternalEditor {
 
     public void resumeMonitoring() {
         this.skipMonitoring.set(false);
+    }
+
+    public void close() {
+        stopFlag.set(true);
     }
 }

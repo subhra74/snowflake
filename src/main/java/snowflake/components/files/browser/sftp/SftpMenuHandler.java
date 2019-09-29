@@ -138,8 +138,8 @@ public class SftpMenuHandler {
     }
 
     private void createBuitinItems1(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
-        if (selectedFiles[0].getType() == FileType.Directory
-                || selectedFiles[0].getType() == FileType.DirLink) {
+        if (selectedFiles.length == 1 && (selectedFiles[0].getType() == FileType.Directory
+                || selectedFiles[0].getType() == FileType.DirLink)) {
             popup.add(mOpen);
         }
 

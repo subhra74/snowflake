@@ -6,7 +6,7 @@ import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
-public interface FileSystem {
+public interface FileSystem extends AutoCloseable {
     public void connect() throws Exception;
 
     public FileInfo getInfo(String path) throws Exception;

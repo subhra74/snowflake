@@ -1,6 +1,6 @@
 package snowflake.components.main;
 
-public interface ConnectedResource {
+public interface ConnectedResource extends AutoCloseable {
     boolean isInitiated();
 
     boolean isConnected();

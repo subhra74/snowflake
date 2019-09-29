@@ -18,6 +18,9 @@ public class SshCommandUtils {
     public static final String SCRIPT_START_TAG = "#----------SCRIPT START----------#";
 
     public static boolean exec(SshClient client, String command, AtomicBoolean stopFlag, StringBuilder output) {
+        if (stopFlag.get()) {
+            return false;
+        }
         try {
             if (!client.isConnected()) {
                 client.connect();

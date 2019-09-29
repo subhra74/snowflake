@@ -21,6 +21,8 @@ import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class TaskManager extends JPanel implements ConnectedResource {
     private JRootPane rootPane;
@@ -39,6 +41,8 @@ public class TaskManager extends JPanel implements ConnectedResource {
     private Cursor DEF_CURSOR = new Cursor(Cursor.DEFAULT_CURSOR), WAIT_CURSOR = new Cursor(Cursor.WAIT_CURSOR);
     private Thread t;
     private CardLayout cardLayout;
+    private JSpinner spInterval;
+    private AtomicInteger sleepInterval = new AtomicInteger(3);
 
     public TaskManager(SessionInfo info) {
         cardLayout = new CardLayout();
@@ -70,16 +74,55 @@ public class TaskManager extends JPanel implements ConnectedResource {
             }).start();
         });
 
+        processListPanel.setMinimumSize(new Dimension(10, 10));
+
         JPanel panel = new JPanel(new BorderLayout());
 
         JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        jSplitPane.setDividerSize(5);
         jSplitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin2);
         jSplitPane.setLeftComponent(systemLoadPanel);
         jSplitPane.setRightComponent(processListPanel);
+        jSplitPane.setDividerSize(5);
+
 
         //panel.add(systemLoadPanel, BorderLayout.WEST);
         //panel.add(processListPanel);
+
+        spInterval = new JSpinner(new SpinnerNumberModel(100, 1, 100, 1));
+        spInterval.setValue(sleepInterval.get());
+        spInterval.setMaximumSize(spInterval.getPreferredSize());
+        spInterval.addChangeListener(e -> {
+            int interval = (Integer) spInterval.getValue();
+            System.out.println("New interval: " + interval);
+            this.sleepInterval.set(interval);
+            this.t.interrupt();
+        });
+
+        JButton btnClose = new JButton("Disconnect");
+        btnClose.addActionListener(e -> {
+            running.set(false);
+            t.interrupt();
+        });
+
+        Box topPanel = Box.createHorizontalBox();
+//        topPanel.setOpaque(true);
+//        topPanel.setBackground(new Color(240, 240, 240));
+        topPanel.setBorder(new EmptyBorder(5, 0, 10, 0));
+
+        JLabel titleLabel = new JLabel("System Monitor");
+        titleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
+
+        topPanel.add(titleLabel);
+        topPanel.add(Box.createHorizontalGlue());
+        topPanel.add(new JLabel("Refresh interval"));
+        topPanel.add(Box.createHorizontalStrut(5));
+        topPanel.add(spInterval);
+        topPanel.add(Box.createHorizontalStrut(5));
+        topPanel.add(new JLabel("Sec"));
+        topPanel.add(Box.createHorizontalStrut(10));
+        topPanel.add(btnClose);
+
+        panel.add(topPanel, BorderLayout.NORTH);
         panel.add(jSplitPane);
 
         contentPane.add(panel, "content");
@@ -100,6 +143,8 @@ public class TaskManager extends JPanel implements ConnectedResource {
 
         contentPane.add(box1, "start");
         cardLayout.show(contentPane, "start");
+
+        jSplitPane.setDividerLocation(0.5f);
     }
 
     private void init() {
@@ -131,16 +176,20 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 while (running.get()) {
                     if (commandPending) {
                         executeCommand();
+                        lastPsTime = 0;
                     }
                     if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
                     long time = System.currentTimeMillis();
-                    if (time - lastStatsTime > stats_interval * 1000) {
-                        this.nativePlatform.updateMetrics(client);
-                        // System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
-                        lastStatsTime = time;
-                    }
+                    this.nativePlatform.updateMetrics(client);
+                    // System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
+                    //lastStatsTime = time;
+//                    if (time - lastStatsTime > stats_interval * 1000) {
+//                        this.nativePlatform.updateMetrics(client);
+//                        // System.out.println("Cpu: " + this.nativePlatform.getCpuUsage() + " mem: " + this.nativePlatform.getMemoryUsage());
+//                        lastStatsTime = time;
+//                    }
                     if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
@@ -164,10 +213,11 @@ public class TaskManager extends JPanel implements ConnectedResource {
                     if (!running.get()) {
                         throw new Exception("Stopped by user");
                     }
-                    if (time - lastPsTime > ps_interval * 1000) {
-                        this.nativePlatform.updateProcessList(client);
-                        lastPsTime = time;
-                    }
+                    this.nativePlatform.updateProcessList(client);
+//                    if (time - lastPsTime > ps_interval * 1000) {
+//                        this.nativePlatform.updateProcessList(client);
+//                        lastPsTime = time;
+//                    }
                     SwingUtilities.invokeLater(() -> {
                         //update ui ps
                         processListPanel.setProcessList(this.nativePlatform.getProcessList());
@@ -176,9 +226,10 @@ public class TaskManager extends JPanel implements ConnectedResource {
                         throw new Exception("Stopped by user");
                     }
                     try {
-                        Thread.sleep(3000);
+                        Thread.sleep(this.sleepInterval.get() * 1000);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
+                        System.out.println("Running: " + running.get());
                     }
                 }
             } catch (Exception e) {
@@ -204,6 +255,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
 
     @Override
     public void close() {
+        running.set(false);
         try {
             client.close();
         } catch (IOException e) {

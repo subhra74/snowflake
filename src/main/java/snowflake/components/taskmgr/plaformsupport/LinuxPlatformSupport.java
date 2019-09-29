@@ -16,24 +16,23 @@ public class LinuxPlatformSupport implements PlatformSupport {
     private long prev_idle, prev_total;
     private List<ProcessTableEntry> processes = new ArrayList<>();
 
-    public void updateMetrics(SshClient client) {
-        try {
-            ChannelExec exec = client.getExecChannel();
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            exec.setOutputStream(bout);
-            exec.setCommand("head -1 /proc/stat;grep -E \"MemTotal|MemFree|Cached|SwapTotal|SwapFree\" /proc/meminfo");
-            exec.connect();
-            while (exec.isConnected()) {
+    public void updateMetrics(SshClient client) throws Exception {
+        ChannelExec exec = client.getExecChannel();
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        exec.setOutputStream(bout);
+        exec.setCommand("head -1 /proc/stat;grep -E \"MemTotal|MemFree|Cached|SwapTotal|SwapFree\" /proc/meminfo");
+        exec.connect();
+        while (exec.isConnected()) {
+            try {
                 Thread.sleep(500);
+            } catch (Exception e) {
             }
-            int ret = exec.getExitStatus();
-            exec.disconnect();
-            if (ret != 0) throw new Exception("Error while getting metrics");
-            //System.out.println(new String(bout.toByteArray()));
-            updateStats(new String(bout.toByteArray()));
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        int ret = exec.getExitStatus();
+        exec.disconnect();
+        if (ret != 0) throw new Exception("Error while getting metrics");
+        //System.out.println(new String(bout.toByteArray()));
+        updateStats(new String(bout.toByteArray()));
     }
 
     private void updateStats(String str) {
@@ -96,25 +95,24 @@ public class LinuxPlatformSupport implements PlatformSupport {
         }
     }
 
-    public void updateProcessList(SshClient client) {
+    public void updateProcessList(SshClient client) throws Exception {
         String ps = "ps -e -o pid=pid -o pcpu -o rss -o etime -o ppid -o user -o nice -o args -ww --sort pid";
-        try {
-            ChannelExec exec = client.getExecChannel();
-            ByteArrayOutputStream bout = new ByteArrayOutputStream();
-            exec.setOutputStream(bout);
-            exec.setCommand(ps);
-            exec.connect();
-            while (exec.isConnected()) {
+        ChannelExec exec = client.getExecChannel();
+        ByteArrayOutputStream bout = new ByteArrayOutputStream();
+        exec.setOutputStream(bout);
+        exec.setCommand(ps);
+        exec.connect();
+        while (exec.isConnected()) {
+            try {
                 Thread.sleep(500);
+            } catch (Exception e) {
             }
-            int ret = exec.getExitStatus();
-            exec.disconnect();
-            if (ret != 0) throw new Exception("Error while getting metrics");
-            String str = new String(bout.toByteArray(), "utf-8");
-            parseProcessList(str);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
+        int ret = exec.getExitStatus();
+        exec.disconnect();
+        if (ret != 0) throw new Exception("Error while getting metrics");
+        String str = new String(bout.toByteArray(), "utf-8");
+        parseProcessList(str);
     }
 
     private void parseProcessList(String text) {

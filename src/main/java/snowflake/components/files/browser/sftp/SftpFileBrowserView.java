@@ -50,20 +50,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             this.path = initialPath;
         }
 
-        executor.submit(() -> {
-            try {
-                if (this.path == null) {
-                    path = fs.getHome();
-                }
-                java.util.List<FileInfo> list = fs.list(path);
-                SwingUtilities.invokeLater(() -> {
-                    addressBar.setText(path);
-                    folderView.setItems(list);
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        render(this.path);
     }
 
     public void createAddressBar() {
@@ -81,9 +68,8 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public String toString() {
-        return "Local files [" + this.path + "]";
+        return this.foreignInfo.getName() + " [" + this.path + "]";
     }
-
 
     @Override
     public void render(String path) {
@@ -100,6 +86,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
                     folderView.setItems(list);
                 });
             } catch (Exception e) {
+                JOptionPane.showMessageDialog(null, "Operation failed");
                 e.printStackTrace();
             }
             fileBrowser.enableUi();

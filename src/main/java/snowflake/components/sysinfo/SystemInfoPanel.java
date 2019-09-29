@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SystemInfoPanel extends JPanel {
+public class SystemInfoPanel extends JPanel  implements AutoCloseable{
     private AtomicBoolean stopFlag;
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
     private SshUserInteraction userInteraction;
@@ -99,6 +99,13 @@ public class SystemInfoPanel extends JPanel {
         JButton btnRefresh = new JButton("Refresh");
         JButton btnClose = new JButton("Done");
         btnClose.addActionListener(e -> {
+            threadPool.submit(() -> {
+                try {
+                    client.disconnect();
+                } catch (Exception err) {
+
+                }
+            });
             mainCardLayout.show(contentPane, "Start");
         });
         optionBox.add(btnRefresh);
@@ -344,5 +351,9 @@ public class SystemInfoPanel extends JPanel {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void close() {
+        client.disconnect();
     }
 }

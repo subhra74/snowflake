@@ -16,7 +16,7 @@ public class SystemLoadPanel extends JPanel {
 
     public SystemLoadPanel() {
         super(new BorderLayout(5, 5));
-        setMinimumSize(new Dimension(100, 100));
+        setMinimumSize(new Dimension(200, 100));
         setPreferredSize(new Dimension(300, 400));
         Box b1 = Box.createVerticalBox();
 

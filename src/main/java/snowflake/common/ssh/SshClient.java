@@ -80,7 +80,7 @@ public class SshClient implements Closeable {
             return;
         }
 
-        //session.setTimeout(AppContext.INSTANCE.getConfig().getConnectionTimeout() * 1000);
+        session.setTimeout(10 * 1000);
         session.connect();
 
         if (closed.get()) {
@@ -167,7 +167,7 @@ public class SshClient implements Closeable {
     public void close() throws IOException {
         try {
             System.out.println("Wrapper closing");
-            session.disconnect();
+            disconnect();
         } catch (Exception e) {
             e.printStackTrace();
         }

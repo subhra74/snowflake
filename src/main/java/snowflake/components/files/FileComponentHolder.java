@@ -129,21 +129,27 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     public void error(String cause, FileTransfer fileTransfer) {
         SwingUtilities.invokeLater(() -> {
             progressPanel.setVisible(false);
-            if (tabs.getSelectedIndex() == 0) {
-                fileBrowser.requestReload(progressPanel.getSource());
-            } else if (tabs.getSelectedIndex() == 1) {
-                if (progressPanel.getSource() == editor.hashCode()) {
-                    if (editor.isSavingFile()) {
-                        System.out.println("Saved with error");
-                        editor.fileSavedWithError();
-                    }
-                }
-            }
+            JOptionPane.showMessageDialog(null, "Operation failed");
+//            if (tabs.getSelectedIndex() == 0) {
+//                JOptionPane.showMessageDialog(null, "Operation failed");
+//            } else if (tabs.getSelectedIndex() == 1) {
+//                if (progressPanel.getSource() == editor.hashCode()) {
+//                    if (editor.isSavingFile()) {
+//                        System.out.println("Saved with error");
+//                        editor.fileSavedWithError();
+//                    } else {
+//                        JOptionPane.showMessageDialog(null, "Unable to open file");
+//                    }
+//                }
+//            }
         });
     }
 
     @Override
     public void done(FileTransfer fileTransfer) {
+        if (isCloseRequested().get()) {
+            return;
+        }
         SwingUtilities.invokeLater(() -> {
             progressPanel.setVisible(false);
             if (tabs.getSelectedIndex() == 0) {
@@ -272,6 +278,10 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     public SshFileSystem getSshFileSystem() throws Exception {
+        if (isCloseRequested().get()) {
+            System.out.println("Close requested...");
+            return null;
+        }
         if (fs == null) {
             System.out.println("Creating file system from thread " + Thread.currentThread().getName());
             fs = new SshFileSystem(source);
@@ -320,6 +330,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     @Override
     public void close() {
+        this.closeRequested.set(true);
         if (fs != null) {
             try {
                 fs.close();
@@ -351,5 +362,9 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public void openTerminal(String command) {
         this.sessionContent.openTerminal(command);
+    }
+
+    public AtomicBoolean isCloseRequested() {
+        return this.closeRequested;
     }
 }

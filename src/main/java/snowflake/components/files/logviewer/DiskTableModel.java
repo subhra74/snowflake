@@ -61,7 +61,7 @@ public class DiskTableModel extends AbstractTableModel {
             e.printStackTrace();
         }
         try {
-            return new String(b, "utf-8");
+            return new String(b, "utf-8").replace("\t", "    ");
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }

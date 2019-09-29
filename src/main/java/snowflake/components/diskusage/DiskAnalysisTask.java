@@ -53,4 +53,12 @@ public class DiskAnalysisTask implements Runnable {
             }
         }
     }
+
+    public void close() {
+        try {
+            client.close();
+        } catch (Exception e) {
+
+        }
+    }
 }

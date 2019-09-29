@@ -11,13 +11,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class CustomScrollBarUI extends BasicScrollBarUI {
     private AtomicBoolean hot = new AtomicBoolean(false);
 
-    public static ComponentUI createUI(JComponent c)    {
+    public static ComponentUI createUI(JComponent c) {
         return new CustomScrollBarUI();
     }
 
     @Override
     public void installUI(JComponent c) {
         super.installUI(c);
+        c.setBackground(Color.WHITE);
+        c.setForeground(new Color(230, 230, 230));
         c.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -35,17 +37,21 @@ public class CustomScrollBarUI extends BasicScrollBarUI {
 
     @Override
     protected void paintTrack(Graphics g, JComponent c, Rectangle trackBounds) {
-        g.setColor(Color.WHITE);
+        g.setColor(c.getBackground());
         g.fillRect(trackBounds.x, trackBounds.y, trackBounds.width, trackBounds.height);
     }
 
     @Override
     protected void paintThumb(Graphics g, JComponent c, Rectangle thumbBounds) {
-        if(hot.get()){
-            g.setColor(new Color(240, 240, 240));
-        }
-        else{
-            g.setColor(new Color(230, 230, 230));
+        if (hot.get()) {
+            Color color = (Color) c.getClientProperty("ScrollBar.hotColor");
+            if (color == null) {
+                g.setColor(new Color(240, 240, 240));
+            } else {
+                g.setColor(color);
+            }
+        } else {
+            g.setColor(c.getForeground());
         }
         g.fillRect(thumbBounds.x, thumbBounds.y, thumbBounds.width, thumbBounds.height);
     }

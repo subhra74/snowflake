@@ -57,6 +57,7 @@ public class SessionContentPanel extends JPanel {
     public boolean removeSession(SessionInfo info) {
         SessionContent content = componentHashMap.get(info.hashCode() + "");
         remove(content);
+        content.close();
         //card.removeLayoutComponent(content);
         return true;
     }

@@ -109,6 +109,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
     private void renderDirectory(final String path) throws Exception {
         final List<FileInfo> list = holder.getSshFileSystem().list(path);
+        System.out.println("New file list: "+list);
         SwingUtilities.invokeLater(() -> {
             addressBar.setText(path);
             folderView.setItems(list);
@@ -122,7 +123,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
         this.path = path;
         executor.submit(() -> {
             this.fileBrowser.disableUi();
-            while (true) {
+            while (!holder.isCloseRequested().get()) {
+                System.out.println("Listing files now ...");
                 try {
                     if (path == null) {
                         this.path = holder.getSshFileSystem().getHome();
@@ -130,6 +132,10 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                     renderDirectory(this.path);
                     break;
                 } catch (Exception e) {
+                    e.printStackTrace();
+                    if (holder.isCloseRequested().get()) {
+                        return;
+                    }
                     System.out.println("Exception caught in sftp file browser");
                     e.printStackTrace();
                     if (JOptionPane.showConfirmDialog(null,

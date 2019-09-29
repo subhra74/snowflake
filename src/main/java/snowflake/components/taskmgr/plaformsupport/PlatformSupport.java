@@ -6,9 +6,9 @@ import snowflake.components.taskmgr.ProcessTableEntry;
 import java.util.List;
 
 public interface PlatformSupport {
-    public void updateMetrics(SshClient client);
+    public void updateMetrics(SshClient client) throws Exception;
 
-    public void updateProcessList(SshClient client);
+    public void updateProcessList(SshClient client) throws Exception;
 
     public double getCpuUsage();
 

@@ -7,6 +7,7 @@ import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.transfer.BackgroundTransferPanel;
 import snowflake.components.files.transfer.FileTransfer;
+import snowflake.components.keymanager.KeyManagerPanel;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.search.FileSearchPanel;
 import snowflake.components.sysinfo.SystemInfoPanel;
@@ -23,13 +24,20 @@ import java.awt.event.MouseEvent;
 public class SessionContent extends JPanel {
     private SessionInfo info;
     //    private JSplitPane verticalSplitter, horizontalSplitter;
+    private CardLayout mainCard;
+    private JPanel mainPanel;
+    private JPanel panels[];
+    private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg = new Color(45, 49, 58);
+
+    private FileSearchPanel fileSearchPanel;
+    private TaskManager taskManager;
+    private DiskUsageAnalyzer diskUsageAnalyzer;
+    private SystemInfoPanel systemInfoPanel;
+    private KeyManagerPanel keyManagerPanel;
     private FileComponentHolder fileComponentHolder;
     private TerminalHolder terminalHolder;
     private ExternalEditor externalEditor;
     private BackgroundTransferPanel backgroundTransferPanel;
-    private CardLayout mainCard;
-    private JPanel mainPanel;
-    private JPanel panels[];
 
     //private FileStore fileStore;
 
@@ -68,6 +76,12 @@ public class SessionContent extends JPanel {
 //        TabbedPanel bottomTabs = new TabbedPanel();
         terminalHolder = new TerminalHolder(info);
         backgroundTransferPanel = new BackgroundTransferPanel();
+        fileSearchPanel = new FileSearchPanel(this.info);
+        taskManager = new TaskManager(this.info);
+        diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
+        systemInfoPanel = new SystemInfoPanel(this.info);
+        keyManagerPanel = new KeyManagerPanel(this.info);
+
         //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
         btn.setMargin(new Insets(5, 5, 5, 5));
@@ -80,20 +94,21 @@ public class SessionContent extends JPanel {
 
         mainPanel.add(fileComponentHolder, "Files");
         mainPanel.add(terminalHolder, "Terminal");
-        mainPanel.add(new FileSearchPanel(this.info), "Search");
-        mainPanel.add(new TaskManager(this.info), "System monitor");
-        mainPanel.add(new DiskUsageAnalyzer(this.info), "Disk space analyzer");
+        mainPanel.add(fileSearchPanel, "Search");
+        mainPanel.add(taskManager, "System monitor");
+        mainPanel.add(diskUsageAnalyzer, "Disk space analyzer");
         mainPanel.add(backgroundTransferPanel, "Active transfers");
-        mainPanel.add(new SystemInfoPanel(this.info), "Linux tools");
+        mainPanel.add(systemInfoPanel, "Linux tools");
+        mainPanel.add(keyManagerPanel, "SSH keys");
 
         String pageNames[] = new String[]{"Files", "Terminal", "Search", "System monitor",
-                "Disk space analyzer", "Active transfers", "Linux tools"};
+                "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys"};
 
-        String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf002", "\uf080", "\uf1fe", "\uf252", "\uf085"};
+        String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf002", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084"};
 
-        panels = new JPanel[7];
+        panels = new JPanel[pageIcons.length];
         Dimension maxDim = null;
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < pageIcons.length; i++) {
             JPanel panel = new JPanel(new BorderLayout(10, 10));
 
             MouseAdapter adapter = new MouseAdapter() {
@@ -105,7 +120,8 @@ public class SessionContent extends JPanel {
 
             panel.setName(pageNames[i]);
             panel.addMouseListener(adapter);
-            panel.setBackground(new Color(20, 23, 41));
+            panel.setBackground(bg);
+            //panel.setBackground(new Color(20, 23, 41));
             JLabel iconLabel = new JLabel();
             iconLabel.addMouseListener(adapter);
             iconLabel.setFont(App.getFontAwesomeFont());
@@ -158,9 +174,10 @@ public class SessionContent extends JPanel {
 //        verticalSplitter.setTopComponent(fileComponentHolder);
 
         JPanel sidePanel = new JPanel(new BorderLayout());
+        sidePanel.setBackground(bg);
 //        sidePanel.setMinimumSize(new Dimension(170, 200));
 //        sidePanel.setPreferredSize(new Dimension(170, 200));
-        sidePanel.setBackground(new Color(20, 23, 41));
+//        sidePanel.setBackground(new Color(20, 23, 41));
 
         for (JPanel panel1 : panels) {
             panel1.setPreferredSize(maxDim);
@@ -170,11 +187,13 @@ public class SessionContent extends JPanel {
         }
 
         Box vbox = Box.createVerticalBox();
+        //vbox.setBorder(new EmptyBorder(1, 0,0,0));
 
         for (JPanel panel1 : panels) {
             vbox.add(panel1);
         }
 
+        //setBorder(new LineBorder(Color.black,1));
         sidePanel.add(vbox);
 //
 //        verticalSplitter.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -204,13 +223,15 @@ public class SessionContent extends JPanel {
     void panelClicked(JPanel panel) {
         for (JPanel panel1 : panels) {
             if (panel == panel1) {
-                panel1.setBackground(new Color(40, 43, 61));
+//                panel1.setBackground(new Color(40, 43, 61));
+                panel1.setBackground(sg);
                 mainCard.show(mainPanel, panel.getName());
                 for (Component child : panel1.getComponents()) {
                     child.setForeground(Color.WHITE);
                 }
             } else {
-                panel1.setBackground(new Color(20, 23, 41));
+                panel1.setBackground(bg);
+//                panel1.setBackground(new Color(20, 23, 41));
                 for (Component child : panel1.getComponents()) {
                     child.setForeground(Color.GRAY);
                 }
@@ -218,4 +239,16 @@ public class SessionContent extends JPanel {
         }
     }
 
+    public void close() {
+        new Thread(() -> {
+            fileSearchPanel.close();
+            diskUsageAnalyzer.close();
+            systemInfoPanel.close();
+            //keyManagerPanel.close();
+            fileComponentHolder.close();
+            terminalHolder.close();
+            externalEditor.close();
+            backgroundTransferPanel.close();
+        }).start();
+    }
 }

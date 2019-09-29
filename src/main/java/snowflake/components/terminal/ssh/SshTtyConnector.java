@@ -41,7 +41,7 @@ public class SshTtyConnector implements DisposableTtyConnector {
 
             String lang = System.getenv().get("LANG");
             channel.setEnv("LANG", lang != null ? lang : "en_US.UTF-8");
-            channel.setPtyType("xterm");
+            channel.setPtyType("xterm-256color");
 
             PipedOutputStream pout1 = new PipedOutputStream();
             PipedInputStream pin1 = new PipedInputStream(pout1);

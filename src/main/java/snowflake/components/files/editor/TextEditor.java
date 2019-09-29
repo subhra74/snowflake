@@ -463,9 +463,9 @@ public class TextEditor extends JPanel {
         tab.setHasChanges(false);
     }
 
-    public void fileSavedWithError() {
-        JOptionPane.showMessageDialog(this, "Error saving file", "Error", JOptionPane.ERROR_MESSAGE);
-    }
+//    public void fileSavedWithError() {
+//        JOptionPane.showMessageDialog(this, "Error saving file", "Error", JOptionPane.ERROR_MESSAGE);
+//    }
 
     public boolean isAlreadyOpened(String file) {
         int c = tabs.getTabCount();

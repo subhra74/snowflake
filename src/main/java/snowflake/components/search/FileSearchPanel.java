@@ -31,7 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-public class FileSearchPanel extends JPanel {
+public class FileSearchPanel extends JPanel implements AutoCloseable {
     private JTextField txtName;
     private JComboBox<String> cmbSize;
     private JTextField txtSize;
@@ -638,4 +638,10 @@ public class FileSearchPanel extends JPanel {
         return null;
     }
 
+    public void close() {
+        stopFlag.set(true);
+        if (client != null) {
+            client.disconnect();
+        }
+    }
 }

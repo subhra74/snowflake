@@ -9,7 +9,7 @@ import java.awt.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class TerminalHolder extends JPanel {
+public class TerminalHolder extends JPanel implements AutoCloseable {
     private SessionInfo info;
     private DefaultComboBoxModel<TerminalComponent> terminals;
     private JComboBox<TerminalComponent> cmbTerminals;
@@ -42,8 +42,9 @@ public class TerminalHolder extends JPanel {
 
 
         this.btnStopTerm = new JButton();
-        this.btnStopTerm.setFont(App.getFontAwesomeFont());
-        this.btnStopTerm.setText("\uf0c8");
+        this.btnStopTerm.setText("Close");
+//        this.btnStopTerm.setFont(App.getFontAwesomeFont());
+//        this.btnStopTerm.setText("\uf0c8");
         this.btnStopTerm.setMargin(new Insets(3, 3, 3, 3));
         this.btnStopTerm.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         this.btnStopTerm.addActionListener(e -> {
@@ -51,16 +52,19 @@ public class TerminalHolder extends JPanel {
         });
 
         this.btnStartTerm = new JButton();
-        this.btnStartTerm.setFont(App.getFontAwesomeFont());
+        this.btnStartTerm.setText("New terminal");
+//        this.btnStartTerm.setFont(App.getFontAwesomeFont());
+//        this.btnStartTerm.setText("\uf0fe");
         this.btnStartTerm.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
-        this.btnStartTerm.setText("\uf0fe");
         this.btnStartTerm.setMargin(new Insets(3, 3, 3, 3));
         this.btnStartTerm.addActionListener(e -> {
             createNewTerminal();
         });
 
         Box b1 = Box.createHorizontalBox();
-        b1.setBorder(new EmptyBorder(1, 2, 4, 2));
+//        b1.setOpaque(true);
+//        b1.setBackground(new Color(250, 250, 250));
+        //b1.setBorder(new EmptyBorder(1, 2, 4, 2));
         b1.add(Box.createRigidArea(new Dimension(10, 10)));
 //        JLabel lbl=new JLabel();
 //        lbl.setFont(App.getFontAwesomeFont());

@@ -10,7 +10,7 @@ import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class BackgroundTransferPanel extends JPanel {
+public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
     private ExecutorService executorService = Executors.newFixedThreadPool(3);
     private Box verticalBox;
 
@@ -35,11 +35,27 @@ public class BackgroundTransferPanel extends JPanel {
         });
     }
 
+    public void close() {
+        for (Component c : this.verticalBox.getComponents()) {
+            if (c instanceof TransferPanelItem) {
+                try {
+                    ((TransferPanelItem) c).stop();
+                } catch (Exception e) {
+
+                }
+            }
+        }
+    }
+
     class TransferPanelItem extends JPanel implements FileTransferProgress {
         private FileTransfer fileTransfer;
         private JProgressBar progressBar;
         private JLabel progressLabel;
         private JLabel removeLabel;
+
+        public void stop() {
+            fileTransfer.stop();
+        }
 
         public TransferPanelItem(FileTransfer transfer) {
             super(new BorderLayout());
