@@ -19,7 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class SystemInfoPanel extends JPanel  implements AutoCloseable{
+public class SystemInfoPanel extends JPanel implements AutoCloseable {
     private AtomicBoolean stopFlag;
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
     private SshUserInteraction userInteraction;
@@ -74,6 +74,7 @@ public class SystemInfoPanel extends JPanel  implements AutoCloseable{
         JPanel startPanel = new JPanel();
         JButton btnStart = new JButton("Start");
         btnStart.addActionListener(e -> {
+            client = new SshClient(userInteraction);
             mainCardLayout.show(contentPane, "Wait");
             threadPool.submit(() -> {
                 getSysInfo();
@@ -355,5 +356,6 @@ public class SystemInfoPanel extends JPanel  implements AutoCloseable{
 
     public void close() {
         client.disconnect();
+        client = null;
     }
 }

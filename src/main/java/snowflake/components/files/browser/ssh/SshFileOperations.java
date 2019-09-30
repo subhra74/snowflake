@@ -4,17 +4,16 @@ import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.FileType;
 import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.utils.PathUtils;
 import snowflake.utils.SshCommandUtils;
 import snowflake.utils.SudoUtils;
-import snowflake.utils.TimeUtils;
 
 import javax.swing.*;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.AccessDeniedException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SshFileOperations {
@@ -69,6 +68,11 @@ public class SshFileOperations {
 
         System.out.println("Move: " + command);
         if (!SshCommandUtils.exec(client, command.toString(), new AtomicBoolean(false), new StringBuilder())) {
+
+            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                return false;
+            }
+
             int ret = SudoUtils.runSudo(command.toString(), client);
             if (ret == -1) {
                 JOptionPane.showMessageDialog(null, "Operation failed");
@@ -120,6 +124,9 @@ public class SshFileOperations {
 
         System.out.println("Copy: " + command);
         if (!SshCommandUtils.exec(client, command.toString(), new AtomicBoolean(false), new StringBuilder())) {
+            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                return false;
+            }
             int ret = SudoUtils.runSudo(command.toString(), client);
             if (ret == -1) {
                 JOptionPane.showMessageDialog(null, "Operation failed");
@@ -194,6 +201,9 @@ public class SshFileOperations {
             }
         } catch (FileNotFoundException | AccessDeniedException e) {
             e.printStackTrace();
+            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                return false;
+            }
             return deletePrivilege(targetList, client);
         } catch (Exception e) {
             e.printStackTrace();
@@ -237,6 +247,9 @@ public class SshFileOperations {
             return true;
         } catch (AccessDeniedException e1) {
             e1.printStackTrace();
+            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                return false;
+            }
             if (!touchWithPrivilege(folder, text, client)) {
                 JOptionPane.showMessageDialog(null, "Unable to create new file");
                 return false;
@@ -281,6 +294,9 @@ public class SshFileOperations {
             return true;
         } catch (AccessDeniedException e1) {
             e1.printStackTrace();
+            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                return false;
+            }
             if (!mkdirWithPrivilege(folder, text, client)) {
                 JOptionPane.showMessageDialog(null, "Unable to create new folder");
                 return false;

@@ -169,6 +169,10 @@ public class FileBrowser extends JPanel {
         holder.disableUi();
     }
 
+    public void disableUi(AtomicBoolean stopFlag) {
+        holder.disableUi(stopFlag);
+    }
+
     public void enableUi() {
         holder.enableUi();
     }

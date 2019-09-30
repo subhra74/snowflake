@@ -48,7 +48,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private Map<SessionInfo, FileSystem> fileSystemMap = new ConcurrentHashMap<>();
     private Map<FileSystem, Integer> fileViewMap = new ConcurrentHashMap<>();
     private AtomicBoolean closeRequested = new AtomicBoolean(false);
-    private JPanel disabledPanel;
+    private DisabledPanel disabledPanel;
     private FileTransfer ongoingFileTransfer;
     private TransferProgressPanel progressPanel;
     private TabbedPanel tabs;
@@ -77,7 +77,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         rootPane.setContentPane(contentPane);
         add(rootPane);
         this.source = new SshUserInteraction(info, rootPane);
-        this.disabledPanel = new JPanel();
+        this.disabledPanel = new DisabledPanel();
+
         try {
             this.tempFolder = Files.createTempDirectory(UUID.randomUUID().toString()).toAbsolutePath().toString();
         } catch (IOException e) {
@@ -195,6 +196,16 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public void disableUi() {
         SwingUtilities.invokeLater(() -> {
+            this.disabledPanel.btn.setVisible(false);
+            this.rootPane.setGlassPane(this.disabledPanel);
+            this.disabledPanel.setVisible(true);
+        });
+    }
+
+    public void disableUi(AtomicBoolean stopFlag) {
+        SwingUtilities.invokeLater(() -> {
+            this.disabledPanel.stopFlag = stopFlag;
+            this.disabledPanel.btn.setVisible(true);
             this.rootPane.setGlassPane(this.disabledPanel);
             this.disabledPanel.setVisible(true);
         });
@@ -366,5 +377,18 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public AtomicBoolean isCloseRequested() {
         return this.closeRequested;
+    }
+
+    class DisabledPanel extends JPanel {
+        JButton btn = new JButton("Stop");
+        AtomicBoolean stopFlag;
+
+        public DisabledPanel() {
+            btn.addActionListener(e -> {
+                if (stopFlag != null) {
+                    stopFlag.set(true);
+                }
+            });
+        }
     }
 }

@@ -24,7 +24,7 @@ public class SudoUtils {
             String fullCommand = "sudo -S -p '" + prompt + "' " + command;
             System.out.println("Full sudo: " + fullCommand + " prompt: " + prompt);
             exec.setCommand(fullCommand);
-exec.setPty(true);
+            exec.setPty(true);
             PipedInputStream pin = new PipedInputStream();
             PipedOutputStream put = new PipedOutputStream(pin);
             //InputStream in = exec.getInputStream();
@@ -39,7 +39,7 @@ exec.setPty(true);
                 char ch = (char) x;
                 sb.append(ch);
                 output.append(ch);
-                System.out.println(sb);
+                //System.out.println(sb);
                 if (sb.toString().contains(prompt)) {
                     if (JOptionPane.showOptionDialog(null, new Object[]{"Root password", passwordField},
                             "Authentication", JOptionPane.OK_CANCEL_OPTION,

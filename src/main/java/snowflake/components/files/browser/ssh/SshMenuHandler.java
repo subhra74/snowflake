@@ -19,8 +19,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -46,6 +47,7 @@ public class SshMenuHandler {
     private SshFileOperations fileOperations;
     private SshFileBrowserView fileBrowserView;
     private FileComponentHolder holder;
+    private ArchiveOperation archiveOperation;
 
     public SshMenuHandler(FileBrowser fileBrowser, SshFileBrowserView fileBrowserView,
                           FileComponentHolder holder) {
@@ -53,30 +55,7 @@ public class SshMenuHandler {
         this.holder = holder;
         this.fileOperations = new SshFileOperations();
         this.fileBrowserView = fileBrowserView;
-
-        extractCommands = new TreeMap<>((String o1, String o2) -> {
-            if (o1.length() == o2.length()) {
-                return o1.compareTo(o2);
-            }
-            return o1.length() - o2.length();
-        });
-
-        extractCommands.put(".tar", "cat \"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".tar.gz",
-                "gunzip -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".tgz",
-                "gunzip -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".tar.bz2",
-                "bzip2 -d -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".tbz2",
-                "bzip2 -d -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".tbz",
-                "bzip2 -d -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".tar.xz",
-                "xz -d -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".txz",
-                "xz -d -c <\"%s\"|tar -C \"%s\" -xvf -");
-        extractCommands.put(".zip", "unzip -o \"%s\" -d \"%s\" ");
+        this.archiveOperation = new ArchiveOperation();
     }
 
     public void initMenuHandler(FolderView folderView) {
@@ -306,17 +285,31 @@ public class SshMenuHandler {
 
         mExtractHere = new JMenuItem("Extract here");
         mExtractHere.addActionListener(e -> {
+            extractArchive(folderView.getSelectedFiles()[0].getPath(),
+                    fileBrowserView.getCurrentDirectory(),
+                    fileBrowserView.getCurrentDirectory());
             //openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
         });
 
         mExtractTo = new JMenuItem("Extract to");
         mExtractTo.addActionListener(e -> {
+            String text = JOptionPane.showInputDialog("Select a target folder to extract", fileBrowserView.getCurrentDirectory());
+            if (text == null || text.length() < 1) {
+                return;
+            }
+            extractArchive(folderView.getSelectedFiles()[0].getPath(),
+                    text,
+                    fileBrowserView.getCurrentDirectory());
             //openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
         });
 
         mCreateArchive = new JMenuItem("Create archive");
         mCreateArchive.addActionListener(e -> {
-            //openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
+            List<String> files = new ArrayList<>();
+            for (FileInfo fileInfo : folderView.getSelectedFiles()) {
+                files.add(fileInfo.getName());
+            }
+            createArchive(files, fileBrowserView.getCurrentDirectory(), fileBrowserView.getCurrentDirectory());
         });
     }
 
@@ -437,6 +430,16 @@ public class SshMenuHandler {
             //popup.add(mSendFiles);
             //count += 2;
             count++;
+        }
+
+        if (selectionCount == 1) {
+            FileInfo fileInfo = selectedFiles[0];
+            if ((selectedFiles[0].getType() == FileType.File || selectedFiles[0].getType() == FileType.FileLink)
+                    && this.archiveOperation.isSupportedArchive(fileInfo.getName())) {
+                popup.add(mExtractHere);
+                popup.add(mExtractTo);
+            }
+            count += 2;
         }
 
         if (selectionCount < 1) {
@@ -719,6 +722,36 @@ public class SshMenuHandler {
                         new AtomicBoolean())) {
                 }
                 fileBrowser.enableUi();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void extractArchive(String archive, String folder, String currentFolder) {
+        executor.submit(() -> {
+            AtomicBoolean stopFlag = new AtomicBoolean(false);
+            fileBrowser.disableUi(stopFlag);
+            try {
+                if (!archiveOperation.extractArchive(fileBrowserView.getSshClient(), archive, folder, stopFlag)) {
+                    JOptionPane.showMessageDialog(null, "Operation failed");
+                }
+                fileBrowserView.render(currentFolder);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    private void createArchive(List<String> files, String folder, String currentFolder) {
+        executor.submit(() -> {
+            AtomicBoolean stopFlag = new AtomicBoolean(false);
+            fileBrowser.disableUi(stopFlag);
+            try {
+                if (!archiveOperation.createArchive(fileBrowserView.getSshClient(), files, folder, stopFlag)) {
+                    JOptionPane.showMessageDialog(null, "Operation failed");
+                }
+                fileBrowserView.render(currentFolder);
             } catch (Exception e) {
                 e.printStackTrace();
             }
