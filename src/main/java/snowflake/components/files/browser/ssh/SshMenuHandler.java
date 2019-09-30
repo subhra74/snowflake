@@ -34,7 +34,7 @@ public class SshMenuHandler {
     private JMenuItem mOpenInTab, mOpen, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav,
             mChangePerm, mSendFiles, mUpload, mOpenWithDefApp, mOpenWthInternalEdit, mOpenWithCustom, mOpenWithLogView,
             mDownload, mCreateLink, mCopyPath, mOpenFolderInTerminal, mOpenTerminalHere, mRunScriptInTerminal,
-            mRunScriptInBackground;
+            mRunScriptInBackground, mExtractHere, mExtractTo, mCreateArchive;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -278,6 +278,21 @@ public class SshMenuHandler {
         map.put(ksCreateLink, "ksCreateLink");
         act.put("ksCreateLink", aCreateLink);
         mCreateLink.setAccelerator(ksCreateLink);
+
+        mExtractHere = new JMenuItem("Extract here");
+        mExtractHere.addActionListener(e -> {
+            //openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
+        });
+
+        mExtractTo = new JMenuItem("Extract to");
+        mExtractTo.addActionListener(e -> {
+            //openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
+        });
+
+        mCreateArchive = new JMenuItem("Create archive");
+        mCreateArchive.addActionListener(e -> {
+            //openFolderInTerminal(folderView.getSelectedFiles()[0].getPath());
+        });
     }
 
     private void copyToClipboard(boolean cut) {
