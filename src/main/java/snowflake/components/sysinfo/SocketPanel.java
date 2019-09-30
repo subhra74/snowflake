@@ -96,7 +96,8 @@ public class SocketPanel extends JPanel {
         List<SocketEntry> list = new ArrayList<>();
         SocketEntry ent = null;
         boolean start = false;
-        for (String line : text.split("\n")) {
+        for (String line1 : text.split("\n")) {
+String line=line1.trim();
             System.out.println("LINE=" + line);
             if (!start) {
                 if (line.trim().equals(SEPARATOR)) {
