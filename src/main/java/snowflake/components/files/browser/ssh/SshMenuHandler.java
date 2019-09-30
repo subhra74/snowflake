@@ -19,6 +19,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import java.util.*;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -39,7 +40,7 @@ public class SshMenuHandler {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
     private JMenu mOpenWith;
-
+    private Map<String, String> extractCommands;
     private FileBrowser fileBrowser;
     private FolderView folderView;
     private SshFileOperations fileOperations;
@@ -52,6 +53,30 @@ public class SshMenuHandler {
         this.holder = holder;
         this.fileOperations = new SshFileOperations();
         this.fileBrowserView = fileBrowserView;
+
+        extractCommands = new TreeMap<>((String o1, String o2) -> {
+            if (o1.length() == o2.length()) {
+                return o1.compareTo(o2);
+            }
+            return o1.length() - o2.length();
+        });
+
+        extractCommands.put(".tar", "cat \"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".tar.gz",
+                "gunzip -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".tgz",
+                "gunzip -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".tar.bz2",
+                "bzip2 -d -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".tbz2",
+                "bzip2 -d -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".tbz",
+                "bzip2 -d -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".tar.xz",
+                "xz -d -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".txz",
+                "xz -d -c <\"%s\"|tar -C \"%s\" -xvf -");
+        extractCommands.put(".zip", "unzip -o \"%s\" -d \"%s\" ");
     }
 
     public void initMenuHandler(FolderView folderView) {
@@ -402,6 +427,13 @@ public class SshMenuHandler {
         int count = 0;
         if (selectionCount > 0) {
             popup.add(mDelete);
+            //popup.add(mSendFiles);
+            //count += 2;
+            count++;
+        }
+
+        if (selectionCount > 0) {
+            popup.add(mCreateArchive);
             //popup.add(mSendFiles);
             //count += 2;
             count++;
