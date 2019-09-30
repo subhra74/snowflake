@@ -24,6 +24,7 @@ public class SudoUtils {
             String fullCommand = "sudo -S -p '" + prompt + "' " + command;
             System.out.println("Full sudo: " + fullCommand + " prompt: " + prompt);
             exec.setCommand(fullCommand);
+exec.setPty(true);
             PipedInputStream pin = new PipedInputStream();
             PipedOutputStream put = new PipedOutputStream(pin);
             //InputStream in = exec.getInputStream();
