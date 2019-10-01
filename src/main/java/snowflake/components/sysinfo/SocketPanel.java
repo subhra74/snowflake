@@ -19,7 +19,7 @@ public class SocketPanel extends JPanel {
     private List<SocketEntry> list;
     private static final String SEPARATOR = UUID.randomUUID().toString();
 
-    public static final String LSOF_COMMAND = "sh -c \"echo;echo " + SEPARATOR + ";lsof -b -n -i tcp -P -s tcp:LISTEN -F cn\"";
+    public static final String LSOF_COMMAND = "sh -c \"export PATH=$PATH:/usr/sbin; echo;echo " + SEPARATOR + ";lsof -b -n -i tcp -P -s tcp:LISTEN -F cn\"";
 
     public SocketPanel() {
         super(new BorderLayout(5, 5));

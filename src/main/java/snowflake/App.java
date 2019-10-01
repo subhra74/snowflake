@@ -296,13 +296,13 @@ public class App {
         loadFonts();
 
 
-        JFrame f = new JFrame("Frame");
+        JFrame f = new JFrame("Snowflake");
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setSize(800, 600);
         f.setExtendedState(JFrame.MAXIMIZED_BOTH);
 
 
-        f.add(new MainContent());
+        f.add(new MainContent(f));
         f.setLocationRelativeTo(null);
         f.setVisible(true);
 

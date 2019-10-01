@@ -6,6 +6,7 @@ import snowflake.components.newsession.SessionInfo;
 import snowflake.components.sysinfo.platforms.SystemInfo;
 import snowflake.components.sysinfo.platforms.linux.LinuxSysInfo;
 import snowflake.components.taskmgr.PlatformChecker;
+import snowflake.utils.SshCommandUtils;
 import snowflake.utils.SudoUtils;
 
 import javax.swing.*;
@@ -202,11 +203,16 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
                         }
                         JOptionPane.showMessageDialog(null, "Operation failed");
                     } else {
+                        System.out.println("Command was: " + cmd);
                         try {
-                            if (LinuxSysInfo.runCommand(client, stopFlag, cmd)) {
+                            if (SshCommandUtils.exec(client, cmd, new AtomicBoolean(false), output)) {
+                                System.out.println("Command was: " + cmd + " " + output);
+                                java.util.List<SocketEntry> list = SocketPanel.parseSocketList(output.toString());
+                                systemInfo.setSockets(list);
                                 getSysInfo();
                                 return;
                             }
+                            System.out.println("Error: " + output);
                         } catch (Exception ex) {
                             ex.printStackTrace();
                         }

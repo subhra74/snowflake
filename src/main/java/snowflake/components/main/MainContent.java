@@ -125,9 +125,11 @@
 
 package snowflake.components.main;
 
+import snowflake.App;
 import snowflake.components.common.CustomButtonPainter;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.settings.SettingsPanel;
 import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
@@ -137,9 +139,12 @@ import java.awt.*;
 
 public class MainContent extends JPanel {
     //private GradientPaint gradientPaint;
+    private JFrame frame;
+    private SettingsPanel settingsPanel;
 
-    public MainContent() {
+    public MainContent(JFrame frame) {
         super(new BorderLayout(0, 0));
+        this.frame = frame;
 //        gradientPaint = new GradientPaint(0.0f, 0.0f, new Color(200, 200, 200),
 //                0.0f, 50.0f, new Color(150, 150, 150));
         init();
@@ -189,6 +194,7 @@ public class MainContent extends JPanel {
 
     private void init() {
         setBackground(new Color(245, 245, 245));
+        this.settingsPanel = new SettingsPanel();
         SessionContentPanel contentPanel = new SessionContentPanel();
         //setBackground(new Color(80,80,80));
         contentPanel.setOpaque(true);
@@ -202,7 +208,7 @@ public class MainContent extends JPanel {
         //topPanel.setBackground(new Color(36, 41, 46));
 //        topPanel.setBackground(new Color(20, 23, 41));
         //topPanel.setBackground(new Color(29,32,51));
-        topPanel.setBackground(new Color(47,51,62));
+        topPanel.setBackground(new Color(47, 51, 62));
         topPanel.setOpaque(true);
 
         topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -261,7 +267,9 @@ public class MainContent extends JPanel {
         Color c3 = new Color(70, 130, 180);
 
         JButton disconnect = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
-        disconnect.setText("Disconnect");
+        disconnect.setFont(App.getFontAwesomeFont());
+        //disconnect.setText("Disconnect");
+        disconnect.setText("\uf052");
         //disconnect.setBackground(new Color(100, 0, 0));
         disconnect.setForeground(Color.WHITE);
         disconnect.addActionListener(e -> {
@@ -274,9 +282,30 @@ public class MainContent extends JPanel {
             }
         });
 
+
+        JButton settings = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
+        settings.setFont(App.getFontAwesomeFont());
+        //settings.setText("Settings");
+        settings.setText("\uf085");
+        //disconnect.setBackground(new Color(100, 0, 0));
+        settings.setForeground(Color.WHITE);
+        settings.addActionListener(e -> {
+            settingsPanel.showDialog(frame);
+        });
+
+        Dimension maxDim = disconnect.getPreferredSize();
+        if (settings.getPreferredSize().width > maxDim.width) {
+            maxDim.width = settings.getPreferredSize().width;
+        }
+
+        disconnect.setPreferredSize(maxDim);
+        settings.setPreferredSize(maxDim);
+
         topPanel.add(Box.createHorizontalStrut(5));
         topPanel.add(disconnect);
 
+        topPanel.add(Box.createHorizontalStrut(5));
+        topPanel.add(settings);
 
         add(topPanel, BorderLayout.NORTH);
         setOpaque(true);
