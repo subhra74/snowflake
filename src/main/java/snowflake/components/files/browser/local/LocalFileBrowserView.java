@@ -1,5 +1,6 @@
 package snowflake.components.files.browser.local;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
@@ -153,6 +154,9 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
             if (sessionHashCode == 0) return true;
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
+                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
+                    return false;
+                }
                 if (backgroundTransfer) {
                     FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     FileSystem targetFs = new LocalFileSystem();

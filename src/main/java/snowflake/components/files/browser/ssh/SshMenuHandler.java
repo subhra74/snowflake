@@ -1,5 +1,6 @@
 package snowflake.components.files.browser.ssh;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
 import snowflake.components.files.DndTransferData;
@@ -520,6 +521,11 @@ public class SshMenuHandler {
     }
 
     private void delete(FileInfo[] targetList, String baseFolder) {
+        boolean delete = true;
+        if (App.getGlobalSettings().isConfirmBeforeDelete()) {
+            delete = JOptionPane.showConfirmDialog(null, "Delete selected files?") == JOptionPane.YES_OPTION;
+        }
+        if (!delete) return;
         executor.submit(() -> {
             fileBrowser.disableUi();
             try {

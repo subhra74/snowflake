@@ -1,8 +1,14 @@
 package snowflake;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import snowflake.common.GlobalSettings;
+import snowflake.common.Settings;
 import snowflake.components.common.CustomScrollBarUI;
 import snowflake.components.main.MainContent;
+import snowflake.components.newsession.SavedSessionTree;
+import snowflake.components.newsession.SessionFolder;
 import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 
@@ -12,6 +18,7 @@ import javax.swing.plaf.synth.SynthScrollBarUI;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -24,7 +31,7 @@ public class App {
     public static UIDefaults splitPaneSkin2 = new UIDefaults();
     private static Properties config = new Properties();
     private static Font fontAwesomeFont;
-    private static GlobalSettings globalSettings;
+    private static Settings settings;
 
     public static String getConfig(String key) {
         return config.getProperty(key);
@@ -34,8 +41,8 @@ public class App {
         return fontAwesomeFont;
     }
 
-    public static GlobalSettings getGlobalSettings() {
-        return globalSettings;
+    public static Settings getGlobalSettings() {
+        return settings;
     }
 
 //    class MySynthFactory extends SynthStyleFactory {
@@ -295,6 +302,7 @@ public class App {
 
         loadFonts();
 
+        loadSettings();
 
         JFrame f = new JFrame("Snowflake");
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
@@ -461,4 +469,34 @@ public class App {
 //        f.add(component);
 //        f.setVisible(true);
 //    }
+
+    public synchronized static void loadSettings() {
+        File file = new File(App.getConfig("app.dir"),
+                AppConstants.CONFIG_DB_FILE);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(
+                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        if (file.exists()) {
+            try {
+                settings = objectMapper.readValue(file,
+                        new TypeReference<Settings>() {
+                        });
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        settings = new Settings();
+    }
+
+    public synchronized static void saveSettings() {
+        File file = new File(App.getConfig("app.dir"),
+                AppConstants.CONFIG_DB_FILE);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writeValue(file, settings);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

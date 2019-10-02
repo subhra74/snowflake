@@ -89,7 +89,7 @@ public abstract class AbstractUserInteraction implements UserInfo, UIKeyboardInt
     @Override
     public void showMessage(String message) {
         System.out.println("showMessage: " + message);
-        if (!App.getGlobalSettings().isShowMessage()) {
+        if (!App.getGlobalSettings().isShowMessagePrompt()) {
             return;
         }
         if (!suppressMessage.get()) {
@@ -113,7 +113,8 @@ public abstract class AbstractUserInteraction implements UserInfo, UIKeyboardInt
 
             if (chkHideWarn.isSelected()) {
                 suppressMessage.set(true);
-                App.getGlobalSettings().setShowMessage(false);
+                App.getGlobalSettings().setShowMessagePrompt(false);
+                App.saveSettings();
             }
         }
     }

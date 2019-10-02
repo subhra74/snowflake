@@ -3,12 +3,14 @@ package snowflake.common;
 public class Settings {
     private boolean confirmBeforeDelete = true, confirmBeforeMoveOrCopy = true,
             showHiddenFilesByDefault = false, promptForSudo = true, directoryCache = true,
-            showPathBar = true, confirmBeforeTerminalClosing = true, useDarkThemeForTerminal = false;
+            showPathBar = true, confirmBeforeTerminalClosing = true, useDarkThemeForTerminal = false,
+            showMessagePrompt = false;
     private int defaultOpenAction = 0
             //  0 Open with default application
             //  1 Open with default editor
             //  2 Open with internal editor
             , numberOfSimultaneousConnection = 3;
+    private String terminalType = "xterm-256color";
 
 
     public boolean isConfirmBeforeDelete() {
@@ -75,6 +77,14 @@ public class Settings {
         this.useDarkThemeForTerminal = useDarkThemeForTerminal;
     }
 
+    public boolean isShowMessagePrompt() {
+        return showMessagePrompt;
+    }
+
+    public void setShowMessagePrompt(boolean showMessagePrompt) {
+        this.showMessagePrompt = showMessagePrompt;
+    }
+
     public int getDefaultOpenAction() {
         return defaultOpenAction;
     }
@@ -89,5 +99,13 @@ public class Settings {
 
     public void setNumberOfSimultaneousConnection(int numberOfSimultaneousConnection) {
         this.numberOfSimultaneousConnection = numberOfSimultaneousConnection;
+    }
+
+    public String getTerminalType() {
+        return terminalType;
+    }
+
+    public void setTerminalType(String terminalType) {
+        this.terminalType = terminalType;
     }
 }

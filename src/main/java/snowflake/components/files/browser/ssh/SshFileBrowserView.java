@@ -1,5 +1,6 @@
 package snowflake.components.files.browser.ssh;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
@@ -109,7 +110,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
     private void renderDirectory(final String path) throws Exception {
         final List<FileInfo> list = holder.getSshFileSystem().list(path);
-        System.out.println("New file list: "+list);
+        System.out.println("New file list: " + list);
         SwingUtilities.invokeLater(() -> {
             addressBar.setText(path);
             folderView.setItems(list);
@@ -203,6 +204,9 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 sourceFs = holder.getSshFileSystem();
             }
             if (sourceFs instanceof LocalFileSystem) {
+                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
+                    return false;
+                }
                 if (backgroundTransfer) {
                     FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
@@ -216,6 +220,9 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
                 if ((sourceFs == holder.getSshFileSystem())) {
                     JOptionPane.showMessageDialog(null, "Cant move files like this!");
+                    return false;
+                }
+                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
                     return false;
                 }
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {

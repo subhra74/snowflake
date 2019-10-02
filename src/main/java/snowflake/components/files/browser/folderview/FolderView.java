@@ -1,5 +1,6 @@
 package snowflake.components.files.browser.folderview;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
 import snowflake.components.files.DndTransferHandler;
@@ -35,6 +36,8 @@ public class FolderView extends JPanel {
         super(new BorderLayout());
         this.listener = listener;
         this.popup = new JPopupMenu();
+
+        showHiddenFiles = App.getGlobalSettings().isShowHiddenFilesByDefault();
 
 //        listModel = new DefaultListModel<>();
 //        list = new ListView(listModel);

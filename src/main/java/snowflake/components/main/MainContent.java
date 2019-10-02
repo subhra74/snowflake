@@ -194,7 +194,7 @@ public class MainContent extends JPanel {
 
     private void init() {
         setBackground(new Color(245, 245, 245));
-        this.settingsPanel = new SettingsPanel();
+        this.settingsPanel = new SettingsPanel(frame);
         SessionContentPanel contentPanel = new SessionContentPanel();
         //setBackground(new Color(80,80,80));
         contentPanel.setOpaque(true);
@@ -290,7 +290,7 @@ public class MainContent extends JPanel {
         //disconnect.setBackground(new Color(100, 0, 0));
         settings.setForeground(Color.WHITE);
         settings.addActionListener(e -> {
-            settingsPanel.showDialog(frame);
+            settingsPanel.showDialog(App.getGlobalSettings());
         });
 
         Dimension maxDim = disconnect.getPreferredSize();
