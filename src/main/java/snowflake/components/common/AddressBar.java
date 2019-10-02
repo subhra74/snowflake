@@ -21,6 +21,7 @@ public class AddressBar extends JPanel {
     private ActionListener a;
     private JPopupMenu popup;
     private char separator;
+    private JPanel panBtn2;
 
     public AddressBar(char separator, ActionListener popupTriggeredListener) {
         setLayout(new BorderLayout());
@@ -72,7 +73,7 @@ public class AddressBar extends JPanel {
             }
         });
 
-        JPanel panBtn2 = new JPanel(new BorderLayout());
+        panBtn2 = new JPanel(new BorderLayout());
         panBtn2.setBorder(new EmptyBorder(3, 3, 3, 3));
 
 
@@ -88,20 +89,9 @@ public class AddressBar extends JPanel {
         // btnEdit.setFocusPainted(false);
         btnEdit.addActionListener(e -> {
             if (!isSelected()) {
-                addrPanel.remove(addressBar);
-                addrPanel.add(txtAddressBar);
-                remove(panBtn2);
-                btnEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
-                btnEdit.putClientProperty("toggle.selected", Boolean.TRUE);
-                txtAddressBar.getEditor().selectAll();
-                btnEdit.setText("\uf13e");
+                switchToText();
             } else {
-                add(panBtn2, BorderLayout.WEST);
-                addrPanel.remove(txtAddressBar);
-                addrPanel.add(addressBar);
-                btnEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
-                btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
-                btnEdit.setText("\uf023");
+                switchToPathBar();
             }
             revalidate();
             repaint();
@@ -155,6 +145,25 @@ public class AddressBar extends JPanel {
         add(panBtn, BorderLayout.EAST);
         add(panBtn2, BorderLayout.WEST);
         btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
+    }
+
+    public void switchToPathBar() {
+        add(panBtn2, BorderLayout.WEST);
+        addrPanel.remove(txtAddressBar);
+        addrPanel.add(addressBar);
+        btnEdit.setIcon(UIManager.getIcon("AddressBar.edit"));
+        btnEdit.putClientProperty("toggle.selected", Boolean.FALSE);
+        btnEdit.setText("\uf023");
+    }
+
+    public void switchToText() {
+        addrPanel.remove(addressBar);
+        addrPanel.add(txtAddressBar);
+        remove(panBtn2);
+        btnEdit.setIcon(UIManager.getIcon("AddressBar.toggle"));
+        btnEdit.putClientProperty("toggle.selected", Boolean.TRUE);
+        txtAddressBar.getEditor().selectAll();
+        btnEdit.setText("\uf13e");
     }
 
     public String getText() {

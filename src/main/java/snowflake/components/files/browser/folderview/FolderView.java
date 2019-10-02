@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -323,8 +324,7 @@ public class FolderView extends JPanel {
 
     public void setItems(List<FileInfo> list) {
         this.files = list;
-        this.folderViewModel.clear();
-        this.folderViewModel.addAll(list);
+        applyHiddenFilter();
         this.resizeColumnWidth(table);
 //        if (showHiddenFiles) {
 //            sortAndAddItems(list);
@@ -438,7 +438,23 @@ public class FolderView extends JPanel {
 
     public void setShowHiddenFiles(boolean showHiddenFiles) {
         this.showHiddenFiles = showHiddenFiles;
-        this.listener.reload();
+        applyHiddenFilter();
+        this.resizeColumnWidth(table);
+    }
+
+    private void applyHiddenFilter() {
+        this.folderViewModel.clear();
+        if (!this.showHiddenFiles) {
+            List<FileInfo> list2 = new ArrayList<>();
+            for (FileInfo info : this.files) {
+                if (!info.getName().startsWith(".")) {
+                    list2.add(info);
+                }
+            }
+            this.folderViewModel.addAll(list2);
+        } else {
+            this.folderViewModel.addAll(this.files);
+        }
     }
 
 //    public int getSortIndex() {

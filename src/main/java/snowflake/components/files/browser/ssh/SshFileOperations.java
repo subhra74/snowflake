@@ -1,5 +1,6 @@
 package snowflake.components.files.browser.ssh;
 
+import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.FileType;
@@ -69,7 +70,11 @@ public class SshFileOperations {
         System.out.println("Move: " + command);
         if (!SshCommandUtils.exec(client, command.toString(), new AtomicBoolean(false), new StringBuilder())) {
 
-            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            if (!App.getGlobalSettings().isPromptForSudo() ||
+                    JOptionPane.showConfirmDialog(null,
+                            "Access denied, rename using sudo?",
+                            "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Operation failed");
                 return false;
             }
 
@@ -124,7 +129,11 @@ public class SshFileOperations {
 
         System.out.println("Copy: " + command);
         if (!SshCommandUtils.exec(client, command.toString(), new AtomicBoolean(false), new StringBuilder())) {
-            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            if (!App.getGlobalSettings().isPromptForSudo() ||
+                    JOptionPane.showConfirmDialog(null,
+                            "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION)
+                            != JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Operation failed");
                 return false;
             }
             int ret = SudoUtils.runSudo(command.toString(), client);
@@ -160,7 +169,10 @@ public class SshFileOperations {
             return true;
         } catch (AccessDeniedException e) {
             e.printStackTrace();
-            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
+            if (App.getGlobalSettings().isPromptForSudo() &&
+                    JOptionPane.showConfirmDialog(null,
+                            "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION)
+                            == JOptionPane.YES_OPTION) {
                 return renameWithPrivilege(oldName, newName, client);
             }
             return false;
@@ -201,7 +213,10 @@ public class SshFileOperations {
             }
         } catch (FileNotFoundException | AccessDeniedException e) {
             e.printStackTrace();
-            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            if (!App.getGlobalSettings().isPromptForSudo() ||
+                    JOptionPane.showConfirmDialog(null,
+                            "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION)
+                            != JOptionPane.YES_OPTION) {
                 return false;
             }
             return deletePrivilege(targetList, client);
@@ -247,7 +262,10 @@ public class SshFileOperations {
             return true;
         } catch (AccessDeniedException e1) {
             e1.printStackTrace();
-            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            if (!App.getGlobalSettings().isPromptForSudo() ||
+                    JOptionPane.showConfirmDialog(null,
+                            "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION)
+                            != JOptionPane.YES_OPTION) {
                 return false;
             }
             if (!touchWithPrivilege(folder, text, client)) {
@@ -294,7 +312,11 @@ public class SshFileOperations {
             return true;
         } catch (AccessDeniedException e1) {
             e1.printStackTrace();
-            if (JOptionPane.showConfirmDialog(null, "Access denied, rename using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+            if (!App.getGlobalSettings().isPromptForSudo() ||
+                    JOptionPane.showConfirmDialog(null,
+                            "Access denied, try using sudo?", "Use sudo?", JOptionPane.YES_NO_OPTION)
+                            != JOptionPane.YES_OPTION) {
+                JOptionPane.showMessageDialog(null, "Unable to create new folder");
                 return false;
             }
             if (!mkdirWithPrivilege(folder, text, client)) {

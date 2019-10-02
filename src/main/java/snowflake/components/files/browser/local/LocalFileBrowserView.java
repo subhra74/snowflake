@@ -74,6 +74,11 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
                 System.out.println("clicked");
             }
         });
+        if (App.getGlobalSettings().isShowPathBar()) {
+            addressBar.switchToPathBar();
+        } else {
+            addressBar.switchToText();
+        }
     }
 
     @Override
@@ -137,6 +142,9 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         if (transferData.getSource() == this.hashCode()) {
             return false;
         }
+        if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
+            return false;
+        }
         try {
             if (JOptionPane.showOptionDialog(holder,
                     new Object[]{"Please select a transfer mode", cmbOptions},
@@ -154,9 +162,6 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
             if (sessionHashCode == 0) return true;
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
-                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
-                    return false;
-                }
                 if (backgroundTransfer) {
                     FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     FileSystem targetFs = new LocalFileSystem();

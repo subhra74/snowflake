@@ -65,6 +65,11 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
                 System.out.println("clicked");
             }
         });
+        if (App.getGlobalSettings().isShowPathBar()) {
+            addressBar.switchToPathBar();
+        } else {
+            addressBar.switchToText();
+        }
     }
 
     @Override
@@ -129,6 +134,11 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             if (transferData.getSource() == this.hashCode()) {
                 return false;
             }
+            if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
+                    && JOptionPane.showConfirmDialog(null,
+                    "Copy files?") != JOptionPane.YES_OPTION) {
+                return false;
+            }
             if (JOptionPane.showOptionDialog(holder,
                     new Object[]{"Please select a transfer mode", cmbOptions},
                     "Transfer options",
@@ -145,11 +155,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             if (sessionHashCode == 0) return true;
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
-                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
-                        && JOptionPane.showConfirmDialog(null,
-                        "Copy files?") != JOptionPane.YES_OPTION) {
-                    return false;
-                }
+
                 if (backgroundTransfer) {
                     FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(this.foreignInfo));

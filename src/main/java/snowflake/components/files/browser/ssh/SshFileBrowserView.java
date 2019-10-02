@@ -71,6 +71,11 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 System.out.println("clicked");
             }
         });
+        if (App.getGlobalSettings().isShowPathBar()) {
+            addressBar.switchToPathBar();
+        } else {
+            addressBar.switchToText();
+        }
     }
 
     @Override
@@ -183,6 +188,9 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
     }
 
     public boolean handleDrop(DndTransferData transferData) {
+        if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
+            return false;
+        }
         try {
             if (JOptionPane.showOptionDialog(holder,
                     new Object[]{"Please select a transfer mode", cmbOptions},
@@ -204,9 +212,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 sourceFs = holder.getSshFileSystem();
             }
             if (sourceFs instanceof LocalFileSystem) {
-                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
-                    return false;
-                }
+
                 if (backgroundTransfer) {
                     FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
@@ -222,9 +228,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                     JOptionPane.showMessageDialog(null, "Cant move files like this!");
                     return false;
                 }
-                if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
-                    return false;
-                }
+
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
                     menuHandler.copy(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
                 } else {

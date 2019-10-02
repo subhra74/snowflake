@@ -1,5 +1,6 @@
 package snowflake.components.files.browser;
 
+import snowflake.App;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
@@ -35,6 +36,7 @@ public class OverflowMenuHandler {
 
         mShowHiddenFiles = new JCheckBoxMenuItem(
                 "Show hidden files");
+        mShowHiddenFiles.setSelected(App.getGlobalSettings().isShowHiddenFilesByDefault());
 
         aHideShow = new AbstractAction() {
             @Override
