@@ -47,7 +47,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
             }
             if (text != null && text.length() > 0) {
                 addBack(this.path);
-                render(text);
+                render(text, App.getGlobalSettings().isDirectoryCache());
             }
         });
         Box smallToolbar = Box.createHorizontalBox();
@@ -74,7 +74,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         btnBack.addActionListener(e -> {
             String item = history.prevElement();
             addNext(this.path);
-            render(item);
+            render(item, App.getGlobalSettings().isDirectoryCache());
         });
 
 
@@ -86,7 +86,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         btnNext.addActionListener(e -> {
             String item = history.nextElement();
             addBack(this.path);
-            render(item);
+            render(item, App.getGlobalSettings().isDirectoryCache());
         });
 
 

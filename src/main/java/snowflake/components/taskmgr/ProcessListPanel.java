@@ -82,7 +82,7 @@ public class ProcessListPanel extends JPanel {
         txtFilter = new JTextField(30);
         b1.add(txtFilter);
         b1.add(Box.createHorizontalStrut(5));
-        JButton btnFilter = GraphicsUtils.createButton("Filter");
+        JButton btnFilter = new JButton("Filter");
         btnFilter.addActionListener(e -> {
             this.filterText = getProcessFilterText();
             model.fireTableDataChanged();
@@ -90,7 +90,7 @@ public class ProcessListPanel extends JPanel {
         b1.add(btnFilter);
         b1.add(Box.createHorizontalStrut(5));
 
-        JButton btnClearFilter = GraphicsUtils.createButton("Clear");
+        JButton btnClearFilter = new JButton("Clear");
         b1.add(btnClearFilter);
         btnClearFilter.addActionListener(e -> {
             this.txtFilter.setText("");
@@ -135,13 +135,13 @@ public class ProcessListPanel extends JPanel {
         prioPopup.add(mPrioAsRoot);
         prioPopup.pack();
 
-        btnStop = GraphicsUtils.createButton("Stop monitoring");
+        btnStop = new JButton("Stop monitoring");
         btnStop.addActionListener(e -> {
             consumer1.accept(Boolean.TRUE);
         });
 
         Box b2 = Box.createHorizontalBox();
-        btnCopyArgs = GraphicsUtils.createButton("Copy command");
+        btnCopyArgs = new JButton("Copy command");
         btnCopyArgs.addActionListener(e -> {
             int c = table.getSelectedRow();
             if (c != -1) {
@@ -150,12 +150,12 @@ public class ProcessListPanel extends JPanel {
             }
         });
 
-        btnKill = GraphicsUtils.createButton("Kill process");
+        btnKill = new JButton("Kill process");
         btnKill.addActionListener(e -> {
             Dimension d = killPopup.getPreferredSize();
             killPopup.show(btnKill, 0, -d.height);
         });
-        btnChangePriority = GraphicsUtils.createButton("Change priority");
+        btnChangePriority = new JButton("Change priority");
         btnChangePriority.addActionListener(e -> {
             Dimension d = prioPopup.getPreferredSize();
             prioPopup.show(btnChangePriority, 0, -d.height);

@@ -2,16 +2,22 @@ package snowflake.utils;
 
 import snowflake.components.common.CustomButtonPainter;
 import snowflake.components.common.CustomScrollBarUI;
+import snowflake.components.common.RoundedButtonPainter;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class GraphicsUtils {
     public static UIDefaults createSkinnedButton(UIDefaults btnSkin) {
-        Color c1 = new Color(3, 155, 229);
-        Color c2 = new Color(2, 132, 195);
-        Color c3 = new Color(70, 130, 180);
-        CustomButtonPainter cs = new CustomButtonPainter(c1, c2, c3);
+//        Color c1 = new Color(3, 155, 229);
+//        Color c2 = new Color(2, 132, 195);
+//        Color c3 = new Color(70, 130, 180);
+//        Color c1 = new Color(3, 155, 229);
+//        Color c2 = new Color(2, 132, 195);
+//        Color c3 = new Color(70, 130, 180);
+//        CustomButtonPainter cs = new CustomButtonPainter(c1, c2, c3);
+        RoundedButtonPainter cs = new RoundedButtonPainter();
+        btnSkin.put("Button.contentMargins", new Insets(8, 15, 8, 15));
         btnSkin.put("Button[Default+Focused+MouseOver].backgroundPainter", cs.getHotPainter());
         btnSkin.put("Button[Default+Focused+Pressed].backgroundPainter", cs.getPressedPainter());
         btnSkin.put("Button[Default+Focused].backgroundPainter", cs.getNormalPainter());
@@ -24,8 +30,9 @@ public class GraphicsUtils {
         btnSkin.put("Button[Focused].backgroundPainter", cs.getNormalPainter());
         btnSkin.put("Button[MouseOver].backgroundPainter", cs.getHotPainter());
         btnSkin.put("Button[Pressed].backgroundPainter", cs.getPressedPainter());
-        btnSkin.put("Button.foreground", Color.WHITE);
-        btnSkin.put("Button[Disabled].textForeground", Color.WHITE);
+        btnSkin.put("Button[Default+Pressed].textForeground", Color.BLACK);
+        btnSkin.put("Button.foreground", Color.BLACK);
+        btnSkin.put("Button[Disabled].textForeground", Color.GRAY);
         return btnSkin;
     }
 
@@ -49,27 +56,27 @@ public class GraphicsUtils {
         return btn;
     }
 
-    public static UIDefaults creatTextFieldSkin(UIDefaults uiDefaults) {
-        Painter<JTextField> focusedBorder = new Painter<JTextField>() {
-            @Override
-            public void paint(Graphics2D g, JTextField object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
-                g.drawRect(0, 0, width - 1, height - 1);
-            }
-        };
-
-        Painter<JTextField> normalBorder = new Painter<JTextField>() {
-            @Override
-            public void paint(Graphics2D g, JTextField object, int width, int height) {
-                g.setColor(new Color(240, 240, 240));
-                g.drawRect(0, 0, width - 1, height - 1);
-            }
-        };
-        uiDefaults.put("TextField[Disabled].borderPainter", normalBorder);
-        uiDefaults.put("TextField[Enabled].borderPainter", normalBorder);
-        uiDefaults.put("TextField[Focused].borderPainter", focusedBorder);
-        return uiDefaults;
-    }
+//    public static UIDefaults creatTextFieldSkin(UIDefaults uiDefaults) {
+//        Painter<JTextField> focusedBorder = new Painter<JTextField>() {
+//            @Override
+//            public void paint(Graphics2D g, JTextField object, int width, int height) {
+//                g.setColor(new Color(200, 200, 200));
+//                g.drawRect(0, 0, width - 1, height - 1);
+//            }
+//        };
+//
+//        Painter<JTextField> normalBorder = new Painter<JTextField>() {
+//            @Override
+//            public void paint(Graphics2D g, JTextField object, int width, int height) {
+//                g.setColor(new Color(240, 240, 240));
+//                g.drawRect(0, 0, width - 1, height - 1);
+//            }
+//        };
+//        uiDefaults.put("TextField[Disabled].borderPainter", normalBorder);
+//        uiDefaults.put("TextField[Enabled].borderPainter", normalBorder);
+//        uiDefaults.put("TextField[Focused].borderPainter", focusedBorder);
+//        return uiDefaults;
+//    }
 
 //    public static JTextField createTextField() {
 //        JTextField txt = new JTextField();
@@ -84,19 +91,23 @@ public class GraphicsUtils {
 //    }
 
     public static UIDefaults createTextFieldSkin(UIDefaults uiDefaults) {
+        final Color borderColor = new Color(240, 240, 240);
+        final Color focusedColor = new Color(3, 155, 229);
         Painter<? extends JComponent> focusedBorder = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
-                g.drawRect(0, 0, width - 1, height - 1);
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setColor(focusedColor);
+                g.drawRect(1, 1, width - 2, height - 2);
             }
         };
 
         Painter<? extends JComponent> normalBorder = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(240, 240, 240));
-                g.drawRect(0, 0, width - 1, height - 1);
+                g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                g.setColor(borderColor);
+                g.drawRect(1, 1, width - 2, height - 2);
             }
         };
 
@@ -115,10 +126,12 @@ public class GraphicsUtils {
     }
 
     public static UIDefaults createSpinnerSkin(UIDefaults uiDefaults) {
+        Color c1 = new Color(200, 200, 200);
+        Color c2 = new Color(240, 240, 240);
         Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
+                g.setColor(c1);
                 g.fillRect(0, 0, width - 1, height - 1);
             }
         };
@@ -126,7 +139,7 @@ public class GraphicsUtils {
         Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(240, 240, 240));
+                g.setColor(c2);
                 g.fillRect(0, 0, width - 1, height - 1);
             }
         };
@@ -154,10 +167,14 @@ public class GraphicsUtils {
     }
 
     public static UIDefaults createComboBoxSkin(UIDefaults uiDefaults) {
+        Color c1 = new Color(200, 200, 200);
+        Color c2 = new Color(240, 240, 240);
+        Color c3 = new Color(240, 240, 240);
+        Color c4 = new Color(200, 200, 200);
         Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
+                g.setColor(c1);
                 g.fillRect(0, 0, width - 1, height - 1);
             }
         };
@@ -165,7 +182,7 @@ public class GraphicsUtils {
         Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(240, 240, 240));
+                g.setColor(c2);
                 g.fillRect(0, 0, width - 1, height - 1);
             }
         };
@@ -181,7 +198,7 @@ public class GraphicsUtils {
         Painter<? extends JComponent> painter4 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(240, 240, 240));
+                g.setColor(c3);
                 g.drawRect(0, 0, width - 1, height - 1);
             }
         };
@@ -189,7 +206,7 @@ public class GraphicsUtils {
         Painter<? extends JComponent> painter5 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
+                g.setColor(c4);
                 g.drawRect(0, 0, width - 1, height - 1);
             }
         };
@@ -231,15 +248,15 @@ public class GraphicsUtils {
         return uiDefaults;
     }
 
-    public static JButton createButton(String text) {
-        Color c1 = new Color(3, 155, 229);
-        Color c2 = new Color(2, 132, 195);
-        Color c3 = new Color(70, 130, 180);
-        JButton btn = GraphicsUtils.createSkinnedButton(c1, c2, c3);
-        btn.setText(text);
-        btn.setForeground(Color.WHITE);
-        return btn;
-    }
+//    public static JButton createButton(String text) {
+//        Color c1 = new Color(3, 155, 229);
+//        Color c2 = new Color(2, 132, 195);
+//        Color c3 = new Color(70, 130, 180);
+//        JButton btn = GraphicsUtils.createSkinnedButton(c1, c2, c3);
+//        btn.setText(text);
+//        btn.setForeground(Color.WHITE);
+//        return btn;
+//    }
 
     public static JScrollPane createScrollPane(Component component) {
         JScrollPane scrollPane = new JScrollPane(component);
@@ -256,10 +273,13 @@ public class GraphicsUtils {
     }
 
     public static UIDefaults createCheckboxSkin(UIDefaults uiDefaults) {
+        Color c1 = new Color(200, 200, 200);
+        Color c2 = new Color(200, 200, 200);
+
         Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
+                g.setColor(c1);
                 g.drawRect(2, 2, width - 5, height - 5);
             }
         };
@@ -267,7 +287,7 @@ public class GraphicsUtils {
         Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(200, 200, 200));
+                g.setColor(c2);
                 g.drawRect(2, 2, width - 5, height - 5);
                 g.fillRect(4, 4, width - 8, height - 8);
             }
@@ -293,11 +313,13 @@ public class GraphicsUtils {
 
     public static UIDefaults createTabbedPaneSkin(UIDefaults uiDefaults) {
         Color c1 = new Color(3, 155, 229);
+        Color c2 = new Color(240, 240, 240);
+        Color c3 = new Color(220, 220, 220);
 
         Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(240, 240, 240));
+                g.setColor(c2);
                 g.fillRect(0, 0, width, height);
             }
         };
@@ -305,7 +327,7 @@ public class GraphicsUtils {
         Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
             @Override
             public void paint(Graphics2D g, JComponent object, int width, int height) {
-                g.setColor(new Color(220, 220, 220));
+                g.setColor(c3);
                 g.fillRect(0, 0, width, height);
                 g.setColor(c1);
                 g.fillRect(0, height - 2, width, height);

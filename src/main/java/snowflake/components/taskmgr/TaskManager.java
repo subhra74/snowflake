@@ -130,7 +130,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
         Box box1 = Box.createVerticalBox();
         box1.add(Box.createVerticalGlue());
 
-        JButton btnStart = GraphicsUtils.createButton("Start monitoring");
+        JButton btnStart = new JButton("Start monitoring");
         btnStart.setAlignmentX(Box.CENTER_ALIGNMENT);
         box1.add(btnStart);
 

@@ -13,7 +13,6 @@ import snowflake.utils.*;
 import java.awt.*;
 import java.util.UUID;
 
-import static snowflake.utils.GraphicsUtils.createButton;
 
 public class NewSessionDlg extends JDialog
         implements ActionListener, TreeSelectionListener, TreeModelListener {
@@ -83,29 +82,29 @@ public class NewSessionDlg extends JDialog
         jsp = new JScrollPane(tree);
 
         //btnNewHost = new JButton(TextHolder.getString("session.newHost"));
-        btnNewHost = createButton("New site");
+        btnNewHost = new JButton("New site");
         btnNewHost.addActionListener(this);
         btnNewHost.putClientProperty("button.name", "btnNewHost");
         //btnNewHost.setFont(Utility.getFont(Constants.SMALL));
-        btnNewFolder = createButton("New folder");//new JButton(TextHolder.getString("session.newFolder"));
+        btnNewFolder = new JButton("New folder");//new JButton(TextHolder.getString("session.newFolder"));
         btnNewFolder.addActionListener(this);
         btnNewFolder.putClientProperty("button.name", "btnNewFolder");
         //btnNewFolder.setFont(Utility.getFont(Constants.SMALL));
-        btnDel = createButton("Remove");//new JButton(TextHolder.getString("session.remove"));
+        btnDel = new JButton("Remove");//new JButton(TextHolder.getString("session.remove"));
         btnDel.addActionListener(this);
         btnDel.putClientProperty("button.name", "btnDel");
         //btnDel.setFont(Utility.getFont(Constants.SMALL));
-        btnDup = createButton("Duplicate");// new JButton(TextHolder.getString("session.duplicate"));
+        btnDup = new JButton("Duplicate");// new JButton(TextHolder.getString("session.duplicate"));
         btnDup.addActionListener(this);
         btnDup.putClientProperty("button.name", "btnDup");
         //btnDup.setFont(Utility.getFont(Constants.SMALL));
 
-        btnConnect = createButton("Connect");// new JButton(TextHolder.getString("session.connect"));
+        btnConnect = new JButton("Connect");// new JButton(TextHolder.getString("session.connect"));
         btnConnect.addActionListener(this);
         btnConnect.putClientProperty("button.name", "btnConnect");
         //btnConnect.setFont(Utility.getFont(Constants.SMALL));
 
-        btnCancel = createButton("Cancel");// new JButton(TextHolder.getString("session.cancel"));
+        btnCancel = new JButton("Cancel");// new JButton(TextHolder.getString("session.cancel"));
         btnCancel.addActionListener(this);
         btnCancel.putClientProperty("button.name", "btnCancel");
         //btnCancel.setFont(Utility.getFont(Constants.SMALL));
