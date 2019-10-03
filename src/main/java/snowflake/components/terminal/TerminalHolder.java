@@ -2,6 +2,7 @@ package snowflake.components.terminal;
 
 import snowflake.App;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.terminal.snippets.SnippetPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -13,10 +14,12 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
     private SessionInfo info;
     private DefaultComboBoxModel<TerminalComponent> terminals;
     private JComboBox<TerminalComponent> cmbTerminals;
-    private JButton btnStartTerm, btnStopTerm;
+    private JButton btnStartTerm, btnStopTerm, btnSnippets;
     private CardLayout card;
     private JPanel content;
     private ExecutorService threadPool = Executors.newFixedThreadPool(1);
+    private JPopupMenu snippetPopupMenu;
+    private SnippetPanel snippetPanel;
 
     private int c = 1;
 
@@ -51,6 +54,16 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
             removeTerminal();
         });
 
+        this.btnSnippets = new JButton();
+        this.btnSnippets.setText("Snippets");
+//        this.btnStopTerm.setFont(App.getFontAwesomeFont());
+//        this.btnStopTerm.setText("\uf0c8");
+        this.btnSnippets.setMargin(new Insets(3, 3, 3, 3));
+        this.btnSnippets.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+        this.btnSnippets.addActionListener(e -> {
+            showSnippets();
+        });
+
         this.btnStartTerm = new JButton();
         this.btnStartTerm.setText("New terminal");
 //        this.btnStartTerm.setFont(App.getFontAwesomeFont());
@@ -77,10 +90,32 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
         b1.add(cmbTerminals);
         b1.add(btnStartTerm);
         b1.add(btnStopTerm);
+        b1.add(btnSnippets);
         this.add(b1, BorderLayout.NORTH);
         this.add(content);
 
+        snippetPanel = new SnippetPanel(e -> {
+            int index = cmbTerminals.getSelectedIndex();
+            if (index == -1) return;
+            TerminalComponent tc = terminals.getElementAt(index);
+            tc.sendCommand(e + "\n");
+        }, e -> {
+            this.snippetPopupMenu.setVisible(false);
+        });
+
+        snippetPopupMenu = new JPopupMenu();
+        snippetPopupMenu.add(snippetPanel);
+
         createNewTerminal();
+    }
+
+    private void showSnippets() {
+        this.snippetPanel.loadSnippets();
+        this.snippetPopupMenu.pack();
+        this.snippetPopupMenu.setInvoker(this.btnSnippets);
+        this.snippetPopupMenu.show(this.btnSnippets,
+                this.btnSnippets.getWidth() - this.snippetPopupMenu.getPreferredSize().width,
+                this.btnSnippets.getHeight());
     }
 
     public void createNewTerminal(String command) {

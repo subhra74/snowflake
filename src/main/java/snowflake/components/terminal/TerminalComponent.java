@@ -205,4 +205,8 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
             };
         }
     }
+
+    public void sendCommand(String command) {
+        this.term.getTerminalStarter().sendString(command);
+    }
 }

@@ -9,6 +9,7 @@ import snowflake.components.common.CustomScrollBarUI;
 import snowflake.components.main.MainContent;
 import snowflake.components.newsession.SavedSessionTree;
 import snowflake.components.newsession.SessionFolder;
+import snowflake.components.terminal.snippets.SnippetItem;
 import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 
@@ -20,6 +21,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class App {
@@ -32,6 +35,8 @@ public class App {
     private static Properties config = new Properties();
     private static Font fontAwesomeFont;
     private static Settings settings;
+
+    private static List<SnippetItem> snippetItems;
 
     public static String getConfig(String key) {
         return config.getProperty(key);
@@ -304,6 +309,8 @@ public class App {
 
         loadSettings();
 
+        loadSnippets();
+
         JFrame f = new JFrame("Snowflake");
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setSize(800, 600);
@@ -498,5 +505,39 @@ public class App {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public synchronized static void loadSnippets() {
+        File file = new File(App.getConfig("app.dir"),
+                AppConstants.SNIPPETS_FILE);
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.configure(
+                DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        if (file.exists()) {
+            try {
+                snippetItems = objectMapper.readValue(file,
+                        new TypeReference<List<SnippetItem>>() {
+                        });
+                return;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        snippetItems = new ArrayList<>();
+    }
+
+    public synchronized static void saveSnippets() {
+        File file = new File(App.getConfig("app.dir"),
+                AppConstants.SNIPPETS_FILE);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            objectMapper.writeValue(file, snippetItems);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static List<SnippetItem> getSnippetItems() {
+        return snippetItems;
     }
 }
