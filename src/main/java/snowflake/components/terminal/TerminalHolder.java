@@ -102,6 +102,11 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
     }
 
     public void removeTerminal() {
+        if (App.getGlobalSettings().isConfirmBeforeTerminalClosing() &&
+                JOptionPane.showConfirmDialog(null,
+                        "Are you sure about closing this terminal?") != JOptionPane.YES_OPTION) {
+            return;
+        }
         int index = cmbTerminals.getSelectedIndex();
         if (index == -1) return;
         TerminalComponent tc = terminals.getElementAt(index);

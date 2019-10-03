@@ -60,6 +60,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
     private LogViewerComponent logViewerComponent;
     private SessionContent sessionContent;
+    private Map<String, List<FileInfo>> directoryCache = new ConcurrentHashMap<>();
 
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor, SessionContent sessionContent) {
         super(new BorderLayout());
@@ -390,5 +391,9 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
                 }
             });
         }
+    }
+
+    public Map<String, List<FileInfo>> getDirectoryCache() {
+        return directoryCache;
     }
 }

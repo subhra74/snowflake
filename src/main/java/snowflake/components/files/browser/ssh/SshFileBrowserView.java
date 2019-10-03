@@ -49,7 +49,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
             this.path = initialPath;
         }
 
-        this.render(path);
+        this.render(path, App.getGlobalSettings().isDirectoryCache());
     }
 
 
@@ -113,18 +113,29 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 //        }
 //    }
 
-    private void renderDirectory(final String path) throws Exception {
-        final List<FileInfo> list = holder.getSshFileSystem().list(path);
-        System.out.println("New file list: " + list);
-        SwingUtilities.invokeLater(() -> {
-            addressBar.setText(path);
-            folderView.setItems(list);
-        });
+    private void renderDirectory(final String path, final boolean fromCache) throws Exception {
+        List<FileInfo> list = null;
+        if (fromCache) {
+            list = holder.getDirectoryCache().get(path);
+        }
+        if (list == null) {
+            list = holder.getSshFileSystem().list(path);
+            if (fromCache && list != null) {
+                holder.getDirectoryCache().put(path, list);
+            }
+        }
+        if (list != null) {
+            final List<FileInfo> list2 = list;
+            System.out.println("New file list: " + list2);
+            SwingUtilities.invokeLater(() -> {
+                addressBar.setText(path);
+                folderView.setItems(list2);
+            });
+        }
     }
 
-
     @Override
-    public void render(String path) {
+    public void render(String path, boolean useCache) {
         System.out.println("Rendering: " + path);
         this.path = path;
         executor.submit(() -> {
@@ -135,7 +146,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                     if (path == null) {
                         this.path = holder.getSshFileSystem().getHome();
                     }
-                    renderDirectory(this.path);
+                    renderDirectory(this.path, useCache);
                     break;
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -157,6 +168,11 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
     }
 
     @Override
+    public void render(String path) {
+        this.render(path, false);
+    }
+
+    @Override
     public void openApp(FileInfo file) {
 
     }
@@ -165,13 +181,13 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
         if (path != null) {
             String parent = PathUtils.getParent(path);
             addBack(path);
-            render(parent);
+            render(parent, App.getGlobalSettings().isDirectoryCache());
         }
     }
 
     protected void home() {
         addBack(path);
-        render(null);
+        render(null, App.getGlobalSettings().isDirectoryCache());
     }
 
     @Override

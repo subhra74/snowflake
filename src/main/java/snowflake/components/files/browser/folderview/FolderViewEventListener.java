@@ -9,6 +9,8 @@ public interface FolderViewEventListener {
 
     void render(String path);
 
+    void render(String path, boolean useCache);
+
     void openApp(FileInfo file);
 
     boolean createMenu(JPopupMenu popupMenu, FileInfo[] files);

@@ -141,6 +141,7 @@ public class MainContent extends JPanel {
     //private GradientPaint gradientPaint;
     private JFrame frame;
     private SettingsPanel settingsPanel;
+    private JComboBox<SessionInfo> cmb;
 
     public MainContent(JFrame frame) {
         super(new BorderLayout(0, 0));
@@ -220,15 +221,17 @@ public class MainContent extends JPanel {
         newConnection.addActionListener(e -> {
             SessionInfo info = new NewSessionDlg().newSession();
             if (info != null) {
+                int index = model.getSize();
                 model.addElement(info);
                 contentPanel.addNewSession(info);
+                cmb.setSelectedIndex(index);
             }
         });
         //newConnection.setBackground(Color.GREEN);
         topPanel.add(newConnection);
         topPanel.add(Box.createHorizontalGlue());
 
-        JComboBox<SessionInfo> cmb = new JComboBox<>(model);
+        cmb = new JComboBox<>(model);
         cmb.putClientProperty("Nimbus.Overrides", getSkinnedDropDown());
         cmb.setRenderer(new ListCellRenderer<SessionInfo>() {
             JLabel lbl = new JLabel();
@@ -243,6 +246,8 @@ public class MainContent extends JPanel {
             public Component getListCellRendererComponent(JList<? extends SessionInfo> list, SessionInfo value, int index, boolean isSelected, boolean cellHasFocus) {
                 if (value != null) {
                     lbl.setText(value.toString());
+                } else {
+                    lbl.setText("");
                 }
                 if (isSelected) {
                     lbl.setBackground(Color.BLACK);
@@ -278,6 +283,10 @@ public class MainContent extends JPanel {
                 SessionInfo info = model.getElementAt(index);
                 if (contentPanel.removeSession(info)) {
                     model.removeElementAt(index);
+                }
+                if (model.getSize() < 1) {
+                    cmb.setSelectedIndex(-1);
+                    cmb.setSelectedItem("");
                 }
             }
         });

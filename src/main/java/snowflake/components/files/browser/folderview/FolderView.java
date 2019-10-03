@@ -143,7 +143,7 @@ public class FolderView extends JPanel {
                 if (files.length > 0) {
                     if (files[0].getType() == FileType.Directory || files[0].getType() == FileType.DirLink) {
                         String str = files[0].getPath();
-                        listener.render(str);
+                        listener.render(str, App.getGlobalSettings().isDirectoryCache());
                     }
                 }
             }
@@ -171,7 +171,7 @@ public class FolderView extends JPanel {
                         FileInfo fileInfo = folderViewModel.getItemAt(getRow(r));
                         if (fileInfo.getType() == FileType.Directory || fileInfo.getType() == FileType.DirLink) {
                             listener.addBack(fileInfo.getPath());
-                            listener.render(fileInfo.getPath());
+                            listener.render(fileInfo.getPath(), App.getGlobalSettings().isDirectoryCache());
                         } else {
                             listener.openApp(fileInfo);
                         }

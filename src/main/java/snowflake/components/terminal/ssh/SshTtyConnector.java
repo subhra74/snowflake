@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.*;
 
 import com.jcraft.jsch.*;
 import com.jediterm.terminal.*;
+import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 
@@ -41,7 +42,8 @@ public class SshTtyConnector implements DisposableTtyConnector {
 
             String lang = System.getenv().get("LANG");
             channel.setEnv("LANG", lang != null ? lang : "en_US.UTF-8");
-            channel.setPtyType("xterm-256color");
+            channel.setPtyType(App.getGlobalSettings().getTerminalType());
+            //channel.setPtyType("xterm-256color");
 
             PipedOutputStream pout1 = new PipedOutputStream();
             PipedInputStream pin1 = new PipedInputStream(pout1);

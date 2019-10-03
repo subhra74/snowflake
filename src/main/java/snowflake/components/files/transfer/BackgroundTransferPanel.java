@@ -11,7 +11,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
-    private ExecutorService executorService = Executors.newFixedThreadPool(3);
+    private ExecutorService executorService =
+            Executors.newFixedThreadPool(App.getGlobalSettings().getNumberOfSimultaneousConnection());
     private Box verticalBox;
 
     public BackgroundTransferPanel() {

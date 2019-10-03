@@ -86,6 +86,10 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         return "Local files [" + this.path + "]";
     }
 
+    @Override
+    public void render(String path,boolean useCache) {
+        this.render(path);
+    }
 
     @Override
     public void render(String path) {

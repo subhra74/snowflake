@@ -1,17 +1,23 @@
 package snowflake.common;
 
 public class Settings {
-    private boolean confirmBeforeDelete = true, confirmBeforeMoveOrCopy = true,
-            showHiddenFilesByDefault = false, promptForSudo = true, directoryCache = true,
-            showPathBar = true, confirmBeforeTerminalClosing = true, useDarkThemeForTerminal = false,
-            showMessagePrompt = false;
+    private boolean confirmBeforeDelete = true;
+    private boolean confirmBeforeMoveOrCopy = true;
+    private boolean showHiddenFilesByDefault = false;
+    private boolean promptForSudo = true;
+    private boolean directoryCache = true;
+    private boolean showPathBar = true;
+    private boolean confirmBeforeTerminalClosing = true;
+    private boolean useDarkThemeForTerminal = false;
+    private boolean showMessagePrompt = false;
+
+    private boolean puttyLikeCopyPaste = false;
     private int defaultOpenAction = 0
             //  0 Open with default application
             //  1 Open with default editor
             //  2 Open with internal editor
             , numberOfSimultaneousConnection = 3;
     private String terminalType = "xterm-256color";
-
 
     public boolean isConfirmBeforeDelete() {
         return confirmBeforeDelete;
@@ -107,5 +113,13 @@ public class Settings {
 
     public void setTerminalType(String terminalType) {
         this.terminalType = terminalType;
+    }
+
+    public boolean isPuttyLikeCopyPaste() {
+        return puttyLikeCopyPaste;
+    }
+
+    public void setPuttyLikeCopyPaste(boolean puttyLikeCopyPaste) {
+        this.puttyLikeCopyPaste = puttyLikeCopyPaste;
     }
 }

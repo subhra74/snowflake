@@ -18,7 +18,8 @@ import java.io.IOException;
 public class SettingsPanel extends JPanel {
     private JCheckBox chkConfirmBeforeDelete, chkConfirmBeforeMoveOrCopy, chkShowHiddenFilesByDefault,
             chkPromptForSudo, chkDirectoryCache, chkShowPathBar,
-            chkConfirmBeforeTerminalClosing, chkUseDarkThemeForTerminal, chkShowMessagePrompt;
+            chkConfirmBeforeTerminalClosing, chkUseDarkThemeForTerminal,
+            chkShowMessagePrompt, chkPuttyLikeCopyPaste;
     private JComboBox<String> cmbDefaultOpenAction;
     private JComboBox<String> cmbTermType;
     private JComboBox<Integer> cmbNumberOfSimultaneousConnection;
@@ -36,6 +37,7 @@ public class SettingsPanel extends JPanel {
         chkShowPathBar.setSelected(settings.isShowPathBar());
         chkConfirmBeforeTerminalClosing.setSelected(settings.isConfirmBeforeTerminalClosing());
         chkUseDarkThemeForTerminal.setSelected(settings.isUseDarkThemeForTerminal());
+        chkPuttyLikeCopyPaste.setSelected(settings.isPuttyLikeCopyPaste());
         chkShowMessagePrompt.setSelected(settings.isShowMessagePrompt());
 
         cmbDefaultOpenAction.setSelectedIndex(settings.getDefaultOpenAction());
@@ -52,6 +54,7 @@ public class SettingsPanel extends JPanel {
         settings.setShowPathBar(chkShowPathBar.isSelected());
         settings.setConfirmBeforeTerminalClosing(chkConfirmBeforeTerminalClosing.isSelected());
         settings.setUseDarkThemeForTerminal(chkUseDarkThemeForTerminal.isSelected());
+        settings.setPuttyLikeCopyPaste(chkPuttyLikeCopyPaste.isSelected());
         settings.setShowMessagePrompt(chkShowMessagePrompt.isSelected());
 
         settings.setDefaultOpenAction(cmbDefaultOpenAction.getSelectedIndex());
@@ -70,6 +73,7 @@ public class SettingsPanel extends JPanel {
         chkShowPathBar = new JCheckBox("Show current folder in path bar style");
         chkConfirmBeforeTerminalClosing = new JCheckBox("Confirm before closing a terminal session");
         chkUseDarkThemeForTerminal = new JCheckBox("Use dark terminal theme");
+        chkPuttyLikeCopyPaste = new JCheckBox("Use PuTTY like copy paste for terminal");
         chkShowMessagePrompt = new JCheckBox("Show message prompt");
 
         cmbDefaultOpenAction = new JComboBox<>(new String[]{"Open with default application", "Open with default editor", "Open with internal editor"});
@@ -80,10 +84,10 @@ public class SettingsPanel extends JPanel {
         cmbTermType.setMaximumSize(new Dimension(cmbTermType.getPreferredSize().width * 2, cmbTermType.getPreferredSize().height));
 
 
-        Box hb1 = Box.createHorizontalBox();
-        hb1.add(new JLabel("Default action for double click on files"));
-        hb1.add(Box.createHorizontalGlue());
-        hb1.add(cmbDefaultOpenAction);
+//        Box hb1 = Box.createHorizontalBox();
+//        hb1.add(new JLabel("Default action for double click on files"));
+//        hb1.add(Box.createHorizontalGlue());
+//        hb1.add(cmbDefaultOpenAction);
 
         Box hb2 = Box.createHorizontalBox();
         hb2.add(new JLabel("Number of simultaneous connection for background file transfer"));
@@ -105,7 +109,8 @@ public class SettingsPanel extends JPanel {
         chkConfirmBeforeTerminalClosing.setAlignmentX(Box.LEFT_ALIGNMENT);
         chkUseDarkThemeForTerminal.setAlignmentX(Box.LEFT_ALIGNMENT);
         chkShowMessagePrompt.setAlignmentX(Box.LEFT_ALIGNMENT);
-        hb1.setAlignmentX(Box.LEFT_ALIGNMENT);
+        chkPuttyLikeCopyPaste.setAlignmentX(Box.LEFT_ALIGNMENT);
+//        hb1.setAlignmentX(Box.LEFT_ALIGNMENT);
         hb2.setAlignmentX(Box.LEFT_ALIGNMENT);
         hb3.setAlignmentX(Box.LEFT_ALIGNMENT);
 
@@ -125,9 +130,11 @@ public class SettingsPanel extends JPanel {
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
         vbox.add(chkUseDarkThemeForTerminal);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
-        vbox.add(chkShowMessagePrompt);
+        vbox.add(chkPuttyLikeCopyPaste);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
-        vbox.add(hb1);
+        vbox.add(chkShowMessagePrompt);
+//        vbox.add(Box.createRigidArea(new Dimension(10, 10)));
+//        vbox.add(hb1);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
         vbox.add(hb2);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));

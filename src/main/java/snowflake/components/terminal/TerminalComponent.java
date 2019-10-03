@@ -5,6 +5,7 @@ import com.jediterm.terminal.TextStyle;
 import com.jediterm.terminal.emulator.ColorPalette;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
+import snowflake.App;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
@@ -33,94 +34,6 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 
         tty = new SshTtyConnector(new SshUserInteraction(info, rootPane), command);
 
-//        Color background = new Color(40, 44, 52);
-//        Color foreground = new Color(171, 178, 191);
-//        Color selection = new Color(62, 68, 81);
-//
-//        DefaultSettingsProvider p = new DefaultSettingsProvider() {
-//
-//            /*
-//             * (non-Javadoc)
-//             *
-//             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
-//             * getTerminalColorPalette()
-//             */
-//            @Override
-//            public ColorPalette getTerminalColorPalette() {
-//                return ColorPalette.XTERM_PALETTE;
-//            }
-//
-//            /*
-//             * (non-Javadoc)
-//             *
-//             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
-//             * useAntialiasing()
-//             */
-//            @Override
-//            public boolean useAntialiasing() {
-//                return true;
-//            }
-//
-////			@Override
-////			public boolean copyOnSelect() {
-////				return true;
-////			}
-////
-////			@Override
-////			public boolean pasteOnMiddleMouseClick() {
-////				return true;
-////			}
-//
-//            @Override
-//            public TextStyle getDefaultStyle() {
-//                System.out.println("Default style called");
-//                return new TextStyle(
-//                        TerminalColor.awt(Color.WHITE),
-//                        TerminalColor.awt(Color.BLACK));
-//                // return new TextStyle(foreground, background)
-//            }
-//
-//            @Override
-//            public boolean emulateX11CopyPaste() {
-//                return true;
-//            }
-//
-//            @Override
-//            public boolean enableMouseReporting() {
-//                return true;
-//            }
-//
-//            @Override
-//            public TextStyle getFoundPatternColor() {
-//                return new TextStyle(
-//                        TerminalColor
-//                                .awt(foreground),
-//                        TerminalColor.awt(selection));
-//            }
-//
-//            @Override
-//            public TextStyle getSelectionColor() {
-//                return new TextStyle(
-//                        TerminalColor
-//                                .awt(foreground),
-//                        TerminalColor.awt(selection));
-//            }
-//
-////			@Override
-////			public Font getTerminalFont() {
-////				return UIManager.getFont("Terminal.font");
-////			}
-//
-//            @Override
-//            public TextStyle getHyperlinkColor() {
-//                return new TextStyle(
-//                        TerminalColor
-//                                .awt(foreground),
-//                        TerminalColor.awt(
-//                                background));
-//            }
-//        };
-
         reconnectionBox = Box.createHorizontalBox();
         reconnectionBox.setOpaque(true);
         reconnectionBox.setBackground(Color.RED);
@@ -138,7 +51,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
         reconnectionBox.add(btnReconnect);
         reconnectionBox.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        term = new CustomJediterm(new DefaultSettingsProvider());
+        term = new CustomJediterm(getSettingsProvider());
         term.addListener((e) -> {
             System.out.println("Disconnected");
             SwingUtilities.invokeLater(() -> {
@@ -170,5 +83,126 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
     @Override
     public void close() {
         tty.close();
+    }
+
+    private DefaultSettingsProvider getSettingsProvider() {
+        Color background = new Color(40, 44, 52);
+        Color foreground = new Color(171, 178, 191);
+        Color selection = new Color(62, 68, 81);
+
+        DefaultSettingsProvider p = new DefaultSettingsProvider() {
+
+            /*
+             * (non-Javadoc)
+             *
+             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
+             * getTerminalColorPalette()
+             */
+            @Override
+            public ColorPalette getTerminalColorPalette() {
+                return ColorPalette.XTERM_PALETTE;
+            }
+
+            /*
+             * (non-Javadoc)
+             *
+             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
+             * useAntialiasing()
+             */
+            @Override
+            public boolean useAntialiasing() {
+                return true;
+            }
+
+//			@Override
+//			public boolean copyOnSelect() {
+//				return true;
+//			}
+//
+//			@Override
+//			public boolean pasteOnMiddleMouseClick() {
+//				return true;
+//			}
+
+            @Override
+            public TextStyle getDefaultStyle() {
+                System.out.println("Default style called");
+                return new TextStyle(
+                        TerminalColor.awt(Color.WHITE),
+                        TerminalColor.awt(Color.BLACK));
+                // return new TextStyle(foreground, background)
+            }
+
+            @Override
+            public boolean emulateX11CopyPaste() {
+                return App.getGlobalSettings().isPuttyLikeCopyPaste();
+            }
+
+            @Override
+            public boolean enableMouseReporting() {
+                return true;
+            }
+
+            @Override
+            public TextStyle getFoundPatternColor() {
+                return new TextStyle(
+                        TerminalColor
+                                .awt(foreground),
+                        TerminalColor.awt(selection));
+            }
+
+            @Override
+            public TextStyle getSelectionColor() {
+                return new TextStyle(
+                        TerminalColor
+                                .awt(foreground),
+                        TerminalColor.awt(selection));
+            }
+
+//			@Override
+//			public Font getTerminalFont() {
+//				return UIManager.getFont("Terminal.font");
+//			}
+
+            @Override
+            public TextStyle getHyperlinkColor() {
+                return new TextStyle(
+                        TerminalColor
+                                .awt(foreground),
+                        TerminalColor.awt(
+                                background));
+            }
+
+            @Override
+            public boolean pasteOnMiddleMouseClick() {
+                return App.getGlobalSettings().isPuttyLikeCopyPaste();
+            }
+
+            @Override
+            public boolean copyOnSelect() {
+                return App.getGlobalSettings().isPuttyLikeCopyPaste();
+            }
+        };
+
+        if (App.getGlobalSettings().isUseDarkThemeForTerminal()) {
+            return p;
+        } else {
+            return new DefaultSettingsProvider() {
+                @Override
+                public boolean emulateX11CopyPaste() {
+                    return App.getGlobalSettings().isPuttyLikeCopyPaste();
+                }
+
+                @Override
+                public boolean pasteOnMiddleMouseClick() {
+                    return App.getGlobalSettings().isPuttyLikeCopyPaste();
+                }
+
+                @Override
+                public boolean copyOnSelect() {
+                    return App.getGlobalSettings().isPuttyLikeCopyPaste();
+                }
+            };
+        }
     }
 }

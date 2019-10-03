@@ -78,6 +78,11 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     }
 
     @Override
+    public void render(String path, boolean useCache) {
+        this.render(path);
+    }
+
+    @Override
     public void render(String path) {
         this.path = path;
         executor.submit(() -> {
