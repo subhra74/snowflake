@@ -15,6 +15,8 @@ import snowflake.components.terminal.ssh.SshTtyConnector;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 public class TerminalComponent extends JPanel implements ConnectedResource {
     private JRootPane rootPane;
@@ -63,6 +65,13 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
         term.setTtyConnector(tty);
         term.start();
         contentPane.add(term);
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                requestFocusInWindow();
+            }
+        });
     }
 
     @Override

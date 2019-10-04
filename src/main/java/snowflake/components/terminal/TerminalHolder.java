@@ -7,6 +7,8 @@ import snowflake.components.terminal.snippets.SnippetPanel;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -107,6 +109,13 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
         snippetPopupMenu.add(snippetPanel);
 
         createNewTerminal();
+
+        addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentShown(ComponentEvent e) {
+                requestFocusInWindow();
+            }
+        });
     }
 
     private void showSnippets() {

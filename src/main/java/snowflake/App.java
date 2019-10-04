@@ -72,6 +72,8 @@ public class App {
 
         UIManager.setLookAndFeel(nimbusLookAndFeel);
         UIManager.put("control", Color.WHITE);
+        UIManager.put("nimbusSelectionBackground", new Color(3, 155, 229));
+
         //UIManager.put("nimbusBase", new Color(200, 200, 200));
 //        UIManager.put("text", new Color(208, 208, 208));
 

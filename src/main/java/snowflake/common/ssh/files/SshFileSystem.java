@@ -3,6 +3,7 @@ package snowflake.common.ssh.files;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.SftpATTRS;
 import com.jcraft.jsch.SftpException;
+import com.jcraft.jsch.SftpStatVFS;
 import snowflake.common.*;
 import snowflake.common.FileSystem;
 import snowflake.common.ssh.AbstractUserInteraction;
@@ -12,10 +13,7 @@ import snowflake.utils.PathUtils;
 
 import java.io.*;
 import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SshFileSystem implements FileSystem {
@@ -149,6 +147,7 @@ public class SshFileSystem implements FileSystem {
                             continue;
                         }
                         SftpATTRS attrs = ent.getAttrs();
+
                         if (attrs.isLink()) {
                             childs.add(resolveSymlink(ent.getFilename(),
                                     PathUtils.combineUnix(path,
@@ -508,5 +507,11 @@ public class SshFileSystem implements FileSystem {
 
     public String getSeparator() {
         return "/";
+    }
+
+    public void statFs() throws Exception {
+        ensureConnected();
+        SftpStatVFS statVFS = this.sftp.statVFS("/");
+        System.out.println(statVFS.getSize() + " " + statVFS.getUsed());
     }
 }

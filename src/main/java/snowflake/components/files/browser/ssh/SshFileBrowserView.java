@@ -45,6 +45,9 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
         this.addressPopup = menuHandler.createAddressPopup();
         if (initialPath == null) {
             this.path = holder.getInfo().getRemoteFolder();
+            if (this.path != null && this.path.trim().length() < 1) {
+                this.path = null;
+            }
             System.out.println("Path: " + path);
         } else {
             this.path = initialPath;
@@ -146,6 +149,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 try {
                     if (path == null) {
                         this.path = holder.getSshFileSystem().getHome();
+                        //holder.getSshFileSystem().statFs();
                     }
                     renderDirectory(this.path, useCache);
                     break;
