@@ -2,6 +2,8 @@ package snowflake.components.sysinfo;
 
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
+import snowflake.components.common.DisabledPanel;
+import snowflake.components.common.StartPage;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.sysinfo.platforms.SystemInfo;
 import snowflake.components.sysinfo.platforms.linux.LinuxSysInfo;
@@ -46,6 +48,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
     private JTextArea txtSystemOverview;
     private ServicePanel servicePanel;
     private SocketPanel socketPanel;
+    private DisabledPanel disabledPanel;
 
     public SystemInfoPanel(SessionInfo info) {
         super(new BorderLayout());
@@ -60,6 +63,10 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
         userInteraction = new SshUserInteraction(info, rootPane);
         client = new SshClient(userInteraction);
 
+        disabledPanel = new DisabledPanel();
+        disabledPanel.startAnimation(null);
+        rootPane.setGlassPane(disabledPanel);
+
         servicePanel = createServicePanel();
         socketPanel = createSocketPanel();
 
@@ -72,21 +79,34 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
         };
 
         JPanel mainPanel = new JPanel(new BorderLayout());
-        JPanel startPanel = new JPanel();
-        JButton btnStart = new JButton("Start");
-        btnStart.addActionListener(e -> {
+
+        StartPage startPage = new StartPage("Linux tools",
+                "A set of useful tools for Linux",
+                "Open", e -> {
             client = new SshClient(userInteraction);
-            mainCardLayout.show(contentPane, "Wait");
+            mainCardLayout.show(contentPane, "Main");
+            disableUi();
             threadPool.submit(() -> {
                 getSysInfo();
                 updateView();
             });
         });
-        startPanel.add(btnStart);
+
+//        JPanel startPanel = new JPanel();
+//        JButton btnStart = new JButton("Start");
+//        btnStart.addActionListener(e -> {
+//            client = new SshClient(userInteraction);
+//            mainCardLayout.show(contentPane, "Wait");
+//            threadPool.submit(() -> {
+//                getSysInfo();
+//                updateView();
+//            });
+//        });
+//        startPanel.add(btnStart);
 
         contentPane.add(mainPanel, "Main");
-        contentPane.add(startPanel, "Start");
-        contentPane.add(new JPanel(), "Wait");
+        contentPane.add(startPage, "Start");
+//        contentPane.add(new JPanel(), "Wait");
 
         cardLayout = new CardLayout();
         cardPanel = new JPanel(cardLayout);
@@ -177,14 +197,15 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
                 txtSystemOverview.setCaretPosition(0);
                 socketPanel.setSocketData(systemInfo.getSockets());
             }
-            mainCardLayout.show(contentPane, "Main");
+            enableUi();
         });
     }
 
     private void getListingSockets() {
         String cmd = SocketPanel.LSOF_COMMAND;
 
-        mainCardLayout.show(contentPane, "Wait");
+        disableUi();
+//        mainCardLayout.show(contentPane, "Wait");
 
         boolean elevated = socketPanel.getUseSuperUser();
         if (cmd != null) {
@@ -254,7 +275,8 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 
         String cmd = cmd1;
 
-        mainCardLayout.show(contentPane, "Wait");
+        disableUi();
+        //mainCardLayout.show(contentPane, "Wait");
 
         boolean elevated = servicePanel.getUseSuperUser();
         if (cmd != null) {
@@ -363,5 +385,13 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
     public void close() {
         client.disconnect();
         client = null;
+    }
+
+    private void disableUi() {
+        disabledPanel.setVisible(true);
+    }
+
+    private void enableUi() {
+        disabledPanel.setVisible(false);
     }
 }

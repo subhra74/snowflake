@@ -2,6 +2,8 @@ package snowflake.components.diskusage;
 
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
+import snowflake.components.common.DisabledPanel;
+import snowflake.components.common.StartPage;
 import snowflake.components.diskusage.treetable.JTreeTable;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.SshCommandUtils;
@@ -19,7 +21,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
+public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
     private CardLayout cardLayout;
     private JRootPane rootPane;
     private JPanel contentPane;
@@ -27,7 +29,7 @@ public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
     private ExecutorService threadPool;
     private SshUserInteraction source;
     private SshClient client;
-    private JPanel waitPanel;
+    //private JPanel waitPanel;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
     private PartitionTableModel model;
     private JPanel resultPanel;
@@ -37,6 +39,7 @@ public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
     private JTree resultTree;
     private DefaultTreeModel treeModel;
     private DiskAnalysisTask task;
+    private DisabledPanel disabledPanel;
 
     public DiskUsageAnalyzer(SessionInfo info) {
         setLayout(new BorderLayout());
@@ -66,33 +69,49 @@ public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
         resultPanel.add(new JScrollPane(resultTree));
         resultPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        waitPanel = new JPanel();
-        JButton btnStop = new JButton("Stop");
-        waitPanel.add(btnStop);
+        disabledPanel = new DisabledPanel();
+        disabledPanel.startAnimation(stopFlag);
+
+
+
+//        waitPanel = new JPanel();
+//        JButton btnStop = new JButton("Stop");
+//        waitPanel.add(btnStop);
 
         this.source = new SshUserInteraction(info, rootPane);
         this.threadPool = Executors.newSingleThreadExecutor();
 
-        JPanel welcomePanel = new JPanel();
-        JButton btnWelcome = new JButton("Start");
-        btnWelcome.addActionListener(e -> {
-            cardLayout.show(contentPane, "Wait");
+        StartPage startPage = new StartPage("Disk Space Analyzer",
+                "Analyze disk space usage for a partition or folder", "Open", e -> {
+            cardLayout.show(contentPane, "Partitions");
+            disableUi();
             threadPool.submit(() -> {
                 listPartitions();
             });
         });
-        welcomePanel.add(btnWelcome);
+
+//        JPanel welcomePanel = new JPanel();
+//        JButton btnWelcome = new JButton("Start");
+//        btnWelcome.addActionListener(e -> {
+//            cardLayout.show(contentPane, "Wait");
+//            threadPool.submit(() -> {
+//                listPartitions();
+//            });
+//        });
+//        welcomePanel.add(btnWelcome);
 
         contentPane.add(createSelectionPanel(), "Partitions");
-        contentPane.add(welcomePanel, "Welcome");
+        contentPane.add(startPage, "Welcome");
         contentPane.add(resultPanel, "Results");
-        contentPane.add(waitPanel, "Wait");
+        //contentPane.add(waitPanel, "Wait");
 
         cardLayout.show(contentPane, "Welcome");
 
         rootPane = new JRootPane();
         rootPane.setContentPane(contentPane);
         add(rootPane);
+
+        rootPane.setGlassPane(disabledPanel);
 
         source = new SshUserInteraction(info, rootPane);
     }
@@ -128,7 +147,7 @@ public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
         } finally {
             client.disconnect();
             SwingUtilities.invokeLater(() -> {
-                cardLayout.show(contentPane, "Partitions");
+                enableUi();
             });
         }
     }
@@ -156,11 +175,12 @@ public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
                     root.setAllowsChildren(true);
                     createTree(root, res);
                     treeModel.setRoot(root);
-                    cardLayout.show(contentPane, "Results");
+                    enableUi();
                 }
             });
         }, source);
-        cardLayout.show(contentPane, "Wait");
+        cardLayout.show(contentPane, "Results");
+        disableUi();
         threadPool.submit(task);
     }
 
@@ -276,5 +296,13 @@ public class DiskUsageAnalyzer extends JPanel  implements AutoCloseable{
         } catch (Exception e) {
 
         }
+    }
+
+    private void disableUi() {
+        disabledPanel.setVisible(true);
+    }
+
+    private void enableUi() {
+        disabledPanel.setVisible(false);
     }
 }

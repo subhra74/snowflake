@@ -3,6 +3,9 @@ package snowflake.components.taskmgr;
 import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
+import snowflake.components.common.DisabledPanel;
+import snowflake.components.common.StartPage;
+import snowflake.components.common.TabbedPanel;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.taskmgr.plaformsupport.LinuxPlatformSupport;
@@ -23,6 +26,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Consumer;
 
 public class TaskManager extends JPanel implements ConnectedResource {
     private JRootPane rootPane;
@@ -43,46 +47,40 @@ public class TaskManager extends JPanel implements ConnectedResource {
     private CardLayout cardLayout;
     private JSpinner spInterval;
     private AtomicInteger sleepInterval = new AtomicInteger(3);
+    private DisabledPanel disabledPanel;
 
     public TaskManager(SessionInfo info) {
         cardLayout = new CardLayout();
         setLayout(new BorderLayout());
         contentPane = new JPanel(cardLayout);
-        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+        //contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
         rootPane = new JRootPane();
         rootPane.setContentPane(contentPane);
         add(rootPane);
         userInteraction = new SshUserInteraction(info, rootPane);
-        client = new SshClient(userInteraction);
         systemLoadPanel = new SystemLoadPanel();
         processListPanel = new ProcessListPanel((cmd, root) -> {
-            setCursor(WAIT_CURSOR);
+            disableUi();
             this.commandPending = true;
             this.commandToExecute = cmd;
             this.runCommandAsRoot = root;
             t.interrupt();
-        }, (Boolean b) -> {
-            processListPanel.disableStop();
-            new Thread(() -> {
-                try {
-                    running.set(false);
-                    t.interrupt();
-                    client.close();
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }).start();
         });
 
         processListPanel.setMinimumSize(new Dimension(10, 10));
 
         JPanel panel = new JPanel(new BorderLayout());
 
-        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        jSplitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin2);
-        jSplitPane.setLeftComponent(systemLoadPanel);
-        jSplitPane.setRightComponent(processListPanel);
-        jSplitPane.setDividerSize(5);
+        TabbedPanel tabbedPanel = new TabbedPanel();
+        tabbedPanel.addTab("System performance", systemLoadPanel);
+        tabbedPanel.addTab("Processes", processListPanel);
+        tabbedPanel.setSelectedIndex(0);
+
+//        JSplitPane jSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+//        jSplitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin2);
+//        jSplitPane.setLeftComponent(systemLoadPanel);
+//        jSplitPane.setRightComponent(processListPanel);
+//        jSplitPane.setDividerSize(5);
 
 
         //panel.add(systemLoadPanel, BorderLayout.WEST);
@@ -100,17 +98,28 @@ public class TaskManager extends JPanel implements ConnectedResource {
 
         JButton btnClose = new JButton("Disconnect");
         btnClose.addActionListener(e -> {
-            running.set(false);
-            t.interrupt();
+            new Thread(() -> {
+                try {
+                    running.set(false);
+                    t.interrupt();
+                    client.close();
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }).start();
         });
 
         Box topPanel = Box.createHorizontalBox();
 //        topPanel.setOpaque(true);
 //        topPanel.setBackground(new Color(240, 240, 240));
-        topPanel.setBorder(new EmptyBorder(5, 0, 10, 0));
+        topPanel.setBorder(new CompoundBorder(
+                new MatteBorder(0, 0, 1, 0,
+                        new Color(240, 240, 240)),
+                new EmptyBorder(5, 10, 5, 10)));
 
         JLabel titleLabel = new JLabel("System Monitor");
-        titleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
+        titleLabel.setForeground(new Color(80, 80, 80));
+        titleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 18));
 
         topPanel.add(titleLabel);
         topPanel.add(Box.createHorizontalGlue());
@@ -123,9 +132,18 @@ public class TaskManager extends JPanel implements ConnectedResource {
         topPanel.add(btnClose);
 
         panel.add(topPanel, BorderLayout.NORTH);
-        panel.add(jSplitPane);
+        //panel.setBorder(new EmptyBorder(5, 5, 5, 5));
+        panel.add(tabbedPanel);
+//        panel.add(jSplitPane);
 
         contentPane.add(panel, "content");
+
+        StartPage startPage = new StartPage("System Monitor",
+                "Monitor resource usage and manage processes",
+                "Start monitoring", e -> {
+//            processListPanel.enableStop();
+            init();
+        });
 
         Box box1 = Box.createVerticalBox();
         box1.add(Box.createVerticalGlue());
@@ -135,26 +153,30 @@ public class TaskManager extends JPanel implements ConnectedResource {
         box1.add(btnStart);
 
         btnStart.addActionListener(e -> {
-            processListPanel.enableStop();
+//            processListPanel.enableStop();
             init();
         });
 
         box1.add(Box.createVerticalGlue());
 
-        contentPane.add(box1, "start");
+        contentPane.add(startPage, "start");
         cardLayout.show(contentPane, "start");
 
-        jSplitPane.setDividerLocation(0.5f);
+        disabledPanel = new DisabledPanel();
+        disabledPanel.startAnimation(null);
+        rootPane.setGlassPane(disabledPanel);
+
+        //jSplitPane.setDividerLocation(0.5f);
     }
 
     private void init() {
         running.set(true);
         cardLayout.show(contentPane, "content");
+        disableUi();
         t = new Thread(() -> {
             try {
-                if (!client.isConnected()) {
-                    client.connect();
-                }
+                client = new SshClient(userInteraction);
+                client.connect();
                 String platform = PlatformChecker.getPlatformName(client);
                 System.out.println("'" + platform + "'");
                 if (!running.get()) {
@@ -203,6 +225,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                         systemLoadPanel.setTotalSwap(this.nativePlatform.getTotalSwap());
                         systemLoadPanel.setUsedSwap(this.nativePlatform.getUsedSwap());
                         systemLoadPanel.refreshUi();
+
                     });
                     if (!running.get()) {
                         throw new Exception("Stopped by user");
@@ -221,6 +244,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                     SwingUtilities.invokeLater(() -> {
                         //update ui ps
                         processListPanel.setProcessList(this.nativePlatform.getProcessList());
+                        enableUi();
                     });
                     if (!running.get()) {
                         throw new Exception("Stopped by user");
@@ -236,6 +260,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 e.printStackTrace();
             } finally {
                 SwingUtilities.invokeLater(() -> {
+                    enableUi();
                     cardLayout.show(contentPane, "start");
                 });
             }
@@ -270,11 +295,15 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 if (runCommandAsRoot) {
                     if (SudoUtils.runSudo(commandToExecute, client) != 0) {
                         JOptionPane.showMessageDialog(this, "Operation failed");
+                    } else {
+                        this.nativePlatform.updateProcessList(client);
                     }
                 } else {
                     StringBuilder buf = new StringBuilder();
                     if (!SshCommandUtils.exec(client, commandToExecute, new AtomicBoolean(false), buf)) {
                         JOptionPane.showMessageDialog(this, "Operation failed");
+                    } else {
+                        this.nativePlatform.updateProcessList(client);
                     }
                 }
             } catch (Exception e) {
@@ -285,9 +314,18 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 runCommandAsRoot = false;
                 processListPanel.activateProcessListPanel();
                 SwingUtilities.invokeLater(() -> {
-                    setCursor(DEF_CURSOR);
+                    processListPanel.setProcessList(this.nativePlatform.getProcessList());
+                    enableUi();
                 });
             }
         }
+    }
+
+    private void disableUi() {
+        disabledPanel.setVisible(true);
+    }
+
+    private void enableUi() {
+        disabledPanel.setVisible(false);
     }
 }

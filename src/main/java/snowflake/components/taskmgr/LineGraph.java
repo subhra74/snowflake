@@ -20,7 +20,11 @@ public class LineGraph extends JComponent {
     private boolean dynamic = false;
     private String suffix = "%";
     private Path2D shape = new Path2D.Double();
-    private Color bgColor = Color.WHITE, textColor = Color.BLACK, lineColor = new Color(51, 181, 229), gridColor = new Color(62, 68, 81);
+    private Color bgColor = Color.WHITE,
+            textColor = Color.BLACK,
+            lineColor = new Color(51, 181, 229),
+            gridColor = new Color(62, 68, 81),
+            gridLineColor = new Color(230, 230, 230);
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -108,10 +112,12 @@ public class LineGraph extends JComponent {
         g2.setStroke(gridStroke);
 
         for (int i = 0; i < count + 1; i++) {
+            g2.setColor(gridColor);
             int y1 = (int) Math.floor((values[i] * height) / den);
             int x1 = (int) Math.floor(i * stepx);
             shape.lineTo(x1, height - y1);
 
+            g2.setColor(gridLineColor);
             int y = (int) Math.floor(i * stepy);
             int x = (int) Math.floor(i * stepx);
             g2.drawLine(0, y, width, y);
