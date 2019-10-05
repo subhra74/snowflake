@@ -16,6 +16,7 @@ import snowflake.components.files.browser.FileBrowser;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -84,7 +85,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public String toString() {
-        return holder.getInfo().getName() + " [" + this.path + "]";
+        return holder.getInfo().getName() +
+                (this.path == null || this.path.length() < 1 ? "" : " [" + this.path + "]");
     }
 
 //    private void connect() throws Exception {
@@ -277,5 +279,12 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
         return transferHandler;
     }
 
+    public String getHostText() {
+        return holder.getInfo().getName();
+    }
+
+    public String getPathText() {
+        return (this.path == null || this.path.length() < 1 ? "" : this.path);
+    }
 
 }

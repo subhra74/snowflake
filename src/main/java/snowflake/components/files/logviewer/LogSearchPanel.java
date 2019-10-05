@@ -35,7 +35,7 @@ public class LogSearchPanel extends JPanel {
         btnNext.setFont(App.getFontAwesomeFont());
         btnNext.setText("\uf107");
         btnNext.addActionListener(e -> {
-            if (lines.size() < 1) return;
+            if (lines == null || lines.size() < 1) return;
             if (index < lines.size() - 1) {
                 index++;
             }
@@ -48,7 +48,7 @@ public class LogSearchPanel extends JPanel {
         btnPrev.setFont(App.getFontAwesomeFont());
         btnPrev.setText("\uf106");
         btnPrev.addActionListener(e -> {
-            if (lines.size() < 1) return;
+            if (lines == null || lines.size() < 1) return;
             if (index > 0) {
                 index--;
             }

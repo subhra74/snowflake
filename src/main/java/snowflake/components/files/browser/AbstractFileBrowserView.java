@@ -12,6 +12,7 @@ import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -37,6 +38,8 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         overflowMenuHandler = new OverflowMenuHandler(holder, this, fileBrowser);
         history = new NavigationHistory();
         JPanel toolBar = new JPanel(new BorderLayout());
+//        toolBar.setBorder(new MatteBorder(0, 1, 0, 1,
+//                new Color(240, 240, 240)));
         createAddressBar();
         addressBar.addActionListener(e -> {
             String text = e.getActionCommand();
@@ -182,6 +185,10 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     }
 
     protected abstract void createAddressBar();
+
+    public abstract String getHostText();
+
+    public abstract String getPathText();
 
     public abstract String toString();
 

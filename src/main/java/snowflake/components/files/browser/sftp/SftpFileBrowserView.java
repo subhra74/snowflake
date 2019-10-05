@@ -77,6 +77,14 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         return this.foreignInfo.getName() + " [" + this.path + "]";
     }
 
+    public String getHostText() {
+        return this.foreignInfo.getName();
+    }
+
+    public String getPathText() {
+        return (this.path == null || this.path.length() < 1 ? "" : this.path);
+    }
+
     @Override
     public void render(String path, boolean useCache) {
         this.render(path);

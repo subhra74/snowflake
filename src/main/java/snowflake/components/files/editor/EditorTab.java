@@ -179,7 +179,7 @@ public class EditorTab extends JPanel implements SearchListener {
 
     public void setText(String content) {
         this.textArea.setText(content);
-        this.hasChanges = false;
+        setHasChanges(false);
         if (content.length() > 0) {
             this.textArea.setCaretPosition(0);
         }

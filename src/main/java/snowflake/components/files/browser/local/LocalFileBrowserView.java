@@ -86,8 +86,16 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         return "Local files [" + this.path + "]";
     }
 
+    public String getHostText() {
+        return "Local files";
+    }
+
+    public String getPathText() {
+        return (this.path == null || this.path.length() < 1 ? "" : this.path);
+    }
+
     @Override
-    public void render(String path,boolean useCache) {
+    public void render(String path, boolean useCache) {
         this.render(path);
     }
 

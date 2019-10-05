@@ -39,6 +39,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource {
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -386,5 +388,20 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public Map<String, List<FileInfo>> getDirectoryCache() {
         return directoryCache;
+    }
+
+    public void statAsync(String path, BiConsumer<FileInfo, Boolean> biConsumer) {
+        this.threadPool.submit(() -> {
+            disableUi();
+            try {
+                FileInfo fileInfo = this.fs.getInfo(path);
+                biConsumer.accept(fileInfo, Boolean.TRUE);
+            } catch (Exception e) {
+                e.printStackTrace();
+                biConsumer.accept(null, Boolean.FALSE);
+            } finally {
+                enableUi();
+            }
+        });
     }
 }

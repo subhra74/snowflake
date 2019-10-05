@@ -55,8 +55,10 @@ public class FileBrowser extends JPanel {
         rightPanel = new JPanel(rightCard);
 
         leftDropdown = new JComboBox<>(leftList);
+        leftDropdown.setRenderer(new SessionDropDownRenderer());
         //leftDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
         rightDropdown = new JComboBox<>(rightList);
+        rightDropdown.setRenderer(new SessionDropDownRenderer());
         //rightDropdown.putClientProperty("Nimbus.Overrides", App.comboBoxSkin);
 
         leftDropdown.addActionListener(e -> {

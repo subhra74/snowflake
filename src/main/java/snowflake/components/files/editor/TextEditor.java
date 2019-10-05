@@ -41,6 +41,30 @@ public class TextEditor extends JPanel {
 
         Box toolBox = Box.createHorizontalBox();
 
+        JButton btnOpen = new JButton();
+        btnOpen.addActionListener(e -> {
+            String text = JOptionPane.showInputDialog("Please enter full path of the file to be opened");
+            if (text == null) return;
+            if (text.trim().length() < 1) {
+                JOptionPane.showMessageDialog(null,
+                        "Please enter full path of the file to be opened");
+                return;
+            }
+            holder.statAsync(text, (a, b) -> {
+                if (!b) {
+                    JOptionPane.showMessageDialog(null, "Unable to open file");
+                    return;
+                }
+                SwingUtilities.invokeLater(() -> {
+                    holder.editRemoteFileInternal(a);
+                });
+            });
+        });
+        btnOpen.setFont(App.getFontAwesomeFont());
+        btnOpen.setText("\uf115");
+        btnOpen.setToolTipText("Open file");
+        btnOpen.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+
         JButton btnSave = new JButton();
         btnSave.addActionListener(e -> {
             save();
@@ -109,7 +133,8 @@ public class TextEditor extends JPanel {
         btnGotoLine.setToolTipText("Goto line");
         btnGotoLine.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
-        toolBox.add(Box.createHorizontalStrut(10));
+        toolBox.add(Box.createHorizontalStrut(5));
+        toolBox.add(btnOpen);
         toolBox.add(btnSave);
         toolBox.add(btnReload);
         toolBox.add(btnFind);
@@ -181,10 +206,50 @@ public class TextEditor extends JPanel {
         content.add(panel, "Tabs");
         content.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-        JPanel msgPanel = new JPanel(new BorderLayout());
-        JLabel noTabMsg = new JLabel("No files opened, please open a file from file browser");
-        noTabMsg.setHorizontalAlignment(JLabel.CENTER);
-        msgPanel.add(noTabMsg);
+
+        JLabel lblTitle = new JLabel("Please enter full path of the file below to open");
+        JTextField txtFilePath = new JTextField(30);
+        JButton btnOpenFile = new JButton("Open");
+        JLabel lblTitle2 = new JLabel("Alternatively you can select the file from file browser");
+        btnOpenFile.addActionListener(e -> {
+            String text = txtFilePath.getText();
+            if (text.trim().length() < 1) {
+                JOptionPane.showMessageDialog(null,
+                        "Please enter full path of the file to be opened");
+                return;
+            }
+            holder.statAsync(txtFilePath.getText(), (a, b) -> {
+                if (!b) {
+                    JOptionPane.showMessageDialog(null, "Unable to open file");
+                    return;
+                }
+                SwingUtilities.invokeLater(() -> {
+                    holder.editRemoteFileInternal(a);
+                });
+            });
+        });
+
+        Box textBox = Box.createHorizontalBox();
+        textBox.add(txtFilePath);
+        textBox.add(Box.createHorizontalStrut(10));
+        textBox.add(btnOpenFile);
+
+        Box startPanel = Box.createVerticalBox();
+        lblTitle.setAlignmentX(Box.CENTER_ALIGNMENT);
+        textBox.setAlignmentX(Box.CENTER_ALIGNMENT);
+        lblTitle2.setAlignmentX(Box.CENTER_ALIGNMENT);
+        startPanel.add(Box.createVerticalStrut(50));
+        startPanel.add(lblTitle);
+        startPanel.add(Box.createVerticalStrut(10));
+        startPanel.add(textBox);
+        startPanel.add(Box.createVerticalStrut(5));
+        startPanel.add(lblTitle2);
+
+        JPanel msgPanel = new JPanel();
+        msgPanel.add(startPanel);
+//        JLabel noTabMsg = new JLabel("No files opened, please open a file from file browser");
+//        noTabMsg.setHorizontalAlignment(JLabel.CENTER);
+//        msgPanel.add(noTabMsg);
         content.add(msgPanel, "Labels");
 
         add(content);
@@ -193,6 +258,7 @@ public class TextEditor extends JPanel {
 
         tabs.addChangeListener(e -> {
             if (tabs.getTabCount() == 0) {
+                txtFilePath.setText("");
                 cardLayout.show(content, "Labels");
             }
             int index = tabs.getSelectedIndex();

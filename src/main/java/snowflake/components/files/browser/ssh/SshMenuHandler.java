@@ -154,11 +154,7 @@ public class SshMenuHandler {
         aDelete = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (JOptionPane.showConfirmDialog(null,
-                        "Selected files will be deleted permanently, continue?", "Confirm delete",
-                        JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION) {
-                    delete(folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
-                }
+                delete(folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
             }
         };
         mDelete = new JMenuItem("Delete");
@@ -262,7 +258,7 @@ public class SshMenuHandler {
         aChangePerm = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                //changePermission(folderView.getSelectedFiles(), folderView.getCurrentPath());
+                changePermission(folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
             }
         };
         mChangePerm = new JMenuItem("Properties");
@@ -312,6 +308,21 @@ public class SshMenuHandler {
             }
             createArchive(files, fileBrowserView.getCurrentDirectory(), fileBrowserView.getCurrentDirectory());
         });
+    }
+
+    private void changePermission(FileInfo[] selectedFiles, String currentDirectory) {
+        System.out.println("Showing property of: " + selectedFiles.length);
+        PropertiesDialog propertiesDialog =
+                new PropertiesDialog(SwingUtilities.windowForComponent(fileBrowserView),
+                        selectedFiles.length > 1);
+        if (selectedFiles.length > 1) {
+            propertiesDialog.setMultipleDetails(selectedFiles);
+        } else if (selectedFiles.length == 1) {
+            propertiesDialog.setDetails(selectedFiles[0]);
+        } else {
+            return;
+        }
+        propertiesDialog.setVisible(true);
     }
 
     private void copyToClipboard(boolean cut) {
