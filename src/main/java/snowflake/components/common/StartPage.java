@@ -14,19 +14,19 @@ public class StartPage extends JPanel {
 
         lblTitle = new JLabel(title);
         lblTitle.setForeground(new Color(80, 80, 80));
-        lblTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 32));
+        lblTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 24));
         lblTitle.setAlignmentX(Box.CENTER_ALIGNMENT);
 
         lblDescription = new JLabel(description);
-        lblDescription.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+        lblDescription.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
         lblDescription.setForeground(new Color(40, 40, 40));
         lblDescription.setForeground(new Color(120, 120, 120));
         lblDescription.setAlignmentX(Box.CENTER_ALIGNMENT);
 
         btnStart = new JButton(startText);
         btnStart.setForeground(new Color(80, 80, 80));
-        btnStart.setMargin(new Insets(8, 20, 8, 20));
-        btnStart.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
+        //btnStart.setMargin(new Insets(8, 20, 8, 20));
+        //btnStart.setFont(new Font(Font.DIALOG, Font.PLAIN, 16));
         btnStart.setAlignmentX(Box.CENTER_ALIGNMENT);
         btnStart.addActionListener(e -> {
             callback.accept(null);

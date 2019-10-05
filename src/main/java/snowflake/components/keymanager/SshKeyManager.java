@@ -19,10 +19,10 @@ import java.util.Vector;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SshKeyManager {
-    public static SshKeyHolder getKeyDetails(SessionInfo info, AtomicBoolean stopFlag) throws Exception {
+    public static SshKeyHolder getKeyDetails(SshFileSystem fileSystem) throws Exception {
         SshKeyHolder holder = new SshKeyHolder();
-        loadLocalKey(getPubKeyPath(info), holder);
-        loadRemoteKeys(holder, info);
+        loadLocalKey(getPubKeyPath(fileSystem.getWrapper().getSource()), holder);
+        loadRemoteKeys(holder, fileSystem);
         return holder;
     }
 
@@ -39,19 +39,25 @@ public class SshKeyManager {
         }
     }
 
-    private static void loadRemoteKeys(SshKeyHolder holder, SessionInfo info) throws Exception {
-        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
-            fileSystem.connect();
-            loadRemoteKeys(holder, fileSystem);
-        }
-    }
+//    private static void loadRemoteKeys(SshKeyHolder holder, SessionInfo info) throws Exception {
+//        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+//            fileSystem.connect();
+//            loadRemoteKeys(holder, fileSystem);
+//        }
+//    }
 
     private static void loadRemoteKeys(SshKeyHolder holder, SshFileSystem fileSystem) throws Exception {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         String path = fileSystem.getHome() + "/.ssh/id_rsa.pub";
-        fileSystem.getSftp().get(path, out);
-        holder.setRemotePubKeyFile(path);
-        holder.setRemotePublicKey(new String(out.toByteArray(), "utf-8"));
+        try {
+            fileSystem.getSftp().get(path, out);
+            holder.setRemotePubKeyFile(path);
+            holder.setRemotePublicKey(new String(out.toByteArray(), "utf-8"));
+        } catch (SftpException e) {
+            if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
+                throw e;
+            }
+        }
         out = new ByteArrayOutputStream();
         path = fileSystem.getHome() + "/.ssh/authorized_keys";
         try {
@@ -64,7 +70,7 @@ public class SshKeyManager {
         }
     }
 
-    public static void generateKeys(SshKeyHolder holder, SessionInfo info, AtomicBoolean stopFlag, boolean local) throws Exception {
+    public static void generateKeys(SshKeyHolder holder, SshFileSystem fileSystem, boolean local) throws Exception {
         if (holder.getLocalPublicKey() != null) {
             if (JOptionPane.showConfirmDialog(null, "WARNING: This will overwrite the existing SSH key"
                             + "\n\nIf the key was being used to connect to other servers,"
@@ -93,7 +99,7 @@ public class SshKeyManager {
             if (local) {
                 generateLocalKeys(holder, passPhrase);
             } else {
-                generateRemoteKeys(stopFlag, info, holder, passPhrase);
+                generateRemoteKeys(fileSystem, holder, passPhrase);
             }
         }
     }
@@ -115,41 +121,34 @@ public class SshKeyManager {
         loadLocalKey(pubKeyPath.toString(), holder);
     }
 
-    public static void generateRemoteKeys(AtomicBoolean stopFlag, SessionInfo info, SshKeyHolder holder, String passPhrase) throws Exception {
-        if (stopFlag.get()) {
-            throw new Exception("Operation cancelled");
+    public static void generateRemoteKeys(SshFileSystem fileSystem, SshKeyHolder holder, String passPhrase) throws Exception {
+        String path1 = "$HOME/.ssh/id_rsa";
+        String path = path1 + ".pub";
+
+        String cmd = "ssh-keygen -q -N \"" + passPhrase + "\" -f \"" + path1
+                + "\"";
+
+        try {
+            fileSystem.getSftp().rm(path1);
+        } catch (SftpException e) {
+            if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
+                throw new Exception(e);
+            }
         }
 
-        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
-            fileSystem.connect();
-            String path1 = "$HOME/.ssh/id_rsa";
-            String path = path1 + ".pub";
-
-            String cmd = "ssh-keygen -q -N \"" + passPhrase + "\" -f \"" + path1
-                    + "\"";
-
-            try {
-                fileSystem.getSftp().rm(path1);
-            } catch (SftpException e) {
-                if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                    throw new Exception(e);
-                }
+        try {
+            fileSystem.getSftp().rm(path);
+        } catch (SftpException e) {
+            if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
+                throw new Exception(e);
             }
-
-            try {
-                fileSystem.getSftp().rm(path);
-            } catch (SftpException e) {
-                if (e.id != ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                    throw new Exception(e);
-                }
-            }
-
-            StringBuilder output = new StringBuilder();
-            if (!SshCommandUtils.exec(fileSystem.getWrapper(), cmd, stopFlag, output)) {
-                throw new Exception();
-            }
-            loadRemoteKeys(holder, fileSystem);
         }
+
+        StringBuilder output = new StringBuilder();
+        if (!SshCommandUtils.exec(fileSystem.getWrapper(), cmd, new AtomicBoolean(false), output)) {
+            throw new Exception();
+        }
+        loadRemoteKeys(holder, fileSystem);
     }
 
     private static String getPubKeyPath(SessionInfo info) {
@@ -163,29 +162,26 @@ public class SshKeyManager {
         return null;
     }
 
-    public static void saveAuthorizedKeysFile(String authorizedKeys, SessionInfo info, AtomicBoolean stopFlag) throws Exception {
-        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
-            fileSystem.connect();
-            ChannelSftp sftp = fileSystem.getSftp();
-            boolean found = false;
-            try {
-                Vector<?> list = sftp.ls(PathUtils.combineUnix(sftp.getHome(), ".ssh"));
-                for (Object ent : list) {
-                    ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) ent;
-                    if (entry.getFilename().equals("authorized_keys")) {
-                        found = true;
-                        break;
-                    }
+    public static void saveAuthorizedKeysFile(String authorizedKeys, SshFileSystem fileSystem) throws Exception {
+        ChannelSftp sftp = fileSystem.getSftp();
+        boolean found = false;
+        try {
+            Vector<?> list = sftp.ls(PathUtils.combineUnix(sftp.getHome(), ".ssh"));
+            for (Object ent : list) {
+                ChannelSftp.LsEntry entry = (ChannelSftp.LsEntry) ent;
+                if (entry.getFilename().equals("authorized_keys")) {
+                    found = true;
+                    break;
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            if (!found) {
-                sftp.mkdir(PathUtils.combineUnix(sftp.getHome(), ".ssh"));
-            }
-            try (OutputStream out = fileSystem.getSftp().put(PathUtils.combineUnix(fileSystem.getHome(), "/.ssh/authorized_keys"))) {
-                out.write(authorizedKeys.getBytes("utf-8"));
-            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!found) {
+            sftp.mkdir(PathUtils.combineUnix(sftp.getHome(), ".ssh"));
+        }
+        try (OutputStream out = fileSystem.getSftp().put(PathUtils.combineUnix(fileSystem.getHome(), "/.ssh/authorized_keys"))) {
+            out.write(authorizedKeys.getBytes("utf-8"));
         }
     }
 }

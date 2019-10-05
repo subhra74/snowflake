@@ -1,5 +1,8 @@
 package snowflake.components.keymanager;
 
+import snowflake.common.ssh.SshModalUserInteraction;
+import snowflake.common.ssh.files.SshFileSystem;
+import snowflake.components.common.StartPage;
 import snowflake.components.common.TabbedPanel;
 import snowflake.components.newsession.SessionInfo;
 
@@ -9,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class KeyManagerPanel extends JPanel  implements AutoCloseable{
+public class KeyManagerPanel extends JPanel implements AutoCloseable {
     private CardLayout cardLayout = new CardLayout();
     private RemoteKeyPanel remoteKeyPanel;
     private LocalKeyPanel localKeyPanel;
@@ -17,11 +20,12 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
     private SessionInfo info;
     private JPanel waitPanel;
     private JPanel mainPanel;
-    private JPanel startPanel;
+    private StartPage startPage;
     private SshKeyHolder holder;
 
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
+    private SshFileSystem fileSystem;
 
     public KeyManagerPanel(SessionInfo info) {
         setLayout(cardLayout);
@@ -33,8 +37,10 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
                 a -> {
                     cardLayout.show(this, "Wait");
                     executorService.submit(() -> {
-                        try {
-                            SshKeyManager.generateKeys(holder, info, stopFlag, false);
+                        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+                            this.fileSystem = fileSystem;
+                            fileSystem.connect();
+                            SshKeyManager.generateKeys(holder, fileSystem, false);
                             SwingUtilities.invokeLater(() -> {
                                 setKeyData(holder);
                             });
@@ -50,8 +56,10 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
                 a -> {
                     cardLayout.show(this, "Wait");
                     executorService.submit(() -> {
-                        try {
-                            holder = SshKeyManager.getKeyDetails(info, stopFlag);
+                        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+                            this.fileSystem = fileSystem;
+                            fileSystem.connect();
+                            holder = SshKeyManager.getKeyDetails(fileSystem);
                             SwingUtilities.invokeLater(() -> {
                                 setKeyData(holder);
                             });
@@ -67,9 +75,11 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
                 a -> {
                     cardLayout.show(this, "Wait");
                     executorService.submit(() -> {
-                        try {
-                            SshKeyManager.saveAuthorizedKeysFile(a, info, stopFlag);
-                            holder = SshKeyManager.getKeyDetails(info, stopFlag);
+                        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+                            this.fileSystem = fileSystem;
+                            fileSystem.connect();
+                            SshKeyManager.saveAuthorizedKeysFile(a, fileSystem);
+                            holder = SshKeyManager.getKeyDetails(fileSystem);
                             SwingUtilities.invokeLater(() -> {
                                 setKeyData(holder);
                             });
@@ -86,8 +96,10 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
                 a -> {
                     cardLayout.show(this, "Wait");
                     executorService.submit(() -> {
-                        try {
-                            SshKeyManager.generateKeys(holder, info, stopFlag, true);
+                        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+                            this.fileSystem = fileSystem;
+                            fileSystem.connect();
+                            SshKeyManager.generateKeys(holder, fileSystem, true);
                             SwingUtilities.invokeLater(() -> {
                                 setKeyData(holder);
                             });
@@ -103,8 +115,10 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
                 a -> {
                     cardLayout.show(this, "Wait");
                     executorService.submit(() -> {
-                        try {
-                            holder = SshKeyManager.getKeyDetails(info, stopFlag);
+                        try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+                            this.fileSystem = fileSystem;
+                            fileSystem.connect();
+                            holder = SshKeyManager.getKeyDetails(fileSystem);
                             SwingUtilities.invokeLater(() -> {
                                 setKeyData(holder);
                             });
@@ -121,15 +135,15 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
         tabs.addTab("Server", remoteKeyPanel);
         tabs.addTab("Local computer", localKeyPanel);
 
-        startPanel = new JPanel();
-
-        JButton startButton = new JButton("Start");
-        startButton.addActionListener(e ->
+        startPage = new StartPage("Manage SSH keys",
+                "Create, edit or manage SSH keys for remote and local machine", "Open", e ->
         {
             cardLayout.show(this, "Wait");
             executorService.submit(() -> {
-                try {
-                    holder = SshKeyManager.getKeyDetails(info, stopFlag);
+                try (SshFileSystem fileSystem = new SshFileSystem(new SshModalUserInteraction(info))) {
+                    this.fileSystem = fileSystem;
+                    fileSystem.connect();
+                    holder = SshKeyManager.getKeyDetails(fileSystem);
                     SwingUtilities.invokeLater(() -> {
                         setKeyData(holder);
                     });
@@ -142,8 +156,9 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
                 }
             });
         });
-        startPanel.add(startButton);
-        this.add(startPanel, "Start");
+
+
+        this.add(startPage, "Start");
 
         waitPanel = new JPanel();
 
@@ -169,6 +184,14 @@ public class KeyManagerPanel extends JPanel  implements AutoCloseable{
 
     @Override
     public void close() throws Exception {
-
+        if (this.fileSystem != null) {
+            this.executorService.submit(() -> {
+                try {
+                    this.fileSystem.close();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }
