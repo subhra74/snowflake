@@ -313,7 +313,7 @@ public class SshMenuHandler {
     private void changePermission(FileInfo[] selectedFiles, String currentDirectory) {
         System.out.println("Showing property of: " + selectedFiles.length);
         PropertiesDialog propertiesDialog =
-                new PropertiesDialog(SwingUtilities.windowForComponent(fileBrowserView),
+                new PropertiesDialog(holder, SwingUtilities.windowForComponent(fileBrowserView),
                         selectedFiles.length > 1);
         if (selectedFiles.length > 1) {
             propertiesDialog.setMultipleDetails(selectedFiles);

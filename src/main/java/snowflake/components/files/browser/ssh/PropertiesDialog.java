@@ -4,7 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Window;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,6 +17,7 @@ import javax.swing.border.EmptyBorder;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
+import snowflake.components.files.FileComponentHolder;
 import snowflake.utils.FormatUtils;
 
 public class PropertiesDialog extends JDialog {
@@ -21,15 +26,18 @@ public class PropertiesDialog extends JDialog {
     private JLabel lblOwner, lblGroup, lblOther;
     private String[] labels = new String[]{"read", "write", "execute"};
     private int dialogResult = JOptionPane.CANCEL_OPTION;
-    private FileInfo details;
+    private FileInfo[] details;
     private JTextField txtName, txtSize, txtType, txtOwner, txtGroup,
             txtModified, txtCreated, txtPath, txtFileCount;
+    private JButton btnCalculate1, btnCalculate2;
 
     private static final String userGroupRegex = "^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)";
     private Pattern pattern;
+    private FileComponentHolder holder;
 
-    public PropertiesDialog(Window window, boolean multimode) {
+    public PropertiesDialog(FileComponentHolder holder, Window window, boolean multimode) {
         super(window);
+        this.holder = holder;
         setResizable(true);
         setModal(true);
         setTitle("Properties");
@@ -52,6 +60,18 @@ public class PropertiesDialog extends JDialog {
             txtFileCount = new JTextField(30);
             b.add(addPropertyField(txtFileCount, "Total"));
             b.add(Box.createVerticalStrut(10));
+
+            txtSize = new JTextField(30);
+            Box boxSize = (Box) addPropertyField(txtSize, "Size");
+            boxSize.add(Box.createVerticalGlue());
+            btnCalculate1 = new JButton("Calculate");
+            btnCalculate1.addActionListener(e -> {
+                calculateDirSize();
+            });
+            btnCalculate1.setEnabled(false);
+            boxSize.add(btnCalculate1);
+            b.add(boxSize);
+            b.add(Box.createVerticalStrut(10));
         } else {
             this.pattern = Pattern.compile(userGroupRegex);
             txtName = new JTextField(30);
@@ -63,7 +83,17 @@ public class PropertiesDialog extends JDialog {
             b.add(Box.createVerticalStrut(10));
 
             txtSize = new JTextField(30);
-            b.add(addPropertyField(txtSize, "Size"));
+
+            Box boxSize = (Box) addPropertyField(txtSize, "Size");
+            boxSize.add(Box.createVerticalGlue());
+            btnCalculate2 = new JButton("Calculate");
+            btnCalculate2.addActionListener(e -> {
+                calculateDirSize();
+            });
+            boxSize.add(btnCalculate2);
+            btnCalculate2.setEnabled(false);
+
+            b.add(boxSize);
             b.add(Box.createVerticalStrut(10));
 
             txtOwner = new JTextField(30);
@@ -154,7 +184,11 @@ public class PropertiesDialog extends JDialog {
     }
 
     public void setDetails(FileInfo details) {
+        this.details = new FileInfo[1];
+        this.details[0] = details;
         System.out.println("Extra: " + details.getExtra());
+        btnCalculate2.setEnabled(details.getType() == FileType.Directory
+                || details.getType() == FileType.DirLink);
         this.permissions = details.getPermission();
         if (this.pattern != null && details.getExtra() != null
                 && details.getExtra().length() > 0) {
@@ -188,6 +222,26 @@ public class PropertiesDialog extends JDialog {
     }
 
     public void setMultipleDetails(FileInfo[] files) {
+        this.details = files;
+        boolean hasAnyDir = false;
+        long totalSize = 0;
+        for (FileInfo file : files) {
+            if (file.getType() == FileType.DirLink
+                    || file.getType() == FileType.Directory) {
+                hasAnyDir = true;
+                break;
+            }
+        }
+        if (!hasAnyDir) {
+            for (FileInfo file : files) {
+                if (file.getType() == FileType.File
+                        || file.getType() == FileType.FileLink) {
+                    totalSize += file.getSize();
+                }
+            }
+            txtSize.setText(FormatUtils.humanReadableByteCount(totalSize, true));
+        }
+        btnCalculate1.setEnabled(hasAnyDir);
         int fc = 0, dc = 0;
         for (FileInfo f : files) {
             if (f.getType() == FileType.Directory
@@ -241,6 +295,37 @@ public class PropertiesDialog extends JDialog {
 
     public int getDialogResult() {
         return dialogResult;
+    }
+
+    private void calculateDirSize() {
+        AtomicBoolean stopFlag = new AtomicBoolean(false);
+        JDialog dlg = new JDialog(this);
+        dlg.setModal(true);
+        JLabel lbl = new JLabel("Calculating...");
+        dlg.add(lbl);
+        dlg.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                lbl.setText("Cancelling...");
+                stopFlag.set(true);
+            }
+        });
+        dlg.pack();
+        AtomicBoolean disposed = new AtomicBoolean(false);
+        dlg.setLocationRelativeTo(this);
+        holder.calcSize(details, (a, b) -> {
+            SwingUtilities.invokeLater(() -> {
+                dlg.dispose();
+                disposed.set(true);
+                System.out.println("Total size: " + a);
+                if (b) {
+                    txtSize.setText(FormatUtils.humanReadableByteCount(a, true));
+                }
+            });
+        }, stopFlag);
+        if (!disposed.get()) {
+            dlg.setVisible(true);
+        }
     }
 
 }
