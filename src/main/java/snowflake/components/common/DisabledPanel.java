@@ -21,7 +21,6 @@ public class DisabledPanel extends JPanel {
     AlphaComposite alphaComposite1 = AlphaComposite.SrcOver.derive(0.85f);
 
     public DisabledPanel() {
-        setBorder(null);
         BoxLayout layout = new BoxLayout(this, BoxLayout.PAGE_AXIS);
         setLayout(layout);
         btn.setContentAreaFilled(false);
