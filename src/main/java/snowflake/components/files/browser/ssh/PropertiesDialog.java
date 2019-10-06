@@ -8,7 +8,10 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +22,7 @@ import snowflake.common.FileInfo;
 import snowflake.common.FileType;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.utils.FormatUtils;
+import snowflake.utils.SshCommandUtils;
 
 public class PropertiesDialog extends JDialog {
     private int permissions;
@@ -28,12 +32,20 @@ public class PropertiesDialog extends JDialog {
     private int dialogResult = JOptionPane.CANCEL_OPTION;
     private FileInfo[] details;
     private JTextField txtName, txtSize, txtType, txtOwner, txtGroup,
-            txtModified, txtCreated, txtPath, txtFileCount;
-    private JButton btnCalculate1, btnCalculate2;
+            txtModified, txtCreated, txtPath, txtFileCount, txtFreeSpace;
+    private JButton btnCalculate1, btnCalculate2, btnGetDiskSpaceUsed;
 
     private static final String userGroupRegex = "^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)";
     private Pattern pattern;
     private FileComponentHolder holder;
+
+    private ExecutorService threadPool = Executors.newSingleThreadExecutor();
+
+    private static final Pattern duPattern = Pattern.compile("([\\d]+)\\s+(.+)");
+    private static final Pattern dfPattern = Pattern.compile("[^\\s]+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+%)\\s+[^\\s]+");
+
+    private AtomicBoolean modified = new AtomicBoolean(false);
+    private JButton btnOK, btnCancel;
 
     public PropertiesDialog(FileComponentHolder holder, Window window, boolean multimode) {
         super(window);
@@ -46,6 +58,10 @@ public class PropertiesDialog extends JDialog {
         for (int i = 0; i < 9; i++) {
             chkPermissons[i] = new JCheckBox(labels[i % 3]);
             chkPermissons[i].setAlignmentX(Box.LEFT_ALIGNMENT);
+            chkPermissons[i].addActionListener(e -> {
+                modified.set(true);
+                updateButtonState();
+            });
         }
         lblOwner = new JLabel("Owner permissions");
         lblOwner.setAlignmentX(Box.LEFT_ALIGNMENT);
@@ -71,6 +87,17 @@ public class PropertiesDialog extends JDialog {
             btnCalculate1.setEnabled(false);
             boxSize.add(btnCalculate1);
             b.add(boxSize);
+            b.add(Box.createVerticalStrut(10));
+
+            txtFreeSpace = new JTextField(30);
+            Box boxFree = (Box) addPropertyField(txtFreeSpace, "Free space");
+            boxFree.add(Box.createVerticalGlue());
+            btnGetDiskSpaceUsed = new JButton("Get free space");
+            btnGetDiskSpaceUsed.addActionListener(e -> {
+                calculateFreeSpace();
+            });
+            boxFree.add(btnGetDiskSpaceUsed);
+            b.add(boxFree);
             b.add(Box.createVerticalStrut(10));
         } else {
             this.pattern = Pattern.compile(userGroupRegex);
@@ -112,6 +139,17 @@ public class PropertiesDialog extends JDialog {
             b.add(addPropertyField(txtModified, "Last modified"));
             b.add(Box.createVerticalStrut((10)));
 
+            txtFreeSpace = new JTextField(30);
+            Box boxFree = (Box) addPropertyField(txtFreeSpace, "Free space");
+            boxFree.add(Box.createVerticalGlue());
+            btnGetDiskSpaceUsed = new JButton("Get free space");
+            btnGetDiskSpaceUsed.addActionListener(e -> {
+                calculateFreeSpace();
+            });
+            boxFree.add(btnGetDiskSpaceUsed);
+            b.add(boxFree);
+            b.add(Box.createVerticalStrut(10));
+
 //			txtCreated = new JTextField(30);
 //			b.add(addPropertyField(txtCreated, "Creation date"));
 //			b.add(Box.createVerticalStrut((10)));
@@ -134,27 +172,31 @@ public class PropertiesDialog extends JDialog {
         }
 
         Box b2 = Box.createHorizontalBox();
-        JButton btn = new JButton("OK");
-        btn.addActionListener(e -> {
+        btnOK = new JButton("Change permissions");
+        btnOK.setEnabled(false);
+        btnOK.addActionListener(e -> {
             dialogResult = JOptionPane.OK_OPTION;
+            chmodAsync(getPermissions(), details);
+            threadPool.shutdownNow();
             dispose();
         });
-        JButton btn1 = new JButton("Cancel");
-        btn1.addActionListener(e -> {
+        btnCancel = new JButton("Cancel");
+        btnCancel.addActionListener(e -> {
             dialogResult = JOptionPane.CANCEL_OPTION;
+            threadPool.shutdownNow();
             dispose();
         });
         b2.setAlignmentX(Box.LEFT_ALIGNMENT);
         b2.add(Box.createHorizontalGlue());
-        b2.add(btn);
+        b2.add(btnOK);
         b2.add(Box.createHorizontalStrut((10)));
-        b2.add(btn1);
+        b2.add(btnCancel);
         b.add(Box.createVerticalGlue());
 
-        int w = Math.max(btn.getPreferredSize().width,
-                btn1.getPreferredSize().width);
-        btn.setPreferredSize(new Dimension(w, btn.getPreferredSize().height));
-        btn1.setPreferredSize(new Dimension(w, btn1.getPreferredSize().height));
+        int w = Math.max(btnOK.getPreferredSize().width,
+                btnCancel.getPreferredSize().width);
+        btnOK.setPreferredSize(new Dimension(w, btnOK.getPreferredSize().height));
+        btnCancel.setPreferredSize(new Dimension(w, btnCancel.getPreferredSize().height));
 
         b.setBorder(new EmptyBorder((10), (10),
                 (10), (10)));
@@ -302,6 +344,7 @@ public class PropertiesDialog extends JDialog {
         JDialog dlg = new JDialog(this);
         dlg.setModal(true);
         JLabel lbl = new JLabel("Calculating...");
+        lbl.setBorder(new EmptyBorder(10, 10, 10, 10));
         dlg.add(lbl);
         dlg.addWindowListener(new WindowAdapter() {
             @Override
@@ -313,7 +356,7 @@ public class PropertiesDialog extends JDialog {
         dlg.pack();
         AtomicBoolean disposed = new AtomicBoolean(false);
         dlg.setLocationRelativeTo(this);
-        holder.calcSize(details, (a, b) -> {
+        calcSize(details, (a, b) -> {
             SwingUtilities.invokeLater(() -> {
                 dlg.dispose();
                 disposed.set(true);
@@ -328,4 +371,156 @@ public class PropertiesDialog extends JDialog {
         }
     }
 
+    private void calculateFreeSpace() {
+        AtomicBoolean stopFlag = new AtomicBoolean(false);
+        JDialog dlg = new JDialog(this);
+        dlg.setModal(true);
+        JLabel lbl = new JLabel("Calculating...");
+        lbl.setBorder(new EmptyBorder(10, 10, 10, 10));
+        dlg.add(lbl);
+        dlg.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                lbl.setText("Cancelling...");
+                stopFlag.set(true);
+            }
+        });
+        dlg.pack();
+        AtomicBoolean disposed = new AtomicBoolean(false);
+        dlg.setLocationRelativeTo(this);
+        calcFreeSpace(details, (a, b) -> {
+            SwingUtilities.invokeLater(() -> {
+                dlg.dispose();
+                disposed.set(true);
+                System.out.println("Total size: " + a);
+                if (b) {
+                    txtFreeSpace.setText(a);
+                }
+            });
+        }, stopFlag);
+        if (!disposed.get()) {
+            dlg.setVisible(true);
+        }
+    }
+
+    public void calcSize(FileInfo files[], BiConsumer<Long, Boolean> biConsumer, AtomicBoolean stopFlag) {
+        StringBuilder command = new StringBuilder();
+        command.append("export POSIXLY_CORRECT=1; export BLOCKSIZE=512; du -s ");
+        for (FileInfo fileInfo : files) {
+            command.append("\"" + fileInfo.getPath() + "\" ");
+        }
+        System.out.println("Command to execute: " + command);
+        this.threadPool.submit(() -> {
+            try {
+                long total = 0;
+                StringBuilder output = new StringBuilder();
+                boolean ret = SshCommandUtils.exec(holder.getSshFileSystem().getWrapper(), command.toString(), stopFlag, output);
+                if (stopFlag.get()) {
+                    biConsumer.accept(0L, false);
+                    return;
+                }
+                if (!ret) {
+                    JOptionPane.showMessageDialog(null,
+                            "Some errors encountered during the operation");
+                }
+                for (String line : output.toString().split("\n")) {
+                    Matcher matcher = duPattern.matcher(line.trim());
+                    if (matcher.find()) {
+                        total += Long.parseLong(matcher.group(1).trim()) * 512;
+                    }
+                }
+                biConsumer.accept(total, true);
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            biConsumer.accept(-1L, false);
+        });
+    }
+
+    public void calcFreeSpace(FileInfo files[], BiConsumer<String, Boolean> biConsumer, AtomicBoolean stopFlag) {
+        StringBuilder command = new StringBuilder();
+        command.append("export POSIXLY_CORRECT=1; export BLOCKSIZE=512; df -k \"" + files[0] + "\"");
+        System.out.println("Command to execute: " + command);
+        this.threadPool.submit(() -> {
+            try {
+                StringBuilder output = new StringBuilder();
+                boolean ret = SshCommandUtils.exec(holder.getSshFileSystem().getWrapper(), command.toString(), stopFlag, output);
+                System.out.println(output);
+                if (stopFlag.get()) {
+                    System.out.println("stop flag");
+                    biConsumer.accept(null, false);
+                    return;
+                }
+                if (!ret) {
+                    JOptionPane.showMessageDialog(null,
+                            "Some errors encountered during the operation");
+                }
+                String lines[] = output.toString().split("\n");
+                if (lines.length >= 2) {
+                    Matcher matcher = dfPattern.matcher(lines[1]);
+                    if (matcher.find()) {
+                        long total = Long.parseLong(matcher.group(1).trim()) * 1024;
+                        long free = Long.parseLong(matcher.group(3).trim()) * 1024;
+                        long freePct = 100 - Long.parseLong(matcher.group(4).replace("%", "").trim());
+                        String result = String.format("Free %s of %s (%s)",
+                                FormatUtils.humanReadableByteCount(free, true),
+                                FormatUtils.humanReadableByteCount(total, true),
+                                freePct + "%");
+                        biConsumer.accept(result, true);
+                        return;
+                    } else {
+                        System.out.println("Did not match with [^\\s]+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+%)\\s[^\\s+]+");
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            biConsumer.accept(null, false);
+        });
+    }
+
+    private void chmodAsync(int perm, FileInfo paths[]) {
+        AtomicBoolean stopFlag = new AtomicBoolean(false);
+        JDialog dlg = new JDialog(this);
+        dlg.setModal(true);
+        JLabel lbl = new JLabel("Calculating...");
+        lbl.setBorder(new EmptyBorder(10, 10, 10, 10));
+        dlg.add(lbl);
+        dlg.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                lbl.setText("Cancelling...");
+                stopFlag.set(true);
+            }
+        });
+        dlg.pack();
+        AtomicBoolean disposed = new AtomicBoolean(false);
+        dlg.setLocationRelativeTo(this);
+        threadPool.submit(() -> {
+            try {
+                for (FileInfo path : paths) {
+                    holder.getSshFileSystem().chmod(perm, path.getPath());
+                    System.out.println("Permissions changed");
+                }
+                modified.set(true);
+            } catch (Exception e) {
+                e.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Operation failed");
+            }
+            SwingUtilities.invokeLater(() -> {
+                dlg.dispose();
+                disposed.set(true);
+                updateButtonState();
+            });
+        });
+
+        if (!disposed.get()) {
+            dlg.setVisible(true);
+        }
+    }
+
+    private void updateButtonState() {
+        btnOK.setEnabled(modified.get());
+    }
 }

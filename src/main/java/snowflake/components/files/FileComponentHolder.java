@@ -21,6 +21,7 @@ import snowflake.components.main.ConnectedResource;
 import snowflake.components.main.SessionContent;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.newsession.SessionStore;
+import snowflake.utils.FormatUtils;
 import snowflake.utils.PathUtils;
 import snowflake.utils.PlatformAppLauncher;
 import snowflake.utils.SshCommandUtils;
@@ -68,7 +69,6 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private LogViewerComponent logViewerComponent;
     private SessionContent sessionContent;
     private Map<String, List<FileInfo>> directoryCache = new ConcurrentHashMap<>();
-    private static final Pattern duPattern = Pattern.compile("([\\d]+)\\s+(.+)");
 
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor, SessionContent sessionContent) {
         super(new BorderLayout());
@@ -409,31 +409,5 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         });
     }
 
-    public void calcSize(FileInfo files[], BiConsumer<Long, Boolean> biConsumer, AtomicBoolean stopFlag) {
-        StringBuilder command = new StringBuilder();
-        command.append("export POSIXLY_CORRECT=1; export BLOCKSIZE=512; du -s ");
-        for (FileInfo fileInfo : files) {
-            command.append("\"" + fileInfo.getPath() + "\" ");
-        }
-        System.out.println("Command to execute: " + command);
-        this.threadPool.submit(() -> {
-            try {
-                long total = 0;
-                StringBuilder output = new StringBuilder();
-                if (SshCommandUtils.exec(this.fs.getWrapper(), command.toString(), stopFlag, output)) {
-                    for (String line : output.toString().split("\n")) {
-                        Matcher matcher = duPattern.matcher(line.trim());
-                        if (matcher.find()) {
-                            total += Long.parseLong(matcher.group(1).trim())*512;
-                        }
-                    }
-                    biConsumer.accept(total, true);
-                    return;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            biConsumer.accept(-1L, false);
-        });
-    }
+
 }
