@@ -120,7 +120,7 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
         try {
             StringBuilder output = new StringBuilder();
             this.client = new SshClient(source);
-            if (SshCommandUtils.exec(client, "export POSIXLY_CORRECT=1;df", stopFlag, output)) {
+            if (SshCommandUtils.exec(client, "export POSIXLY_CORRECT=1;df -P -k", stopFlag, output)) {
                 List<PartitionEntry> list = new ArrayList<>();
                 boolean first = true;
                 for (String line : output.toString().split("\n")) {
@@ -131,9 +131,9 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
                     String[] arr = line.split("\\s+");
                     if (arr.length < 6) continue;
                     PartitionEntry ent = new PartitionEntry(arr[0], arr[5],
-                            Long.parseLong(arr[1].trim()) * 512,
-                            Long.parseLong(arr[2].trim()) * 512,
-                            Long.parseLong(arr[3].trim()) * 512,
+                            Long.parseLong(arr[1].trim()) * 1024,
+                            Long.parseLong(arr[2].trim()) * 1024,
+                            Long.parseLong(arr[3].trim()) * 1024,
                             Double.parseDouble(arr[4].replace("%", "").trim()));
                     list.add(ent);
                 }

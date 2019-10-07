@@ -440,7 +440,7 @@ public class PropertiesDialog extends JDialog {
 
     public void calcFreeSpace(FileInfo files[], BiConsumer<String, Boolean> biConsumer, AtomicBoolean stopFlag) {
         StringBuilder command = new StringBuilder();
-        command.append("export POSIXLY_CORRECT=1; export BLOCKSIZE=512; df -k \"" + files[0] + "\"");
+        command.append("export POSIXLY_CORRECT=1; export BLOCKSIZE=1024; df -P -k \"" + files[0] + "\"");
         System.out.println("Command to execute: " + command);
         this.threadPool.submit(() -> {
             try {

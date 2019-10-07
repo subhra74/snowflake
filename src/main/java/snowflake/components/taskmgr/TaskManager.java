@@ -8,6 +8,7 @@ import snowflake.components.common.StartPage;
 import snowflake.components.common.TabbedPanel;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.taskmgr.plaformsupport.BsdPlatformSupport;
 import snowflake.components.taskmgr.plaformsupport.LinuxPlatformSupport;
 import snowflake.components.taskmgr.plaformsupport.PlatformSupport;
 import snowflake.utils.GraphicsUtils;
@@ -182,9 +183,15 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 if (!running.get()) {
                     throw new Exception("Stopped by user");
                 }
+
                 if ("Linux".equals(platform)) {
                     this.nativePlatform = new LinuxPlatformSupport();
                 }
+
+                if ("FreeBSD".equals(platform)) {
+                    this.nativePlatform = new BsdPlatformSupport();
+                }
+
                 if (!running.get()) {
                     throw new Exception("Stopped by user");
                 }
