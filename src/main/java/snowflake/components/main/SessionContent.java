@@ -38,6 +38,11 @@ public class SessionContent extends JPanel {
     private TerminalHolder terminalHolder;
     private ExternalEditor externalEditor;
     private BackgroundTransferPanel backgroundTransferPanel;
+    private String pageNames[] = new String[]{"Files", "Terminal", "Search", "System monitor",
+            "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys"};
+
+    private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf002", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084"};
+
 
     //private FileStore fileStore;
 
@@ -101,10 +106,6 @@ public class SessionContent extends JPanel {
         mainPanel.add(systemInfoPanel, "Linux tools");
         mainPanel.add(keyManagerPanel, "SSH keys");
 
-        String pageNames[] = new String[]{"Files", "Terminal", "Search", "System monitor",
-                "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys"};
-
-        String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf002", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084"};
 
         panels = new JPanel[pageIcons.length];
         Dimension maxDim = null;
@@ -250,5 +251,15 @@ public class SessionContent extends JPanel {
             externalEditor.close();
             backgroundTransferPanel.close();
         }).start();
+    }
+
+    public void showPage(String pageName) {
+        for (int i = 0; i < pageNames.length; i++) {
+            String name = pageNames[i];
+            if (pageName.equals(name)) {
+                JPanel panel = panels[i];
+                panelClicked(panel);
+            }
+        }
     }
 }

@@ -120,6 +120,10 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
 
     private void showSnippets() {
         this.snippetPanel.loadSnippets();
+        this.snippetPopupMenu.setBackground(Color.WHITE);
+        this.snippetPopupMenu.setBorderPainted(false);
+        this.snippetPopupMenu.setLightWeightPopupEnabled(true);
+        this.snippetPopupMenu.setOpaque(false);
         this.snippetPopupMenu.pack();
         this.snippetPopupMenu.setInvoker(this.btnSnippets);
         this.snippetPopupMenu.show(this.btnSnippets,

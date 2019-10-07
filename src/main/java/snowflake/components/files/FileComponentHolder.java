@@ -409,5 +409,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         });
     }
 
-
+    public void showPage(String name) {
+        sessionContent.showPage(name);
+    }
 }

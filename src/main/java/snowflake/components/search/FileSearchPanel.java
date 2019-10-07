@@ -9,6 +9,7 @@ import snowflake.utils.ScriptLoader;
 import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.TableColumn;
@@ -95,8 +96,8 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         b1.setOpaque(true);
         //b1.setBackground(UIManager.getColor("Panel.background"));
 
-        b1.setBorder(new EmptyBorder(10, 10,
-                10, 10));
+//        b1.setBorder(new EmptyBorder(10, 10,
+//                10, 10));
 
         JLabel lblName = new JLabel(
                 "Search for");
@@ -226,8 +227,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         radBoth.setSelected(true);
 
-        btnSearch = new JButton("Find");
-        btnSearch.setForeground(Color.white);
+        btnSearch = new JButton("Search");
         btnSearch.setAlignmentX(LEFT_ALIGNMENT);
         // btnSearch.setPreferredSize(pref);
 
@@ -406,7 +406,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         JScrollPane jspB1 = new JScrollPane(b1,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        jspB1.setBorder(new MatteBorder(0, 0, 0, 1, new Color(240, 240, 240)));
+        jspB1.setBorder(null);
 
         //contentPane.add(jspB1, BorderLayout.WEST);
 
@@ -420,6 +420,10 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         p.add(bActions, BorderLayout.SOUTH);
 
         JPanel pp = new JPanel(new BorderLayout());
+        pp.setBorder(new CompoundBorder(
+                new MatteBorder(0, 0, 0, 1,
+                        new Color(240, 240, 240)),
+                new EmptyBorder(5, 5, 5, 5)));
         pp.add(jspB1);
         pp.add(btnSearch, BorderLayout.SOUTH);
 

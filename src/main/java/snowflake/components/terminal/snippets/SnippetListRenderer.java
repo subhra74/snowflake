@@ -12,8 +12,9 @@ public class SnippetListRenderer extends JPanel implements ListCellRenderer<Snip
 
     public SnippetListRenderer() {
         super(new BorderLayout(5, 5));
-        setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
-                new EmptyBorder(10, 10, 10, 10)));
+        setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0,
+                new Color(230, 230, 230)),
+                new EmptyBorder(5, 10, 5, 10)));
         lblName = new JLabel();
         lblName.setFont(lblName.getFont().deriveFont(Font.PLAIN, 14.0f));
         lblCommand = new JLabel();

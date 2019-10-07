@@ -4,27 +4,50 @@ import snowflake.App;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
 
 public class SnippetPanel extends JPanel {
     private DefaultListModel<SnippetItem> listModel = new DefaultListModel<>();
+    private List<SnippetItem> snippetList = new ArrayList<>();
     private JList<SnippetItem> listView = new JList<>(listModel);
     private JTextField searchTextField;
     private JButton btnCopy, btnInsert, btnAdd, btnEdit, btnDel;
 
     public SnippetPanel(Consumer<String> callback, Consumer<String> callback2) {
         super(new BorderLayout());
+        setBackground(Color.WHITE);
         Box topBox = Box.createHorizontalBox();
+        topBox.add(Box.createHorizontalStrut(10));
         JLabel lblSearch = new JLabel();
         lblSearch.setFont(App.getFontAwesomeFont());
         lblSearch.setText("\uf002");
         topBox.add(lblSearch);
-
+        topBox.add(Box.createHorizontalStrut(10));
         listView.setCellRenderer(new SnippetListRenderer());
 
         searchTextField = new JTextField(30);
+        searchTextField.getDocument().addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                filter();
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                filter();
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                filter();
+            }
+        });
         topBox.add(searchTextField);
 
         btnAdd = new JButton("Add");
@@ -133,14 +156,29 @@ public class SnippetPanel extends JPanel {
         setPreferredSize(new Dimension(400, 500));
         add(topBox, BorderLayout.NORTH);
         JScrollPane jScrollPane = new JScrollPane(listView);
+        jScrollPane.setBorder(null);
         add(jScrollPane);
         add(bottomBox, BorderLayout.SOUTH);
 
     }
 
     public void loadSnippets() {
-        this.listModel.clear();
         System.out.println("Snippet size: " + App.getSnippetItems().size());
-        this.listModel.addAll(App.getSnippetItems());
+        this.snippetList.clear();
+        this.snippetList.addAll(App.getSnippetItems());
+        filter();
+    }
+
+    private void filter() {
+        this.listModel.clear();
+        String text = searchTextField.getText().trim();
+        if (text.length() < 1) {
+            this.listModel.addAll(this.snippetList);
+        }
+        for (SnippetItem item : snippetList) {
+            if (item.getCommand().contains(text) || item.getName().contains(text)) {
+                this.listModel.addElement(item);
+            }
+        }
     }
 }

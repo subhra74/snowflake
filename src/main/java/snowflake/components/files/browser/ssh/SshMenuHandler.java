@@ -724,10 +724,12 @@ public class SshMenuHandler {
 
     private void openFolderInTerminal(String folder) {
         holder.openTerminal("cd \"" + folder + "\"");
+        holder.showPage("Terminal");
     }
 
     private void openRunInTerminal(String folder, String file) {
         holder.openTerminal("cd \"" + folder + "\"; \"" + file + "\"");
+        holder.showPage("Terminal");
     }
 
     private void openRunInBackground(String folder, String file) {
