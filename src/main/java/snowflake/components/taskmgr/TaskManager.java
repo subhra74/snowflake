@@ -1,6 +1,5 @@
 package snowflake.components.taskmgr;
 
-import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.common.DisabledPanel;
@@ -8,26 +7,18 @@ import snowflake.components.common.StartPage;
 import snowflake.components.common.TabbedPanel;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
-import snowflake.components.taskmgr.plaformsupport.BsdPlatformSupport;
-import snowflake.components.taskmgr.plaformsupport.LinuxPlatformSupport;
-import snowflake.components.taskmgr.plaformsupport.PlatformSupport;
-import snowflake.utils.GraphicsUtils;
+import snowflake.components.taskmgr.plaformsupport.*;
 import snowflake.utils.SshCommandUtils;
 import snowflake.utils.SudoUtils;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Consumer;
 
 public class TaskManager extends JPanel implements ConnectedResource {
     private JRootPane rootPane;
@@ -189,7 +180,19 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 }
 
                 if ("FreeBSD".equals(platform)) {
-                    this.nativePlatform = new BsdPlatformSupport();
+                    this.nativePlatform = new FreeBSDPlatformSupport();
+                }
+
+                if ("OpenBSD".equals(platform)) {
+                    this.nativePlatform = new OpenBSDPlatformSupport();
+                }
+
+                if ("NetBSD".equals(platform)) {
+                    this.nativePlatform = new NetBSDPlatformSupport();
+                }
+
+                if ("HP-UX".equals(platform)) {
+                    this.nativePlatform = new HpUxPlatformSupport();
                 }
 
                 if (!running.get()) {

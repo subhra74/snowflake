@@ -94,13 +94,17 @@ public class SystemLoadPanel extends JPanel {
     }
 
     public void refreshUi() {
-        this.cpuLabel.setText(String.format("Cpu usage: %.1f", cpuUsage) + "%");
-        this.memoryLabel.setText(String.format("Memory usage: %.1f", memoryUsage) + "%, " +
-                " (Total: " + FormatUtils.humanReadableByteCount(totalMemory, true) +
-                ", Used: " + FormatUtils.humanReadableByteCount(usedMemory, true) + ")");
-        this.swapLabel.setText(String.format("Swap usage: %.1f", swapUsage) + "%, " +
-                " (Total: " + FormatUtils.humanReadableByteCount(totalSwap, true) +
-                ", Used: " + FormatUtils.humanReadableByteCount(usedSwap, true) + ")");
+        this.cpuLabel.setText(String.format("Cpu usage: %.1f", cpuUsage) + "% ");
+        this.memoryLabel.setText(String.format("Memory usage: %.1f", memoryUsage) + "%" +
+                (totalMemory != 0 ? (
+                        ", (Total: " + FormatUtils.humanReadableByteCount(totalMemory, true) +
+                                ", Used: " + FormatUtils.humanReadableByteCount(usedMemory, true) + ")"
+                ) : "")
+        );
+        this.swapLabel.setText(String.format("Swap usage: %.1f", swapUsage) + "% " +
+                (totalSwap != 0 ? (" (, Total: " + FormatUtils.humanReadableByteCount(totalSwap, true) +
+                        ", Used: " + FormatUtils.humanReadableByteCount(usedSwap, true) + ")"
+                ) : ""));
         this.revalidate();
         this.repaint();
     }

@@ -11,9 +11,9 @@ import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class BsdPlatformSupport implements PlatformSupport {
+public class FreeBSDPlatformSupport implements PlatformSupport {
     private double cpuUsage, memoryUsage, swapUsage;
-    private long totalMemory, usedMemory, totalSwap, usedSwap;
+    //    private long totalMemory, usedMemory, totalSwap, usedSwap;
     private List<ProcessTableEntry> processes = new ArrayList<>();
     private static final String DELIMITER = UUID.randomUUID().toString();
     private static final Pattern PSTAT_PATTERN = Pattern.compile("Total\\s+(\\d+)\\s+(\\d+)\\s+\\d+\\s+\\d{1,3}%");
@@ -22,7 +22,7 @@ public class BsdPlatformSupport implements PlatformSupport {
         ChannelExec exec = client.getExecChannel();
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         exec.setOutputStream(bout);
-        exec.setCommand("vmstat 1 2; echo " + DELIMITER + "; pstat -s -k");
+        exec.setCommand("PATH=$PATH:/usr/sbin; vmstat 1 2; echo " + DELIMITER + "; pstat -s -k");
         exec.connect();
         while (exec.isConnected()) {
             try {
@@ -90,8 +90,7 @@ public class BsdPlatformSupport implements PlatformSupport {
             freeMemory = Long.parseLong(columns[colFreeMem]) * 1000;
             long totalMemory = activeMemory + freeMemory;
 
-            this.totalMemory = totalMemory;
-            this.usedMemory = activeMemory;
+            long usedMemory = activeMemory;
 
             idleTime = Long.parseLong(columns[colIdleTime]);
             systemTime = Long.parseLong(columns[colSystemTime]);
@@ -102,8 +101,8 @@ public class BsdPlatformSupport implements PlatformSupport {
 
             this.cpuUsage = (1000 * ((double) total - idle) / total) / 10;
 
-            if (this.totalMemory > 0) {
-                this.memoryUsage = ((double) (this.usedMemory) * 100) / this.totalMemory;
+            if (totalMemory > 0) {
+                memoryUsage = ((double) (usedMemory) * 100) / totalMemory;
             }
 
 
@@ -123,12 +122,13 @@ public class BsdPlatformSupport implements PlatformSupport {
         if (arr.length < 1) return;
         String line = arr[arr.length - 1];
         Matcher matcher = PSTAT_PATTERN.matcher(line);
+        long totalSwap, usedSwap;
         if (matcher.find()) {
-            this.totalSwap = Long.parseLong(matcher.group(1).trim()) * 1024;
-            this.usedSwap = Long.parseLong(matcher.group(2).trim()) * 1024;
+            totalSwap = Long.parseLong(matcher.group(1).trim()) * 1024;
+            usedSwap = Long.parseLong(matcher.group(2).trim()) * 1024;
 
-            if (this.totalSwap > 0) {
-                this.swapUsage = ((double) (this.usedSwap) * 100) / this.totalSwap;
+            if (totalSwap > 0) {
+                this.swapUsage = ((double) (usedSwap) * 100) / totalSwap;
             }
         }
     }
@@ -267,22 +267,22 @@ public class BsdPlatformSupport implements PlatformSupport {
 
     @Override
     public long getTotalMemory() {
-        return this.totalMemory;
+        return 0L;
     }
 
     @Override
     public long getUsedMemory() {
-        return this.usedMemory;
+        return 0L;
     }
 
     @Override
     public long getTotalSwap() {
-        return this.totalSwap;
+        return 0L;
     }
 
     @Override
     public long getUsedSwap() {
-        return this.usedSwap;
+        return 0L;
     }
 
     public double getSwapUsage() {
