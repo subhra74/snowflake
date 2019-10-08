@@ -8,18 +8,21 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class BsdPlatformSupport implements PlatformSupport {
     private double cpuUsage, memoryUsage, swapUsage;
     private long totalMemory, usedMemory, totalSwap, usedSwap;
     private List<ProcessTableEntry> processes = new ArrayList<>();
     private static final String DELIMITER = UUID.randomUUID().toString();
+    private static final Pattern PSTAT_PATTERN = Pattern.compile("Total\\s+(\\d+)\\s+(\\d+)\\s+\\d+\\s+\\d{1,3}%");
 
     public void updateMetrics(SshClient client) throws Exception {
         ChannelExec exec = client.getExecChannel();
         ByteArrayOutputStream bout = new ByteArrayOutputStream();
         exec.setOutputStream(bout);
-        exec.setCommand("vmstat 1 2; echo " + DELIMITER + "; swapinfo");
+        exec.setCommand("vmstat 1 2; echo " + DELIMITER + "; pstat -s -k");
         exec.connect();
         while (exec.isConnected()) {
             try {
@@ -34,7 +37,7 @@ public class BsdPlatformSupport implements PlatformSupport {
         String arr[] = new String(bout.toByteArray()).split(DELIMITER);
 
         parseVmStatOutput(arr[0].trim());
-
+        parsePstatOutput(arr[1].trim());
         //System.out.println(new String(bout.toByteArray()));
         //updateStats(new String(bout.toByteArray()));
     }
@@ -83,8 +86,8 @@ public class BsdPlatformSupport implements PlatformSupport {
                 && colUserTime != -1 && colSystemTime != -1 && colIdleTime != -1) {
             String columns[] = lastLine.split("\\s+");
 
-            activeMemory = Long.parseLong(columns[colActiveMem]) * 1024;
-            freeMemory = Long.parseLong(columns[colFreeMem]) * 1024;
+            activeMemory = Long.parseLong(columns[colActiveMem]) * 1000;
+            freeMemory = Long.parseLong(columns[colFreeMem]) * 1000;
             long totalMemory = activeMemory + freeMemory;
 
             this.totalMemory = totalMemory;
@@ -103,6 +106,7 @@ public class BsdPlatformSupport implements PlatformSupport {
                 this.memoryUsage = ((double) (this.usedMemory) * 100) / this.totalMemory;
             }
 
+
 //            System.out.println("Active memory: " + activeMemory);
 //            System.out.println("Free memory: " + freeMemory);
 //            System.out.println("total memory: " + totalMemory);
@@ -111,6 +115,22 @@ public class BsdPlatformSupport implements PlatformSupport {
 //            }
         }
         System.out.println("VMSTAT---\n\n");
+    }
+
+    private void parsePstatOutput(String text) {
+        text = text.trim();
+        String[] arr = text.split("\n");
+        if (arr.length < 1) return;
+        String line = arr[arr.length - 1];
+        Matcher matcher = PSTAT_PATTERN.matcher(line);
+        if (matcher.find()) {
+            this.totalSwap = Long.parseLong(matcher.group(1).trim()) * 1024;
+            this.usedSwap = Long.parseLong(matcher.group(2).trim()) * 1024;
+
+            if (this.totalSwap > 0) {
+                this.swapUsage = ((double) (this.usedSwap) * 100) / this.totalSwap;
+            }
+        }
     }
 
 //    private void updateCpu(String line) {

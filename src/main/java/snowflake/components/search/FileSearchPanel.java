@@ -78,7 +78,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         chkIncludeCompressed = new JCheckBox(
                 "Look inside compressed files");
         chkIncludeCompressed.setAlignmentX(LEFT_ALIGNMENT);
-        radFileName = new JRadioButton("In filename");
+        radFileName = new JRadioButton("In filename (like *.zip or R*ME.txt)");
         radFileName.setAlignmentX(LEFT_ALIGNMENT);
         radFileContents = new JRadioButton("In file content");
         radFileContents.setAlignmentX(LEFT_ALIGNMENT);
@@ -331,6 +331,11 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         b1.add(Box.createVerticalStrut(10));
 
+        b1.setMinimumSize(b1.getPreferredSize());
+        b1.setMaximumSize(b1.getPreferredSize());
+
+        b1.setBorder(new EmptyBorder(10,10,10,10));
+
         //b1.add(btnSearch);
 
         Box statBox = Box.createHorizontalBox();
@@ -410,7 +415,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         //contentPane.add(jspB1, BorderLayout.WEST);
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        //JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
 
         JPanel p = new JPanel(
                 new BorderLayout(1, 1));
@@ -427,8 +432,12 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         pp.add(jspB1);
         pp.add(btnSearch, BorderLayout.SOUTH);
 
-        splitPane.setRightComponent(p);
-        splitPane.setLeftComponent(pp);
+        JPanel splitPane=new JPanel(new BorderLayout());
+        splitPane.add(p);
+        splitPane.add(pp,BorderLayout.WEST);
+
+//        splitPane.setRightComponent(p);
+//        splitPane.setLeftComponent(pp);
 
         splitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin2);
 

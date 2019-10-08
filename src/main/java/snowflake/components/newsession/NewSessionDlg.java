@@ -113,7 +113,7 @@ public class NewSessionDlg extends JDialog
 
         Box box1 = Box.createHorizontalBox();
         box1.setBorder(new EmptyBorder(10, 10, 10, 10));
-        box1.add(new JLabel("Warning: Passwords will be stored as plain text"));
+        //box1.add(new JLabel("Warning: Passwords will be stored as plain text"));
         box1.add(Box.createHorizontalGlue());
         box1.add(Box.createHorizontalStrut(10));
         box1.add(btnConnect);
