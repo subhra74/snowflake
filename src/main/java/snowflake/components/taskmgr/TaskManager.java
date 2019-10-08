@@ -175,24 +175,42 @@ public class TaskManager extends JPanel implements ConnectedResource {
                     throw new Exception("Stopped by user");
                 }
 
-                if ("Linux".equals(platform)) {
-                    this.nativePlatform = new LinuxPlatformSupport();
-                }
+//                if ("Linux".equals(platform)) {
+//                    this.nativePlatform = new LinuxPlatformSupport();
+//                }
+//
+//                if ("FreeBSD".equals(platform)) {
+//                    this.nativePlatform = new FreeBSDPlatformSupport();
+//                }
+//
+//                if ("OpenBSD".equals(platform)) {
+//                    this.nativePlatform = new OpenBSDPlatformSupport();
+//                }
+//
+//                if ("NetBSD".equals(platform)) {
+//                    this.nativePlatform = new NetBSDPlatformSupport();
+//                }
+//
+//                if ("HP-UX".equals(platform)) {
+//                    this.nativePlatform = new HpUxPlatformSupport();
+//                }
 
-                if ("FreeBSD".equals(platform)) {
-                    this.nativePlatform = new FreeBSDPlatformSupport();
-                }
-
-                if ("OpenBSD".equals(platform)) {
-                    this.nativePlatform = new OpenBSDPlatformSupport();
-                }
-
-                if ("NetBSD".equals(platform)) {
-                    this.nativePlatform = new NetBSDPlatformSupport();
-                }
-
-                if ("HP-UX".equals(platform)) {
-                    this.nativePlatform = new HpUxPlatformSupport();
+                switch (platform){
+                    case "Linux":
+                        this.nativePlatform = new LinuxPlatformSupport();
+                        break;
+                    case "FreeBSD":
+                        this.nativePlatform = new FreeBSDPlatformSupport();
+                        break;
+                    case "OpenBSD":
+                        this.nativePlatform = new OpenBSDPlatformSupport();
+                        break;
+                    case "NetBSD":
+                        this.nativePlatform = new NetBSDPlatformSupport();
+                        break;
+                    case "HP-UX":
+                        this.nativePlatform = new HpUxPlatformSupport();
+                        break;
                 }
 
                 if (!running.get()) {
