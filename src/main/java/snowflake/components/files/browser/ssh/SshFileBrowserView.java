@@ -235,7 +235,6 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 sourceFs = holder.getSshFileSystem();
             }
             if (sourceFs instanceof LocalFileSystem) {
-
                 if (backgroundTransfer) {
                     FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
@@ -248,8 +247,22 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
             } else if (sourceFs instanceof SshFileSystem) {
                 System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
                 if ((sourceFs == holder.getSshFileSystem())) {
-                    JOptionPane.showMessageDialog(null, "Cant move files like this!");
-                    return false;
+                    if (transferData.getFiles().length > 0) {
+                        FileInfo fileInfo = transferData.getFiles()[0];
+                        String parent = PathUtils.getParent(fileInfo.getPath());
+                        System.out.println("Parent: " + parent + " == " + this.getCurrentDirectory());
+                        if (!parent.endsWith("/")) {
+                            parent += "/";
+                        }
+                        String pwd = this.getCurrentDirectory();
+                        if (!pwd.endsWith("/")) {
+                            pwd += "/";
+                        }
+                        if (parent.equals(pwd)) {
+                            JOptionPane.showMessageDialog(null, "Cant move files like this!");
+                            return false;
+                        }
+                    }
                 }
 
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {

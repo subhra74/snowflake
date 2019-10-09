@@ -14,6 +14,7 @@ import snowflake.components.files.browser.ssh.SshFileBrowserView;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
 import snowflake.components.files.logviewer.LogViewerComponent;
+import snowflake.components.files.logviewer.LogViewerPanel;
 import snowflake.components.files.search.FileSearchPanel;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.files.transfer.FileTransferProgress;
@@ -67,7 +68,8 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private TextEditor editor;
     private ExternalEditor externalEditor;
     private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
-    private LogViewerComponent logViewerComponent;
+    //private LogViewerComponent logViewerComponent;
+    private LogViewerPanel logViewerComponent;
     private FileSearchPanel fileSearchPanel;
     private SessionContent sessionContent;
     private Map<String, List<FileInfo>> directoryCache = new ConcurrentHashMap<>();
@@ -102,7 +104,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
             }
         });
 
-        logViewerComponent = new LogViewerComponent(this);
+        logViewerComponent = new LogViewerPanel(this);
         fileSearchPanel = new FileSearchPanel(this);
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
@@ -336,7 +338,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public void openWithLogViewer(FileInfo fileInfo) {
         this.tabs.setSelectedIndex(2);
-        this.logViewerComponent.openLog(fileInfo, this.tempFolder);
+        this.logViewerComponent.openLog(fileInfo);
     }
 
     public String getTempFolder() {
