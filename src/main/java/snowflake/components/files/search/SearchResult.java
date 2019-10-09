@@ -1,4 +1,4 @@
-package snowflake.components.search;
+package snowflake.components.files.search;
 
 public class SearchResult {
     private String name, path, type;

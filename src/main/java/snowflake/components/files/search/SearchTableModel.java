@@ -1,4 +1,4 @@
-package snowflake.components.search;
+package snowflake.components.files.search;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.*;

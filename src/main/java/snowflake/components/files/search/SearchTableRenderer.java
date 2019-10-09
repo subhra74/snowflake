@@ -1,6 +1,7 @@
-package snowflake.components.search;
+package snowflake.components.files.search;
 
 import snowflake.App;
+import snowflake.common.FileType;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
@@ -29,16 +30,23 @@ public class SearchTableRenderer implements TableCellRenderer {
                                                    boolean isSelected, boolean hasFocus, int row, int column) {
         SearchResult ent = this.model.getItemAt(row);
         if (column == 0) {
-            iconLabel.setText(ent.getType() == "Folder" ? "\uf114" : "\uf016");
+            iconLabel.setText(ent.getType() == "Folder" ? "\uf114" :
+                    (ent.getType() == "File" ? "\uf016" : "\uf0c1"));
             textLabel.setText(ent.getName());
         } else {
             label.setText(value.toString());
         }
 
+        label.setForeground(isSelected ? table.getSelectionForeground()
+                : Color.DARK_GRAY);
+        textLabel.setForeground(isSelected ? table.getSelectionForeground()
+                : table.getForeground());
+        iconLabel.setForeground(isSelected ? table.getSelectionForeground()
+                : Color.GRAY);
         label.setBackground(isSelected ? table.getSelectionBackground()
-                : table.getBackground());
+                : Color.WHITE);
         panel.setBackground(isSelected ? table.getSelectionBackground()
-                : table.getBackground());
+                : Color.WHITE);
         return column == 0 ? panel : label;
     }
 

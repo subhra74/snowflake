@@ -1,8 +1,9 @@
-package snowflake.components.search;
+package snowflake.components.files.search;
 
 import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
+import snowflake.components.files.FileComponentHolder;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 import snowflake.utils.ScriptLoader;
@@ -17,9 +18,6 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
@@ -52,29 +50,11 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
     private String searchScript;
     private JButton btnShowInBrowser, btnDelete, btnDownload;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
-    private JPanel panel, waitPanel;
-    private SshUserInteraction source;
-    private SshClient client;
+    private FileComponentHolder holder;
 
-
-    private CardLayout cardLayout;
-
-    private JRootPane rootPane;
-    private JPanel contentPane;
-
-    private SessionInfo info;
-
-    public FileSearchPanel(SessionInfo info) {
-        this.info = info;
+    public FileSearchPanel(FileComponentHolder holder) {
         setLayout(new BorderLayout());
-        cardLayout = new CardLayout();
-        contentPane = new JPanel(cardLayout);
-
-        waitPanel = new JPanel();
-
-        JButton btnStop = new JButton("Stop");
-        waitPanel.add(btnStop);
-
+        this.holder = holder;
         chkIncludeCompressed = new JCheckBox(
                 "Look inside compressed files");
         chkIncludeCompressed.setAlignmentX(LEFT_ALIGNMENT);
@@ -232,7 +212,6 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         // btnSearch.setPreferredSize(pref);
 
         btnSearch.addActionListener(e -> {
-            cardLayout.show(contentPane, "WaitPanel");
             find();
         });
 
@@ -334,7 +313,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         b1.setMinimumSize(b1.getPreferredSize());
         b1.setMaximumSize(b1.getPreferredSize());
 
-        b1.setBorder(new EmptyBorder(10,10,10,10));
+        b1.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         //b1.add(btnSearch);
 
@@ -432,36 +411,20 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         pp.add(jspB1);
         pp.add(btnSearch, BorderLayout.SOUTH);
 
-        JPanel splitPane=new JPanel(new BorderLayout());
+        JPanel splitPane = new JPanel(new BorderLayout());
         splitPane.add(p);
-        splitPane.add(pp,BorderLayout.WEST);
+        splitPane.add(pp, BorderLayout.WEST);
 
 //        splitPane.setRightComponent(p);
 //        splitPane.setLeftComponent(pp);
 
         splitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin2);
 
-        panel = new JPanel(new BorderLayout());
-        panel.add(splitPane);
-        panel.add(statBox, BorderLayout.SOUTH);
-
-        contentPane.add(panel, "Panel");
-        contentPane.add(waitPanel, "WaitPanel");
-
-        rootPane = new JRootPane();
-        rootPane.setContentPane(contentPane);
-        add(rootPane);
-
-        this.source = new SshUserInteraction(info, rootPane);
+        add(splitPane);
+        add(statBox, BorderLayout.SOUTH);
         this.threadPool = Executors.newSingleThreadExecutor();
     }
 
-    private void find() {
-        this.stopFlag.set(false);
-        this.threadPool.submit(() -> {
-            findAsync();
-        });
-    }
 
     public void resizeColumnWidth(JTable table) {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -490,7 +453,88 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         btnDownload.setEnabled(true);
     }
 
-    private void findAsync() {
+    private void find() {
+        if (this.holder.isCloseRequested().get()) {
+            return;
+        }
+        StringBuilder criteriaBuffer = new StringBuilder();
+
+        String folder = txtFolder.getText();
+//			if (folder.contains(" ")) {
+//				folder = "\"" + folder + "\"";
+//			}
+
+        criteriaBuffer.append(" ");
+
+        if (txtSize.getText().length() > 0) {
+            criteriaBuffer.append("-size");
+            switch (cmbSize.getSelectedIndex()) {
+                case 1:
+                    criteriaBuffer.append(" -");
+                    break;
+                case 2:
+                    criteriaBuffer.append(" +");
+                    break;
+                default:
+                    criteriaBuffer.append(" ");
+            }
+            criteriaBuffer.append(txtSize.getText() + "c");
+            criteriaBuffer.append(" ");
+        }
+
+        if (radFile.isSelected() || radFileContents.isSelected()) {
+            criteriaBuffer.append(" -type f");
+        } else if (radFolder.isSelected()) {
+            criteriaBuffer.append(" -type d");
+        }
+
+        if (radWeek.isSelected()) {
+            criteriaBuffer.append(" -mtime -7");
+        } else if (radCust.isSelected()) {
+            Date d1 = (Date) spDate1.getValue();
+            Date d2 = (Date) spDate2.getValue();
+
+            LocalDate now = LocalDate.now();
+            LocalDate date1 = d1.toInstant().atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            LocalDate date2 = d2.toInstant().atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            long days1 = ChronoUnit.DAYS.between(date1, now);
+            long days2 = ChronoUnit.DAYS.between(date2, now);
+
+            criteriaBuffer
+                    .append(" -mtime +" + days2 + " -a -mtime -" + days1);
+        }
+
+        StringBuilder scriptBuffer = new StringBuilder();
+
+        if (txtName.getText().length() > 0 && radFileName.isSelected()) {
+            scriptBuffer
+                    .append("export NAME='" + txtName.getText() + "'\n");
+        }
+
+        scriptBuffer.append("export LOCATION=\"" + folder + "\"\n");
+        scriptBuffer.append("export CRITERIA='" + criteriaBuffer + "'\n");
+        if (radFileContents.isSelected()) {
+            scriptBuffer.append("export CONTENT=1\n");
+            scriptBuffer
+                    .append("export PATTERN='" + txtName.getText() + "'\n");
+            if (chkIncludeCompressed.isSelected()) {
+                scriptBuffer.append("export UNCOMPRESS=1\n");
+            }
+        }
+        this.stopFlag.set(false);
+        this.holder.disableUi(stopFlag);
+        this.threadPool.submit(() -> {
+            findAsync(scriptBuffer);
+        });
+    }
+
+    private void findAsync(StringBuilder scriptBuffer) {
+        if (this.holder.isCloseRequested().get()) {
+            return;
+        }
         SwingUtilities.invokeLater(() -> {
             model.clear();
             lblStat.setText("Searching");
@@ -500,78 +544,16 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         System.out.println("Starting search.. ");
         try {
-            client = new SshClient(source);
+            SshClient client = this.holder.getSshFileSystem().getWrapper();
+            if (!client.isConnected()) {
+                if (this.holder.isCloseRequested().get()) {
+                    return;
+                }
+                client.connect();
+            }
 
             if (searchScript == null) {
                 searchScript = ScriptLoader.loadShellScript("/search.sh");
-            }
-
-            StringBuilder criteriaBuffer = new StringBuilder();
-
-            String folder = txtFolder.getText();
-//			if (folder.contains(" ")) {
-//				folder = "\"" + folder + "\"";
-//			}
-
-            criteriaBuffer.append(" ");
-
-            if (txtSize.getText().length() > 0) {
-                criteriaBuffer.append("-size");
-                switch (cmbSize.getSelectedIndex()) {
-                    case 1:
-                        criteriaBuffer.append(" -");
-                        break;
-                    case 2:
-                        criteriaBuffer.append(" +");
-                        break;
-                    default:
-                        criteriaBuffer.append(" ");
-                }
-                criteriaBuffer.append(txtSize.getText() + "c");
-                criteriaBuffer.append(" ");
-            }
-
-            if (radFile.isSelected() || radFileContents.isSelected()) {
-                criteriaBuffer.append(" -type f");
-            } else if (radFolder.isSelected()) {
-                criteriaBuffer.append(" -type d");
-            }
-
-            if (radWeek.isSelected()) {
-                criteriaBuffer.append(" -mtime -7");
-            } else if (radCust.isSelected()) {
-                Date d1 = (Date) spDate1.getValue();
-                Date d2 = (Date) spDate2.getValue();
-
-                LocalDate now = LocalDate.now();
-                LocalDate date1 = d1.toInstant().atZone(ZoneId.systemDefault())
-                        .toLocalDate();
-                LocalDate date2 = d2.toInstant().atZone(ZoneId.systemDefault())
-                        .toLocalDate();
-
-                long days1 = ChronoUnit.DAYS.between(date1, now);
-                long days2 = ChronoUnit.DAYS.between(date2, now);
-
-                criteriaBuffer
-                        .append(" -mtime +" + days2 + " -a -mtime -" + days1);
-            }
-
-            StringBuilder scriptBuffer = new StringBuilder();
-
-            if (txtName.getText().length() > 0 && radFileName.isSelected()) {
-                scriptBuffer
-                        .append("export NAME='" + txtName.getText() + "'\n");
-            }
-
-            scriptBuffer.append("export LOCATION=\"" + folder + "\"\n");
-            scriptBuffer.append("export CRITERIA='" + criteriaBuffer + "'\n");
-            if (radFileContents.isSelected()) {
-                scriptBuffer.append("export CONTENT=1\n");
-                scriptBuffer
-                        .append("export PATTERN='" + txtName.getText() + "'\n");
-                if (chkIncludeCompressed.isSelected()) {
-                    scriptBuffer.append("export UNCOMPRESS=1\n");
-                }
             }
 
             scriptBuffer.append(searchScript);
@@ -588,38 +570,31 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
             System.out.println("search output\n" + output);
 
             String lines[] = output.toString().split("\n");
-
-            for (String line : lines) {
-                if (line.length() > 0) {
-                    SearchResult res = parseOutput(line);
-                    if (res != null) {
-                        SwingUtilities.invokeLater(() -> {
+            SwingUtilities.invokeLater(() -> {
+                for (String line : lines) {
+                    if (line.length() > 0) {
+                        SearchResult res = parseOutput(line);
+                        if (res != null) {
                             model.add(res);
-                            lblCount.setText(String.format("%d items", model.getRowCount()));
-                        });
+                        }
                     }
                 }
-            }
+                lblCount.setText(String.format("%d items", model.getRowCount()));
+            });
 
             lblStat.setText("Idle");
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (client.isConnected()) {
-                client.disconnect();
-            }
+            SwingUtilities.invokeLater(() -> {
+                lblStat.setText("Idle");
+                lblCount.setText(String.format(
+                        "%d items",
+                        model.getRowCount()));
+                this.holder.enableUi();
+            });
         }
-
-        SwingUtilities.invokeLater(() -> {
-            lblStat.setText("Idle");
-            lblCount.setText(String.format(
-                    "%d items",
-                    model.getRowCount()));
-            cardLayout.show(contentPane, "Panel");
-        });
-
     }
-
 
     private SearchResult parseOutput(String text) {
         if (this.pattern == null) {
@@ -653,8 +628,5 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
     public void close() {
         stopFlag.set(true);
-        if (client != null) {
-            client.disconnect();
-        }
     }
 }

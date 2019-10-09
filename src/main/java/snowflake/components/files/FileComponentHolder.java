@@ -14,6 +14,7 @@ import snowflake.components.files.browser.ssh.SshFileBrowserView;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
 import snowflake.components.files.logviewer.LogViewerComponent;
+import snowflake.components.files.search.FileSearchPanel;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
@@ -67,6 +68,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private ExternalEditor externalEditor;
     private List<ExternalEditor.FileModificationInfo> pendingTransfers = Collections.synchronizedList(new ArrayList<>());
     private LogViewerComponent logViewerComponent;
+    private FileSearchPanel fileSearchPanel;
     private SessionContent sessionContent;
     private Map<String, List<FileInfo>> directoryCache = new ConcurrentHashMap<>();
 
@@ -101,7 +103,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         });
 
         logViewerComponent = new LogViewerComponent(this);
-
+        fileSearchPanel = new FileSearchPanel(this);
         fileBrowser = new FileBrowser(info, source, fileSystemMap, fileViewMap, closeRequested, this, rootPane);
         editor = new TextEditor(this);
 
@@ -115,6 +117,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
         tabs.addTab("File browser", fileBrowser);
         tabs.addTab("Text editor", editor);
         tabs.addTab("Log viewer", logViewerComponent);
+        tabs.addTab("Search", fileSearchPanel);
         tabs.setSelectedIndex(0);
 
 
@@ -353,6 +356,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     @Override
     public void close() {
         this.closeRequested.set(true);
+        this.fileSearchPanel.close();
         if (fs != null) {
             try {
                 fs.close();

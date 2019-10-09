@@ -1,7 +1,6 @@
 package snowflake.components.main;
 
 import snowflake.App;
-import snowflake.components.common.TabbedPanel;
 import snowflake.components.diskusage.DiskUsageAnalyzer;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
@@ -9,14 +8,13 @@ import snowflake.components.files.transfer.BackgroundTransferPanel;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.keymanager.KeyManagerPanel;
 import snowflake.components.newsession.SessionInfo;
-import snowflake.components.search.FileSearchPanel;
+import snowflake.components.files.search.FileSearchPanel;
 import snowflake.components.sysinfo.SystemInfoPanel;
 import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -29,7 +27,6 @@ public class SessionContent extends JPanel {
     private JPanel panels[];
     private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg = new Color(45, 49, 58);
 
-    private FileSearchPanel fileSearchPanel;
     private TaskManager taskManager;
     private DiskUsageAnalyzer diskUsageAnalyzer;
     private SystemInfoPanel systemInfoPanel;
@@ -38,10 +35,10 @@ public class SessionContent extends JPanel {
     private TerminalHolder terminalHolder;
     private ExternalEditor externalEditor;
     private BackgroundTransferPanel backgroundTransferPanel;
-    private String pageNames[] = new String[]{"Files", "Terminal", "Search", "System monitor",
+    private String pageNames[] = new String[]{"Files", "Terminal", "System monitor",
             "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys"};
 
-    private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf002", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084"};
+    private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084"};
 
 
     //private FileStore fileStore;
@@ -81,7 +78,6 @@ public class SessionContent extends JPanel {
 //        TabbedPanel bottomTabs = new TabbedPanel();
         terminalHolder = new TerminalHolder(info);
         backgroundTransferPanel = new BackgroundTransferPanel();
-        fileSearchPanel = new FileSearchPanel(this.info);
         taskManager = new TaskManager(this.info);
         diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
         systemInfoPanel = new SystemInfoPanel(this.info);
@@ -99,7 +95,7 @@ public class SessionContent extends JPanel {
 
         mainPanel.add(fileComponentHolder, "Files");
         mainPanel.add(terminalHolder, "Terminal");
-        mainPanel.add(fileSearchPanel, "Search");
+//        mainPanel.add(fileSearchPanel, "Search");
         mainPanel.add(taskManager, "System monitor");
         mainPanel.add(diskUsageAnalyzer, "Disk space analyzer");
         mainPanel.add(backgroundTransferPanel, "Active transfers");
@@ -242,7 +238,6 @@ public class SessionContent extends JPanel {
 
     public void close() {
         new Thread(() -> {
-            fileSearchPanel.close();
             diskUsageAnalyzer.close();
             systemInfoPanel.close();
             //keyManagerPanel.close();
