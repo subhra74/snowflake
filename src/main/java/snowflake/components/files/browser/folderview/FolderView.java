@@ -6,15 +6,20 @@ import snowflake.common.FileType;
 import snowflake.components.files.DndTransferHandler;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
+//import javax.swing.table.TableRowSorter;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
@@ -26,7 +31,7 @@ public class FolderView extends JPanel {
 //    private ListView list;
     private FolderViewTableModel folderViewModel;
     private JTable table;
-    private TableRowSorter<FolderViewTableModel> sorter;
+    //private TableRowSorter<FolderViewTableModel> sorter;
     private FolderViewEventListener listener;
     private JPopupMenu popup;
     private boolean showHiddenFiles = false;
@@ -47,7 +52,7 @@ public class FolderView extends JPanel {
 
         folderViewModel = new FolderViewTableModel(false);
 
-        sorter = new TableRowSorter<FolderViewTableModel>(folderViewModel);
+
         //TableCellTextRenderer r = new TableCellTextRenderer();
 
         TableCellLabelRenderer r1 = new TableCellLabelRenderer(viewBackground);
@@ -56,7 +61,7 @@ public class FolderView extends JPanel {
         table.setBackground(viewBackground);
         table.setDefaultRenderer(FileInfo.class, r1);
         table.setDefaultRenderer(Long.class, r1);
-        table.setDefaultRenderer(Date.class, r1);
+        table.setDefaultRenderer(LocalDateTime.class, r1);
         table.setDefaultRenderer(Object.class, r1);
         table.setFillsViewportHeight(true);
         table.setShowGrid(false);
@@ -64,12 +69,33 @@ public class FolderView extends JPanel {
         listener.install(this);
 
         table.setIntercellSpacing(new Dimension(0, 0));
-        //table.setBorder(null);
         table.setDragEnabled(true);
         table.setDropMode(DropMode.ON);
         //table.setShowGrid(false);
         //table.setRowHeight(r.getPreferredHeight());
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+//        TableRowSorter sorter=new TableRowSorter<>(table.getModel());
+//        sorter.setComparator(0, new Comparator() {
+//            @Override
+//            public int compare(Object o1, Object o2) {
+//                System.out.println("Called sorter");
+//                return 0;
+//            }
+//        });
+//
+//        table.setRowSorter(sorter);
+
+        //
+        //
+        table.setAutoCreateRowSorter(true);
+
+//        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+//        sortKeys.add(new RowSorter.SortKey(3, SortOrder.ASCENDING));
+//        sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+//        table.getRowSorter().setSortKeys(sortKeys);
+
+        //sorter=new TableRowSorter<>(folderViewModel);
 
 
 //        sorter.setComparator(0,(a,b)->{
@@ -127,85 +153,106 @@ public class FolderView extends JPanel {
 //
 //        });
 
-        table.setAutoCreateRowSorter(false);
 
-        table.setRowSorter(sorter);
-
-        sorter.setComparator(0,
-                new Comparator<FileInfo>() {
-                    @Override
-                    public int compare(FileInfo s1, FileInfo s2) {
-                        System.out.println("Name sorter called");
-                        return s1.compareTo(s2);
-                    }
-                });
-
-        sorter.setComparator(1, (Long s1, Long s2) -> {
-            System.out.println("Size sorter called");
-            return s1.compareTo(s2);
-        });
-
-        sorter.setComparator(2, (Object s1, Object s2) -> {
-            System.out.println("Type sorter called");
-            return (s1 + "").compareTo((s2 + ""));
-        });
-
-        sorter.setComparator(3,
-                new Comparator<FileInfo>() {
-                    @Override
-                    public int compare(FileInfo s1, FileInfo s2) {
-                        System.out.println("Date sorter called");
-                        if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
-                            if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
-                                return s1.getLastModified().compareTo(s2.getLastModified());
-                            } else {
-                                return 1;
-                            }
-                        } else {
-                            if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
-                                return -1;
-                            } else {
-                                return s1.getLastModified().compareTo(s2.getLastModified());
-                            }
-                        }
-                    }
-                });
-
-//        sorter.setComparator(3, (FileInfo s1, FileInfo s2) -> {
-//            System.out.println("Date sorter called");
-//            if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
-//                if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
-//                    return s1.getLastModified().compareTo(s2.getLastModified());
-//                } else {
-//                    return 1;
-//                }
-//            } else {
-//                if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
-//                    return -1;
-//                } else {
-//                    return s1.getLastModified().compareTo(s2.getLastModified());
-//                }
+////        sorter = new TableRowSorter<FolderViewTableModel>(folderViewModel);
+//        sorter.setRowFilter(new RowFilter<FolderViewTableModel, Integer>() {
+//            @Override
+//            public boolean include(Entry<? extends FolderViewTableModel, ? extends Integer> entry) {
+//                return true;
 //            }
 //        });
-
-        sorter.setComparator(4, (Object s1, Object s2) -> {
-            System.out.println("Perm sorter called");
-            return (s1 + "").compareTo((s2 + ""));
-        });
-
-        sorter.setComparator(5, (Object s1, Object s2) -> {
-            System.out.println("Extra sorter called");
-            return (s1 + "").compareTo((s2 + ""));
-        });
-
-
 //
-        ArrayList<RowSorter.SortKey> list = new ArrayList<>();
-        list.add(new RowSorter.SortKey(3, SortOrder.DESCENDING));
-        sorter.setSortKeys(list);
-
-        sorter.sort();
+//        sorter.setComparator(0, (Object o1, Object o2) -> {
+//            FileInfo s1 = (FileInfo) o1;
+//            FileInfo s2 = (FileInfo) o2;
+//            System.out.println("Name sorter called");
+//            return s1.toString().compareTo(s2.toString());
+//        });
 //
+//        sorter.setComparator(0, (FileInfo o1, FileInfo o2) -> {
+//            FileInfo s1 = (FileInfo) o1;
+//            FileInfo s2 = (FileInfo) o2;
+//            System.out.println("Name sorter called");
+//            return s1.toString().compareTo(s2.toString());
+//        });
+//
+//        sorter.setComparator(0, (String o1, String o2) -> {
+//            System.out.println("Name sorter called");
+//            return o1.toString().compareTo(o2.toString());
+//        });
+//
+//        sorter.setComparator(1, (Long s1, Long s2) -> {
+//            System.out.println("Size sorter called");
+//            return s1.compareTo(s2);
+//        });
+//
+//        sorter.setComparator(2, (Object s1, Object s2) -> {
+//            System.out.println("Type sorter called");
+//            return (s1 + "").compareTo((s2 + ""));
+//        });
+//
+//        sorter.setComparator(3,
+//                new Comparator<Object>() {
+//                    @Override
+//                    public int compare(Object o1, Object o2) {
+//                        FileInfo s1 = (FileInfo) o1;
+//                        FileInfo s2 = (FileInfo) o2;
+//                        System.out.println("Date sorter called");
+//                        if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+//                            if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
+//                                return s1.getLastModified().compareTo(s2.getLastModified());
+//                            } else {
+//                                return 1;
+//                            }
+//                        } else {
+//                            if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+//                                return -1;
+//                            } else {
+//                                return s1.getLastModified().compareTo(s2.getLastModified());
+//                            }
+//                        }
+//                    }
+//                });
+//
+//        table.setRowSorter(sorter);
+//
+////        sorter.setComparator(3, (FileInfo s1, FileInfo s2) -> {
+////            System.out.println("Date sorter called");
+////            if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+////                if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
+////                    return s1.getLastModified().compareTo(s2.getLastModified());
+////                } else {
+////                    return 1;
+////                }
+////            } else {
+////                if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+////                    return -1;
+////                } else {
+////                    return s1.getLastModified().compareTo(s2.getLastModified());
+////                }
+////            }
+////        });
+//
+//        sorter.setComparator(4, (Object s1, Object s2) -> {
+//            System.out.println("Perm sorter called");
+//            return (s1 + "").compareTo((s2 + ""));
+//        });
+//
+//        sorter.setComparator(5, (Object s1, Object s2) -> {
+//            System.out.println("Extra sorter called");
+//            return (s1 + "").compareTo((s2 + ""));
+//        });
+//
+//        table.setRowSorter(sorter);
+//
+//        ArrayList<RowSorter.SortKey> list = new ArrayList<>();
+//        list.add(new RowSorter.SortKey(3, SortOrder.DESCENDING));
+//        sorter.setSortKeys(list);
+//
+//        sorter.sort();
+//
+
+
         table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
         table.getActionMap().put("Enter", new AbstractAction() {
@@ -542,7 +589,7 @@ public class FolderView extends JPanel {
             col.setPreferredWidth(arr[column]);
         }
 
-        table.setRowSorter(sorter);
+        //table.setRowSorter(sorter);
     }
 
 //    public int getSortIndex() {

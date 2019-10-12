@@ -3,6 +3,7 @@ package snowflake.components.files.browser.folderview;
 import snowflake.common.FileInfo;
 
 import javax.swing.table.AbstractTableModel;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -27,12 +28,13 @@ public class FolderViewTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
-            case 3:
                 return FileInfo.class;
             case 1:
                 return Long.class;
-            case 2:
+            case 3:
+                return LocalDateTime.class;
             case 4:
+            case 2:
             default:
                 return Object.class;
         }
@@ -95,8 +97,9 @@ public class FolderViewTableModel extends AbstractTableModel {
         FileInfo ent = files.get(rowIndex);
         switch (columnIndex) {
             case 0:
-            case 3:
                 return ent;
+            case 3:
+                return ent.getLastModified();
             case 1:
                 return ent.getSize();
             case 2:

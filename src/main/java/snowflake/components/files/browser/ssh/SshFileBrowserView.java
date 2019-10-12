@@ -40,7 +40,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
         this.fileBrowser = fileBrowser;
         this.menuHandler = new SshMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);
-        this.transferHandler = new DndTransferHandler(this.folderView, holder.getInfo(), this);
+        this.transferHandler = new DndTransferHandler(this.folderView, holder.getInfo(),
+                this, DndTransferData.DndSourceType.SSH);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
         this.addressPopup = menuHandler.createAddressPopup();
@@ -228,11 +229,18 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
             int sessionHashCode = transferData.getInfo();
             System.out.println("Session hash code: " + sessionHashCode);
             FileSystem sourceFs = null;
-            if (sessionHashCode == 0) {
+            if (sessionHashCode == 0 && transferData.getSourceType() == DndTransferData.DndSourceType.LOCAL) {
                 sourceFs = new LocalFileSystem();
-            } else if (sessionHashCode == holder.getInfo().hashCode()) {
+            } else if (transferData.getSourceType() == DndTransferData.DndSourceType.SSH
+                    && sessionHashCode == holder.getInfo().hashCode()) {
                 sourceFs = holder.getSshFileSystem();
+            } else if (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP) {
+                //handle server to server drop - sftp
+                System.out.println("Foreign file drop");
+                sourceFs = this.fileBrowser.getFs(transferData.getSource());
+                System.out.println("Foreign sftp fs: " + sourceFs);
             }
+
             if (sourceFs instanceof LocalFileSystem) {
                 if (JOptionPane.showOptionDialog(holder,
                         new Object[]{"Please select a transfer mode", cmbOptions},
@@ -255,27 +263,23 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 FileSystem targetFs = holder.getSshFileSystem();
                 holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
                         this.path, this.hashCode(), -1, false);
-            } else if (sourceFs instanceof SshFileSystem) {
+            } else if (sourceFs instanceof SshFileSystem && (sourceFs == holder.getSshFileSystem())) {
                 System.out.println("SshFs is of same instance: " + (sourceFs == holder.getSshFileSystem()));
-                if ((sourceFs == holder.getSshFileSystem())) {
-                    if (transferData.getFiles().length > 0) {
-                        FileInfo fileInfo = transferData.getFiles()[0];
-                        String parent = PathUtils.getParent(fileInfo.getPath());
-                        System.out.println("Parent: " + parent + " == " + this.getCurrentDirectory());
-                        if (!parent.endsWith("/")) {
-                            parent += "/";
-                        }
-                        String pwd = this.getCurrentDirectory();
-                        if (!pwd.endsWith("/")) {
-                            pwd += "/";
-                        }
-                        if (parent.equals(pwd)) {
-                            JOptionPane.showMessageDialog(null, "Cant move files like this!");
-                            return false;
-                        }
+                if (transferData.getFiles().length > 0) {
+                    FileInfo fileInfo = transferData.getFiles()[0];
+                    String parent = PathUtils.getParent(fileInfo.getPath());
+                    System.out.println("Parent: " + parent + " == " + this.getCurrentDirectory());
+                    if (!parent.endsWith("/")) {
+                        parent += "/";
                     }
-                } else {
-                    //handle server to server drop
+                    String pwd = this.getCurrentDirectory();
+                    if (!pwd.endsWith("/")) {
+                        pwd += "/";
+                    }
+                    if (parent.equals(pwd)) {
+                        JOptionPane.showMessageDialog(null, "Cant move files like this!");
+                        return false;
+                    }
                 }
 
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
@@ -283,13 +287,19 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 } else {
                     menuHandler.move(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
                 }
+            } else if (sourceFs instanceof SshFileSystem
+                    && (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP)) {
+                System.out.println("Sftp file drop");
+                FileSystem targetFs = holder.getSshFileSystem();
+                holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
+                        this.path, this.hashCode(), -1, false);
             }
+            System.out.println("12345: " + (sourceFs instanceof SshFileSystem) + " " + transferData.getSourceType());
             return true;
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-
     }
 
     public FileSystem getFileSystem() throws Exception {

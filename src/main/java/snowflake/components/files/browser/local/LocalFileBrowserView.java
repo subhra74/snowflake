@@ -39,7 +39,8 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         this.fileBrowser = fileBrowser;
         this.menuHandler = new LocalMenuHandler(fileBrowser, this, holder);
         this.menuHandler.initMenuHandler(this.folderView);
-        this.transferHandler = new DndTransferHandler(this.folderView, null, this);
+        this.transferHandler = new DndTransferHandler(this.folderView, null,
+                this, DndTransferData.DndSourceType.LOCAL);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
         this.addressPopup = menuHandler.createAddressPopup();
@@ -154,7 +155,9 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
         if (transferData.getSource() == this.hashCode()) {
             return false;
         }
-        if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy() && JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
+        if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
+                && JOptionPane.showConfirmDialog(null, "Move/copy files?")
+                != JOptionPane.YES_OPTION) {
             return false;
         }
         try {
@@ -196,6 +199,9 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
             e.printStackTrace();
             return false;
         }
+    }
 
+    public FileSystem getFileSystem() throws Exception {
+        return new LocalFileSystem();
     }
 }

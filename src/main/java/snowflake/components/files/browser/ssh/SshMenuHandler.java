@@ -2,12 +2,17 @@ package snowflake.components.files.browser.ssh;
 
 import snowflake.App;
 import snowflake.common.FileInfo;
+import snowflake.common.FileSystem;
 import snowflake.common.FileType;
+import snowflake.common.local.files.LocalFileSystem;
+import snowflake.common.ssh.SshModalUserInteraction;
+import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.browser.folderview.FolderView;
+import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
@@ -19,8 +24,10 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.ActionEvent;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -308,6 +315,20 @@ public class SshMenuHandler {
             }
             createArchive(files, fileBrowserView.getCurrentDirectory(), fileBrowserView.getCurrentDirectory());
         });
+
+        mDownload = new JMenuItem("Download selected files");
+        mDownload.addActionListener(e -> {
+            downloadFiles(folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
+        });
+
+        mUpload = new JMenuItem("Upload files here");
+        mUpload.addActionListener(e -> {
+            try {
+                uploadFiles();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        });
     }
 
     private void changePermission(FileInfo[] selectedFiles, String currentDirectory) {
@@ -327,7 +348,8 @@ public class SshMenuHandler {
 
     private void copyToClipboard(boolean cut) {
         FileInfo[] selectedFiles = folderView.getSelectedFiles();
-        DndTransferData transferData = new DndTransferData(holder.getInfo().hashCode(), selectedFiles, fileBrowserView.getCurrentDirectory(), fileBrowserView.hashCode());
+        DndTransferData transferData = new DndTransferData(holder.getInfo().hashCode(), selectedFiles,
+                fileBrowserView.getCurrentDirectory(), fileBrowserView.hashCode(), DndTransferData.DndSourceType.SSH);
         transferData.setTransferAction(cut ? DndTransferData.TransferAction.Cut : DndTransferData.TransferAction.Copy);
 
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new Transferable() {
@@ -413,6 +435,7 @@ public class SshMenuHandler {
             popup.add(mCut);
             popup.add(mCopy);
             popup.add(mCopyPath);
+            popup.add(mDownload);
             count += 3;
         }
 
@@ -459,6 +482,14 @@ public class SshMenuHandler {
             popup.add(mNewFile);
             popup.add(mOpenTerminalHere);
             count += 2;
+        }
+
+        if (selectionCount < 1 ||
+                (selectionCount == 1 &&
+                        (selectedFiles[0].getType() == FileType.File
+                                || selectedFiles[0].getType() == FileType.FileLink))) {
+            popup.add(mUpload);
+            count += 1;
         }
 
         // check only if folder is selected
@@ -775,5 +806,66 @@ public class SshMenuHandler {
                 e.printStackTrace();
             }
         });
+    }
+
+    private void downloadFiles(FileInfo[] files, String currentDirectory) {
+        try {
+            JFileChooser jfc = new JFileChooser();
+            jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            if (jfc.showSaveDialog(SwingUtilities.getWindowAncestor(fileBrowserView)) == JFileChooser.APPROVE_OPTION) {
+                File file = jfc.getSelectedFile();
+
+                JComboBox<String> cmbOptions = new JComboBox<>(new String[]{"Transfer normally", "Transfer in background"});
+                if (JOptionPane.showOptionDialog(holder,
+                        new Object[]{"Please select a transfer mode", cmbOptions},
+                        "Transfer options",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        null) != JOptionPane.OK_OPTION) {
+                    return;
+                }
+                boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
+
+                if (backgroundTransfer) {
+                    FileSystem sourceFs = holder.getSshFileSystem();
+                    FileSystem targetFs = new LocalFileSystem();
+                    holder.newFileTransfer(sourceFs, targetFs, files, currentDirectory,
+                            file.getAbsolutePath(), this.hashCode(), -1, true);
+                    return;
+                }
+                FileSystem targetFs = new LocalFileSystem();
+                FileSystem sourceFs = holder.getSshFileSystem();
+                holder.newFileTransfer(sourceFs, targetFs, files,
+                        currentDirectory, file.getAbsolutePath(),
+                        this.hashCode(), -1,
+                        false);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    private void uploadFiles() throws IOException {
+        JFileChooser jfc = new JFileChooser();
+        jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        jfc.setMultiSelectionEnabled(true);
+        if (jfc.showOpenDialog(SwingUtilities.getWindowAncestor(fileBrowserView)) == JFileChooser.APPROVE_OPTION) {
+            System.out.println("After file selection");
+            File[] files = jfc.getSelectedFiles();
+            if (files.length > 0) {
+                LocalFileSystem localFileSystem = new LocalFileSystem();
+                List<FileInfo> list = new ArrayList<>();
+                for (File file : files) {
+                    FileInfo fileInfo = localFileSystem.getInfo(file.getAbsolutePath());
+                    list.add(fileInfo);
+                }
+                DndTransferData uploadData = new DndTransferData(0, list.toArray(new FileInfo[0]),
+                        files[0].getParent(), 0, DndTransferData.DndSourceType.LOCAL);
+                fileBrowserView.handleDrop(uploadData);
+            }
+        }
     }
 }

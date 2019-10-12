@@ -17,21 +17,26 @@ public class DndTransferHandler extends TransferHandler implements Transferable 
     private SessionInfo info;
     private AbstractFileBrowserView fileBrowserView;
     private DndTransferData transferData;
+    private DndTransferData.DndSourceType sourceType;
 
     public static final DataFlavor DATA_FLAVOR = new DataFlavor(DndTransferData.class,
             "data-file");
 
-    public DndTransferHandler(FolderView folderView, SessionInfo info, AbstractFileBrowserView fileBrowserView) {
+    public DndTransferHandler(FolderView folderView,
+                              SessionInfo info,
+                              AbstractFileBrowserView fileBrowserView,
+                              DndTransferData.DndSourceType sourceType) {
         this.folderView = folderView;
         this.info = info;
         this.fileBrowserView = fileBrowserView;
+        this.sourceType = sourceType;
     }
 
     @Override
     public void exportAsDrag(JComponent comp, InputEvent e, int action) {
         DndTransferData data = new DndTransferData(info == null ? 0 : info.hashCode(), folderView.getSelectedFiles(),
                 this.fileBrowserView.getCurrentDirectory(),
-                this.fileBrowserView.hashCode());
+                this.fileBrowserView.hashCode(), sourceType);
         System.out.println("Exporting drag " + data + " hashcode: " + data.hashCode());
         this.transferData = data;
         super.exportAsDrag(comp, e, action);

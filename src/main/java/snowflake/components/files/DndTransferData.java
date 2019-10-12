@@ -6,17 +6,35 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class DndTransferData implements Serializable {
+
+    public enum DndSourceType {
+        SSH,
+        SFTP,
+        FTP,
+        LOCAL
+    }
+
+    public enum TransferAction {
+        DragDrop,
+        Cut,
+        Copy
+    }
+
     private int sessionHashcode;
     private FileInfo[] files;
     private String currentDirectory;
     private int source;
     private TransferAction transferAction = TransferAction.DragDrop;
 
-    public DndTransferData(int sessionHashcode, FileInfo[] files, String currentDirectory, int source) {
+    private DndSourceType sourceType;
+
+    public DndTransferData(int sessionHashcode, FileInfo[] files,
+                           String currentDirectory, int source, DndSourceType sourceType) {
         this.sessionHashcode = sessionHashcode;
         this.files = files;
         this.currentDirectory = currentDirectory;
         this.source = source;
+        this.sourceType = sourceType;
     }
 
     @Override
@@ -68,9 +86,7 @@ public class DndTransferData implements Serializable {
         this.transferAction = transferAction;
     }
 
-    public enum TransferAction {
-        DragDrop,
-        Cut,
-        Copy
+    public DndSourceType getSourceType() {
+        return sourceType;
     }
 }

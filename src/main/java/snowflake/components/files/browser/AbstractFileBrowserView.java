@@ -1,6 +1,7 @@
 package snowflake.components.files.browser;
 
 import snowflake.App;
+import snowflake.common.FileSystem;
 import snowflake.components.common.AddressBar;
 import snowflake.components.common.NavigationHistory;
 import snowflake.components.files.DndTransferData;
@@ -251,4 +252,6 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     public enum PanelOrientation {
         Left, Right
     }
+
+    public abstract FileSystem getFileSystem() throws Exception;
 }

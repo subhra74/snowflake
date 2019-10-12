@@ -310,8 +310,8 @@ public class TaskManager extends JPanel implements ConnectedResource {
     public void close() {
         running.set(false);
         try {
-            client.close();
-        } catch (IOException e) {
+            client.disconnect();
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

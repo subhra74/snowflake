@@ -30,6 +30,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
     private DndTransferHandler transferHandler;
     private JPopupMenu addressPopup;
     private SftpMenuHandler menuHandler;
+
     private SshFileSystem fs;
     private SessionInfo foreignInfo;
     private JComboBox<String> cmbOptions = new JComboBox<>(new String[]{"Transfer normally", "Transfer in background"});
@@ -43,7 +44,8 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         this.fs = new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
         this.menuHandler = new SftpMenuHandler(fileBrowser, this, holder, fs);
         this.menuHandler.initMenuHandler(this.folderView);
-        this.transferHandler = new DndTransferHandler(this.folderView, foreignInfo, this);
+        this.transferHandler = new DndTransferHandler(this.folderView, null,
+                this, DndTransferData.DndSourceType.SFTP);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
         this.addressPopup = menuHandler.createAddressPopup();
@@ -168,7 +170,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             if (sessionHashCode == 0) return true;
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
-
                 if (backgroundTransfer) {
                     FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(this.foreignInfo));
@@ -203,5 +204,9 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
                 e.printStackTrace();
             }
         });
+    }
+
+    public FileSystem getFileSystem() throws Exception {
+        return this.fs;
     }
 }

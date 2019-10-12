@@ -209,6 +209,20 @@ public class FileBrowser extends JPanel {
         }
     }
 
+    public FileSystem getFs(int sessionCode) {
+        try {
+            for (int i = 0; i < rightList.getSize(); i++) {
+                Object obj = rightList.getElementAt(i);
+                if (obj.hashCode() == sessionCode) {
+                    return ((AbstractFileBrowserView) obj).getFileSystem();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 //    public void newFileTransfer(FileSystem sourceFs,
 //                                FileSystem targetFs,
 //                                FileInfo[] files,

@@ -33,7 +33,7 @@ import java.util.regex.Pattern;
 
 public class FileSearchPanel extends JPanel implements AutoCloseable {
     private JTextField txtName;
-    private JComboBox<String> cmbSize;
+    private JComboBox<String> cmbSize, cmbSizeUnit;
     private JTextField txtSize;
     private JRadioButton radAny, radWeek, radCust;
     private JRadioButton radBoth, radFile, radFolder;
@@ -105,17 +105,25 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         JLabel lblSize = new JLabel("Size");
         lblSize.setAlignmentX(LEFT_ALIGNMENT);
-        cmbSize = new JComboBox<>(
-                new String[]{"Equal to",
-                        "Less than",
-                        "More than"});
-        cmbSize.setMaximumSize(pref);
-        cmbSize.setAlignmentX(LEFT_ALIGNMENT);
 
-        txtSize = new JTextField(10);
-        txtSize.setPreferredSize(pref);
+
+        txtSize = new JTextField();
         txtSize.setAlignmentX(LEFT_ALIGNMENT);
-        txtSize.setMaximumSize(pref);
+        Dimension txtSizeD = new Dimension(60, txtSize.getPreferredSize().height);
+        txtSize.setPreferredSize(txtSizeD);
+        txtSize.setMaximumSize(txtSizeD);
+
+        cmbSizeUnit = new JComboBox<>(
+                new String[]{"GB", "MB",
+                        "KB", "B"});
+        cmbSizeUnit.setMaximumSize(cmbSizeUnit.getPreferredSize());
+
+        cmbSize = new JComboBox<>(
+                new String[]{"=",
+                        "<",
+                        ">"});
+        cmbSize.setMaximumSize(new Dimension(20, cmbSize.getPreferredSize().height));
+        cmbSize.setAlignmentX(LEFT_ALIGNMENT);
 
         JLabel lblMtime = new JLabel("Modified");
         lblMtime.setAlignmentX(LEFT_ALIGNMENT);
@@ -272,11 +280,21 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         b1.add(Box.createVerticalStrut(10));
 
-        b1.add(lblSize);
-        b1.add(Box.createVerticalStrut(3));
-        b1.add(cmbSize);
-        b1.add(Box.createVerticalStrut(3));
-        b1.add(txtSize);
+        Box boxSize = Box.createHorizontalBox();
+        boxSize.setAlignmentX(LEFT_ALIGNMENT);
+        boxSize.add(lblSize);
+        boxSize.add(Box.createHorizontalGlue());
+        boxSize.add(cmbSize);
+        boxSize.add(Box.createRigidArea(new Dimension(3, 0)));
+        boxSize.add(txtSize);
+        boxSize.add(Box.createRigidArea(new Dimension(3, 0)));
+        boxSize.add(cmbSizeUnit);
+
+        b1.add(boxSize);
+//        b1.add(Box.createVerticalStrut(3));
+//        b1.add(cmbSize);
+//        b1.add(Box.createVerticalStrut(3));
+//        b1.add(txtSize);
 
         b1.add(Box.createVerticalStrut(10));
 
@@ -376,7 +394,11 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
                         new Color(240, 240, 240)),
                 new EmptyBorder(5, 5, 5, 5)));
         pp.add(jspB1);
-        pp.add(btnSearch, BorderLayout.SOUTH);
+
+        JPanel buttonHolder = new JPanel(new BorderLayout());
+        buttonHolder.setBorder(new EmptyBorder(5, 10, 5, 10));
+        buttonHolder.add(btnSearch);
+        pp.add(buttonHolder, BorderLayout.SOUTH);
 
         JPanel splitPane = new JPanel(new BorderLayout());
         splitPane.add(p);
@@ -440,8 +462,26 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
                 default:
                     criteriaBuffer.append(" ");
             }
-            criteriaBuffer.append(txtSize.getText() + "c");
-            criteriaBuffer.append(" ");
+            long sizeFactor = 1;
+            switch (cmbSizeUnit.getSelectedIndex()) {
+                case 0:
+                    sizeFactor = 1024 * 1024 * 1024;
+                    break;
+                case 1:
+                    sizeFactor = 1024 * 1024;
+                    break;
+                case 2:
+                    sizeFactor = 1024;
+                    break;
+            }
+            try {
+                long size = Long.parseLong(txtSize.getText()) * sizeFactor;
+                criteriaBuffer.append(size + "c");
+                criteriaBuffer.append(" ");
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(null, "Invalid size");
+                return;
+            }
         }
 
         if (radFile.isSelected() || radFileContents.isSelected()) {
