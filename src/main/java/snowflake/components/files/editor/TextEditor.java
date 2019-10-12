@@ -28,6 +28,7 @@ public class TextEditor extends JPanel {
     private JComboBox<String> cmbSyntax;
     private CardLayout cardLayout;
     private JPanel content;
+    private JTextField txtFullFilePath;
 
     public TextEditor(
             FileComponentHolder holder) {
@@ -133,6 +134,19 @@ public class TextEditor extends JPanel {
         btnGotoLine.setToolTipText("Goto line");
         btnGotoLine.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
 
+        JLabel lblFont = new JLabel("Font size");
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(12, 5, 72, 1);
+        JSpinner spFontSize = new JSpinner(spinnerNumberModel);
+        spFontSize.setMaximumSize(spFontSize.getPreferredSize());
+        spFontSize.addChangeListener(e -> {
+            int fontSize = (int) spinnerNumberModel.getValue();
+            setFontSize(fontSize);
+        });
+
+        txtFullFilePath = new JTextField();
+        txtFullFilePath.setEditable(false);
+        txtFullFilePath.setBorder(null);
+
         toolBox.add(Box.createHorizontalStrut(5));
         toolBox.add(btnOpen);
         toolBox.add(btnSave);
@@ -145,6 +159,10 @@ public class TextEditor extends JPanel {
         toolBox.add(Box.createHorizontalStrut(10));
         toolBox.add(btnWrapText);
         toolBox.add(Box.createHorizontalGlue());
+        toolBox.add(lblFont);
+        toolBox.add(Box.createHorizontalStrut(5));
+        toolBox.add(spFontSize);
+        toolBox.add(Box.createHorizontalStrut(10));
 
         LayoutUtils.makeSameSize(btnSave, btnReload, btnFind, btnCut, btnCopy, btnPaste, btnGotoLine);
 
@@ -197,9 +215,10 @@ public class TextEditor extends JPanel {
 //            save();
 //        });
 
-        JPanel panel = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new BorderLayout(5, 5));
         panel.add(toolBox, BorderLayout.NORTH);
         panel.add(tabs);
+        panel.add(txtFullFilePath, BorderLayout.SOUTH);
 
         content = new JPanel(cardLayout);
         //content.add(toolBar, BorderLayout.NORTH);
@@ -268,6 +287,7 @@ public class TextEditor extends JPanel {
                 this.cmbSyntax = tab.getCmbSyntax();
                 toolBox.add(this.cmbSyntax);
                 btnWrapText.setSelected(tab.getWrapText());
+                txtFullFilePath.setText(tab.getInfo().getPath());
                 revalidate();
                 repaint();
             }
@@ -358,6 +378,18 @@ public class TextEditor extends JPanel {
         if (tab != null) {
             try {
                 tab.gotoLine();
+            } catch (Exception e) {
+                e.printStackTrace();
+                return;
+            }
+        }
+    }
+
+    private void setFontSize(int fontSize) {
+        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+        if (tab != null) {
+            try {
+                tab.setFontSize(fontSize);
             } catch (Exception e) {
                 e.printStackTrace();
                 return;
@@ -565,6 +597,9 @@ public class TextEditor extends JPanel {
 
     public void hasUnsavedChanges(boolean value) {
         int index = tabs.getSelectedIndex();
+        if (index < 0) {
+            return;
+        }
         TabHeader header = (TabHeader) tabs.getTabComponentAt(index);
         EditorTab tab = (EditorTab) tabs.getSelectedComponent();
         header.setTitle(tab.getInfo().getName() + (value ? "*" : ""));

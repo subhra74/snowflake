@@ -1,6 +1,7 @@
 package snowflake.components.files.search;
 
 import snowflake.App;
+import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.files.FileComponentHolder;
@@ -48,7 +49,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
     private JRadioButton radFileName, radFileContents;
     private JCheckBox chkIncludeCompressed;
     private String searchScript;
-    private JButton btnShowInBrowser, btnDelete, btnDownload;
+    private JButton btnShowInBrowser;
     private AtomicBoolean stopFlag = new AtomicBoolean(false);
     private FileComponentHolder holder;
 
@@ -329,51 +330,21 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         btnShowInBrowser = new JButton(
                 "Show location");
-        btnDelete = new JButton("Delete");
-        btnDownload = new JButton("Download");
 
         disableButtons();
 
         btnShowInBrowser.addActionListener(e -> {
-//            int index = table.getSelectedRow();
-//            if (index != -1) {
-//                SearchResult res = model.getItemAt(index);
-//                String path = res.getPath();
-//                path = PathUtils.getParent(path);
-//                if (path.length() > 0) {
-//                    //appSession.createFolderView(path);
-//                }
-//            }
+            int index = table.getSelectedRow();
+            if (index != -1) {
+                SearchResult res = model.getItemAt(index);
+                String path = res.getPath();
+                path = PathUtils.getParent(path);
+                if (path.length() > 0) {
+                    holder.openInFileBrowser(path);
+                }
+            }
         });
 
-        btnDelete.addActionListener(e -> {
-//            if (table.getSelectedRowCount() > 0) {
-//                if (t != null && t.isAlive()) {
-//                    t.interrupt();
-//                }
-//                t = new Thread(() -> {
-//                    deleteItems();
-//                });
-//                t.start();
-//                if (t.isAlive()) {
-//                    deleteWaitDialog.setVisible(true);
-//                }
-//            }
-        });
-
-        btnDownload.addActionListener(e -> {
-//            int c = table.getSelectedRowCount();
-//            if (c < 1) {
-//                return;
-//            }
-//            JFileChooser jfc = new JFileChooser();
-//            jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-//            if (jfc.showSaveDialog(
-//                    getWindow()) == JFileChooser.APPROVE_OPTION) {
-//                String downloadFolder = jfc.getSelectedFile().getAbsolutePath();
-//                downloadItems(downloadFolder);
-//            }
-        });
 
         Box bActions = Box.createHorizontalBox();
         bActions.setOpaque(true);
@@ -382,10 +353,6 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
                 10, 5, 10));
         bActions.add(Box.createHorizontalGlue());
         bActions.add(btnShowInBrowser);
-        bActions.add(Box.createHorizontalStrut(10));
-        bActions.add(btnDelete);
-        bActions.add(Box.createHorizontalStrut(10));
-        bActions.add(btnDownload);
 
         JScrollPane jspB1 = new JScrollPane(b1,
                 JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
@@ -425,7 +392,6 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         this.threadPool = Executors.newSingleThreadExecutor();
     }
 
-
     public void resizeColumnWidth(JTable table) {
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         final TableColumnModel columnModel = table.getColumnModel();
@@ -443,14 +409,10 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
     private void disableButtons() {
         btnShowInBrowser.setEnabled(false);
-        btnDelete.setEnabled(false);
-        btnDownload.setEnabled(false);
     }
 
     private void enableButtons() {
         btnShowInBrowser.setEnabled(true);
-        btnDelete.setEnabled(true);
-        btnDownload.setEnabled(true);
     }
 
     private void find() {

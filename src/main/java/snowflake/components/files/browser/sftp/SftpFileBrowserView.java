@@ -43,7 +43,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         this.fs = new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
         this.menuHandler = new SftpMenuHandler(fileBrowser, this, holder, fs);
         this.menuHandler.initMenuHandler(this.folderView);
-        this.transferHandler = new DndTransferHandler(this.folderView, null, this);
+        this.transferHandler = new DndTransferHandler(this.folderView, foreignInfo, this);
         this.folderView.setTransferHandler(transferHandler);
         this.folderView.setFolderViewTransferHandler(transferHandler);
         this.addressPopup = menuHandler.createAddressPopup();

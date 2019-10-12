@@ -6,15 +6,19 @@ import org.tukaani.xz.XZInputStream;
 import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.components.files.FileComponentHolder;
+import snowflake.utils.FormatUtils;
 import snowflake.utils.PathUtils;
 import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.datatransfer.StringSelection;
 import java.io.*;
-import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,7 +38,7 @@ public class LogPage extends JPanel {
     private JList<String> lineList;
     private JTextField txtCurrentPage;
     private JLabel lblTotalPages;
-    private LogSearchPanel logSearchPanel;
+    private PagedLogSearchPanel logSearchPanel;
     private String indexFile;
     private RandomAccessFile raf;
 
@@ -51,14 +55,22 @@ public class LogPage extends JPanel {
                 loadPage();
             }
         });
+
+        lblTotalPages = new JLabel("Total 0 Pages");
+
         txtCurrentPage.setPreferredSize(new Dimension(50, txtCurrentPage.getPreferredSize().height));
         txtCurrentPage.setMaximumSize(new Dimension(50, txtCurrentPage.getPreferredSize().height));
         txtCurrentPage.setMinimumSize(new Dimension(50, txtCurrentPage.getPreferredSize().height));
         lineModel = new DefaultListModel<>();
         lineList = new JList<>(lineModel);
-        lblTotalPages = new JLabel("Total 0 Pages");
+        LogListRenderer renderer = new LogListRenderer();
+        lineList.setFixedCellHeight(renderer.getPreferredSize().height);
+        lineList.setCellRenderer(renderer);
+        lineList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
         initPages();
         nextPage = new JButton();
+        nextPage.setToolTipText("Next page");
         nextPage.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         nextPage.setFont(App.getFontAwesomeFont());
         nextPage.setText("\uf063");
@@ -66,6 +78,7 @@ public class LogPage extends JPanel {
             nextPage();
         });
         prevPage = new JButton("");
+        prevPage.setToolTipText("Previous page");
         prevPage.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         prevPage.setFont(App.getFontAwesomeFont());
         prevPage.setText("\uf062");
@@ -82,17 +95,75 @@ public class LogPage extends JPanel {
         box.add(prevPage);
         box.add(nextPage);
         box.add(Box.createHorizontalStrut(5));
+
+        JButton btnReload = new JButton();
+        btnReload.setToolTipText("Reload");
+        btnReload.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+        btnReload.setFont(App.getFontAwesomeFont());
+        btnReload.setText("\uf0e2");
+        btnReload.addActionListener(e -> {
+            try {
+                raf.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+            try {
+                Files.delete(Paths.get(this.indexFile));
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+
+            initPages();
+        });
+
+        JButton btnCopy = new JButton();
+        btnCopy.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
+        btnCopy.setFont(App.getFontAwesomeFont());
+        btnCopy.setToolTipText("Copy selected text");
+        btnCopy.setText("\uf0c5");
+        btnCopy.addActionListener(e -> {
+            if (lineList.getSelectedIndices().length > 0) {
+                StringBuilder sb = new StringBuilder();
+                for (int index : lineList.getSelectedIndices()) {
+                    sb.append(lineModel.get(index));
+                    sb.append("\n");
+                }
+                Toolkit.getDefaultToolkit().getSystemClipboard().
+                        setContents(new StringSelection(sb.toString()), null);
+            }
+        });
+
+        box.add(Box.createHorizontalGlue());
+        JLabel lblFont = new JLabel("Font size");
+        box.add(Box.createHorizontalStrut(5));
+        SpinnerNumberModel spinnerNumberModel = new SpinnerNumberModel(12, 5, 72, 1);
+        JSpinner spFontSize = new JSpinner(spinnerNumberModel);
+        spFontSize.setMaximumSize(spFontSize.getPreferredSize());
+        spFontSize.addChangeListener(e -> {
+            int fontSize = (int) spinnerNumberModel.getValue();
+            renderer.setFontSize(fontSize);
+            lineList.setFixedCellHeight(renderer.getPreferredSize().height);
+        });
+        box.add(lblFont);
+        box.add(Box.createHorizontalStrut(5));
+        box.add(spFontSize);
+        box.add(Box.createHorizontalStrut(5));
+        box.add(btnReload);
+        box.add(Box.createHorizontalStrut(5));
+        box.add(btnCopy);
+
         add(box, BorderLayout.NORTH);
         add(new JScrollPane(lineList));
-        logSearchPanel = new LogSearchPanel(new SearchListener() {
+        logSearchPanel = new PagedLogSearchPanel(new SearchListener() {
             @Override
-            public void search(String text, boolean regex, boolean matchCase, boolean fullWord) {
+            public void search(String text) {
                 holder.disableUi(stopFlag);
                 service.execute(() -> {
                     try {
-                        List<Integer> list = LogPage.this.search(text);
+                        RandomAccessFile searchIndex = LogPage.this.search(text);
+                        long len = searchIndex.length();
                         SwingUtilities.invokeLater(() -> {
-                            logSearchPanel.setResults(list);
+                            logSearchPanel.setResults(searchIndex, len);
                         });
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -103,19 +174,26 @@ public class LogPage extends JPanel {
             }
 
             @Override
-            public void select(int index) {
-                int page = (int) Math.ceil((float) index / linePerPage);
-                System.out.println("Found on page: " + page);
-                currentPage = page;
-                loadPage();
+            public void select(long index) {
+                System.out.println("Search item found on line: " + index);
+                int page = (int) index / linePerPage;
+                int line = (int) (index % linePerPage);
+                System.out.println("Found on page: " + page + " line: " + line);
+                if (currentPage == page) {
+                    if (line < lineModel.getSize() && line != -1) {
+                        lineList.setSelectedIndex(line);
+                        lineList.ensureIndexIsVisible(line);
+                    }
+                } else {
+                    currentPage = page;
+                    loadPage(line);
+                }
             }
         });
         add(logSearchPanel, BorderLayout.SOUTH);
     }
 
     public static void toByteArray(long value, byte[] result) {
-        // Note that this code needs to stay compatible with GWT, which has known
-// bugs when narrowing byte casts of long values occur.
         for (int i = 7; i >= 0; i--) {
             result[i] = (byte) (value & 0xffL);
             value >>= 8;
@@ -168,6 +246,10 @@ public class LogPage extends JPanel {
     }
 
     public void loadPage() {
+        loadPage(-1);
+    }
+
+    public void loadPage(int line) {
         holder.disableUi(stopFlag);
         service.execute(() -> {
             try {
@@ -176,6 +258,10 @@ public class LogPage extends JPanel {
                     lineModel.clear();
                     String lines[] = pageText.replace("\t", "    ").split("\n");
                     lineModel.addAll(Arrays.asList(lines));
+                    if (line < lineModel.getSize() && line != -1) {
+                        lineList.setSelectedIndex(line);
+                        lineList.ensureIndexIsVisible(line);
+                    }
                     this.txtCurrentPage.setText((this.currentPage + 1) + "");
                 });
             } catch (Exception e) {
@@ -260,7 +346,7 @@ public class LogPage extends JPanel {
         long lineStart = page * linePerPage;
         long lineEnd = lineStart + linePerPage - 1;
 
-        System.out.println("Start line: " + lineStart + "\nEnd line: " + lineEnd);
+        //System.out.println("Start line: " + lineStart + "\nEnd line: " + lineEnd);
 
         StringBuilder command = new StringBuilder();
 
@@ -272,7 +358,7 @@ public class LogPage extends JPanel {
 
         long startOffset = Longs.fromByteArray(longBytes);
 
-        System.out.println("startOffset: " + startOffset);
+        //System.out.println("startOffset: " + startOffset);
 
         raf.seek(lineEnd * 16);
         if (raf.read(longBytes) != 8) {
@@ -288,7 +374,7 @@ public class LogPage extends JPanel {
         }
         long lineLength = Longs.fromByteArray(longBytes);
 
-        System.out.println("endOffset: " + endOffset + " lineLength: " + lineLength);
+        //System.out.println("endOffset: " + endOffset + " lineLength: " + lineLength);
 
         endOffset = endOffset + lineLength;
 
@@ -302,6 +388,8 @@ public class LogPage extends JPanel {
             long blockToSkip = startOffset / 8192;
             long bytesToSkip = startOffset % 8192;
             int blocks = (int) Math.ceil((double) byteRange / 8192);
+
+            System.out.println("Byte range: " + FormatUtils.humanReadableByteCount(byteRange, true));
 
             if (blocks * 8192 - bytesToSkip < byteRange) {
                 blocks++;
@@ -324,24 +412,54 @@ public class LogPage extends JPanel {
         return null;
     }
 
-    private List<Integer> search(String text) throws Exception {
+    private RandomAccessFile search(String text) throws Exception {
+        byte[] longBytes = new byte[8];
+        String tempFile = PathUtils.combine(holder.getTempFolder(), UUID.randomUUID().toString(), File.separator);
         List<Integer> list = new ArrayList<>();
         StringBuilder command = new StringBuilder();
         command.append("awk '{if(index(tolower($0),\"" +
                 text.toLowerCase(Locale.ENGLISH) + "\")){ print NR}}' \"" + this.filePath + "\"");
         System.out.println("Command: " + command);
         StringBuilder output = new StringBuilder();
-        SshClient client = holder.getSshFileSystem().getWrapper();
-        if (!client.isConnected()) {
-            client.connect();
-        }
-        if (SshCommandUtils.exec(client, command.toString(), stopFlag, output)) {
-            for (String line : output.toString().split("\n")) {
-                String n = line.trim();
-                if (n.length() < 1) continue;
-                list.add(Integer.parseInt(n));
+        try (OutputStream outputStream = new FileOutputStream(tempFile)) {
+            SshClient client = holder.getSshFileSystem().getWrapper();
+            if (!client.isConnected()) {
+                client.connect();
+            }
+            String searchIndexes = PathUtils.combine(holder.getTempFolder(), UUID.randomUUID().toString(), File.separator);
+            if (SshCommandUtils.exec(client, command.toString(), stopFlag, outputStream, output)) {
+                try (BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(tempFile)));
+                     OutputStream out = new FileOutputStream(searchIndexes);
+                     BufferedOutputStream bout = new BufferedOutputStream(out)) {
+                    while (true) {
+                        String line = br.readLine();
+                        if (line == null) break;
+                        line = line.trim();
+                        if (line.length() < 1) continue;
+                        long lineNo = Long.parseLong(line);
+                        toByteArray(lineNo, longBytes);
+                        bout.write(longBytes);
+                    }
+                    return new RandomAccessFile(searchIndexes, "r");
+                }
             }
         }
-        return list;
+        return null;
+    }
+
+    public void close() {
+        try {
+            if (raf != null) {
+                raf.close();
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        try {
+            Files.delete(Paths.get(this.indexFile));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        this.logSearchPanel.close();
     }
 }

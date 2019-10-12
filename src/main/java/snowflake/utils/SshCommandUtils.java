@@ -40,7 +40,7 @@ public class SshCommandUtils {
                     exec.disconnect();
                     break;
                 }
-                Thread.sleep(500);
+                Thread.sleep(100);
             }
             error.append(new String(bout.toByteArray(), "utf-8"));
             return exec.getExitStatus() == 0;
@@ -69,7 +69,7 @@ public class SshCommandUtils {
                     exec.disconnect();
                     break;
                 }
-                Thread.sleep(500);
+                Thread.sleep(100);
             }
             output.append(new String(bout.toByteArray(), "utf-8"));
             return exec.getExitStatus() == 0;

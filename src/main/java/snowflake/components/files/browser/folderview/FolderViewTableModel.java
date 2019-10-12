@@ -27,14 +27,12 @@ public class FolderViewTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
+            case 3:
                 return FileInfo.class;
             case 1:
                 return Long.class;
             case 2:
-                return Date.class;
-            case 3:
             case 4:
-                return Object.class;
             default:
                 return Object.class;
         }
@@ -97,13 +95,12 @@ public class FolderViewTableModel extends AbstractTableModel {
         FileInfo ent = files.get(rowIndex);
         switch (columnIndex) {
             case 0:
+            case 3:
                 return ent;
             case 1:
                 return ent.getSize();
             case 2:
                 return ent.getType().toString();
-            case 3:
-                return ent;
             case 4:
                 // System.out.println(ent.getPermission() + "");
                 return ent.getPermission() + "";

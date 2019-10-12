@@ -9,6 +9,7 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.*;
 import snowflake.App;
 import snowflake.common.FileInfo;
+import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -16,8 +17,10 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.BadLocationException;
 import java.awt.*;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Properties;
 import java.util.Set;
 
 public class EditorTab extends JPanel implements SearchListener {
@@ -83,6 +86,8 @@ public class EditorTab extends JPanel implements SearchListener {
             textArea.setSyntaxEditingStyle(e.getItem() + "");
         });
 
+        cmbSyntax.setMaximumSize(new Dimension(50, cmbSyntax.getPreferredSize().height));
+
         this.textArea.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -103,6 +108,8 @@ public class EditorTab extends JPanel implements SearchListener {
                 setHasChanges(true);
             }
         });
+
+        selectStyle(info.getName());
     }
 
     public void saveContentsToLocal() throws Exception {
@@ -224,6 +231,32 @@ public class EditorTab extends JPanel implements SearchListener {
         this.textArea.setLineWrap(value);
         this.textArea.setWrapStyleWord(value);
         this.wrapText = true;
+    }
+
+    public void setFontSize(int fontSize) {
+        this.textArea.setFont(this.textArea.getFont().deriveFont((float) fontSize));
+    }
+
+    void selectStyle(String name) {
+        Properties properties = new Properties();
+        try (InputStream in = getClass().getResource("/file-type-map.properties").openStream()) {
+            properties.load(in);
+            int index = name.lastIndexOf('.');
+            String ext = name.substring(index + 1);
+            for (String key : properties.stringPropertyNames()) {
+                String value = properties.getProperty(key);
+                String items[] = value.split(",");
+                for (String item : items) {
+                    if (ext.equalsIgnoreCase(item)) {
+                        cmbSyntax.setSelectedItem(key);
+                        return;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        cmbSyntax.setSelectedItem("text/plain");
     }
 
 }

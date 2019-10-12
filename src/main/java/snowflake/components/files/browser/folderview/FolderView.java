@@ -16,6 +16,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -45,6 +46,8 @@ public class FolderView extends JPanel {
 //        list.setCellRenderer(new FolderViewListCellRenderer());
 
         folderViewModel = new FolderViewTableModel(false);
+
+        sorter = new TableRowSorter<FolderViewTableModel>(folderViewModel);
         //TableCellTextRenderer r = new TableCellTextRenderer();
 
         TableCellLabelRenderer r1 = new TableCellLabelRenderer(viewBackground);
@@ -68,11 +71,11 @@ public class FolderView extends JPanel {
         //table.setRowHeight(r.getPreferredHeight());
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-//        sorter = new TableRowSorter<FolderViewTableModel>(folderViewModel);
-////        sorter.setComparator(0,(a,b)->{
-////            System.out.println("called new sorter");
-////            return 1;
-////        });
+
+//        sorter.setComparator(0,(a,b)->{
+//            System.out.println("called new sorter");
+//            return 1;
+//        });
 //        sorter.setComparator(0, new Comparator<Object>() {
 //            @Override
 //            public int compare(Object s1, Object s2) {
@@ -124,15 +127,84 @@ public class FolderView extends JPanel {
 //
 //        });
 
-        table.setAutoCreateRowSorter(true);
+        table.setAutoCreateRowSorter(false);
 
-        //table.setRowSorter(sorter);
+        table.setRowSorter(sorter);
+
+        sorter.setComparator(0,
+                new Comparator<FileInfo>() {
+                    @Override
+                    public int compare(FileInfo s1, FileInfo s2) {
+                        System.out.println("Name sorter called");
+                        return s1.compareTo(s2);
+                    }
+                });
+
+        sorter.setComparator(1, (Long s1, Long s2) -> {
+            System.out.println("Size sorter called");
+            return s1.compareTo(s2);
+        });
+
+        sorter.setComparator(2, (Object s1, Object s2) -> {
+            System.out.println("Type sorter called");
+            return (s1 + "").compareTo((s2 + ""));
+        });
+
+        sorter.setComparator(3,
+                new Comparator<FileInfo>() {
+                    @Override
+                    public int compare(FileInfo s1, FileInfo s2) {
+                        System.out.println("Date sorter called");
+                        if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+                            if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
+                                return s1.getLastModified().compareTo(s2.getLastModified());
+                            } else {
+                                return 1;
+                            }
+                        } else {
+                            if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+                                return -1;
+                            } else {
+                                return s1.getLastModified().compareTo(s2.getLastModified());
+                            }
+                        }
+                    }
+                });
+
+//        sorter.setComparator(3, (FileInfo s1, FileInfo s2) -> {
+//            System.out.println("Date sorter called");
+//            if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+//                if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
+//                    return s1.getLastModified().compareTo(s2.getLastModified());
+//                } else {
+//                    return 1;
+//                }
+//            } else {
+//                if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+//                    return -1;
+//                } else {
+//                    return s1.getLastModified().compareTo(s2.getLastModified());
+//                }
+//            }
+//        });
+
+        sorter.setComparator(4, (Object s1, Object s2) -> {
+            System.out.println("Perm sorter called");
+            return (s1 + "").compareTo((s2 + ""));
+        });
+
+        sorter.setComparator(5, (Object s1, Object s2) -> {
+            System.out.println("Extra sorter called");
+            return (s1 + "").compareTo((s2 + ""));
+        });
+
+
 //
-//		ArrayList<RowSorter.SortKey> list = new ArrayList<>();
-//		list.add(new RowSorter.SortKey(3, SortOrder.DESCENDING));
-//		sorter.setSortKeys(list);
+        ArrayList<RowSorter.SortKey> list = new ArrayList<>();
+        list.add(new RowSorter.SortKey(3, SortOrder.DESCENDING));
+        sorter.setSortKeys(list);
 
-//		sorter.sort();
+        sorter.sort();
 //
         table.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
                 .put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "Enter");
@@ -243,6 +315,8 @@ public class FolderView extends JPanel {
 //            }
 //        });
 
+        resizeColumnWidth(table);
+
         //table.setBorder(null);
         JScrollPane scrollPane = new JScrollPane(table);
 //        JScrollBar verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
@@ -325,7 +399,7 @@ public class FolderView extends JPanel {
     public void setItems(List<FileInfo> list) {
         this.files = list;
         applyHiddenFilter();
-        this.resizeColumnWidth(table);
+        //this.resizeColumnWidth(table);
 //        if (showHiddenFiles) {
 //            sortAndAddItems(list);
 //        } else {
@@ -349,7 +423,7 @@ public class FolderView extends JPanel {
 //			col.getHeaderRenderer().getTableCellRendererComponent(table, col.getHeaderValue(),
 //					false, false, 0, 0).getpre;
             if (column == 0) {
-                col.setPreferredWidth(200);
+                col.setPreferredWidth(300);
             } else if (column == 3) {
                 col.setPreferredWidth(150);
             } else {
@@ -439,10 +513,17 @@ public class FolderView extends JPanel {
     public void setShowHiddenFiles(boolean showHiddenFiles) {
         this.showHiddenFiles = showHiddenFiles;
         applyHiddenFilter();
-        this.resizeColumnWidth(table);
+        //this.resizeColumnWidth(table);
     }
 
     private void applyHiddenFilter() {
+        int arr[] = new int[table.getColumnCount()];
+        final TableColumnModel columnModel = table.getColumnModel();
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            TableColumn col = columnModel.getColumn(column);
+            arr[column] = col.getPreferredWidth();
+        }
+
         this.folderViewModel.clear();
         if (!this.showHiddenFiles) {
             List<FileInfo> list2 = new ArrayList<>();
@@ -455,6 +536,13 @@ public class FolderView extends JPanel {
         } else {
             this.folderViewModel.addAll(this.files);
         }
+
+        for (int column = 0; column < table.getColumnCount(); column++) {
+            TableColumn col = columnModel.getColumn(column);
+            col.setPreferredWidth(arr[column]);
+        }
+
+        table.setRowSorter(sorter);
     }
 
 //    public int getSortIndex() {

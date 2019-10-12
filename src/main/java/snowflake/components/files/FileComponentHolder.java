@@ -13,7 +13,7 @@ import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.browser.ssh.SshFileBrowserView;
 import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.editor.TextEditor;
-import snowflake.components.files.logviewer.LogViewerComponent;
+//import snowflake.components.files.logviewer.LogViewerComponent;
 import snowflake.components.files.logviewer.LogViewerPanel;
 import snowflake.components.files.search.FileSearchPanel;
 import snowflake.components.files.transfer.FileTransfer;
@@ -417,5 +417,10 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
     public void showPage(String name) {
         sessionContent.showPage(name);
+    }
+
+    public void openInFileBrowser(String path) {
+        this.tabs.setSelectedIndex(0);
+        this.fileBrowser.openSshFileBrowserView(path, AbstractFileBrowserView.PanelOrientation.Left);
     }
 }

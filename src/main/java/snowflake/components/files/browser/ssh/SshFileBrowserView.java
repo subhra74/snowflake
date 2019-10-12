@@ -119,15 +119,25 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 //        }
 //    }
 
+    private String trimPath(String path) {
+        if (path.equals("/")) return path;
+        if (path.endsWith("/")) {
+            String trim = path.substring(0, path.length() - 1);
+            System.out.println("Trimmed path: " + trim);
+            return trim;
+        }
+        return path;
+    }
+
     private void renderDirectory(final String path, final boolean fromCache) throws Exception {
         List<FileInfo> list = null;
         if (fromCache) {
-            list = holder.getDirectoryCache().get(path);
+            list = holder.getDirectoryCache().get(trimPath(path));
         }
         if (list == null) {
             list = holder.getSshFileSystem().list(path);
-            if (fromCache && list != null) {
-                holder.getDirectoryCache().put(path, list);
+            if (list != null) {
+                holder.getDirectoryCache().put(trimPath(path), list);
             }
         }
         if (list != null) {
@@ -215,19 +225,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
             return false;
         }
         try {
-            if (JOptionPane.showOptionDialog(holder,
-                    new Object[]{"Please select a transfer mode", cmbOptions},
-                    "Transfer options",
-                    JOptionPane.OK_CANCEL_OPTION,
-                    JOptionPane.PLAIN_MESSAGE,
-                    null,
-                    null,
-                    null) != JOptionPane.OK_OPTION) {
-                return false;
-            }
-            boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
-            System.out.println("Dropped: " + transferData);
             int sessionHashCode = transferData.getInfo();
+            System.out.println("Session hash code: " + sessionHashCode);
             FileSystem sourceFs = null;
             if (sessionHashCode == 0) {
                 sourceFs = new LocalFileSystem();
@@ -235,6 +234,18 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                 sourceFs = holder.getSshFileSystem();
             }
             if (sourceFs instanceof LocalFileSystem) {
+                if (JOptionPane.showOptionDialog(holder,
+                        new Object[]{"Please select a transfer mode", cmbOptions},
+                        "Transfer options",
+                        JOptionPane.OK_CANCEL_OPTION,
+                        JOptionPane.PLAIN_MESSAGE,
+                        null,
+                        null,
+                        null) != JOptionPane.OK_OPTION) {
+                    return false;
+                }
+                boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
+                System.out.println("Dropped: " + transferData);
                 if (backgroundTransfer) {
                     FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
@@ -263,6 +274,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
                             return false;
                         }
                     }
+                } else {
+                    //handle server to server drop
                 }
 
                 if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
