@@ -496,6 +496,11 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
             Date d1 = (Date) spDate1.getValue();
             Date d2 = (Date) spDate2.getValue();
 
+            if (!d1.before(d2)) {
+                JOptionPane.showMessageDialog(this, "Start date greater than last date");
+                return;
+            }
+
             LocalDate now = LocalDate.now();
             LocalDate date1 = d1.toInstant().atZone(ZoneId.systemDefault())
                     .toLocalDate();
