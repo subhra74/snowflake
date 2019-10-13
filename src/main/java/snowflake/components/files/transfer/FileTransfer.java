@@ -60,6 +60,13 @@ public class FileTransfer implements Runnable, AutoCloseable {
             return;
         }
 
+        if(!sourceFs.isConnected()){
+            sourceFs.connect();
+        }
+        if(!targetFs.isConnected()){
+            targetFs.connect();
+        }
+
         totalSize = 0;
         for (FileInfo file : files) {
             if (stopFlag.get()) {
@@ -84,7 +91,8 @@ public class FileTransfer implements Runnable, AutoCloseable {
             }
         }
         totalFiles = fileList.size();
-        callback.init(sourceFs.getName(), targetFs.getName(), totalSize, totalFiles, this);
+
+        callback.init(totalSize, totalFiles, this);
         try (InputTransferChannel inc = sourceFs.inputTransferChannel();
              OutputTransferChannel outc = targetFs.outputTransferChannel()) {
             for (FileInfoHolder file : fileList) {

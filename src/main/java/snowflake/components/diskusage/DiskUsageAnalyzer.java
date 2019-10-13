@@ -73,7 +73,6 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
         disabledPanel.startAnimation(stopFlag);
 
 
-
 //        waitPanel = new JPanel();
 //        JButton btnStop = new JButton("Stop");
 //        waitPanel.add(btnStop);
@@ -126,6 +125,9 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
                 for (String line : output.toString().split("\n")) {
                     if (first) {
                         first = false;
+                        continue;
+                    }
+                    if (!line.trim().startsWith("/dev/")) {
                         continue;
                     }
                     String[] arr = line.split("\\s+");
@@ -198,19 +200,30 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
     }
 
     private JPanel createPartitionOptions() {
-        JLabel lbl = new JLabel("Please select a partition to analyze");
+        JLabel lbl = new JLabel("Please select a mounted partition to analyze");
 
         Box btop = Box.createHorizontalBox();
         btop.add(lbl);
         btop.add(Box.createHorizontalGlue());
         JButton btnRefresh = new JButton("Refresh partitions");
+        btnRefresh.addActionListener(e->{
+            disableUi();
+            threadPool.submit(() -> {
+                listPartitions();
+            });
+        });
         btop.add(btnRefresh);
+
+        PartitionRenderer r1 = new PartitionRenderer();
+        UsagePercentageRenderer r2 = new UsagePercentageRenderer();
 
         model = new PartitionTableModel();
         table = new JTable(model);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoCreateRowSorter(true);
-        table.setDefaultRenderer(Object.class, new PartitionRenderer());
+        table.setDefaultRenderer(Object.class, r1);
+        table.setDefaultRenderer(Double.class, r2);
+        table.setRowHeight(Math.max(r1.getPreferredSize().height, r2.getPreferredSize().height));
         JScrollPane jsp = new JScrollPane(table);
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));

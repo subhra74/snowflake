@@ -75,25 +75,79 @@ public class FolderView extends JPanel {
         //table.setRowHeight(r.getPreferredHeight());
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-//        TableRowSorter sorter=new TableRowSorter<>(table.getModel());
-//        sorter.setComparator(0, new Comparator() {
-//            @Override
-//            public int compare(Object o1, Object o2) {
-//                System.out.println("Called sorter");
-//                return 0;
-//            }
-//        });
-//
-//        table.setRowSorter(sorter);
+        TableRowSorter sorter = new TableRowSorter<>(table.getModel());
+        sorter.setComparator(0, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                FileInfo s1 = (FileInfo) o1;
+                FileInfo s2 = (FileInfo) o2;
+                return s1.compareTo(s2);
+            }
+        });
+        sorter.setComparator(1, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                Long s1 = (Long) o1;
+                Long s2 = (Long) o2;
+                return s1.compareTo(s2);
+            }
+        });
+        sorter.setComparator(2, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                String s1 = (String) o1;
+                String s2 = (String) o2;
+                return s1.compareTo(s2);
+            }
+        });
+        sorter.setComparator(3, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                FileInfo s1 = (FileInfo) o1;
+                FileInfo s2 = (FileInfo) o2;
+
+                if (s1.getType() == FileType.Directory || s1.getType() == FileType.DirLink) {
+                    if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
+                        return s1.getLastModified().compareTo(s2.getLastModified());
+                    } else {
+                        return 1;
+                    }
+                } else {
+                    if (s2.getType() == FileType.Directory || s2.getType() == FileType.DirLink) {
+                        return -1;
+                    } else {
+                        return s1.getLastModified().compareTo(s2.getLastModified());
+                    }
+                }
+            }
+        });
+        sorter.setComparator(4, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                String s1 = (String) o1;
+                String s2 = (String) o2;
+                return s1.compareTo(s2);
+            }
+        });
+        sorter.setComparator(5, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                String s1 = (String) o1;
+                String s2 = (String) o2;
+                return s1.compareTo(s2);
+            }
+        });
+
+        table.setRowSorter(sorter);
 
         //
         //
-        table.setAutoCreateRowSorter(true);
+        //table.setAutoCreateRowSorter(true);
 
-//        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
-//        sortKeys.add(new RowSorter.SortKey(3, SortOrder.ASCENDING));
-//        sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
-//        table.getRowSorter().setSortKeys(sortKeys);
+        List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+        sortKeys.add(new RowSorter.SortKey(3, SortOrder.DESCENDING));
+        sorter.setSortKeys(sortKeys);
+        sorter.sort();
 
         //sorter=new TableRowSorter<>(folderViewModel);
 
@@ -564,12 +618,12 @@ public class FolderView extends JPanel {
     }
 
     private void applyHiddenFilter() {
-        int arr[] = new int[table.getColumnCount()];
-        final TableColumnModel columnModel = table.getColumnModel();
-        for (int column = 0; column < table.getColumnCount(); column++) {
-            TableColumn col = columnModel.getColumn(column);
-            arr[column] = col.getPreferredWidth();
-        }
+//        int arr[] = new int[table.getColumnCount()];
+//        final TableColumnModel columnModel = table.getColumnModel();
+//        for (int column = 0; column < table.getColumnCount(); column++) {
+//            TableColumn col = columnModel.getColumn(column);
+//            arr[column] = col.getPreferredWidth();
+//        }
 
         this.folderViewModel.clear();
         if (!this.showHiddenFiles) {
@@ -584,10 +638,10 @@ public class FolderView extends JPanel {
             this.folderViewModel.addAll(this.files);
         }
 
-        for (int column = 0; column < table.getColumnCount(); column++) {
-            TableColumn col = columnModel.getColumn(column);
-            col.setPreferredWidth(arr[column]);
-        }
+//        for (int column = 0; column < table.getColumnCount(); column++) {
+//            TableColumn col = columnModel.getColumn(column);
+//            col.setPreferredWidth(arr[column]);
+//        }
 
         //table.setRowSorter(sorter);
     }

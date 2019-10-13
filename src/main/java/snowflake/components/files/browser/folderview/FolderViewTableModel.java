@@ -28,11 +28,10 @@ public class FolderViewTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         switch (columnIndex) {
             case 0:
+            case 3:
                 return FileInfo.class;
             case 1:
                 return Long.class;
-            case 3:
-                return LocalDateTime.class;
             case 4:
             case 2:
             default:
@@ -41,7 +40,11 @@ public class FolderViewTableModel extends AbstractTableModel {
     }
 
     public void clear() {
+//        int rows = files.size();
         files.clear();
+//        if (rows > 0) {
+//            fireTableRowsDeleted(0, rows-1);
+//        }
         fireTableDataChanged();
     }
 
@@ -53,7 +56,8 @@ public class FolderViewTableModel extends AbstractTableModel {
 //			if (sz < 0) {
 //				sz = 0;
 //			}
-            fireTableRowsInserted(sz - 1, sz + list.size() - 1);
+            //fireTableRowsInserted(sz - 1, sz + list.size() - 1);
+            fireTableDataChanged();
         }
     }
 
@@ -97,9 +101,8 @@ public class FolderViewTableModel extends AbstractTableModel {
         FileInfo ent = files.get(rowIndex);
         switch (columnIndex) {
             case 0:
-                return ent;
             case 3:
-                return ent.getLastModified();
+                return ent;
             case 1:
                 return ent.getSize();
             case 2:

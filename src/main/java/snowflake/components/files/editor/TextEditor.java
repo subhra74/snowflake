@@ -228,9 +228,17 @@ public class TextEditor extends JPanel {
 
         JLabel lblTitle = new JLabel("Please enter full path of the file below to open");
         JTextField txtFilePath = new JTextField(30);
+
         JButton btnOpenFile = new JButton("Open");
         JLabel lblTitle2 = new JLabel("Alternatively you can select the file from file browser");
-        btnOpenFile.addActionListener(e -> {
+
+
+        Box textBox = Box.createHorizontalBox();
+        textBox.add(txtFilePath);
+        textBox.add(Box.createHorizontalStrut(10));
+        textBox.add(btnOpenFile);
+
+        ActionListener act = e -> {
             String text = txtFilePath.getText();
             if (text.trim().length() < 1) {
                 JOptionPane.showMessageDialog(null,
@@ -246,12 +254,10 @@ public class TextEditor extends JPanel {
                     holder.editRemoteFileInternal(a);
                 });
             });
-        });
+        };
 
-        Box textBox = Box.createHorizontalBox();
-        textBox.add(txtFilePath);
-        textBox.add(Box.createHorizontalStrut(10));
-        textBox.add(btnOpenFile);
+        btnOpenFile.addActionListener(act);
+        txtFilePath.addActionListener(act);
 
         Box startPanel = Box.createVerticalBox();
         lblTitle.setAlignmentX(Box.CENTER_ALIGNMENT);

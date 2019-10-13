@@ -24,6 +24,7 @@ public class ProcessListPanel extends JPanel {
     private JPopupMenu killPopup, prioPopup;
     private BiConsumer<String, Boolean> consumer;
     private AtomicBoolean hasPendingOperation = new AtomicBoolean(false);
+    private JLabel lblProcessCount;
 
     public ProcessListPanel(BiConsumer<String, Boolean> consumer) {
         super(new BorderLayout());
@@ -46,6 +47,8 @@ public class ProcessListPanel extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         table.getColumnModel().getColumn(0).setPreferredWidth(200);
+
+        lblProcessCount = new JLabel("Total processes: 0");
 
         rowFilter = new RowFilter<ProcessTableModel, Integer>() {
             @Override
@@ -81,6 +84,10 @@ public class ProcessListPanel extends JPanel {
         b1.add(new JLabel("Processes"));
         b1.add(Box.createHorizontalStrut(10));
         txtFilter = new JTextField(30);
+        txtFilter.addActionListener(e -> {
+            this.filterText = getProcessFilterText();
+            model.fireTableDataChanged();
+        });
         b1.add(txtFilter);
         b1.add(Box.createHorizontalStrut(5));
         JButton btnFilter = new JButton("Filter");
@@ -142,6 +149,7 @@ public class ProcessListPanel extends JPanel {
 //        });
 
         Box b2 = Box.createHorizontalBox();
+        b2.add(lblProcessCount);
         btnCopyArgs = new JButton("Copy command");
         btnCopyArgs.addActionListener(e -> {
             int c = table.getSelectedRow();
@@ -183,6 +191,7 @@ public class ProcessListPanel extends JPanel {
     }
 
     public void setProcessList(List<ProcessTableEntry> list) {
+        lblProcessCount.setText("Total processes: " + list.size());
         int x = table.getSelectedRow();
         int selectedPid = -1;
         if (x != -1) {

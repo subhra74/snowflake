@@ -19,6 +19,7 @@ public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
         super(new BorderLayout());
         verticalBox = Box.createVerticalBox();
         JScrollPane jsp = new JScrollPane(verticalBox);
+        jsp.setBorder(null);
         jsp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(jsp);
     }
@@ -88,7 +89,7 @@ public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
         }
 
         @Override
-        public void init(String sourceName, String targetName, long totalSize, long files, FileTransfer fileTransfer) {
+        public void init(long totalSize, long files, FileTransfer fileTransfer) {
             SwingUtilities.invokeLater(() -> {
                 progressLabel.setText(String.format("Copying file from %s to %s",
                         fileTransfer.getSourceName(), fileTransfer.getTargetName()));

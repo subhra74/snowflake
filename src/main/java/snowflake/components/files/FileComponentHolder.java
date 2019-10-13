@@ -127,7 +127,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     @Override
-    public void init(String sourceName, String targetName, long totalSize, long files, FileTransfer fileTransfer) {
+    public void init(long totalSize, long files, FileTransfer fileTransfer) {
 
     }
 

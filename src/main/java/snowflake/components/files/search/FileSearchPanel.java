@@ -84,6 +84,9 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
                 "Search for");
         lblName.setAlignmentX(LEFT_ALIGNMENT);
         txtName = new JTextField(20);
+        txtName.addActionListener(e -> {
+            find();
+        });
         Dimension pref = txtName.getPreferredSize();
         txtName.setMaximumSize(pref);
         txtName.setAlignmentX(LEFT_ALIGNMENT);

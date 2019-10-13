@@ -6,6 +6,7 @@ import snowflake.components.files.editor.TabHeader;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashSet;
@@ -29,7 +30,8 @@ public class LogViewerPanel extends JPanel {
         JTextField txtFilePath = new JTextField(30);
         JButton btnOpenFile = new JButton("Open");
         JLabel lblTitle2 = new JLabel("Alternatively you can select the file from file browser");
-        btnOpenFile.addActionListener(e -> {
+
+        ActionListener act=e -> {
             String text = txtFilePath.getText();
             if (text.trim().length() < 1) {
                 JOptionPane.showMessageDialog(null,
@@ -45,7 +47,10 @@ public class LogViewerPanel extends JPanel {
                     holder.openWithLogViewer(a);
                 });
             });
-        });
+        };
+
+        btnOpenFile.addActionListener(act);
+        txtFilePath.addActionListener(act);
 
         Box textBox = Box.createHorizontalBox();
         textBox.add(txtFilePath);
