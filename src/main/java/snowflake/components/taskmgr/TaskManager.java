@@ -94,7 +94,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                 try {
                     running.set(false);
                     t.interrupt();
-                    client.close();
+                    client.disconnect();
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }
@@ -195,7 +195,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
 //                    this.nativePlatform = new HpUxPlatformSupport();
 //                }
 
-                switch (platform){
+                switch (platform) {
                     case "Linux":
                         this.nativePlatform = new LinuxPlatformSupport();
                         break;
@@ -217,6 +217,7 @@ public class TaskManager extends JPanel implements ConnectedResource {
                     throw new Exception("Stopped by user");
                 }
                 if (this.nativePlatform == null) {
+                    JOptionPane.showMessageDialog(null, "Platform " + platform + " is not supported");
                     throw new Exception("Platform not supported: " + platform);
                 }
 
@@ -287,6 +288,9 @@ public class TaskManager extends JPanel implements ConnectedResource {
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
+                if (client != null) {
+                    client.disconnect();
+                }
                 SwingUtilities.invokeLater(() -> {
                     enableUi();
                     cardLayout.show(contentPane, "start");

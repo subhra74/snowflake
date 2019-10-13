@@ -28,13 +28,12 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
     private SshUserInteraction userInteraction;
     private Box tabbedBox;
     private SessionInfo info;
-    private JLabel labels[] = new JLabel[5];
+    private JLabel labels[] = new JLabel[4];
     private String pages[] = {
             "System information",
             "Services (systemd)",
             "Process and Ports",
-            "Network tools",
-            "SSH key"
+            "Network tools"
     };
     private Component pageComponent[];
     private CardLayout cardLayout;
@@ -74,8 +73,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
                 createSystemOverviewPanel(),
                 servicePanel,
                 socketPanel,
-                new JPanel(),
-                new JPanel(),
+                new JPanel()
         };
 
         JPanel mainPanel = new JPanel(new BorderLayout());
@@ -87,8 +85,16 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
             mainCardLayout.show(contentPane, "Main");
             disableUi();
             threadPool.submit(() -> {
-                getSysInfo();
-                updateView();
+                try {
+                    getSysInfo();
+                    updateView();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                    SwingUtilities.invokeLater(() -> {
+                        enableUi();
+                        mainCardLayout.show(contentPane, "Start");
+                    });
+                }
             });
         });
 
@@ -115,10 +121,26 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.setBorder(new MatteBorder(0, 0, 1, 0, new Color(240, 240, 240)));
-        JLabel label32 = new JLabel("Linux subhro-VirtualBox 5.0.0-29-generic #31~18.04.1-Ubuntu SMP Thu Sep 12 18:29:21 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux");
+        JLabel label32 = new JLabel("Linux tools");
+        label32.setFont(new Font(Font.DIALOG, Font.BOLD, 14));
 
         Box optionBox = Box.createHorizontalBox();
         JButton btnRefresh = new JButton("Refresh");
+        btnRefresh.addActionListener(e->{
+            disableUi();
+            threadPool.submit(() -> {
+                try {
+                    getSysInfo();
+                    updateView();
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(null, ex.getMessage());
+                    SwingUtilities.invokeLater(() -> {
+                        enableUi();
+                        mainCardLayout.show(contentPane, "Start");
+                    });
+                }
+            });
+        });
         JButton btnClose = new JButton("Done");
         btnClose.addActionListener(e -> {
             threadPool.submit(() -> {
@@ -364,23 +386,26 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
         }
     }
 
-    private void getSysInfo() {
-        try {
-            if (!client.isConnected()) {
-                client.connect();
-            }
+    private void getSysInfo() throws Exception {
+        if (!client.isConnected()) {
+            client.connect();
+        }
 
-            if (platform == null) {
-                platform = PlatformChecker.getPlatformName(client);
-            }
+        if (platform == null) {
+            platform = PlatformChecker.getPlatformName(client);
+        }
 
-            if ("Linux".equals(platform)) {
-                systemInfo = LinuxSysInfo.retrieveSystemInfo(client, stopFlag);
+        if ("Linux".equals(platform)) {
+            systemInfo = LinuxSysInfo.retrieveSystemInfo(client, stopFlag);
+        } else {
+            try {
+                client.disconnect();
+            } catch (Exception e) {
             }
-        } catch (Exception e) {
-            e.printStackTrace();
+            throw new Exception("Not supported on: " + platform);
         }
     }
+
 
     public void close() {
         client.disconnect();

@@ -47,4 +47,14 @@ public class ServiceEntry {
     public void setUnitFileStatus(String unitFileStatus) {
         this.unitFileStatus = unitFileStatus;
     }
+
+    @Override
+    public String toString() {
+        return "ServiceEntry{" +
+                "name='" + name + '\'' +
+                ", unitStatus='" + unitStatus + '\'' +
+                ", desc='" + desc + '\'' +
+                ", unitFileStatus='" + unitFileStatus + '\'' +
+                '}';
+    }
 }

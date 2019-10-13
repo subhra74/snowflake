@@ -1,6 +1,7 @@
 package snowflake.components.files.transfer;
 
 import snowflake.App;
+import snowflake.common.FileSystem;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -10,7 +11,7 @@ import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
+public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
     private ExecutorService executorService =
             Executors.newFixedThreadPool(App.getGlobalSettings().getNumberOfSimultaneousConnection());
     private Box verticalBox;
@@ -31,8 +32,10 @@ public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
         this.verticalBox.revalidate();
         this.verticalBox.repaint();
         executorService.submit(() -> {
-            try (transfer) {
+            try (FileSystem fs1 = transfer.getSourceFs(); FileSystem fs2 = transfer.getTargetFs()) {
                 transfer.run();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         });
     }
@@ -57,6 +60,18 @@ public class BackgroundTransferPanel extends JPanel  implements AutoCloseable{
 
         public void stop() {
             fileTransfer.stop();
+            FileSystem fs1 = fileTransfer.getSourceFs();
+            FileSystem fs2 = fileTransfer.getTargetFs();
+            try {
+                fs1.close();
+            } catch (Exception e) {
+
+            }
+            try {
+                fs2.close();
+            } catch (Exception e) {
+
+            }
         }
 
         public TransferPanelItem(FileTransfer transfer) {

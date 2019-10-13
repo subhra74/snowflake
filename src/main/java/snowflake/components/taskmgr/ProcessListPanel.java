@@ -1,8 +1,5 @@
 package snowflake.components.taskmgr;
 
-import snowflake.components.taskmgr.plaformsupport.ProcessListRenderer;
-import snowflake.utils.GraphicsUtils;
-
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableRowSorter;
@@ -12,7 +9,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 public class ProcessListPanel extends JPanel {
     private ProcessTableModel model;

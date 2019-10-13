@@ -1,4 +1,4 @@
-package snowflake.components.taskmgr.plaformsupport;
+package snowflake.components.taskmgr;
 
 import snowflake.components.taskmgr.ProcessTableEntry;
 import snowflake.utils.FormatUtils;

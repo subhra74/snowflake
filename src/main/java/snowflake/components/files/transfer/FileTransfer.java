@@ -348,4 +348,14 @@ public class FileTransfer implements Runnable, AutoCloseable {
     public void setCallback(FileTransferProgress callback) {
         this.callback = callback;
     }
+
+    public FileSystem getSourceFs() {
+        return sourceFs;
+    }
+
+    public FileSystem getTargetFs() {
+        return targetFs;
+    }
+
+
 }

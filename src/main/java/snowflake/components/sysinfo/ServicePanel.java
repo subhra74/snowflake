@@ -48,8 +48,8 @@ public class ServicePanel extends JPanel {
     private JButton btnFilter;
     private List<ServiceEntry> list;
 
-    public static final String SYSTEMD_COMMAND = "systemctl list-unit-files -t service " +
-            "-a --plain --no-pager --no-legend --full; echo "
+    public static final String SYSTEMD_COMMAND = "systemctl list-unit-files -t service -a " +
+            "--plain --no-pager --no-legend --full; echo "
             + SEP
             + "; systemctl list-units -t service -a --plain --no-pager --no-legend --full";
 
@@ -59,13 +59,21 @@ public class ServicePanel extends JPanel {
     public ServicePanel() {
         super(new BorderLayout(5, 5));
         setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        ServiceTableCellRenderer r = new ServiceTableCellRenderer();
+
         table = new JTable(model);
+        table.setDefaultRenderer(Object.class, r);
         table.setShowGrid(false);
+        table.setRowHeight(r.getPreferredSize().height);
         table.setIntercellSpacing(new Dimension(0, 0));
         table.setFillsViewportHeight(true);
 
         JLabel lbl1 = new JLabel("Search");
         txtFilter = new JTextField(30);
+        txtFilter.addActionListener(e -> {
+            filter();
+        });
         btnFilter = new JButton("Search");
 
         Box b1 = Box.createHorizontalBox();
@@ -231,7 +239,9 @@ public class ServicePanel extends JPanel {
     }
 
     public static List<ServiceEntry> parseServiceEntries(StringBuilder data) {
-        Map<String, ServiceEntry> unitMap = new HashMap<>();
+        List<ServiceEntry> list = new ArrayList<>();
+        Map<String, String> unitMap = new HashMap<>();
+        //Map<String, ServiceEntry> unitMap = new HashMap<>();
         boolean parsingUnit = true;
         for (String s : data.toString().split("\n")) {
             if (parsingUnit && s.equals(SEP)) {
@@ -240,16 +250,20 @@ public class ServicePanel extends JPanel {
             }
 
             if (parsingUnit) {
-                ServiceEntry e = parseUnitFile(s);
-                if (e != null) {
-                    unitMap.put(e.getName(), e);
-                }
+                parseUnitFile(s, unitMap);
             } else {
-                parseUnit(s, unitMap);
+                ServiceEntry ent = parseUnit(s, unitMap);
+                if (ent != null) {
+                    list.add(ent);
+                }
             }
         }
-        return unitMap.entrySet().stream().map(e -> e.getValue())
-                .collect(Collectors.toList());
+//        System.out.println(unitMap);
+//        System.out.println(list);
+
+        return list;
+//        return unitMap.entrySet().stream().map(e -> e.getValue())
+//                .collect(Collectors.toList());
     }
 
     public void setServiceData(List<ServiceEntry> list) {
@@ -257,28 +271,42 @@ public class ServicePanel extends JPanel {
         filter();
     }
 
-    private static ServiceEntry parseUnitFile(String data) {
+    private static void parseUnitFile(String data, Map<String, String> map) {
         Matcher m = UNIT_PATTERN.matcher(data);
         if (m.find() && m.groupCount() == 2) {
-            ServiceEntry e = new ServiceEntry();
-            e.setName(m.group(1));
-            e.setUnitStatus("");
-            e.setDesc("");
-            e.setUnitFileStatus(m.group(2));
-            return e;
+            map.put(m.group(1).trim(), m.group(2).trim());
+//            ServiceEntry e = new ServiceEntry();
+//            e.setName(m.group(1));
+//            e.setUnitStatus("");
+//            e.setDesc("");
+//            e.setUnitFileStatus(m.group(2));
+//            return e;
         }
-        return null;
+//        return null;
     }
 
-    private static void parseUnit(String data, Map<String, ServiceEntry> unitMap) {
+    private static ServiceEntry parseUnit(String data, Map<String, String> unitMap) {
+        ServiceEntry ent = new ServiceEntry();
         Matcher m = SERVICE_PATTERN.matcher(data);
         if (m.find() && m.groupCount() == 5) {
-            ServiceEntry e = unitMap.get(m.group(1));
-            if (e != null) {
-                e.setDesc(m.group(5));
-                e.setUnitStatus(m.group(3) + "(" + m.group(4) + ")");
+            String name = m.group(1).trim();
+            if (unitMap.get(name) != null) {
+                String status = unitMap.get(name);
+                ent.setName(name);
+                ent.setUnitFileStatus(status);
+                ent.setUnitStatus(m.group(3) + "(" + m.group(4) + ")");
+                ent.setDesc(m.group(5).trim());
+                return ent;
             }
+
+
+//            ServiceEntry e = unitMap.get(m.group(1));
+//            if (e != null) {
+//                e.setDesc(m.group(5));
+//                e.setUnitStatus(m.group(3) + "(" + m.group(4) + ")");
+//            }
         }
+        return null;
     }
 
     public String getServiceListCommand() {

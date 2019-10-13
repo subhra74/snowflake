@@ -1,4 +1,4 @@
-echo '#----------SCRIPT START----------#'
+
 
 CMD_PATH=""
 
@@ -30,7 +30,7 @@ if [ -e /proc/cpuinfo ]; then
 	echo "CPU count               $PC"
 fi;
 
-if [ -e /proc/cpuinfo ];then
+if [ -e /proc/meminfo ];then
 	MEM=`cat /proc/meminfo|grep 'MemTotal:'|sed -E 's/MemTotal:\s+//g'`
 	SWAP=`cat /proc/meminfo|grep 'SwapTotal:'|sed -E 's/SwapTotal:\s+//g'`
 	echo "Total memory            $MEM"
