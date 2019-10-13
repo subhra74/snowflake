@@ -7,6 +7,7 @@ import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.files.transfer.BackgroundTransferPanel;
 import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.keymanager.KeyManagerPanel;
+import snowflake.components.networktools.NetworkToolsPanel;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.files.search.FileSearchPanel;
 import snowflake.components.sysinfo.SystemInfoPanel;
@@ -35,10 +36,11 @@ public class SessionContent extends JPanel {
     private TerminalHolder terminalHolder;
     private ExternalEditor externalEditor;
     private BackgroundTransferPanel backgroundTransferPanel;
+    private NetworkToolsPanel networkToolsPanel;
     private String pageNames[] = new String[]{"Files", "Terminal", "System monitor",
-            "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys"};
+            "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys", "Network tools"};
 
-    private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084"};
+    private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084", "\uf0b1"};
 
 
     //private FileStore fileStore;
@@ -82,6 +84,7 @@ public class SessionContent extends JPanel {
         diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
         systemInfoPanel = new SystemInfoPanel(this.info);
         keyManagerPanel = new KeyManagerPanel(this.info);
+        networkToolsPanel = new NetworkToolsPanel();
 
         //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
@@ -101,6 +104,7 @@ public class SessionContent extends JPanel {
         mainPanel.add(backgroundTransferPanel, "Active transfers");
         mainPanel.add(systemInfoPanel, "Linux tools");
         mainPanel.add(keyManagerPanel, "SSH keys");
+        mainPanel.add(networkToolsPanel, "Network tools");
 
 
         panels = new JPanel[pageIcons.length];
