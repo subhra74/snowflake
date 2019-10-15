@@ -1,13 +1,19 @@
 package snowflake.components.networktools;
 
 import snowflake.common.ssh.SshClient;
+import snowflake.common.ssh.SshModalUserInteraction;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.common.DisabledPanel;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import java.awt.*;
+import java.io.ByteArrayOutputStream;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NetworkToolsPanel extends JPanel {
     private SessionInfo info;
@@ -16,29 +22,16 @@ public class NetworkToolsPanel extends JPanel {
     private ExecutorService threadPool;
     private SshUserInteraction source;
     private SshClient client;
-
     private DisabledPanel disabledPanel;
+    private JTextArea txtOutput;
+    private DefaultComboBoxModel<String> modelHost, modelPort;
+    private JComboBox<String> cmbHost, cmbPort, cmbDNSTool;
+    private AtomicBoolean stopFlag = new AtomicBoolean(false);
+    private JButton btn1, btn2, btn3, btn4;
 
     public NetworkToolsPanel(SessionInfo info) {
         super(new BorderLayout());
         this.info = info;
-    }
-
-    private JTextArea txtOutput;
-    private DefaultComboBoxModel<String> modelHost, modelPort;
-    private JComboBox<String> cmbHost, cmbPort, cmbDNSTool;
-    private SshWrapper wrapper;
-    private AtomicBoolean stopFlag = new AtomicBoolean(false);
-    private final Object lock = new Object();
-    private SessionInfo info;
-
-    private Cursor waitCursor, defaultCursor;
-
-    private JButton btn1, btn2, btn3, btn4;
-
-    public NetworkChecker(Window parent, SessionInfo info) {
-        waitCursor = new Cursor(Cursor.WAIT_CURSOR);
-        defaultCursor = getCursor();
 
         modelHost = new DefaultComboBoxModel<String>();
         modelPort = new DefaultComboBoxModel<String>();
@@ -48,10 +41,11 @@ public class NetworkToolsPanel extends JPanel {
         cmbHost.setEditable(true);
         cmbPort.setEditable(true);
 
-        cmbDNSTool = new JComboBox<String>(new String[] { "nslookup", "dig",
-                "dig +short", "host", "getent ahostsv4" });
+        cmbDNSTool = new JComboBox<String>(new String[]{"nslookup", "dig",
+                "dig +short", "host", "getent ahostsv4"});
 
-        JPanel grid = new JPanel(new GridLayout());
+        JPanel grid = new JPanel(new GridLayout(1, 4, 10, 10));
+        grid.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         btn1 = new JButton("Ping");
         btn2 = new JButton("Port check");
@@ -60,47 +54,47 @@ public class NetworkToolsPanel extends JPanel {
 
         btn1.addActionListener(e -> {
             if (JOptionPane.showOptionDialog(this,
-                    new Object[] { "Host to ping", cmbHost }, "Ping",
+                    new Object[]{"Host to ping", cmbHost}, "Ping",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                     null, null, null) == JOptionPane.OK_OPTION) {
                 executeAsync(
-                        "ping -c 4 " + cmbHost.getSelectedItem() + " 2>&1");
+                        "ping -c 4 " + cmbHost.getSelectedItem());
             }
         });
 
         btn2.addActionListener(e -> {
             if (JOptionPane.showOptionDialog(this,
-                    new Object[] { "Host name", cmbHost, "Port number",
-                            cmbPort },
+                    new Object[]{"Host name", cmbHost, "Port number",
+                            cmbPort},
                     "Port check", JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE, null, null,
                     null) == JOptionPane.OK_OPTION) {
                 executeAsync("bash -c 'test cat</dev/tcp/"
                         + cmbHost.getSelectedItem() + "/"
                         + cmbPort.getSelectedItem()
-                        + " && echo \"Port Reachable\" || echo \"Port Not reachable\"' 2>/dev/null");
+                        + " && echo \"Port Reachable\" || echo \"Port Not reachable\"'");
             }
         });
 
         btn3.addActionListener(e -> {
             if (JOptionPane.showOptionDialog(this,
-                    new Object[] { "Host name", cmbHost }, "Traceroute",
+                    new Object[]{"Host name", cmbHost}, "Traceroute",
                     JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                     null, null, null) == JOptionPane.OK_OPTION) {
                 executeAsync(
-                        "traceroute " + cmbHost.getSelectedItem() + " 2>&1");
+                        "traceroute " + cmbHost.getSelectedItem());
             }
         });
 
         btn4.addActionListener(e -> {
             if (JOptionPane.showOptionDialog(this,
-                    new Object[] { "Host name", cmbHost, "Tool to use",
-                            cmbDNSTool },
+                    new Object[]{"Host name", cmbHost, "Tool to use",
+                            cmbDNSTool},
                     "DNS lookup", JOptionPane.OK_CANCEL_OPTION,
                     JOptionPane.PLAIN_MESSAGE, null, null,
                     null) == JOptionPane.OK_OPTION) {
                 executeAsync(cmbDNSTool.getSelectedItem() + " "
-                        + cmbHost.getSelectedItem() + " 2>&1");
+                        + cmbHost.getSelectedItem());
             }
         });
 
@@ -109,32 +103,37 @@ public class NetworkToolsPanel extends JPanel {
         grid.add(btn3);
         grid.add(btn4);
 
-        add(grid, BorderLayout.NORTH);
+        contentPane = new JPanel(new BorderLayout());
+        contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+        disabledPanel = new DisabledPanel();
+        disabledPanel.startAnimation(stopFlag);
+
+        rootPane = new JRootPane();
+        rootPane.setContentPane(contentPane);
+        add(rootPane);
+
+        rootPane.setGlassPane(disabledPanel);
+
+        contentPane.add(grid, BorderLayout.NORTH);
 
         txtOutput = new JTextArea();
         txtOutput.setEditable(false);
         JScrollPane jsp = new JScrollPane(txtOutput);
-        add(jsp);
-
+        jsp.setBorder(new LineBorder(new Color(240, 240, 240), 1));
+        contentPane.add(jsp);
     }
 
     private void disableUI() {
-        btn1.setEnabled(false);
-        btn2.setEnabled(false);
-        btn3.setEnabled(false);
-        btn4.setEnabled(false);
+        disabledPanel.setVisible(true);
     }
 
     private void enableUI() {
-        btn1.setEnabled(true);
-        btn2.setEnabled(true);
-        btn3.setEnabled(true);
-        btn4.setEnabled(true);
+        disabledPanel.setVisible(false);
     }
 
     private void executeAsync(String cmd) {
         txtOutput.setText("");
-        setCursor(waitCursor);
         disableUI();
         new Thread(() -> {
             executeCommand(cmd);
@@ -142,46 +141,43 @@ public class NetworkToolsPanel extends JPanel {
     }
 
     private void executeCommand(String cmd) {
+        StringBuilder outText = new StringBuilder();
+        if (stopFlag.get()) {
+            return;
+        }
         try {
-            synchronized (lock) {
-                if (wrapper == null || !wrapper.isConnected()) {
-                    wrapper = SshUtility.connectWrapper(info, stopFlag);
-                }
+            if (this.client == null) {
+                this.client = new SshClient(new SshModalUserInteraction(info));
             }
-            if (SshUtility.executeCommand(wrapper, cmd,
-                    new ArrayList<String>() {
-                        @Override
-                        public boolean add(String e) {
-                            SwingUtilities.invokeLater(() -> {
-                                txtOutput.append(e + "\n");
-                            });
-                            return super.add(e);
-                        }
-                    }) != 0) {
-                throw new Exception("Failed");
+
+            StringBuilder output = new StringBuilder();
+            ByteArrayOutputStream bout = new ByteArrayOutputStream();
+            if (SshCommandUtils.exec(client, cmd, stopFlag, bout, output)) {
+                outText.append(new String(bout.toByteArray(), "utf-8") + "\n");
+                System.out.println("Command stdout: " + outText);
+            } else {
+                JOptionPane.showMessageDialog(this, "Error executed with errors");
+                outText.append(output.toString() + "\n");
+                System.out.println("Command stdout: " + output.toString());
             }
             System.out.println("Done");
+            System.out.println("Command output: " + outText);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             SwingUtilities.invokeLater(() -> {
-                setCursor(defaultCursor);
+                this.txtOutput.setText(outText.toString());
                 enableUI();
             });
         }
     }
 
-    private void cleanup() {
+    public void close() {
         stopFlag.set(true);
-        new Thread(() -> {
-            synchronized (lock) {
-                if (wrapper != null) {
-                    try {
-                        wrapper.close();
-                    } catch (IOException e) {
-                    }
-                }
-            }
-        }).start();
+        if (this.client != null) {
+            this.client.disconnect();
+        }
     }
+
+
 }

@@ -91,7 +91,7 @@ public class GraphicsUtils {
 //    }
 
     public static UIDefaults createTextFieldSkin(UIDefaults uiDefaults) {
-        final Color borderColor = new Color(240, 240, 240);
+        final Color borderColor = new Color(230, 230, 230);
         final Color focusedColor = new Color(3, 155, 229);
         Painter<? extends JComponent> focusedBorder = new Painter<JComponent>() {
             @Override

@@ -10,14 +10,20 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
     private ExecutorService executorService =
             Executors.newFixedThreadPool(App.getGlobalSettings().getNumberOfSimultaneousConnection());
     private Box verticalBox;
+    private Consumer<Integer> callback;
+    private AtomicInteger transferCount = new AtomicInteger(0);
 
-    public BackgroundTransferPanel() {
+    public BackgroundTransferPanel(Consumer<Integer> callback) {
         super(new BorderLayout());
+        this.callback = callback;
         verticalBox = Box.createVerticalBox();
         JScrollPane jsp = new JScrollPane(verticalBox);
         jsp.setBorder(null);
@@ -76,6 +82,8 @@ public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
 
         public TransferPanelItem(FileTransfer transfer) {
             super(new BorderLayout());
+            transferCount.incrementAndGet();
+            callback.accept(transferCount.get());
             this.fileTransfer = transfer;
             transfer.setCallback(this);
             progressBar = new JProgressBar();
@@ -121,6 +129,8 @@ public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
 
         @Override
         public void error(String cause, FileTransfer fileTransfer) {
+            transferCount.decrementAndGet();
+            callback.accept(transferCount.get());
             SwingUtilities.invokeLater(() -> {
                 progressLabel.setText(String.format("Error while copying from %s to %s",
                         fileTransfer.getSourceName(), fileTransfer.getTargetName()));
@@ -129,6 +139,8 @@ public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
 
         @Override
         public void done(FileTransfer fileTransfer) {
+            transferCount.decrementAndGet();
+            callback.accept(transferCount.get());
             System.out.println("done transfer");
             SwingUtilities.invokeLater(() -> {
                 BackgroundTransferPanel.this.verticalBox.remove(this);

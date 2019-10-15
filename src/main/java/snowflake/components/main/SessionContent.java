@@ -9,25 +9,24 @@ import snowflake.components.files.transfer.FileTransfer;
 import snowflake.components.keymanager.KeyManagerPanel;
 import snowflake.components.networktools.NetworkToolsPanel;
 import snowflake.components.newsession.SessionInfo;
-import snowflake.components.files.search.FileSearchPanel;
 import snowflake.components.sysinfo.SystemInfoPanel;
 import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class SessionContent extends JPanel {
+    private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg = new Color(45, 49, 58);
     private SessionInfo info;
     //    private JSplitPane verticalSplitter, horizontalSplitter;
     private CardLayout mainCard;
     private JPanel mainPanel;
     private JPanel panels[];
-    private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg = new Color(45, 49, 58);
-
     private TaskManager taskManager;
     private DiskUsageAnalyzer diskUsageAnalyzer;
     private SystemInfoPanel systemInfoPanel;
@@ -39,9 +38,12 @@ public class SessionContent extends JPanel {
     private NetworkToolsPanel networkToolsPanel;
     private String pageNames[] = new String[]{"Files", "Terminal", "System monitor",
             "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys", "Network tools"};
+    private JLabel lblProgressCount = new JLabel("");
 
     private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084", "\uf0b1"};
 
+    private MatteBorder matteBorder = new MatteBorder(0, 5, 0, 5, Color.DARK_GRAY);
+    private EmptyBorder emptyBorder = new EmptyBorder(0, 5, 0, 5);
 
     //private FileStore fileStore;
 
@@ -49,6 +51,10 @@ public class SessionContent extends JPanel {
         super(new BorderLayout(0, 0));
         this.info = info;
         this.externalEditor = externalEditor;
+        lblProgressCount.setBackground(Color.DARK_GRAY);
+        lblProgressCount.setOpaque(false);
+        lblProgressCount.setBorder(emptyBorder);
+        lblProgressCount.setForeground(Color.BLACK);
         init();
     }
 
@@ -79,12 +85,18 @@ public class SessionContent extends JPanel {
         this.fileComponentHolder = new FileComponentHolder(info, externalEditor, this);
 //        TabbedPanel bottomTabs = new TabbedPanel();
         terminalHolder = new TerminalHolder(info);
-        backgroundTransferPanel = new BackgroundTransferPanel();
+        backgroundTransferPanel = new BackgroundTransferPanel((count) -> {
+            lblProgressCount.setText(count > 0 ? count * 25 + "" : "");
+            lblProgressCount.setOpaque(count > 0);
+            lblProgressCount.setBorder(count > 0 ?
+                    matteBorder :
+                    emptyBorder);
+        });
         taskManager = new TaskManager(this.info);
         diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
         systemInfoPanel = new SystemInfoPanel(this.info);
         keyManagerPanel = new KeyManagerPanel(this.info);
-        networkToolsPanel = new NetworkToolsPanel();
+        networkToolsPanel = new NetworkToolsPanel(this.info);
 
         //JToolBar toolBar = new JToolBar();
         JButton btn = new JButton();
@@ -118,6 +130,10 @@ public class SessionContent extends JPanel {
                     panelClicked(panel);
                 }
             };
+
+            if (pageNames[i].equals("Active transfers")) {
+                panel.add(lblProgressCount, BorderLayout.EAST);
+            }
 
             panel.setName(pageNames[i]);
             panel.addMouseListener(adapter);

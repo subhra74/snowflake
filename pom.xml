@@ -154,7 +154,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>nix-explorer</finalName>
+                    <finalName>snowflake</finalName>
                     <archiverConfig>
                         <compress>false</compress>
                     </archiverConfig>

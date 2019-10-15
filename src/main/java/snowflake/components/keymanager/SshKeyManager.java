@@ -1,8 +1,9 @@
 package snowflake.components.keymanager;
 
-import com.jcraft.jsch.*;
-import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.SshModalUserInteraction;
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.KeyPair;
+import com.jcraft.jsch.SftpException;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
@@ -152,7 +153,7 @@ public class SshKeyManager {
     }
 
     private static String getPubKeyPath(SessionInfo info) {
-        if (info.getPrivateKeyFile() != null) {
+        if (info.getPrivateKeyFile() != null && info.getPrivateKeyFile().length() > 0) {
             String path = PathUtils.combine(PathUtils.getParent(info.getPrivateKeyFile()),
                     PathUtils.getFileName(info.getPrivateKeyFile()) + ".pub", File.separator);
             if (new File(path).exists()) {
