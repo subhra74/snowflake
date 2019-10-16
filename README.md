@@ -10,9 +10,9 @@ Easy and fun way to work with SSH
 <p>Built in text editor comes in handy when dev or admin needs to modify some files. The editor can invoke sudo and prompt for passwords as needed. This could be very helpfull for modifying global configuration files( like /etc/profile etc ) from editor without using vi or other terminal based editors.</p>
 
 <h4>Simply view and search huge log/text files in a jiffy</h4>
-<p>The built in log viewer can show hug log files, upto several terabytes in a very efficient manner. There is no need for downloading the whole file for view or search, thus skipping the pain of waiting for a long time to download the file, or using acrane terminal based tools. The log viewer presents a paginated view of the file, which loads in much less time.</p>
+<p>The built in log viewer can show huge log files, upto several terabytes in a very efficient manner. There is no need for downloading the whole file for view or search, thus skipping the pain of waiting for a long time to download the file, or using acrane terminal based tools. The log viewer presents a paginated view of the file, which loads in much less time.</p>
 
-<h4>Fast and powerful file and content search, powered by find command</h4>
+<h4>Fast powerful file and content search, powered by find command</h4>
 <p>Powerful search functionality, which allows users to find files by name, type, modification date and can also look inside compressed archives. for example its now very easy to find all the files created between a date range dates.</p>
 
 <h4>Built in terminal and command snippet</h4>
