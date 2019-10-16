@@ -219,7 +219,7 @@ public class MainContent extends JPanel {
         //newConnection.setFocusPainted(false);
         newConnection.setForeground(Color.WHITE);
         newConnection.addActionListener(e -> {
-            SessionInfo info = new NewSessionDlg().newSession();
+            SessionInfo info = new NewSessionDlg(SwingUtilities.windowForComponent(this)).newSession();
             if (info != null) {
                 int index = model.getSize();
                 model.addElement(info);
@@ -271,8 +271,11 @@ public class MainContent extends JPanel {
         Color c2 = new Color(2, 132, 195);
         Color c3 = new Color(70, 130, 180);
 
+        Dimension maxDim = new Dimension(0, 0);
+
         JButton disconnect = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
         disconnect.setFont(App.getFontAwesomeFont());
+        disconnect.setToolTipText("Disconnect session");
         //disconnect.setText("Disconnect");
         disconnect.setText("\uf052");
         //disconnect.setBackground(new Color(100, 0, 0));
@@ -291,8 +294,13 @@ public class MainContent extends JPanel {
             }
         });
 
+        if (disconnect.getPreferredSize().width > maxDim.width) {
+            maxDim.width = disconnect.getPreferredSize().width;
+        }
+
 
         JButton settings = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
+        settings.setToolTipText("Settings");
         settings.setFont(App.getFontAwesomeFont());
         //settings.setText("Settings");
         settings.setText("\uf085");
@@ -302,19 +310,37 @@ public class MainContent extends JPanel {
             settingsPanel.showDialog(App.getGlobalSettings());
         });
 
-        Dimension maxDim = disconnect.getPreferredSize();
         if (settings.getPreferredSize().width > maxDim.width) {
             maxDim.width = settings.getPreferredSize().width;
         }
 
-        disconnect.setPreferredSize(maxDim);
-        settings.setPreferredSize(maxDim);
+        JButton info = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
+        info.setToolTipText("Help and about");
+        info.setFont(App.getFontAwesomeFont());
+        //settings.setText("Settings");
+        info.setText("\uf05a");
+        //disconnect.setBackground(new Color(100, 0, 0));
+        info.setForeground(Color.WHITE);
+        info.addActionListener(e -> {
+            new AppInfoDialog(SwingUtilities.windowForComponent(this)).setVisible(true);
+        });
+
+        if (info.getPreferredSize().width > maxDim.width) {
+            maxDim.width = info.getPreferredSize().width;
+        }
+
+        for (JButton btn : new JButton[]{disconnect, settings, info}) {
+            btn.setPreferredSize(new Dimension(maxDim.width, btn.getPreferredSize().height));
+        }
 
         topPanel.add(Box.createHorizontalStrut(5));
         topPanel.add(disconnect);
 
         topPanel.add(Box.createHorizontalStrut(5));
         topPanel.add(settings);
+
+        topPanel.add(Box.createHorizontalStrut(5));
+        topPanel.add(info);
 
         add(topPanel, BorderLayout.NORTH);
         setOpaque(true);

@@ -13,6 +13,7 @@ import snowflake.components.terminal.snippets.SnippetItem;
 import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.plaf.nimbus.NimbusLookAndFeel;
 import javax.swing.plaf.synth.SynthScrollBarUI;
@@ -314,6 +315,11 @@ public class App {
         loadSnippets();
 
         JFrame f = new JFrame("Snowflake");
+        try {
+            f.setIconImage(ImageIO.read(App.class.getResource("/snowflake-logo.png")));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         f.setSize(800, 600);
         f.setExtendedState(JFrame.MAXIMIZED_BOTH);

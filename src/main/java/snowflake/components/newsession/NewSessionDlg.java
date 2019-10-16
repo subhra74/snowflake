@@ -35,7 +35,8 @@ public class NewSessionDlg extends JDialog
     private JPanel pdet;
     private SessionInfo info;
 
-    public NewSessionDlg() {
+    public NewSessionDlg(Window wnd) {
+        super(wnd);
         createUI();
     }
 

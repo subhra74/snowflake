@@ -198,7 +198,7 @@ public class FileBrowser extends JPanel {
     }
 
     public void openSftpFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
-        SessionInfo info = new NewSessionDlg().newSession();
+        SessionInfo info = new NewSessionDlg(SwingUtilities.windowForComponent(this)).newSession();
         if (info != null) {
             int c = rightList.getSize();
             SftpFileBrowserView fv1 = new SftpFileBrowserView(this, rootPane, holder, path, orientation, info);
