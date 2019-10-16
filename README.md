@@ -35,3 +35,8 @@ Easy and fun way to work with SSH
 You can open as many number of tabbed terminals, 
 sftp file browser etc and perform your day to day activity on the Linux/UNIX box easily</p>
 
+<h2>Installation:</h2>
+TBD
+
+<h2>Documentations:</h2>
+TBD
