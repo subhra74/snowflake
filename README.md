@@ -28,7 +28,7 @@ Easy and fun way to work with SSH
 <p>Few handy tools which can make dev's or admin's life earier like getting information about the system and distro, starting and stopping systemd services and finding which process is listening on which port.</p>
 
 <h4>Manage SSH keys easily</h4>
-<p>Simple and handy UI for creating and managing local and remote SSH keys. Also it supports managing authorized keys from GUI.fil</p>
+<p>Simple and handy UI for creating and managing local and remote SSH keys. Also it supports managing authorized keys from GUI.</p>
 
 <h4>Session management with tabbed interface</h4>
 <p>Easy to use tabbed view and session management allows one to managed multiple servers at ease.
