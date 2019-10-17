@@ -13,6 +13,7 @@ import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.PlatformAppLauncher;
 
 import javax.swing.*;
 import java.awt.*;
@@ -123,7 +124,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public void openApp(FileInfo file) {
-
+        PlatformAppLauncher.shellLaunch(file.getPath());
     }
 
     @Override

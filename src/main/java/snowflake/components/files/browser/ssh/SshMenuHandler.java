@@ -90,8 +90,9 @@ public class SshMenuHandler {
         aOpen = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                System.out.println("Open called");
-//                openDefaultAction();
+                System.out.println("Open app");
+                FileInfo fileInfo = folderView.getSelectedFiles()[0];
+                holder.openWithDefaultApp(fileInfo);
             }
         };
         ksOpen = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
@@ -534,6 +535,8 @@ public class SshMenuHandler {
             FileInfo file = files[0];
             if (file.getType() == FileType.Directory || file.getType() == FileType.DirLink) {
                 fileBrowser.openSshFileBrowserView(file.getPath(), this.fileBrowserView.getOrientation());
+            }else{
+
             }
         }
     }

@@ -192,7 +192,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public void openApp(FileInfo file) {
-
+        System.out.println("Open app");
+        holder.openWithDefaultApp(file);
     }
 
     protected void up() {

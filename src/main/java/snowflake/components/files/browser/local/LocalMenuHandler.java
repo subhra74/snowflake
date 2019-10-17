@@ -5,20 +5,21 @@ import snowflake.common.FileType;
 import snowflake.common.local.files.LocalFileSystem;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
-import snowflake.components.files.browser.OverflowMenuHandler;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.utils.PathUtils;
+import snowflake.utils.PlatformAppLauncher;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class LocalMenuHandler {
-    private JMenuItem mOpen, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav;
+    private JMenuItem mOpenInNewTab, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav, mOpen;
 
     private ExecutorService executor = Executors.newSingleThreadExecutor();
 
@@ -46,8 +47,15 @@ public class LocalMenuHandler {
     }
 
     private void initMenuItems() {
-        mOpen = new JMenuItem("Open in new tab");
+        mOpen = new JMenuItem("Open");
         mOpen.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                open();
+            }
+        });
+        mOpenInNewTab = new JMenuItem("Open in new tab");
+        mOpenInNewTab.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 openNewTab();
@@ -138,9 +146,16 @@ public class LocalMenuHandler {
     }
 
     private void createBuitinItems1(int selectionCount, JPopupMenu popup, FileInfo[] selectedFiles) {
+        if (selectionCount == 1) {
+            if (selectedFiles[0].getType() == FileType.File
+                    || selectedFiles[0].getType() == FileType.FileLink) {
+                popup.add(mOpen);
+            }
+        }
+
         if (selectedFiles[0].getType() == FileType.Directory
                 || selectedFiles[0].getType() == FileType.DirLink) {
-            popup.add(mOpen);
+            popup.add(mOpenInNewTab);
         }
 
         if (selectionCount == 1) {
@@ -158,6 +173,16 @@ public class LocalMenuHandler {
         popup.add(mNewFile);
         // check only if folder is selected
         popup.add(mAddToFav);
+    }
+
+    private void open() {
+        FileInfo files[] = folderView.getSelectedFiles();
+        if (files.length == 1) {
+            FileInfo file = files[0];
+            if (file.getType() == FileType.FileLink || file.getType() == FileType.File) {
+                PlatformAppLauncher.shellLaunch(file.getPath());
+            }
+        }
     }
 
     private void openNewTab() {
