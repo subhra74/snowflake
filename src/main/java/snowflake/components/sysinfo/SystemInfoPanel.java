@@ -28,12 +28,11 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
     private SshUserInteraction userInteraction;
     private Box tabbedBox;
     private SessionInfo info;
-    private JLabel labels[] = new JLabel[4];
+    private JLabel labels[] = new JLabel[3];
     private String pages[] = {
             "System information",
             "Services (systemd)",
-            "Process and Ports",
-            "Network tools"
+            "Process and Ports"
     };
     private Component pageComponent[];
     private CardLayout cardLayout;
@@ -72,8 +71,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
         pageComponent = new Component[]{
                 createSystemOverviewPanel(),
                 servicePanel,
-                socketPanel,
-                new JPanel()
+                socketPanel
         };
 
         JPanel mainPanel = new JPanel(new BorderLayout());
