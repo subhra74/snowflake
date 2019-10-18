@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Properties;
 
 public class App {
+    public static final String APP_VERSION = "101";
     public static UIDefaults comboBoxSkin = new UIDefaults();
     public static UIDefaults toolBarButtonSkin = new UIDefaults();
     public static UIDefaults scrollBarSkin = new UIDefaults();

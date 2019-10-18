@@ -1,5 +1,7 @@
 package snowflake.components.main;
 
+import snowflake.App;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -51,7 +53,8 @@ public class AppInfoDialog extends JDialog {
         btnCheckForUpdate.addActionListener(e -> {
             if (Desktop.isDesktopSupported()) {
                 try {
-                    Desktop.getDesktop().browse(new URI("https://github.com/subhra74/snowflake"));
+                    Desktop.getDesktop().browse(
+                            new URI("https://subhra74.github.io/snowflake/check-update.html?v=" + App.APP_VERSION));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (URISyntaxException ex) {
