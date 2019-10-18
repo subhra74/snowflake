@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <script>
+        var CURRENT_VERSION = 101;
+        var RELEASE_URL = "https://github.com/subhra74/snowflake/releases/tag/v1.0";
+        function printVersion() {
+            var rx = /\?v=(\d+)/;
+            var str = window.location.search;
+            var match = rx.exec(str);
+            if (match != null) {
+                var v = parseInt(match[1], 10);
+                if (v < CURRENT_VERSION) {
+                    document.getElementById("ver").innerHTML = "A newer version is available, download it <a href='" + RELEASE_URL + "'>here</a>";
+                } else {
+                    document.getElementById("ver").innerHTML = "App is up to date";
+                }
+            }
+        }
+    </script>
+</head>
+
+<body onload="printVersion()">
+    <h2>App is up to date</h2>
+    <div id="ver"></div>
+</body>
+
+</html>

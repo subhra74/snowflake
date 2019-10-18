@@ -39,7 +39,7 @@ public class AppInfoDialog extends JDialog {
         btnHelp.addActionListener(e -> {
             if (Desktop.isDesktopSupported()) {
                 try {
-                    Desktop.getDesktop().browse(new URI("https://github.com/subhra74/snowflake"));
+                    Desktop.getDesktop().browse(new URI("https://github.com/subhra74/snowflake/wiki"));
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 } catch (URISyntaxException ex) {
