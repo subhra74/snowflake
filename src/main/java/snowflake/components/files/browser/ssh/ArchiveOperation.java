@@ -7,6 +7,7 @@ import snowflake.utils.SshCommandUtils;
 import javax.swing.*;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,6 +33,9 @@ public class ArchiveOperation {
         extractCommands.put(".txz",
                 "xz -d -c <\"%s\"|tar -C \"%s\" -xvf -");
         extractCommands.put(".zip", "unzip -o \"%s\" -d \"%s\" ");
+        extractCommands.put(".gz", "gunzip -c < \"%s\" > \"%s\" ");
+        extractCommands.put(".xz", "xz -d -c < \"%s\" > \"%s\" ");
+        extractCommands.put(".bz2", "bzip2 -d -c  < \"%s\" > \"%s\" ");
 
         compressCommands = new LinkedHashMap<>();
         compressCommands.put("tar", "tar cvf - %s|cat>\"%s\"");
@@ -59,13 +63,36 @@ public class ArchiveOperation {
         return null;
     }
 
+    private boolean isSingleArchive(String archivePath) {
+        archivePath = archivePath.toLowerCase(Locale.ENGLISH);
+        for (String key : extractCommands.keySet()) {
+            if (archivePath.endsWith(key) && (key.equals(".xz") || key.equals(".gz") || key.equals(".bz2"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getArchiveFileName(String archivePath) {
+        String path = archivePath.toLowerCase(Locale.ENGLISH);
+        if (path.endsWith(".gz") || path.endsWith(".xz")) {
+            return archivePath.substring(0, archivePath.length() - 3);
+        } else {
+            return archivePath.substring(0, archivePath.length() - 4);
+        }
+    }
+
     public boolean extractArchive(SshClient client, String archivePath, String targetFolder, AtomicBoolean stopFlag) {
         String command = getExtractCommand(archivePath);
         if (command == null) {
             System.out.println("Unsupported file: " + archivePath);
             return false;
         }
-        command = String.format(command, archivePath, targetFolder);
+        command = String.format(command, archivePath,
+                isSingleArchive(archivePath) ?
+                        PathUtils.combineUnix(targetFolder,
+                                getArchiveFileName(PathUtils.getFileName(archivePath)))
+                        : targetFolder);
         System.out.println("Invoke command: " + command);
         StringBuilder output = new StringBuilder();
         boolean ret = SshCommandUtils.exec(client, command, stopFlag, output);

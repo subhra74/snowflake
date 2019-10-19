@@ -9,6 +9,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.util.Locale;
 
 public class TableCellLabelRenderer implements TableCellRenderer {
     private JPanel panel;
@@ -74,8 +75,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 
         textLabel.setForeground(isSelected ? table.getSelectionForeground() : foreground);
         iconLabel.setForeground(isSelected ? table.getSelectionForeground() : foreground);
-        iconLabel.setText(ent.getType() == FileType.Directory || ent.getType() == FileType.DirLink
-                ? "\uf07b" : "\uf016");
+        iconLabel.setText(getIconForType(ent));
         textLabel.setText(ent.getName());
 
         label.setBackground(isSelected ? table.getSelectionBackground()
@@ -117,5 +117,72 @@ public class TableCellLabelRenderer implements TableCellRenderer {
             return label;
         }
 
+    }
+
+    public String getIconForType(FileInfo ent) {
+        if (ent.getType() == FileType.Directory || ent.getType() == FileType.DirLink) {
+            return "\uf07b";
+        }
+        String name = ent.getName().toLowerCase(Locale.ENGLISH);
+        if (name.endsWith(".zip")
+                || name.endsWith(".tar")
+                || name.endsWith(".tgz")
+                || name.endsWith(".gz")
+                || name.endsWith(".bz2")
+                || name.endsWith(".tbz2")
+                || name.endsWith(".tbz")
+                || name.endsWith(".txz")
+                || name.endsWith(".xz")) {
+            return "\uf1c6";
+        } else if (name.endsWith(".mp3")
+                || name.endsWith(".aac")
+                || name.endsWith(".mp2")
+                || name.endsWith(".wav")
+                || name.endsWith(".flac")
+                || name.endsWith(".mpa")
+                || name.endsWith(".m4a")) {
+            return "\uf1c7";
+        } else if (name.endsWith(".c")
+                || name.endsWith(".js")
+                || name.endsWith(".cpp")
+                || name.endsWith(".java")
+                || name.endsWith(".cs")
+                || name.endsWith(".py")
+                || name.endsWith(".pl")
+                || name.endsWith(".rb")
+                || name.endsWith(".sql")
+                || name.endsWith(".go")
+                || name.endsWith(".ksh")
+                || name.endsWith(".css")
+                || name.endsWith(".scss")
+                || name.endsWith(".html")
+                || name.endsWith(".htm")
+                || name.endsWith(".ts")) {
+            return "\uf1c9";
+        } else if (name.endsWith(".xls")
+                || name.endsWith(".xlsx")) {
+            return "\uf1c3";
+        } else if (name.endsWith(".jpg")
+                || name.endsWith(".jpeg")
+                || name.endsWith(".png")
+                || name.endsWith(".ico")
+                || name.endsWith(".gif")
+                || name.endsWith(".svg")) {
+            return "\uf1c5";
+        } else if (name.endsWith(".mp4")
+                || name.endsWith(".mkv")
+                || name.endsWith(".m4v")
+                || name.endsWith(".avi")) {
+            return "\uf1c8";
+        } else if (name.endsWith(".pdf")) {
+            return "\uf1c1";
+        } else if (name.endsWith(".ppt")
+                || name.endsWith(".pptx")) {
+            return "\uf1c4";
+        } else if (name.endsWith(".doc")
+                || name.endsWith(".docx")) {
+            return "\uf1c2";
+        }
+        return "\uf016";
     }
 }
