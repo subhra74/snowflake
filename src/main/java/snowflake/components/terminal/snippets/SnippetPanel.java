@@ -167,9 +167,9 @@ public class SnippetPanel extends JPanel {
     }
 
     public void loadSnippets() {
-        System.out.println("Snippet size: " + App.getSnippetItems().size());
         this.snippetList.clear();
         this.snippetList.addAll(App.getSnippetItems());
+        System.out.println("Snippet size: " + snippetList.size());
         filter();
     }
 
@@ -178,6 +178,7 @@ public class SnippetPanel extends JPanel {
         String text = searchTextField.getText().trim();
         if (text.length() < 1) {
             this.listModel.addAll(this.snippetList);
+            return;
         }
         for (SnippetItem item : snippetList) {
             if (item.getCommand().contains(text) || item.getName().contains(text)) {

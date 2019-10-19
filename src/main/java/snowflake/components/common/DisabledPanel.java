@@ -31,6 +31,7 @@ public class DisabledPanel extends JPanel {
         btn.setAlignmentX(Box.CENTER_ALIGNMENT);
         setOpaque(false);
         btn.addActionListener(e -> {
+            System.out.println("Stop button clicked: " + stopFlag);
             if (stopFlag != null) {
                 stopFlag.set(true);
             }

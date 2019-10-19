@@ -69,8 +69,9 @@ public class SshCommandUtils {
                     exec.disconnect();
                     break;
                 }
-                Thread.sleep(100);
+                Thread.sleep(500);
             }
+
             output.append(new String(bout.toByteArray(), "utf-8"));
             return exec.getExitStatus() == 0;
         } catch (Exception e) {

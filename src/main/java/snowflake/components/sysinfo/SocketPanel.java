@@ -84,6 +84,7 @@ public class SocketPanel extends JPanel {
         } else {
             model.addEntries(list);
         }
+        model.fireTableDataChanged();
     }
 
     public boolean getUseSuperUser() {

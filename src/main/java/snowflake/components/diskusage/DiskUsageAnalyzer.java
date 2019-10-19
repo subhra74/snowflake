@@ -82,6 +82,7 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
 
         StartPage startPage = new StartPage("Disk Space Analyzer",
                 "Analyze disk space usage for a partition or folder", "Open", e -> {
+            stopFlag.set(false);
             cardLayout.show(contentPane, "Partitions");
             disableUi();
             threadPool.submit(() -> {
@@ -177,8 +178,8 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
                     root.setAllowsChildren(true);
                     createTree(root, res);
                     treeModel.setRoot(root);
-                    enableUi();
                 }
+                enableUi();
             });
         }, source);
         cardLayout.show(contentPane, "Results");
@@ -206,7 +207,7 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
         btop.add(lbl);
         btop.add(Box.createHorizontalGlue());
         JButton btnRefresh = new JButton("Refresh partitions");
-        btnRefresh.addActionListener(e->{
+        btnRefresh.addActionListener(e -> {
             disableUi();
             threadPool.submit(() -> {
                 listPartitions();
@@ -262,6 +263,7 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
 
         JButton btnNext = new JButton("Next");
         btnNext.addActionListener(e -> {
+            stopFlag.set(false);
             if (radPartition.isSelected()) {
                 int x = table.getSelectedRow();
                 if (x != -1) {
