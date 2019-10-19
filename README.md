@@ -44,6 +44,16 @@ Easy and fun way to work with SSH
 <h4>Built in terminal and command snippet</h4>
 <p>With built in terminal, all command line operations can be performed. The terminal is also integrated with the file browser page, so users can open terminal from specific directory or execute scripts in terminal from file browser itself with a click of mouse. Also You can create snippet of your most used commands and execute them with a few clicks without typing again and again.</p>
 
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/15.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/16.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/17.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/18.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/19.png" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/20.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/31.PNG" width="400">
+</div>
+
 <h4>Fully equiped task manager</h4>
 <p>Monitor resource usage (CPU,RAM,SWAP) and view/manage processes from a familier GUI. It is equipped with search and kill process functionaliy, and also with a option to kill processes with sudo. Its very easy to check which process is using most CPU or Memeory and the full command line of the process.</p>
 
