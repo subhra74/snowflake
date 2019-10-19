@@ -1,5 +1,6 @@
 package snowflake.utils;
 
+import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +21,7 @@ public class PlatformAppLauncher {
             builder.command(lst);
             builder.start();
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, e.getMessage());
             e.printStackTrace();
         }
     }
@@ -39,6 +41,7 @@ public class PlatformAppLauncher {
                     Desktop.getDesktop().open(new File(file));
                     return true;
                 } catch (IOException e) {
+                    JOptionPane.showMessageDialog(null, e.getMessage());
                     e.printStackTrace();
                 }
             } else {
@@ -55,6 +58,7 @@ public class PlatformAppLauncher {
                 Desktop.getDesktop().edit(new File(file));
                 return true;
             } catch (IOException e) {
+                JOptionPane.showMessageDialog(null, e.getMessage());
                 e.printStackTrace();
             }
         }

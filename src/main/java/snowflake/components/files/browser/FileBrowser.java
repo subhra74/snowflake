@@ -99,7 +99,7 @@ public class FileBrowser extends JPanel {
                         ignoreEvent = false;
                         return;
                     }
-                    JComboBox<String> cmbList = new JComboBox<>(new String[]{"Local files", "SFTP server", "FTP server"});
+                    JComboBox<String> cmbList = new JComboBox<>(new String[]{"Local files", "SFTP server"});
                     if (JOptionPane.showOptionDialog(this, new Object[]{"Please select a server to open in this tab", cmbList},
                             "New tab", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
                             null, null, null) == JOptionPane.OK_OPTION) {

@@ -70,6 +70,7 @@ public class App {
         GraphicsUtils.createTabbedPaneSkin(nimbusLookAndFeel.getDefaults());
         GraphicsUtils.customizeTableHeader(nimbusLookAndFeel.getDefaults());
         GraphicsUtils.createSkinnedButton(nimbusLookAndFeel.getDefaults());
+        GraphicsUtils.createSkinnedMenu(nimbusLookAndFeel.getDefaults());
         nimbusLookAndFeel.getDefaults().put("ScrollBarUI", CustomScrollBarUI.class.getName());
 
         UIManager.setLookAndFeel(nimbusLookAndFeel);

@@ -371,4 +371,17 @@ public class GraphicsUtils {
         uiDefaults.put("TableHeader:\"TableHeader.renderer\"[MouseOver].backgroundPainter", painterNormal);
         uiDefaults.put("TableHeader:\"TableHeader.renderer\"[Pressed].backgroundPainter", painterNormal);
     }
+
+    public static UIDefaults createSkinnedMenu(UIDefaults btnSkin) {
+        Color c1 = new Color(3, 155, 229);
+        Painter painter = new Painter() {
+            @Override
+            public void paint(Graphics2D g, Object object, int width, int height) {
+                g.setColor(c1);
+                g.fillRect(0, 0, width, height);
+            }
+        };
+        btnSkin.put("MenuItem[MouseOver].backgroundPainter", painter);
+        return btnSkin;
+    }
 }
