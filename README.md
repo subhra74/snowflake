@@ -95,7 +95,25 @@ Easy and fun way to work with SSH
 </div>
 
 <h2>Installation:</h2>
+
+<b>Windows</b>
+<p>
+Please download and install the MSI installer from <a href="https://github.com/subhra74/snowflake/releases/download/v1.0/snowflake.jar">here</a>
+</p>
+
+<b>Linux</b>
+<p>
+<a href="https://github.com/subhra74/snowflake/releases/download/v1.0/snowflake.jar">SNAP package</a>
+</p>
+
+<p>
+<a href="https://github.com/subhra74/snowflake/releases/download/v1.0/snowflake.jar">Generic installer</a>
+</p>
+
+<b>MacOS</b>
+<p>
 TBD
+</p>
 
 <h2>Documentations:</h2>
-TBD
+https://github.com/subhra74/snowflake/wiki
