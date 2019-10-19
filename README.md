@@ -57,19 +57,42 @@ Easy and fun way to work with SSH
 <h4>Fully equiped task manager</h4>
 <p>Monitor resource usage (CPU,RAM,SWAP) and view/manage processes from a familier GUI. It is equipped with search and kill process functionaliy, and also with a option to kill processes with sudo. Its very easy to check which process is using most CPU or Memeory and the full command line of the process.</p>
 
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/system-monitor/21.PNG" width="400">
+   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/system-monitor/22.png" width="400">
+</div>
+
 <h4>Built in graphical disk space analyzer</h4>
 <p>A friendly GUI which allows users to find out what is eating up the diskspace. Any of the mounted partitions or directories can be analyzed.</p>
+
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/disk-analyzer/23.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/disk-analyzer/24.PNG" width="400">
+</div>
 
 <h4>Linux specific tools</h4>
 <p>Few handy tools which can make dev's or admin's life earier like getting information about the system and distro, starting and stopping systemd services and finding which process is listening on which port.</p>
 
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/linux-tools/25.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/linux-tools/26.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/linux-tools/27.PNG" width="400">
+</div>
+
 <h4>Manage SSH keys easily</h4>
 <p>Simple and handy UI for creating and managing local and remote SSH keys. Also it supports managing authorized keys from GUI.</p>
 
-<h4>Session management with tabbed interface</h4>
-<p>Easy to use tabbed view and session management allows one to managed multiple servers at ease.
-You can open as many number of tabbed terminals, 
-sftp file browser etc and perform your day to day activity on the Linux/UNIX box easily</p>
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/ssh-keys/28.PNG" width="400">
+</div>
+
+<h4>Network tools</h4>
+<p>Graphical interface for PING,Port checking, Traceroute and DNS lookup</p>
+
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/network-tools/29.PNG" width="400">
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/network-tools/30.PNG" width="400">
+</div>
 
 <h2>Installation:</h2>
 TBD
