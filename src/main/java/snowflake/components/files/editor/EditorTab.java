@@ -35,9 +35,11 @@ public class EditorTab extends JPanel implements SearchListener {
     private GoToDialog goToDialog;
     private boolean wrapText = false;
     private TextEditor editor;
+    private TabHeader header;
 
-    public EditorTab(FileInfo info, String text, String localFile, TextEditor editor) {
+    public EditorTab(FileInfo info, String text, String localFile, TextEditor editor, TabHeader header) {
         super(new BorderLayout());
+        this.header = header;
         this.info = info;
         this.localFile = localFile;
         this.textArea = new RSyntaxTextArea();
@@ -75,8 +77,6 @@ public class EditorTab extends JPanel implements SearchListener {
 
         replaceToolBar.add(xp, BorderLayout.EAST);
 
-        hasChanges = false;
-
         TokenMakerFactory factory = TokenMakerFactory.getDefaultInstance();
         Set<String> styles = factory.keySet();
         String stylesArr[] = new String[styles.size()];
@@ -110,6 +110,8 @@ public class EditorTab extends JPanel implements SearchListener {
         });
 
         selectStyle(info.getName());
+
+        setHasChanges(false);
     }
 
     public void saveContentsToLocal() throws Exception {
@@ -135,7 +137,7 @@ public class EditorTab extends JPanel implements SearchListener {
     }
 
     public void setHasChanges(boolean value) {
-        editor.hasUnsavedChanges(value);
+        header.setTitle(getInfo().getName() + (value ? "*" : ""));
         this.hasChanges = value;
     }
 

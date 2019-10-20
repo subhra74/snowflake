@@ -491,6 +491,7 @@ public class TextEditor extends JPanel {
     }
 
     private void setTabContent(StringBuilder sb) {
+        System.out.println("Setting tab content");
         this.reloading = false;
         ((EditorTab) tabs.getSelectedComponent()).setText(sb.toString());
     }
@@ -498,8 +499,8 @@ public class TextEditor extends JPanel {
     private void createNewTab(FileInfo fileInfo, StringBuilder sb, String tempFile) {
         cardLayout.show(content, "Tabs");
         int index = tabs.getTabCount();
-        EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile, this);
         TabHeader tabHeader = new TabHeader(fileInfo.getName());
+        EditorTab tab = new EditorTab(fileInfo, sb.toString(), tempFile, this, tabHeader);
         int count = tabs.getTabCount();
         tabHeader.getBtnClose().addMouseListener(new MouseAdapter() {
             @Override
@@ -601,13 +602,22 @@ public class TextEditor extends JPanel {
         }
     }
 
-    public void hasUnsavedChanges(boolean value) {
-        int index = tabs.getSelectedIndex();
-        if (index < 0) {
-            return;
-        }
-        TabHeader header = (TabHeader) tabs.getTabComponentAt(index);
-        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
-        header.setTitle(tab.getInfo().getName() + (value ? "*" : ""));
-    }
+//    public void hasUnsavedChanges(EditorTab editorTab) {
+//        int index = tabs.getSelectedIndex();
+//
+//        if (index < 0) {
+//            return;
+//        }
+//
+//        for (int i = 0; i < tabs.getComponentCount(); i++) {
+//            if (tabs.getComponent(i) == editorTab) {
+//                TabHeader header = (TabHeader) tabs.getTabComponentAt(index);
+//                header.setTitle(tab.getInfo().getName() + (value ? "*" : ""));
+//            }
+//        }
+//
+////        TabHeader header = (TabHeader) tabs.getTabComponentAt(index);
+////        EditorTab tab = (EditorTab) tabs.getSelectedComponent();
+////        header.setTitle(tab.getInfo().getName() + (value ? "*" : ""));
+//    }
 }
