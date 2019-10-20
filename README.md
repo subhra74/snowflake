@@ -1,6 +1,8 @@
 # Snowflake
 Easy and fun way to work with SSH
 
+Snowflake is a graphical SSH client. It has a file browser, terminal emulator, resource/process manager, disk space analyzer, text editor, log viewer and lots of other helpful tools, which makes it easy to work with remote servers.
+
 <h2>Download:</h2>
 
 <table>
