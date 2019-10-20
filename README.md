@@ -1,4 +1,4 @@
-# snowflake
+# Snowflake
 Easy and fun way to work with SSH
 
 <h2>Download:</h2>
