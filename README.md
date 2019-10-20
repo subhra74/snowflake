@@ -1,6 +1,36 @@
 # snowflake
 Easy and fun way to work with SSH
 
+<h2>Download:</h2>
+
+<table>
+  <tr>
+    <th>Windows</th>
+    <th>Ubuntu/Mint/Debian</th>
+    <th>Other Linux</th>
+    <th>MacOS</th>
+    <th>Other</th>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake.msi">MSI installer</a>
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake_1.0-1.deb">DEB installer</a>
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake-1.0.1-linux-amd64.tar.xz">Generic installer</a>
+    </td>
+    <td>
+      TBD
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake.jar">JAR</a>
+    </td>
+  </tr>
+</table>
+
+
 <h2>Features:</h2>
 
 <h4>Simple graphical interface for common file operations</h4>
@@ -94,26 +124,7 @@ Easy and fun way to work with SSH
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/network-tools/30.PNG" width="400">
 </div>
 
-<h2>Installation:</h2>
 
-<b>Windows</b>
-<p>
-Please download and install the MSI installer from <a href="https://github.com/subhra74/snowflake/releases/download/v1.0/snowflake.jar">here</a>
-</p>
-
-<b>Linux</b>
-<p>
-<a href="https://github.com/subhra74/snowflake/releases/download/v1.0/snowflake.jar">SNAP package</a>
-</p>
-
-<p>
-<a href="https://github.com/subhra74/snowflake/releases/download/v1.0/snowflake.jar">Generic installer</a>
-</p>
-
-<b>MacOS</b>
-<p>
-TBD
-</p>
 
 <h2>Documentations:</h2>
 https://github.com/subhra74/snowflake/wiki
