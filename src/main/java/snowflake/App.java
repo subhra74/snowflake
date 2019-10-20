@@ -3,6 +3,7 @@ package snowflake;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import snowflake.common.GlobalSettings;
 import snowflake.common.Settings;
 import snowflake.components.common.CustomScrollBarUI;
@@ -22,6 +23,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -61,6 +63,8 @@ public class App {
 //    }
 
     public static void main(String[] args) throws UnsupportedLookAndFeelException {
+
+        Security.addProvider(new BouncyCastleProvider());
 
         NimbusLookAndFeel nimbusLookAndFeel = new NimbusLookAndFeel();
         GraphicsUtils.createTextFieldSkin(nimbusLookAndFeel.getDefaults());
