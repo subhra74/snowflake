@@ -7,6 +7,7 @@ import snowflake.utils.PathUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,6 +113,7 @@ public class LocalFileSystem implements FileSystem {
 
     @Override
     public void mkdir(String path) throws Exception {
+        System.out.println("Creating folder: " + path);
         new File(path).mkdirs();
     }
 
@@ -203,7 +205,7 @@ public class LocalFileSystem implements FileSystem {
      */
     @Override
     public void createFile(String path) throws Exception {
-
+        Files.createFile(Paths.get(path));
     }
 
     public void createLink(String src, String dst, boolean hardLink)

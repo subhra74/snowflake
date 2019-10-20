@@ -2,7 +2,6 @@ package snowflake.components.files.browser.sftp;
 
 import snowflake.common.FileInfo;
 import snowflake.common.FileType;
-import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
@@ -148,8 +147,7 @@ public class SftpMenuHandler {
         }
 
 //        if (selectionCount > 0) {
-//            popup.add(mCopy);
-//            popup.add(mCut);
+//            popup.add(mDelete);
 //        }
     }
 
@@ -194,7 +192,7 @@ public class SftpMenuHandler {
             fileBrowser.disableUi();
             for (FileInfo f : selectedFiles) {
                 try {
-                    new LocalFileSystem().delete(f);
+                    fs.delete(f);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

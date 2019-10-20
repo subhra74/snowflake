@@ -67,7 +67,11 @@ public class ArchiveOperation {
         archivePath = archivePath.toLowerCase(Locale.ENGLISH);
         for (String key : extractCommands.keySet()) {
             if (archivePath.endsWith(key) && (key.equals(".xz") || key.equals(".gz") || key.equals(".bz2"))) {
-                return true;
+                if (!(archivePath.endsWith(".tar.xz")
+                        || archivePath.endsWith(".tar.gz")
+                        || archivePath.endsWith(".tar.bz2"))) {
+                    return true;
+                }
             }
         }
         return false;

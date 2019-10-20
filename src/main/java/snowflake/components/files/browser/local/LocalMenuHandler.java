@@ -151,16 +151,18 @@ public class LocalMenuHandler {
                     || selectedFiles[0].getType() == FileType.FileLink) {
                 popup.add(mOpen);
             }
-        }
-
-        if (selectedFiles[0].getType() == FileType.Directory
-                || selectedFiles[0].getType() == FileType.DirLink) {
-            popup.add(mOpenInNewTab);
-        }
-
-        if (selectionCount == 1) {
+            if (selectedFiles[0].getType() == FileType.Directory
+                    || selectedFiles[0].getType() == FileType.DirLink) {
+                popup.add(mOpenInNewTab);
+            }
             popup.add(mRename);
         }
+
+
+
+//        if (selectionCount == 1) {
+//            popup.add(mRename);
+//        }
 
 //        if (selectionCount > 0) {
 //            popup.add(mCopy);
