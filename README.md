@@ -22,7 +22,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
       <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake_1.0-1.deb">DEB installer</a>
     </td>
     <td>
-      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake-1.0.1-linux-amd64.tar.xz">Generic installer</a>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake-1.0.1-linux-amd64.tar.xz">Generic installer (64 bit)</a>
     </td>
     <td>
       TBD
