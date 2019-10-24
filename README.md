@@ -28,7 +28,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
       TBD
     </td>
     <td>
-      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake.jar">JAR</a>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.1/snowflake.jar">JAR (Java 11)</a>
     </td>
   </tr>
 </table>
