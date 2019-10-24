@@ -1,19 +1,11 @@
 package snowflake.components.settings;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import snowflake.App;
-import snowflake.AppConstants;
 import snowflake.common.Settings;
-import snowflake.components.newsession.SavedSessionTree;
-import snowflake.components.newsession.SessionFolder;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
 
 public class SettingsPanel extends JPanel {
     private JCheckBox chkConfirmBeforeDelete, chkConfirmBeforeMoveOrCopy, chkShowHiddenFilesByDefault,

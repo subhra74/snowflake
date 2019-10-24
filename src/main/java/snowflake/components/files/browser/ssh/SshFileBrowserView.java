@@ -16,7 +16,6 @@ import snowflake.components.files.browser.FileBrowser;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

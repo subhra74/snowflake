@@ -10,7 +10,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
@@ -62,7 +61,6 @@ public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
         private FileTransfer fileTransfer;
         private JProgressBar progressBar;
         private JLabel progressLabel;
-        private JLabel removeLabel;
 
         public void stop() {
             fileTransfer.stop();
@@ -88,7 +86,7 @@ public class BackgroundTransferPanel extends JPanel implements AutoCloseable {
             transfer.setCallback(this);
             progressBar = new JProgressBar();
             progressLabel = new JLabel("Connecting...");
-            removeLabel = new JLabel();
+            JLabel removeLabel = new JLabel();
             removeLabel.setFont(App.getFontAwesomeFont());
             removeLabel.setText("\uf00d");
 

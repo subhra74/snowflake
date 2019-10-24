@@ -1,12 +1,10 @@
 package snowflake.components.files.browser.sftp;
 
-import snowflake.common.FileSystem;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import java.io.File;
-import java.io.IOException;
 
 public class SftpFileOperations {
     public boolean rename(SshFileSystem fs, String oldName, String newName) {

@@ -9,7 +9,6 @@ import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
 import org.fife.ui.rtextarea.*;
 import snowflake.App;
 import snowflake.common.FileInfo;
-import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;

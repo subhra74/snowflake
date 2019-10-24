@@ -1,6 +1,5 @@
 package snowflake.components.files;
 
-import snowflake.common.FileInfo;
 import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.folderview.FolderView;
 import snowflake.components.newsession.SessionInfo;
@@ -10,9 +9,7 @@ import java.awt.datatransfer.DataFlavor;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.InputEvent;
-import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 
 public class DndTransferHandler extends TransferHandler implements Transferable {

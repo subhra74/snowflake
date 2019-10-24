@@ -8,7 +8,6 @@ import snowflake.common.*;
 import snowflake.common.FileSystem;
 import snowflake.common.ssh.AbstractUserInteraction;
 import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.utils.PathUtils;
 
 import java.io.*;

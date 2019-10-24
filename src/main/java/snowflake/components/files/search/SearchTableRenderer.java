@@ -1,7 +1,6 @@
 package snowflake.components.files.search;
 
 import snowflake.App;
-import snowflake.common.FileType;
 
 import javax.swing.*;
 import javax.swing.table.TableCellRenderer;

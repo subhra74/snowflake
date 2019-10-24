@@ -1,7 +1,5 @@
 package snowflake.components.terminal.snippets;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import java.util.UUID;
 
 /**

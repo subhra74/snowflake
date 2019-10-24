@@ -13,7 +13,7 @@ public class AddressBarBreadCrumbs extends JPanel {
     public UIDefaults toolBarButtonSkin = new UIDefaults();
     private boolean unix;
     private MouseAdapter ma;
-    private String segments[];
+    private String[] segments;
     private List<ActionListener> listeners = new ArrayList<>();
 
     public AddressBarBreadCrumbs(boolean unix, ActionListener popupTriggerListener) {

@@ -1,11 +1,8 @@
 package snowflake.components.files.search;
 
 import snowflake.App;
-import snowflake.common.local.files.LocalFileSystem;
 import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.files.FileComponentHolder;
-import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 import snowflake.utils.ScriptLoader;
 import snowflake.utils.SshCommandUtils;

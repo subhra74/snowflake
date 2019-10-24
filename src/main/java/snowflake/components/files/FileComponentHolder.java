@@ -1,6 +1,5 @@
 package snowflake.components.files;
 
-import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
@@ -23,14 +22,10 @@ import snowflake.components.main.ConnectedResource;
 import snowflake.components.main.SessionContent;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.newsession.SessionStore;
-import snowflake.utils.FormatUtils;
 import snowflake.utils.PathUtils;
 import snowflake.utils.PlatformAppLauncher;
-import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
-import javax.swing.Timer;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
@@ -44,9 +39,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource {
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
@@ -296,11 +288,10 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     }
 
     public void saveRemoteFile(String localFile, FileInfo fileInfo, int hashCode) throws IOException {
-        String path = localFile;
-        System.out.println("Saving file from: " + path + " to: " + fileInfo.getPath());
+        System.out.println("Saving file from: " + localFile + " to: " + fileInfo.getPath());
         editor.setSavingFile(true);
         newFileTransfer(new LocalFileSystem(), this.fs,
-                new FileInfo[]{new LocalFileSystem().getInfo(path)}, PathUtils.getParent(localFile),
+                new FileInfo[]{new LocalFileSystem().getInfo(localFile)}, PathUtils.getParent(localFile),
                 PathUtils.getParent(fileInfo.getPath()), hashCode, 0, false);
     }
 

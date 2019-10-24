@@ -5,7 +5,6 @@ import snowflake.common.ssh.SshUserInteraction;
 import snowflake.utils.ScriptLoader;
 import snowflake.utils.SshCommandUtils;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;

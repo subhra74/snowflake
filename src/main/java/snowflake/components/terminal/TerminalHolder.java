@@ -5,7 +5,6 @@ import snowflake.components.newsession.SessionInfo;
 import snowflake.components.terminal.snippets.SnippetPanel;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;

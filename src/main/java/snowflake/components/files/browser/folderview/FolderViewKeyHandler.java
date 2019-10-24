@@ -96,10 +96,7 @@ public class FolderViewKeyHandler extends KeyAdapter {
         InputMap inputMap = table
                 .getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT);
         KeyStroke key = KeyStroke.getKeyStrokeForEvent(event);
-        if (inputMap != null && inputMap.get(key) != null) {
-            return true;
-        }
-        return false;
+        return inputMap != null && inputMap.get(key) != null;
     }
 
     public JTable getTable() {

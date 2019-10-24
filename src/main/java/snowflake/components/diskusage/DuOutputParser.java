@@ -3,7 +3,6 @@ package snowflake.components.diskusage;
 import snowflake.utils.PathUtils;
 
 import java.util.List;
-import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

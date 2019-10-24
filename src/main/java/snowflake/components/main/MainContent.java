@@ -126,7 +126,6 @@
 package snowflake.components.main;
 
 import snowflake.App;
-import snowflake.components.common.CustomButtonPainter;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.settings.SettingsPanel;

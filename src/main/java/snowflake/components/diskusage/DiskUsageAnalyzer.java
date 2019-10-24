@@ -4,7 +4,6 @@ import snowflake.common.ssh.SshClient;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.common.DisabledPanel;
 import snowflake.components.common.StartPage;
-import snowflake.components.diskusage.treetable.JTreeTable;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.SshCommandUtils;
 

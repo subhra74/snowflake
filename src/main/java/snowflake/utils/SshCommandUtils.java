@@ -3,13 +3,10 @@ package snowflake.utils;
 import com.jcraft.jsch.ChannelExec;
 import snowflake.common.FileInfo;
 import snowflake.common.ssh.SshClient;
-import snowflake.components.taskmgr.TaskManager;
 
-import javax.swing.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 

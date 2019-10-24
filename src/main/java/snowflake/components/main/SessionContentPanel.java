@@ -4,9 +4,6 @@ import snowflake.components.files.editor.ExternalEditor;
 import snowflake.components.newsession.SessionInfo;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;

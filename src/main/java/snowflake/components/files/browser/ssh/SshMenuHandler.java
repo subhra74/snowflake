@@ -5,14 +5,11 @@ import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.FileType;
 import snowflake.common.local.files.LocalFileSystem;
-import snowflake.common.ssh.SshModalUserInteraction;
-import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.files.browser.folderview.FolderView;
-import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
 
 import javax.swing.*;
@@ -27,7 +24,6 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -361,10 +357,7 @@ public class SshMenuHandler {
 
             @Override
             public boolean isDataFlavorSupported(DataFlavor flavor) {
-                if (flavor.equals(DndTransferHandler.DATA_FLAVOR)) {
-                    return true;
-                }
-                return false;
+                return flavor.equals(DndTransferHandler.DATA_FLAVOR);
             }
 
             @Override

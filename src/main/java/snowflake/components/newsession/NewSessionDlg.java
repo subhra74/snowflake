@@ -6,8 +6,6 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.awt.event.*;
 
-import snowflake.*;
-import snowflake.components.common.CustomScrollBarUI;
 import snowflake.utils.*;
 
 import java.awt.*;

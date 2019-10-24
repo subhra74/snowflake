@@ -14,8 +14,7 @@ public class AddressBar extends JPanel {
     //private AddressBreadCrumbView addressBar;
     private AddressBarBreadCrumbs addressBar;
     private JComboBox<String> txtAddressBar;
-    private DefaultComboBoxModel<String> model;
-    private JButton btnEdit, btnRoot;
+    private JButton btnEdit;
     private JPanel addrPanel;
     private boolean updating = false;
     private ActionListener a;
@@ -29,7 +28,7 @@ public class AddressBar extends JPanel {
         addrPanel.setBorder(
                 new EmptyBorder(3, 3, 3, 3));
         this.separator = separator;
-        btnRoot = new JButton();
+        JButton btnRoot = new JButton();
         btnRoot.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);
         btnRoot.setFont(App.getFontAwesomeFont());
         btnRoot.setForeground(Color.DARK_GRAY);
@@ -38,8 +37,8 @@ public class AddressBar extends JPanel {
             createAndShowPopup();
         });
 
-        model = new DefaultComboBoxModel<>();
-        txtAddressBar = new JComboBox<>(model);
+        DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>();
+        txtAddressBar = new JComboBox<>(model1);
         txtAddressBar.addActionListener(e -> {
             if (updating) {
                 return;

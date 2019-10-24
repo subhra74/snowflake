@@ -9,12 +9,10 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -24,10 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.RowFilter;
-import javax.swing.RowFilter.Entry;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.TableRowSorter;
 
 /**
  * @author subhro
@@ -163,7 +158,6 @@ public class ServicePanel extends JPanel {
             for (ServiceEntry entry : list) {
                 if (entry.getName().contains(text) ||
                         entry.getDesc().contains(text) ||
-                        entry.getUnitStatus().contains(text) ||
                         entry.getUnitStatus().contains(text)) {
                     filteredList.add(entry);
                 }

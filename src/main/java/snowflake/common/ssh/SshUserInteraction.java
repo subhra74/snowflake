@@ -1,18 +1,10 @@
 package snowflake.common.ssh;
 
-import com.jcraft.jsch.*;
-import snowflake.App;
 import snowflake.components.common.ModalGlassPanel;
 import snowflake.components.newsession.SessionInfo;
 
-import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.*;
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.util.List;
-import java.util.concurrent.*;
 import java.util.concurrent.atomic.*;
 
 public class SshUserInteraction extends AbstractUserInteraction {

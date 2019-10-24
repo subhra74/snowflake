@@ -1,6 +1,5 @@
 package snowflake.components.taskmgr;
 
-import snowflake.components.taskmgr.ProcessTableEntry;
 import snowflake.utils.FormatUtils;
 
 import javax.swing.*;

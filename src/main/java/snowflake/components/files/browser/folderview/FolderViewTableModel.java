@@ -3,9 +3,7 @@ package snowflake.components.files.browser.folderview;
 import snowflake.common.FileInfo;
 
 import javax.swing.table.AbstractTableModel;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class FolderViewTableModel extends AbstractTableModel {

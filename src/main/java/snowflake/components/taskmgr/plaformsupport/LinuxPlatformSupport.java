@@ -4,11 +4,9 @@ import com.jcraft.jsch.ChannelExec;
 import snowflake.common.ssh.SshClient;
 import snowflake.components.taskmgr.ProcessTableEntry;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.GZIPInputStream;
 
 public class LinuxPlatformSupport implements PlatformSupport {
     private double cpuUsage, memoryUsage, swapUsage;

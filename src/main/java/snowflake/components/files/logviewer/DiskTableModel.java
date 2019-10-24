@@ -1,6 +1,5 @@
 package snowflake.components.files.logviewer;
 
-import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.io.FileNotFoundException;
 import java.io.IOException;

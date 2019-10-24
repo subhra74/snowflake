@@ -13,7 +13,6 @@ import snowflake.utils.PathUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
@@ -25,7 +24,6 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
     protected String path;
     protected FileComponentHolder holder;
     protected PanelOrientation orientation;
-    private AbstractAction upAction, reloadAction;
     private NavigationHistory history;
     private JButton btnBack, btnNext;
     private OverflowMenuHandler overflowMenuHandler;
@@ -56,14 +54,14 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
         });
         Box smallToolbar = Box.createHorizontalBox();
 
-        upAction = new AbstractAction() {
+        AbstractAction upAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 addBack(path);
                 up();
             }
         };
-        reloadAction = new AbstractAction() {
+        AbstractAction reloadAction = new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 reload();

@@ -119,10 +119,7 @@ public class SshTtyConnector implements DisposableTtyConnector {
 
     @Override
     public boolean isConnected() {
-        if (channel != null && channel.isConnected() && isInitiated.get()) {
-            return true;
-        }
-        return false;
+        return channel != null && channel.isConnected() && isInitiated.get();
     }
 
     @Override

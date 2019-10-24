@@ -6,11 +6,9 @@ import snowflake.common.FileType;
 import snowflake.components.files.DndTransferHandler;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
 //import javax.swing.table.TableRowSorter;
 import java.awt.*;
@@ -18,11 +16,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 

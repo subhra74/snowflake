@@ -78,7 +78,7 @@ public abstract class AbstractUserInteraction implements UserInfo, UIKeyboardInt
                 }
             }
 
-            String arr1[] = new String[responses.size()];
+            String[] arr1 = new String[responses.size()];
             responses.toArray(arr1);
             return arr1;
         }
