@@ -5,7 +5,7 @@ Snowflake is a graphical SSH client. It has a file browser, terminal emulator, r
 Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX
 
 <h3>Intended audience</h3>
-<p>The application is targeted mainly towards web/backend developers who often deploy/debug their code on remote servers and not overly fond of complex terminal based commands. It could also be useful for sysadmins as well who manges lots of remote servers manually.
+<p>The application is targeted mainly towards web/backend developers who often deploy/debug their code on remote servers and not overly fond of complex terminal based commands. It could also be useful for sysadmins as well who manages lots of remote servers manually.
 </p>
 
 <h2>Download:</h2>
