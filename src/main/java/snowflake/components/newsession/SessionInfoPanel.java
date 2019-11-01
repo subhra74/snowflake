@@ -236,6 +236,7 @@ public class SessionInfoPanel extends JPanel {
         inpLocalBrowse = new JButton("Browse");
         inpLocalBrowse.addActionListener(e -> {
             JFileChooser jfc = new JFileChooser();
+            jfc.setFileHidingEnabled(false);
             jfc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 inpLocalFolder.setText(jfc.getSelectedFile().getAbsolutePath());
@@ -268,6 +269,7 @@ public class SessionInfoPanel extends JPanel {
         inpKeyBrowse = new JButton("Browse");// new JButton(TextHolder.getString("host.browse"));
         inpKeyBrowse.addActionListener(e -> {
             JFileChooser jfc = new JFileChooser();
+            jfc.setFileHidingEnabled(false);
             jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
             if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 inpKeyFile.setText(jfc.getSelectedFile().getAbsolutePath());

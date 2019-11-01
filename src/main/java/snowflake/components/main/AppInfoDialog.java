@@ -19,7 +19,7 @@ public class AppInfoDialog extends JDialog {
 
         JLabel lblTitle = new JLabel("Snowflake");
         lblTitle.setFont(new Font(Font.DIALOG, Font.BOLD, 16));
-        JLabel lblVersion = new JLabel("v1.0.0");
+        JLabel lblVersion = new JLabel("v"+App.APP_VERSION_STR);
         JLabel lblAuthor = new JLabel("Subhra Das Gupta");
 
         JButton btnVisitPage = new JButton("View in github");

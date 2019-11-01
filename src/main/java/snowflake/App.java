@@ -25,7 +25,8 @@ import java.util.List;
 import java.util.Properties;
 
 public class App {
-    public static final String APP_VERSION = "101";
+    public static final String APP_VERSION = "102";
+    public static final String APP_VERSION_STR = "1.0.2";
     public static UIDefaults comboBoxSkin = new UIDefaults();
     public static UIDefaults toolBarButtonSkin = new UIDefaults();
     public static UIDefaults scrollBarSkin = new UIDefaults();
@@ -301,11 +302,11 @@ public class App {
 
         config.put("temp.dir",
                 PathUtils.combine(System.getProperty("user.home"),
-                        "nix-explorer" + File.separator + "temp",
+                        "snowflake-ssh" + File.separator + "temp",
                         File.separator));
 
         config.put("app.dir", PathUtils.combine(System.getProperty("user.home"),
-                "nix-explorer", File.separator));
+                "snowflake-ssh", File.separator));
 
         new File(config.get("app.dir").toString()).mkdirs();
         new File(config.get("temp.dir").toString()).mkdirs();
