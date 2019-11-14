@@ -20,19 +20,19 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
   </tr>
   <tr>
     <td>
-      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.2/snowflake.msi">MSI installer</a>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.3/snowflake.msi">MSI installer</a>
     </td>
     <td>
-      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.2/snowflake_1.0-2.deb">DEB installer</a>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.3/snowflake_1.0-3.deb">DEB installer</a>
     </td>
     <td>
-      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.2/snowflake-1.0.2-linux-amd64.tar.xz">Generic installer (64 bit)</a>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.3/snowflake-1.0.3-setup-amd64.tar.xz">Generic installer (64 bit)</a>
     </td>
     <td>
       TBD
     </td>
     <td>
-      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.2/snowflake.jar">JAR (Java 11)</a>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.3/snowflake.jar">JAR (Java 11)</a>
     </td>
   </tr>
 </table>
