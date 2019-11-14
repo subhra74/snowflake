@@ -161,7 +161,7 @@ public class NewSessionDlg extends JDialog
         lblName.setHorizontalAlignment(JLabel.LEADING);
         //lblName.setFont(Utility.getFont(Constants.SMALL));
 
-        txtName = new JTextField(30);
+        txtName = GraphicsUtils.createTextField(30);//new JTextField(30);
         txtName.setAlignmentX(Component.LEFT_ALIGNMENT);
         //txtName.setFont(Utility.getFont(Constants.SMALL));
         txtName.getDocument().addDocumentListener(new DocumentListener() {

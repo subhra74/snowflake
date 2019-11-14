@@ -6,6 +6,8 @@ import snowflake.components.common.RoundedButtonPainter;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class GraphicsUtils {
     public static UIDefaults createSkinnedButton(UIDefaults btnSkin) {
@@ -383,5 +385,67 @@ public class GraphicsUtils {
         };
         btnSkin.put("MenuItem[MouseOver].backgroundPainter", painter);
         return btnSkin;
+    }
+
+    private static JPopupMenu popup(JTextField c) {
+        JPopupMenu popup = new JPopupMenu();
+        JMenuItem mCut = new JMenuItem("Cut");
+        JMenuItem mCopy = new JMenuItem("Copy");
+        JMenuItem mPaste = new JMenuItem("Paste");
+        JMenuItem mSelect = new JMenuItem("Select all");
+
+        popup.add(mCut);
+        popup.add(mCopy);
+        popup.add(mPaste);
+        popup.add(mSelect);
+
+        mCut.addActionListener(e -> {
+            c.cut();
+        });
+
+        mCopy.addActionListener(e -> {
+            c.copy();
+        });
+
+        mPaste.addActionListener(e -> {
+            c.paste();
+        });
+
+        mSelect.addActionListener(e -> {
+            c.selectAll();
+        });
+
+        return popup;
+    }
+
+    private static void installPopUp(JTextField c) {
+        c.putClientProperty("flat.popup", popup(c));
+        c.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                System.out.println("Right click on text field");
+                if (e.getButton() == MouseEvent.BUTTON3
+                        || e.isPopupTrigger()) {
+
+                    JPopupMenu pop = (JPopupMenu) c
+                            .getClientProperty("flat.popup");
+                    if (pop != null) {
+                        pop.show(c, e.getX(), e.getY());
+                    }
+                }
+            }
+        });
+    }
+
+    public static JTextField createTextField() {
+        JTextField c = new JTextField();
+        installPopUp(c);
+        return c;
+    }
+
+    public static JTextField createTextField(int n) {
+        JTextField c = new JTextField(n);
+        installPopUp(c);
+        return c;
     }
 }

@@ -22,8 +22,10 @@ public class ServiceTableModel extends AbstractTableModel {
 	}
 
 	public void addEntries(List<ServiceEntry> entries) {
-		list.addAll(entries);
-		fireTableDataChanged();
+		if(entries!=null){
+			list.addAll(entries);
+			fireTableDataChanged();
+		}
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.FileType;
 import snowflake.common.ssh.SshClient;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 import snowflake.utils.SshCommandUtils;
 import snowflake.utils.SudoUtils;
@@ -343,8 +344,8 @@ public class SshFileOperations {
     }
 
     public boolean createLink(FileInfo[] files, FileSystem fs, SshClient client) {
-        JTextField txtLinkName = new JTextField(30);
-        JTextField txtFileName = new JTextField(30);
+        JTextField txtLinkName = GraphicsUtils.createTextField(30);//new JTextField(30);
+        JTextField txtFileName = GraphicsUtils.createTextField(30);//new JTextField(30);
         JCheckBox chkHardLink = new JCheckBox("Hardlink");
 
         if (files.length > 0) {

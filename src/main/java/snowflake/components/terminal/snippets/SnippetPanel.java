@@ -1,6 +1,7 @@
 package snowflake.components.terminal.snippets;
 
 import snowflake.App;
+import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -31,7 +32,7 @@ public class SnippetPanel extends JPanel {
         topBox.add(Box.createHorizontalStrut(10));
         listView.setCellRenderer(new SnippetListRenderer());
 
-        searchTextField = new JTextField(30);
+        searchTextField = GraphicsUtils.createTextField(30);//new JTextField(30);
         searchTextField.getDocument().addDocumentListener(new DocumentListener() {
             @Override
             public void insertUpdate(DocumentEvent e) {
@@ -57,8 +58,8 @@ public class SnippetPanel extends JPanel {
         btnCopy = new JButton("Copy");
 
         btnAdd.addActionListener(e -> {
-            JTextField txtName = new JTextField(30);
-            JTextField txtCommand = new JTextField(30);
+            JTextField txtName = GraphicsUtils.createTextField(30);//new JTextField(30);
+            JTextField txtCommand = GraphicsUtils.createTextField(30);//new JTextField(30);
 
             if (JOptionPane.showOptionDialog(null,
                     new Object[]{"Snippet name", txtName, "Command", txtCommand},
@@ -83,8 +84,8 @@ public class SnippetPanel extends JPanel {
 
             SnippetItem snippetItem = listModel.get(index);
 
-            JTextField txtName = new JTextField(30);
-            JTextField txtCommand = new JTextField(30);
+            JTextField txtName = GraphicsUtils.createTextField(30);//new JTextField(30);
+            JTextField txtCommand = GraphicsUtils.createTextField(30);//new JTextField(30);
 
             txtName.setText(snippetItem.getName());
             txtCommand.setText(snippetItem.getCommand());

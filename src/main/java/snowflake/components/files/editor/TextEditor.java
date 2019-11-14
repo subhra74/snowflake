@@ -3,6 +3,7 @@ package snowflake.components.files.editor;
 import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.components.files.FileComponentHolder;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.LayoutUtils;
 
 import javax.swing.*;
@@ -143,7 +144,7 @@ public class TextEditor extends JPanel {
             setFontSize(fontSize);
         });
 
-        txtFullFilePath = new JTextField();
+        txtFullFilePath = GraphicsUtils.createTextField();//new JTextField();
         txtFullFilePath.setEditable(false);
         txtFullFilePath.setBorder(null);
 
@@ -227,7 +228,7 @@ public class TextEditor extends JPanel {
 
 
         JLabel lblTitle = new JLabel("Please enter full path of the file below to open");
-        JTextField txtFilePath = new JTextField(30);
+        JTextField txtFilePath = GraphicsUtils.createTextField(30);//new JTextField(30);
 
         JButton btnOpenFile = new JButton("Open");
         JLabel lblTitle2 = new JLabel("Alternatively you can select the file from file browser");

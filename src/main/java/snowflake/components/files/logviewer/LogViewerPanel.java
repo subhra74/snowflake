@@ -3,6 +3,7 @@ package snowflake.components.files.logviewer;
 import snowflake.common.FileInfo;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.TabHeader;
+import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,7 +28,7 @@ public class LogViewerPanel extends JPanel {
         add(tabs, "Tabs");
 
         JLabel lblTitle = new JLabel("Please enter full path of the file below to open");
-        JTextField txtFilePath = new JTextField(30);
+        JTextField txtFilePath = GraphicsUtils.createTextField(30);//new JTextField(30);
         JButton btnOpenFile = new JButton("Open");
         JLabel lblTitle2 = new JLabel("Alternatively you can select the file from file browser");
 

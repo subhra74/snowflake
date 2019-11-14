@@ -4,6 +4,7 @@ import com.jcraft.jsch.UIKeyboardInteractive;
 import com.jcraft.jsch.UserInfo;
 import snowflake.App;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.LineBorder;
@@ -59,7 +60,7 @@ public abstract class AbstractUserInteraction implements UserInfo, UIKeyboardInt
             System.out.println(s);
             list.add(new JLabel(s));
             if (echo[i++]) {
-                JTextField txt = new JTextField(30);
+                JTextField txt = GraphicsUtils.createTextField(30);//new JTextField(30);
                 list.add(txt);
             } else {
                 JPasswordField pass = new JPasswordField(30);

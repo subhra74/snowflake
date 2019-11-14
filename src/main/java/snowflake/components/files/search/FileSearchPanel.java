@@ -3,6 +3,7 @@ package snowflake.components.files.search;
 import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.components.files.FileComponentHolder;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 import snowflake.utils.ScriptLoader;
 import snowflake.utils.SshCommandUtils;
@@ -80,7 +81,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         JLabel lblName = new JLabel(
                 "Search for");
         lblName.setAlignmentX(LEFT_ALIGNMENT);
-        txtName = new JTextField(20);
+        txtName = GraphicsUtils.createTextField(20);//new JTextField(20);
         txtName.addActionListener(e -> {
             find();
         });
@@ -90,7 +91,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
 
         JLabel lblFolder = new JLabel("Search in");
         lblFolder.setAlignmentX(LEFT_ALIGNMENT);
-        txtFolder = new JTextField(20);
+        txtFolder = GraphicsUtils.createTextField(20);//new JTextField(20);
         txtFolder.setPreferredSize(pref);
         txtFolder.setMaximumSize(pref);
         txtFolder.setAlignmentX(LEFT_ALIGNMENT);
@@ -107,7 +108,7 @@ public class FileSearchPanel extends JPanel implements AutoCloseable {
         lblSize.setAlignmentX(LEFT_ALIGNMENT);
 
 
-        txtSize = new JTextField();
+        txtSize = GraphicsUtils.createTextField();//new JTextField();
         txtSize.setAlignmentX(LEFT_ALIGNMENT);
         Dimension txtSizeD = new Dimension(60, txtSize.getPreferredSize().height);
         txtSize.setPreferredSize(txtSizeD);

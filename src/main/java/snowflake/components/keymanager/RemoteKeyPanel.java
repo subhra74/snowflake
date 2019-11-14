@@ -1,6 +1,7 @@
 package snowflake.components.keymanager;
 
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -25,7 +26,7 @@ public class RemoteKeyPanel extends JPanel {
         this.callback2 = callback2;
         this.callback2 = callback3;
         JLabel lblTitle = new JLabel("Public key file:");
-        txtKeyFile = new JTextField(20);
+        txtKeyFile = GraphicsUtils.createTextField(20);//new JTextField(20);
         txtKeyFile.setBorder(null);
         txtKeyFile.setEditable(false);
         Box hbox = Box.createHorizontalBox();

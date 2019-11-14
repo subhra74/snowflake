@@ -1,5 +1,7 @@
 package snowflake.components.taskmgr;
 
+import snowflake.utils.GraphicsUtils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableRowSorter;
@@ -79,7 +81,7 @@ public class ProcessListPanel extends JPanel {
 //        b1.setBorder(new EmptyBorder(5, 5, 5, 5));
         b1.add(new JLabel("Processes"));
         b1.add(Box.createHorizontalStrut(10));
-        txtFilter = new JTextField(30);
+        txtFilter = GraphicsUtils.createTextField(30);//new JTextField(30);
         txtFilter.addActionListener(e -> {
             this.filterText = getProcessFilterText();
             model.fireTableDataChanged();

@@ -3,6 +3,8 @@
  */
 package snowflake.components.sysinfo;
 
+import snowflake.utils.GraphicsUtils;
+
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionListener;
@@ -65,7 +67,7 @@ public class ServicePanel extends JPanel {
         table.setFillsViewportHeight(true);
 
         JLabel lbl1 = new JLabel("Search");
-        txtFilter = new JTextField(30);
+        txtFilter = GraphicsUtils.createTextField(30);//new JTextField(30);
         txtFilter.addActionListener(e -> {
             filter();
         });

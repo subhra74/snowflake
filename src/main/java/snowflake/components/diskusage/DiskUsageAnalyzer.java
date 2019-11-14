@@ -5,6 +5,7 @@ import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.common.DisabledPanel;
 import snowflake.components.common.StartPage;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
@@ -188,7 +189,7 @@ public class DiskUsageAnalyzer extends JPanel implements AutoCloseable {
 
     private Component createFolderBox() {
         JLabel folderLabel = new JLabel("Enter the folder path to analyze");
-        textField = new JTextField(30);
+        textField = GraphicsUtils.createTextField(30);//new JTextField(30);
         textField.setMaximumSize(new Dimension(Integer.MAX_VALUE, textField.getPreferredSize().height));
         folderLabel.setAlignmentX(Box.LEFT_ALIGNMENT);
         textField.setAlignmentX(Box.LEFT_ALIGNMENT);

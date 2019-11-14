@@ -7,6 +7,7 @@ import snowflake.App;
 import snowflake.common.ssh.SshClient;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.utils.FormatUtils;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.PathUtils;
 import snowflake.utils.SshCommandUtils;
 
@@ -46,7 +47,7 @@ public class LogPage extends JPanel {
         super(new BorderLayout());
         this.filePath = filePath;
         this.holder = holder;
-        txtCurrentPage = new JTextField();
+        txtCurrentPage = GraphicsUtils.createTextField();//new JTextField();
         txtCurrentPage.addActionListener(e -> {
             System.out.println("Called");
             int page = Integer.parseInt(txtCurrentPage.getText().trim());

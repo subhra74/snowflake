@@ -109,7 +109,7 @@ public class SessionInfoPanel extends JPanel {
         lblRemoteFolder = new JLabel(TextHolder.getString("host.remotedir"));
         lblKeyFile = new JLabel(TextHolder.getString("host.keyfile"));
 
-        inpHostName = new JTextField(30);
+        inpHostName = GraphicsUtils.createTextField(30);// new JTextField(30);
         inpHostName.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -139,7 +139,7 @@ public class SessionInfoPanel extends JPanel {
             }
         });
         inpPort = new JSpinner(portModel);
-        inpUserName = new JTextField(30);
+        inpUserName = GraphicsUtils.createTextField(30);//new JTextField(30);
         inpUserName.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override
@@ -185,7 +185,7 @@ public class SessionInfoPanel extends JPanel {
             }
         });
 
-        inpLocalFolder = new JTextField(30);
+        inpLocalFolder = GraphicsUtils.createTextField(30);//new JTextField(30);
         inpLocalFolder.getDocument()
                 .addDocumentListener(new DocumentListener() {
 
@@ -209,7 +209,7 @@ public class SessionInfoPanel extends JPanel {
                     }
                 });
 
-        inpRemoteFolder = new JTextField(30);
+        inpRemoteFolder = GraphicsUtils.createTextField(30);//new JTextField(30);
         inpRemoteFolder.getDocument()
                 .addDocumentListener(new DocumentListener() {
 
@@ -243,7 +243,7 @@ public class SessionInfoPanel extends JPanel {
             }
         });
 
-        inpKeyFile = new JTextField(30);
+        inpKeyFile = GraphicsUtils.createTextField(30);//new JTextField(30);
         inpKeyFile.getDocument().addDocumentListener(new DocumentListener() {
 
             @Override

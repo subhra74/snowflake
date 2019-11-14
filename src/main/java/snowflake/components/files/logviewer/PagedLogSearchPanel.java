@@ -2,6 +2,7 @@ package snowflake.components.files.logviewer;
 
 import com.google.common.primitives.Longs;
 import snowflake.App;
+import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -20,7 +21,7 @@ public class PagedLogSearchPanel extends JPanel {
     public PagedLogSearchPanel(SearchListener searchListener) {
         super(new BorderLayout());
         this.searchListener = searchListener;
-        txtSearch = new JTextField(20);
+        txtSearch = GraphicsUtils.createTextField(20);//new JTextField(20);
 
         JButton btnSearch = new JButton();
         btnSearch.putClientProperty("Nimbus.Overrides", App.toolBarButtonSkin);

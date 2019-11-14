@@ -1,5 +1,7 @@
 package snowflake.components.sysinfo;
 
+import snowflake.utils.GraphicsUtils;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -30,7 +32,7 @@ public class SocketPanel extends JPanel {
         table.setFillsViewportHeight(true);
 
         JLabel lbl1 = new JLabel("Search");
-        txtFilter = new JTextField(30);
+        txtFilter = GraphicsUtils.createTextField(30);//new JTextField(30);
         btnFilter = new JButton("Search");
 
         Box b1 = Box.createHorizontalBox();
