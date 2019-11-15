@@ -8,6 +8,12 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 <p>The application is targeted mainly towards web/backend developers who often deploy/debug their code on remote servers and not overly fond of complex terminal based commands. It could also be useful for sysadmins as well who manages lots of remote servers manually.
 </p>
 
+<p>
+  <a href="https://dev.to/subhra74/how-to-make-you-life-easier-on-remote-linux-servers-ssh-g7m">
+    This article explains some more cases
+  </a>
+</p>
+
 <h2>Download:</h2>
 
 <table>
