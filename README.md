@@ -14,6 +14,11 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
   </a>
 </p>
 
+<h3>How it works</h3>
+<div>
+  <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/arch-overview.png?raw=true" width="700">
+</div>
+
 <h2>Download:</h2>
 
 <table>
