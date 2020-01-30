@@ -6,7 +6,7 @@
     <packaging>jar</packaging>
     <groupId>snowflake</groupId>
     <artifactId>snowflake</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.4</version>
     <properties>
         <maven.compiler.target>11</maven.compiler.target>
         <maven.compiler.source>11</maven.compiler.source>
@@ -164,7 +164,7 @@
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
                     <appendAssemblyId>false</appendAssemblyId>
-                    <finalName>snowflake</finalName>
+                    <finalName>snowflake-${version}-full</finalName>
                     <archiverConfig>
                         <compress>false</compress>
                     </archiverConfig>
