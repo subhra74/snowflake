@@ -131,7 +131,7 @@ public class SessionInfoPanel extends JPanel {
                 info.setHost(inpHostName.getText());
             }
         });
-        portModel = new SpinnerNumberModel(22, 1, Short.MAX_VALUE, 1);
+        portModel = new SpinnerNumberModel(22, 1, 65535, 1);
         portModel.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent arg0) {
