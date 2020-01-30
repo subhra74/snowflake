@@ -180,7 +180,7 @@
     </build>
     <repositories>
         <repository>
-            <id>jcenter</id>
+            <id>central</id>
             <name>jcenter</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
