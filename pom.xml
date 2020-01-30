@@ -179,8 +179,13 @@
         </plugins>
     </build>
     <repositories>
-        <repository>
+		<repository>
             <id>central</id>
+            <name>central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <repository>
+            <id>jcenter</id>
             <name>jcenter</name>
             <url>http://jcenter.bintray.com</url>
         </repository>
