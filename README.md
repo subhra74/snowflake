@@ -158,6 +158,4 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 
 
 <h2>Documentation:</h2>
-https://github.com/subhra74/snowflake/wiki
-
-
+[https://github.com/subhra74/snowflake/wiki](https://github.com/subhra74/snowflake/wiki)
