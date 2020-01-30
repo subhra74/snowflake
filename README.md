@@ -2,7 +2,7 @@
 Easy and fun way to work with SSH
 
 Snowflake is a graphical SSH client. It has a file browser, terminal emulator, resource/process manager, disk space analyzer, text editor, log viewer and lots of other helpful tools, which makes it easy to work with remote servers. It runs on Linux and Windows.
-Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX
+Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX.
 
 <h3>Intended audience</h3>
 <p>The application is targeted mainly towards web/backend developers who often deploy/debug their code on remote servers and not overly fond of complex terminal based commands. It could also be useful for sysadmins as well who manages lots of remote servers manually.
@@ -65,7 +65,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 </ul>
 
 <h4 id="a1">Simple graphical interface for common file operations</h4>
-<p>The app is designed to provide a simple graphical interface which allow common activities like moving files on server, renaming, cut, copy, paste, archiving, executing scripts,checking free space, calculating directory size, changing permissions etc in simple and efficient way. Though file browing is based on SFTP, the app uses shell commands whenever posssible to perform operations efficiently. For example deleting a directory having huge number of files and sub directories can take a while using SFTP, but with simple rm command its much faster. Also the app will prompt to user and can run sudo if priviledged operation needs to be performed. No switching to terminal is needed to invoke sudo. Moving files between servers is also supported with simple drag and drop.</p>
+<p>The app is designed to provide a simple graphical interface which allow common activities like moving files on server, renaming, cut, copy, paste, archiving, executing scripts, checking free space, calculating directory size, changing permissions, etc, in simple and efficient way. Though file browsing is based on SFTP, the app uses shell commands whenever posssible to perform operations efficiently. For example deleting a directory having huge number of files and sub directories can take a while using SFTP, but with simple rm command it's much faster. Also the app will prompt to user and can run sudo if priviledged operation needs to be performed. No switching to terminal is needed to invoke sudo. Moving files between servers is also supported with simple drag and drop.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/file-browser/1.PNG" width="700">
@@ -79,7 +79,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 </div>
 
 <h4 id="a2">Built in text editor with syntax highlighting and support for sudo</h4>
-<p>Built in text editor comes in handy when dev or admin needs to modify some files. The editor can invoke sudo and prompt for passwords as needed. This could be very helpfull for modifying global configuration files( like /etc/profile etc ) from editor without using vi or other terminal based editors.</p>
+<p>Built in text editor comes in handy when dev or admin needs to modify some files. The editor can invoke sudo and prompt for passwords as needed. This could be very helpfull for modifying global configuration files (like /etc/profile, etc.) from editor without using vi or other terminal based editors.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/text-editor/9.PNG" width="700">
@@ -89,21 +89,21 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 </div>
 
 <h4 id="a3">Simply view and search huge log/text files in a jiffy</h4>
-<p>The built in log viewer can show huge log files, upto several terabytes in a very efficient manner. There is no need for downloading the whole file for view or search, thus skipping the pain of waiting for a long time to download the file, or using acrane terminal based tools. The log viewer presents a paginated view of the file, which loads in much less time.</p>
+<p>The built in log viewer can show huge log files, up to several terabytes, in a very efficient manner. There is no need for downloading the whole file for view or search, thus skipping the pain of waiting for a long time to download the file, or using terminal based tools. The log viewer presents a paginated view of the file, which loads in much less time.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/log-viewer/13.PNG" width="700">
 </div>
 
 <h4 id="a4">Fast powerful file and content search, powered by find command</h4>
-<p>Powerful search functionality, which allows users to find files by name, type, modification date and can also look inside compressed archives. for example its now very easy to find all the files created between a date range dates.</p>
+<p>Powerful search functionality, which allows users to find files by name, type, modification date and can also look inside compressed archives. For example it's now very easy to find all the files created in a date range.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/search/14.PNG" width="700">
 </div>
 
 <h4 id="a5">Built in terminal and command snippet</h4>
-<p>With built in terminal, all command line operations can be performed. The terminal is also integrated with the file browser page, so users can open terminal from specific directory or execute scripts in terminal from file browser itself with a click of mouse. Also You can create snippet of your most used commands and execute them with a few clicks without typing again and again.</p>
+<p>With built in terminal, all command line operations can be performed. The terminal is also integrated with the file browser page, so users can open terminal from specific directory or execute scripts in terminal from file browser itself with a click of mouse. Also you can create snippets of your most used commands and execute them with a few clicks without typing again and again.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/15.PNG" width="700">
@@ -115,8 +115,8 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/terminal/31.PNG" width="700">
 </div>
 
-<h4 id="a6">Fully equiped task manager</h4>
-<p>Monitor resource usage (CPU,RAM,SWAP) and view/manage processes from a familier GUI. It is equipped with search and kill process functionaliy, and also with a option to kill processes with sudo. Its very easy to check which process is using most CPU or Memeory and the full command line of the process.</p>
+<h4 id="a6">Fully equipped task manager</h4>
+<p>Monitor resource usage (CPU, RAM, swap) and view/manage processes from a familiar GUI. It is equipped with search and kill process functionaliy, and also with a option to kill processes with sudo. It's very easy to check which process is using most CPU or memory and view the full command line of the process.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/system-monitor/21.PNG" width="700">
@@ -124,7 +124,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 </div>
 
 <h4 id="a7">Built in graphical disk space analyzer</h4>
-<p>A friendly GUI which allows users to find out what is eating up the diskspace. Any of the mounted partitions or directories can be analyzed.</p>
+<p>A friendly GUI which allows users to find out what is eating up diskspace. Any of the mounted partitions or directories can be analyzed.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/disk-analyzer/23.PNG" width="700">
@@ -132,7 +132,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 </div>
 
 <h4 id="a8">Linux specific tools</h4>
-<p>Few handy tools which can make dev's or admin's life earier like getting information about the system and distro, starting and stopping systemd services and finding which process is listening on which port.</p>
+<p>Few handy tools which can make devs or admins life easier like getting information about the system and distro, starting and stopping systemd services and finding which process is listening on which port.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/linux-tools/25.PNG" width="700">
@@ -148,7 +148,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 </div>
 
 <h4 id="a10">Network tools</h4>
-<p>Graphical interface for PING,Port checking, Traceroute and DNS lookup</p>
+<p>Graphical interface for ping, port checking, traceroute and DNS lookup.</p>
 
 <div>
   <img src="https://github.com/subhra74/snowflake-screenshots/blob/master/network-tools/29.PNG" width="700">
@@ -157,7 +157,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
 
 
 
-<h2>Documentations:</h2>
+<h2>Documentation:</h2>
 https://github.com/subhra74/snowflake/wiki
 
 
