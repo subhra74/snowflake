@@ -25,7 +25,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
   <tr>
     <th>Windows</th>
     <th>Ubuntu/Mint/Debian</th>
-    <th>Other Linux</th>
+    <th>Linux</th>
     <th>MacOS</th>
     <th>Other</th>
   </tr>
@@ -48,6 +48,11 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
   </tr>
 </table>
 
+<h2>Building from source:</h2>
+<pre> This is a standard maven project. If you have configured Java and Maven use: 
+ <b>mvn clean install</b> to build the project.
+ The jar will be created in target directory
+ </pre>
 
 <h2>Features:</h2>
 
