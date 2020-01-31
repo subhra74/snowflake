@@ -32,7 +32,7 @@ public class LocalKeyPanel extends JPanel {
         hbox.add(txtKeyFile);
         add(hbox, BorderLayout.NORTH);
 
-        txtPubKey = new JTextArea();
+        txtPubKey = GraphicsUtils.createTextArea();
         txtPubKey.setLineWrap(true);
         JScrollPane jScrollPane = new JScrollPane(txtPubKey);
         add(jScrollPane);

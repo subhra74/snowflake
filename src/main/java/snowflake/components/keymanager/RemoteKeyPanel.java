@@ -37,7 +37,7 @@ public class RemoteKeyPanel extends JPanel {
         hbox.add(txtKeyFile);
 
 
-        txtPubKey = new JTextArea();
+        txtPubKey = GraphicsUtils.createTextArea();
         txtPubKey.setLineWrap(true);
         JScrollPane jScrollPane = new JScrollPane(txtPubKey);
 

@@ -5,6 +5,7 @@ import snowflake.common.ssh.SshModalUserInteraction;
 import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.common.DisabledPanel;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.utils.GraphicsUtils;
 import snowflake.utils.SshCommandUtils;
 
 import javax.swing.*;
@@ -117,7 +118,7 @@ public class NetworkToolsPanel extends JPanel {
 
         contentPane.add(grid, BorderLayout.NORTH);
 
-        txtOutput = new JTextArea();
+        txtOutput = GraphicsUtils.createTextArea();
         txtOutput.setEditable(false);
         JScrollPane jsp = new JScrollPane(txtOutput);
         jsp.setBorder(new LineBorder(new Color(240, 240, 240), 1));
