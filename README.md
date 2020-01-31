@@ -25,7 +25,7 @@ Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, O
   <tr>
     <th>Windows</th>
     <th>Ubuntu/Mint/Debian</th>
-    <th>Other Linux</th>
+    <th>Linux</th>
     <th>MacOS</th>
     <th>Other</th>
   </tr>
