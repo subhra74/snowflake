@@ -1,6 +1,8 @@
 # Snowflake
 Easy and fun way to work with SSH
 
+![Java CI](https://github.com/subhra74/snowflake/workflows/Java%20CI/badge.svg?branch=master)
+
 Snowflake is a graphical SSH client. It has a file browser, terminal emulator, resource/process manager, disk space analyzer, text editor, log viewer and lots of other helpful tools, which makes it easy to work with remote servers. It runs on Linux and Windows.
 Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX.
 
