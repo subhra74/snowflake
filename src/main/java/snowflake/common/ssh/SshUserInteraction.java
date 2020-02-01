@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.*;
 
 public class SshUserInteraction extends AbstractUserInteraction {
 	private JRootPane rootPane;
+	private AtomicBoolean notified = new AtomicBoolean(false);
 
 	public SshUserInteraction(SessionInfo info, JRootPane rootPane) {
 		super(info);
@@ -16,6 +17,7 @@ public class SshUserInteraction extends AbstractUserInteraction {
 	}
 
 	protected boolean showModal(List<JComponent> components, boolean yesNo) {
+		notified.set(false);
 		JButton btnOk = new JButton("Yes");
 		JButton btnCancel = null;
 		final AtomicBoolean isOk = new AtomicBoolean(false);
@@ -30,6 +32,7 @@ public class SshUserInteraction extends AbstractUserInteraction {
 		btnOk.addActionListener(e -> {
 			synchronized (this) {
 				modalGlassPanel.setVisible(false);
+				notified.set(true);
 				isOk.set(true);
 				this.notify();
 			}
@@ -40,6 +43,7 @@ public class SshUserInteraction extends AbstractUserInteraction {
 				synchronized (this) {
 					modalGlassPanel.setVisible(false);
 					isOk.set(false);
+					notified.set(true);
 					this.notify();
 				}
 			});
@@ -56,7 +60,9 @@ public class SshUserInteraction extends AbstractUserInteraction {
 
 		synchronized (this) {
 			try {
-				this.wait();
+				while (!notified.get()) {
+					this.wait(1000);
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

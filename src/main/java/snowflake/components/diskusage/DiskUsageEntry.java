@@ -9,7 +9,7 @@ public class DiskUsageEntry {
     private String path, name;
     private long size;
     private double usagePercent;
-    private DiskUsageEntry parent;
+    //private DiskUsageEntry parent;
     private List<DiskUsageEntry> children;
 
     private boolean directory;
@@ -64,9 +64,9 @@ public class DiskUsageEntry {
 //                + size + ", usagePercent=" + usagePercent + ", children=" + children + "]";
     }
 
-    public DiskUsageEntry getParent() {
-        return this.parent;
-    }
+//    public DiskUsageEntry getParent() {
+//        return this.parent;
+//    }
 
     public List<DiskUsageEntry> getChildren() {
         return children;

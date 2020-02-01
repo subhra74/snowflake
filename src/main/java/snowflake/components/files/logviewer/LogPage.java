@@ -416,7 +416,7 @@ public class LogPage extends JPanel {
     private RandomAccessFile search(String text) throws Exception {
         byte[] longBytes = new byte[8];
         String tempFile = PathUtils.combine(holder.getTempFolder(), UUID.randomUUID().toString(), File.separator);
-        List<Integer> list = new ArrayList<>();
+        //List<Integer> list = new ArrayList<>();
         StringBuilder command = new StringBuilder();
         command.append("awk '{if(index(tolower($0),\"" +
                 text.toLowerCase(Locale.ENGLISH) + "\")){ print NR}}' \"" + this.filePath + "\"");

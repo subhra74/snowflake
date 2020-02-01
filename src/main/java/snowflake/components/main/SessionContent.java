@@ -21,42 +21,50 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class SessionContent extends JPanel {
-    private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg = new Color(45, 49, 58);
-    private SessionInfo info;
-    //    private JSplitPane verticalSplitter, horizontalSplitter;
-    private CardLayout mainCard;
-    private JPanel mainPanel;
-    private JPanel panels[];
-    private TaskManager taskManager;
-    private DiskUsageAnalyzer diskUsageAnalyzer;
-    private SystemInfoPanel systemInfoPanel;
-    private KeyManagerPanel keyManagerPanel;
-    private FileComponentHolder fileComponentHolder;
-    private TerminalHolder terminalHolder;
-    private ExternalEditor externalEditor;
-    private BackgroundTransferPanel backgroundTransferPanel;
-    private NetworkToolsPanel networkToolsPanel;
-    private String pageNames[] = new String[]{"Files", "Terminal", "System monitor",
-            "Disk space analyzer", "Active transfers", "Linux tools", "SSH keys", "Network tools"};
-    private JLabel lblProgressCount = new JLabel("");
+	private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg
+																				// =
+																				// new
+																				// Color(45,
+																				// 49,
+																				// 58);
+	private SessionInfo info;
+	// private JSplitPane verticalSplitter, horizontalSplitter;
+	private CardLayout mainCard;
+	private JPanel mainPanel;
+	private JPanel panels[];
+	private TaskManager taskManager;
+	private DiskUsageAnalyzer diskUsageAnalyzer;
+	private SystemInfoPanel systemInfoPanel;
+	private KeyManagerPanel keyManagerPanel;
+	private FileComponentHolder fileComponentHolder;
+	private TerminalHolder terminalHolder;
+	private ExternalEditor externalEditor;
+	private BackgroundTransferPanel backgroundTransferPanel;
+	private NetworkToolsPanel networkToolsPanel;
+	private String pageNames[] = new String[] { "Files", "Terminal",
+			"System monitor", "Disk space analyzer", "Active transfers",
+			"Linux tools", "SSH keys", "Network tools" };
+	private JLabel lblProgressCount = new JLabel("");
 
-    private String pageIcons[] = new String[]{"\uf07c", "\uf109", "\uf080", "\uf1fe", "\uf252", "\uf085", "\uf084", "\uf0b1"};
+	private String pageIcons[] = new String[] { "\uf07c", "\uf109", "\uf080",
+			"\uf1fe", "\uf252", "\uf085", "\uf084", "\uf0b1" };
 
-    private MatteBorder matteBorder = new MatteBorder(0, 5, 0, 5, Color.DARK_GRAY);
-    private EmptyBorder emptyBorder = new EmptyBorder(0, 5, 0, 5);
+	private MatteBorder matteBorder = new MatteBorder(0, 5, 0, 5,
+			Color.DARK_GRAY);
+	private EmptyBorder emptyBorder = new EmptyBorder(0, 5, 0, 5);
 
-    //private FileStore fileStore;
+	// private FileStore fileStore;
 
-    public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
-        super(new BorderLayout(0, 0));
-        this.info = info;
-        this.externalEditor = externalEditor;
-        lblProgressCount.setBackground(Color.DARK_GRAY);
-        lblProgressCount.setOpaque(false);
-        lblProgressCount.setBorder(emptyBorder);
-        lblProgressCount.setForeground(Color.BLACK);
-        init();
-    }
+	public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
+		super(new BorderLayout(0, 0));
+		this.info = info;
+		this.externalEditor = externalEditor;
+		lblProgressCount.setBackground(Color.DARK_GRAY);
+		lblProgressCount.setOpaque(false);
+		lblProgressCount.setBorder(emptyBorder);
+		lblProgressCount.setForeground(Color.BLACK);
+		init();
+	}
 
 //    Box createTab(String text, boolean closable, String icon) {
 //        Box pan = Box.createHorizontalBox();
@@ -77,93 +85,90 @@ public class SessionContent extends JPanel {
 //        return pan;
 //    }
 
-
-    public void init() {
-        this.mainCard = new CardLayout();
-        this.mainPanel = new JPanel(this.mainCard);
-        this.mainPanel.setOpaque(false);
-        this.fileComponentHolder = new FileComponentHolder(info, externalEditor, this);
+	public void init() {
+		this.mainCard = new CardLayout();
+		this.mainPanel = new JPanel(this.mainCard);
+		this.mainPanel.setOpaque(false);
+		this.fileComponentHolder = new FileComponentHolder(info, externalEditor,
+				this);
 //        TabbedPanel bottomTabs = new TabbedPanel();
-        terminalHolder = new TerminalHolder(info);
-        backgroundTransferPanel = new BackgroundTransferPanel((count) -> {
-            lblProgressCount.setText(count > 0 ? count * 25 + "" : "");
-            lblProgressCount.setOpaque(count > 0);
-            lblProgressCount.setBorder(count > 0 ?
-                    matteBorder :
-                    emptyBorder);
-        });
-        taskManager = new TaskManager(this.info);
-        diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
-        systemInfoPanel = new SystemInfoPanel(this.info);
-        keyManagerPanel = new KeyManagerPanel(this.info);
-        networkToolsPanel = new NetworkToolsPanel(this.info);
+		terminalHolder = new TerminalHolder(info);
+		backgroundTransferPanel = new BackgroundTransferPanel((count) -> {
+			lblProgressCount.setText(count > 0 ? count * 25 + "" : "");
+			lblProgressCount.setOpaque(count > 0);
+			lblProgressCount.setBorder(count > 0 ? matteBorder : emptyBorder);
+		});
+		taskManager = new TaskManager(this.info);
+		diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
+		systemInfoPanel = new SystemInfoPanel(this.info);
+		keyManagerPanel = new KeyManagerPanel(this.info);
+		networkToolsPanel = new NetworkToolsPanel(this.info);
 
-        //JToolBar toolBar = new JToolBar();
-        JButton btn = new JButton();
-        btn.setMargin(new Insets(5, 5, 5, 5));
-        btn.setFont(App.getFontAwesomeFont());
-        btn.setText("\uf120");
-        //toolBar.add(btn);
-        btn.addActionListener(e -> {
-            terminalHolder.createNewTerminal();
-        });
+		// JToolBar toolBar = new JToolBar();
+		JButton btn = new JButton();
+		btn.setMargin(new Insets(5, 5, 5, 5));
+		btn.setFont(App.getFontAwesomeFont());
+		btn.setText("\uf120");
+		// toolBar.add(btn);
+		btn.addActionListener(e -> {
+			terminalHolder.createNewTerminal();
+		});
 
-        mainPanel.add(fileComponentHolder, "Files");
-        mainPanel.add(terminalHolder, "Terminal");
+		mainPanel.add(fileComponentHolder, "Files");
+		mainPanel.add(terminalHolder, "Terminal");
 //        mainPanel.add(fileSearchPanel, "Search");
-        mainPanel.add(taskManager, "System monitor");
-        mainPanel.add(diskUsageAnalyzer, "Disk space analyzer");
-        mainPanel.add(backgroundTransferPanel, "Active transfers");
-        mainPanel.add(systemInfoPanel, "Linux tools");
-        mainPanel.add(keyManagerPanel, "SSH keys");
-        mainPanel.add(networkToolsPanel, "Network tools");
+		mainPanel.add(taskManager, "System monitor");
+		mainPanel.add(diskUsageAnalyzer, "Disk space analyzer");
+		mainPanel.add(backgroundTransferPanel, "Active transfers");
+		mainPanel.add(systemInfoPanel, "Linux tools");
+		mainPanel.add(keyManagerPanel, "SSH keys");
+		mainPanel.add(networkToolsPanel, "Network tools");
 
+		panels = new JPanel[pageIcons.length];
+		Dimension maxDim = null;
+		for (int i = 0; i < pageIcons.length; i++) {
+			JPanel panel = new JPanel(new BorderLayout(10, 10));
 
-        panels = new JPanel[pageIcons.length];
-        Dimension maxDim = null;
-        for (int i = 0; i < pageIcons.length; i++) {
-            JPanel panel = new JPanel(new BorderLayout(10, 10));
+			MouseAdapter adapter = new MouseAdapter() {
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					panelClicked(panel);
+				}
+			};
 
-            MouseAdapter adapter = new MouseAdapter() {
-                @Override
-                public void mouseClicked(MouseEvent e) {
-                    panelClicked(panel);
-                }
-            };
+			if (pageNames[i].equals("Active transfers")) {
+				panel.add(lblProgressCount, BorderLayout.EAST);
+			}
 
-            if (pageNames[i].equals("Active transfers")) {
-                panel.add(lblProgressCount, BorderLayout.EAST);
-            }
+			panel.setName(pageNames[i]);
+			panel.addMouseListener(adapter);
+			panel.setBackground(bg);
+			// panel.setBackground(new Color(20, 23, 41));
+			JLabel iconLabel = new JLabel();
+			iconLabel.addMouseListener(adapter);
+			iconLabel.setFont(App.getFontAwesomeFont());
+			iconLabel.setForeground(Color.GRAY);
+			iconLabel.setText(pageIcons[i]);
+			JLabel textLabel = new JLabel(pageNames[i]);
+			textLabel.addMouseListener(adapter);
+			textLabel.setForeground(Color.GRAY);
+			panel.add(textLabel);
+			panel.add(iconLabel, BorderLayout.WEST);
+			panel.setBorder(new EmptyBorder(10, 15, 10, 15));
+			panels[i] = panel;
 
-            panel.setName(pageNames[i]);
-            panel.addMouseListener(adapter);
-            panel.setBackground(bg);
-            //panel.setBackground(new Color(20, 23, 41));
-            JLabel iconLabel = new JLabel();
-            iconLabel.addMouseListener(adapter);
-            iconLabel.setFont(App.getFontAwesomeFont());
-            iconLabel.setForeground(Color.GRAY);
-            iconLabel.setText(pageIcons[i]);
-            JLabel textLabel = new JLabel(pageNames[i]);
-            textLabel.addMouseListener(adapter);
-            textLabel.setForeground(Color.GRAY);
-            panel.add(textLabel);
-            panel.add(iconLabel, BorderLayout.WEST);
-            panel.setBorder(new EmptyBorder(10, 15, 10, 15));
-            panels[i] = panel;
-
-            if (maxDim == null) {
-                maxDim = panel.getPreferredSize();
-            } else {
-                Dimension dimension = panel.getPreferredSize();
-                if (maxDim.width < dimension.width) {
-                    maxDim.width = dimension.width;
-                }
-                if (maxDim.height < dimension.height) {
-                    maxDim.height = dimension.height;
-                }
-            }
-        }
+			if (maxDim == null) {
+				maxDim = panel.getPreferredSize();
+			} else {
+				Dimension dimension = panel.getPreferredSize();
+				if (maxDim.width < dimension.width) {
+					maxDim.width = dimension.width;
+				}
+				if (maxDim.height < dimension.height) {
+					maxDim.height = dimension.height;
+				}
+			}
+		}
 
 //        bottomTabs.addTab("Terminal", terminalHolder);
 //        bottomTabs.addTab("Search", new FileSearchPanel(this.info));
@@ -174,11 +179,10 @@ public class SessionContent extends JPanel {
 //        bottomTabs.setSelectedIndex(0);
 //        bottomTabs.setBorder(new LineBorder(new Color(200, 200, 200), 1));
 
-
 //        bottomTabs.setTabComponentAt(0, createTab("Terminal", false, "\uf120"));
 //        bottomTabs.setTabComponentAt(1, createTab("Transfers", false, "\uf0ec"));
 
-        //add(toolBar, BorderLayout.NORTH);
+		// add(toolBar, BorderLayout.NORTH);
 //        verticalSplitter = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
 //        verticalSplitter.putClientProperty("Nimbus.Overrides", App.splitPaneSkin1);
 //        verticalSplitter.setBackground(Color.RED);
@@ -190,91 +194,92 @@ public class SessionContent extends JPanel {
 //        add(verticalSplitter);
 //        verticalSplitter.setTopComponent(fileComponentHolder);
 
-        JPanel sidePanel = new JPanel(new BorderLayout());
-        sidePanel.setBackground(bg);
+		JPanel sidePanel = new JPanel(new BorderLayout());
+		sidePanel.setBackground(bg);
 //        sidePanel.setMinimumSize(new Dimension(170, 200));
 //        sidePanel.setPreferredSize(new Dimension(170, 200));
 //        sidePanel.setBackground(new Color(20, 23, 41));
 
-        for (JPanel panel1 : panels) {
-            panel1.setPreferredSize(maxDim);
-            panel1.setMinimumSize(maxDim);
-            panel1.setMaximumSize(maxDim);
-            panel1.setAlignmentX(Box.LEFT_ALIGNMENT);
-        }
+		for (JPanel panel1 : panels) {
+			panel1.setPreferredSize(maxDim);
+			panel1.setMinimumSize(maxDim);
+			panel1.setMaximumSize(maxDim);
+			panel1.setAlignmentX(Box.LEFT_ALIGNMENT);
+		}
 
-        Box vbox = Box.createVerticalBox();
-        //vbox.setBorder(new EmptyBorder(1, 0,0,0));
+		Box vbox = Box.createVerticalBox();
+		// vbox.setBorder(new EmptyBorder(1, 0,0,0));
 
-        for (JPanel panel1 : panels) {
-            vbox.add(panel1);
-        }
+		for (JPanel panel1 : panels) {
+			vbox.add(panel1);
+		}
 
-        //setBorder(new LineBorder(Color.black,1));
-        sidePanel.add(vbox);
+		// setBorder(new LineBorder(Color.black,1));
+		sidePanel.add(vbox);
 //
 //        verticalSplitter.setBorder(new EmptyBorder(10, 10, 10, 10));
-        //mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		// mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        add(mainPanel);
+		add(mainPanel);
 
-        //mainCard.show(mainPanel, "Files");
+		// mainCard.show(mainPanel, "Files");
 //
-        add(sidePanel, BorderLayout.WEST);
+		add(sidePanel, BorderLayout.WEST);
 
-        panelClicked(panels[0]);
-    }
+		panelClicked(panels[0]);
+	}
 
-    public void transferInBackground(FileTransfer transfer) {
-        this.backgroundTransferPanel.addNewBackgroundTransfer(transfer);
-    }
+	public void transferInBackground(FileTransfer transfer) {
+		this.backgroundTransferPanel.addNewBackgroundTransfer(transfer);
+	}
 
-    public FileComponentHolder getFileComponentHolder() {
-        return fileComponentHolder;
-    }
+	public FileComponentHolder getFileComponentHolder() {
+		return fileComponentHolder;
+	}
 
-    public void openTerminal(String command) {
-        this.terminalHolder.createNewTerminal(command);
-    }
+	public void openTerminal(String command) {
+		this.terminalHolder.createNewTerminal(command);
+	}
 
-    void panelClicked(JPanel panel) {
-        for (JPanel panel1 : panels) {
-            if (panel == panel1) {
+	void panelClicked(JPanel panel) {
+		for (JPanel panel1 : panels) {
+			if (panel == panel1) {
 //                panel1.setBackground(new Color(40, 43, 61));
-                panel1.setBackground(sg);
-                mainCard.show(mainPanel, panel.getName());
-                for (Component child : panel1.getComponents()) {
-                    child.setForeground(Color.WHITE);
-                }
-            } else {
-                panel1.setBackground(bg);
+				panel1.setBackground(sg);
+				mainCard.show(mainPanel, panel.getName());
+				for (Component child : panel1.getComponents()) {
+					child.setForeground(Color.WHITE);
+				}
+				//panel.requestFocusInWindow();
+			} else {
+				panel1.setBackground(bg);
 //                panel1.setBackground(new Color(20, 23, 41));
-                for (Component child : panel1.getComponents()) {
-                    child.setForeground(Color.GRAY);
-                }
-            }
-        }
-    }
+				for (Component child : panel1.getComponents()) {
+					child.setForeground(Color.GRAY);
+				}
+			}
+		}
+	}
 
-    public void close() {
-        new Thread(() -> {
-            diskUsageAnalyzer.close();
-            systemInfoPanel.close();
-            //keyManagerPanel.close();
-            fileComponentHolder.close();
-            terminalHolder.close();
-            externalEditor.close();
-            backgroundTransferPanel.close();
-        }).start();
-    }
+	public void close() {
+		new Thread(() -> {
+			diskUsageAnalyzer.close();
+			systemInfoPanel.close();
+			// keyManagerPanel.close();
+			fileComponentHolder.close();
+			terminalHolder.close();
+			externalEditor.close();
+			backgroundTransferPanel.close();
+		}).start();
+	}
 
-    public void showPage(String pageName) {
-        for (int i = 0; i < pageNames.length; i++) {
-            String name = pageNames[i];
-            if (pageName.equals(name)) {
-                JPanel panel = panels[i];
-                panelClicked(panel);
-            }
-        }
-    }
+	public void showPage(String pageName) {
+		for (int i = 0; i < pageNames.length; i++) {
+			String name = pageNames[i];
+			if (pageName.equals(name)) {
+				JPanel panel = panels[i];
+				panelClicked(panel);
+			}
+		}
+	}
 }

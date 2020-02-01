@@ -23,7 +23,7 @@ public class RemoteKeyPanel extends JPanel {
         this.info = info;
         this.info = info;
         this.callback1 = callback1;
-        this.callback2 = callback2;
+        //this.callback2 = callback2;
         this.callback2 = callback3;
         JLabel lblTitle = new JLabel("Public key file:");
         txtKeyFile = GraphicsUtils.createTextField(20);//new JTextField(20);

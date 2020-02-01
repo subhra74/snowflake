@@ -19,109 +19,119 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
 public class TerminalComponent extends JPanel implements ConnectedResource {
-    private JRootPane rootPane;
-    private JPanel contentPane;
-    private JediTermWidget term;
-    private DisposableTtyConnector tty;
-    private String name;
-    private Box reconnectionBox;
+	private JRootPane rootPane;
+	private JPanel contentPane;
+	private JediTermWidget term;
+	private DisposableTtyConnector tty;
+	private String name;
+	private Box reconnectionBox;
 
-    public TerminalComponent(SessionInfo info, String name, String command) {
-        setLayout(new BorderLayout());
-        this.name = name;
-        contentPane = new JPanel(new BorderLayout());
-        rootPane = new JRootPane();
-        rootPane.setContentPane(contentPane);
-        add(rootPane);
+	public TerminalComponent(SessionInfo info, String name, String command) {
+		setLayout(new BorderLayout());
+		this.name = name;
+		contentPane = new JPanel(new BorderLayout());
+		rootPane = new JRootPane();
+		rootPane.setContentPane(contentPane);
+		add(rootPane);
 
-        tty = new SshTtyConnector(new SshUserInteraction(info, rootPane), command);
+		addComponentListener(new ComponentAdapter() {
+			@Override
+			public void componentShown(ComponentEvent e) {
+				System.out.println("Requesting focus");
 
-        reconnectionBox = Box.createHorizontalBox();
-        reconnectionBox.setOpaque(true);
-        reconnectionBox.setBackground(Color.RED);
-        reconnectionBox.add(new JLabel("Session not connected"));
-        JButton btnReconnect = new JButton("Reconnect");
-        btnReconnect.addActionListener(e -> {
-            contentPane.remove(reconnectionBox);
-            contentPane.revalidate();
-            contentPane.repaint();
-            tty = new SshTtyConnector(new SshUserInteraction(info, rootPane), command);
-            term.setTtyConnector(tty);
-            term.start();
-        });
-        reconnectionBox.add(Box.createHorizontalGlue());
-        reconnectionBox.add(btnReconnect);
-        reconnectionBox.setBorder(new EmptyBorder(10, 10, 10, 10));
+				term.requestFocusInWindow();
+			}
 
-        term = new CustomJediterm(getSettingsProvider());
-        term.addListener((e) -> {
-            System.out.println("Disconnected");
-            SwingUtilities.invokeLater(() -> {
-                contentPane.add(reconnectionBox, BorderLayout.NORTH);
-                contentPane.revalidate();
-                contentPane.repaint();
-            });
-        });
-        term.setTtyConnector(tty);
-        term.start();
-        contentPane.add(term);
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				System.out.println("Hiding focus");
+			}
+		});
 
-        addComponentListener(new ComponentAdapter() {
-            @Override
-            public void componentShown(ComponentEvent e) {
-                requestFocusInWindow();
-            }
-        });
-    }
+		tty = new SshTtyConnector(new SshUserInteraction(info, rootPane),
+				command);
 
-    @Override
-    public String toString() {
-        return "Terminal " + this.name;
-    }
+		reconnectionBox = Box.createHorizontalBox();
+		reconnectionBox.setOpaque(true);
+		reconnectionBox.setBackground(Color.RED);
+		reconnectionBox.add(new JLabel("Session not connected"));
+		JButton btnReconnect = new JButton("Reconnect");
+		btnReconnect.addActionListener(e -> {
+			contentPane.remove(reconnectionBox);
+			contentPane.revalidate();
+			contentPane.repaint();
+			tty = new SshTtyConnector(new SshUserInteraction(info, rootPane),
+					command);
+			term.setTtyConnector(tty);
+			term.start();
+		});
+		reconnectionBox.add(Box.createHorizontalGlue());
+		reconnectionBox.add(btnReconnect);
+		reconnectionBox.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-    @Override
-    public boolean isInitiated() {
-        return true;
-    }
+		term = new CustomJediterm(getSettingsProvider());
+		term.addListener((e) -> {
+			System.out.println("Disconnected");
+			SwingUtilities.invokeLater(() -> {
+				contentPane.add(reconnectionBox, BorderLayout.NORTH);
+				contentPane.revalidate();
+				contentPane.repaint();
+			});
+		});
+		term.setTtyConnector(tty);
+		term.start();
+		contentPane.add(term);
 
-    @Override
-    public boolean isConnected() {
-        return tty.isConnected();
-    }
+	}
 
-    @Override
-    public void close() {
-        tty.close();
-    }
+	@Override
+	public String toString() {
+		return "Terminal " + this.name;
+	}
 
-    private DefaultSettingsProvider getSettingsProvider() {
-        Color background = new Color(40, 44, 52);
-        Color foreground = new Color(171, 178, 191);
-        Color selection = new Color(62, 68, 81);
+	@Override
+	public boolean isInitiated() {
+		return true;
+	}
 
-        DefaultSettingsProvider p = new DefaultSettingsProvider() {
+	@Override
+	public boolean isConnected() {
+		return tty.isConnected();
+	}
 
-            /*
-             * (non-Javadoc)
-             *
-             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
-             * getTerminalColorPalette()
-             */
-            @Override
-            public ColorPalette getTerminalColorPalette() {
-                return ColorPalette.XTERM_PALETTE;
-            }
+	@Override
+	public void close() {
+		tty.close();
+	}
 
-            /*
-             * (non-Javadoc)
-             *
-             * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
-             * useAntialiasing()
-             */
-            @Override
-            public boolean useAntialiasing() {
-                return true;
-            }
+	private DefaultSettingsProvider getSettingsProvider() {
+		Color background = new Color(40, 44, 52);
+		Color foreground = new Color(171, 178, 191);
+		Color selection = new Color(62, 68, 81);
+
+		DefaultSettingsProvider p = new DefaultSettingsProvider() {
+
+			/*
+			 * (non-Javadoc)
+			 *
+			 * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
+			 * getTerminalColorPalette()
+			 */
+			@Override
+			public ColorPalette getTerminalColorPalette() {
+				return ColorPalette.XTERM_PALETTE;
+			}
+
+			/*
+			 * (non-Javadoc)
+			 *
+			 * @see com.jediterm.terminal.ui.settings.DefaultSettingsProvider#
+			 * useAntialiasing()
+			 */
+			@Override
+			public boolean useAntialiasing() {
+				return true;
+			}
 
 //			@Override
 //			public boolean copyOnSelect() {
@@ -133,89 +143,88 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 //				return true;
 //			}
 
-            @Override
-            public TextStyle getDefaultStyle() {
-                System.out.println("Default style called");
-                return new TextStyle(
-                        TerminalColor.awt(Color.WHITE),
-                        TerminalColor.awt(Color.BLACK));
-                // return new TextStyle(foreground, background)
-            }
+			@Override
+			public TextStyle getDefaultStyle() {
+				System.out.println("Default style called");
+				return new TextStyle(TerminalColor.awt(Color.WHITE),
+						TerminalColor.awt(Color.BLACK));
+				// return new TextStyle(foreground, background)
+			}
 
-            @Override
-            public boolean emulateX11CopyPaste() {
-                return App.getGlobalSettings().isPuttyLikeCopyPaste();
-            }
+			@Override
+			public boolean emulateX11CopyPaste() {
+				return App.getGlobalSettings().isPuttyLikeCopyPaste();
+			}
 
-            @Override
-            public boolean enableMouseReporting() {
-                return true;
-            }
+			@Override
+			public boolean enableMouseReporting() {
+				return true;
+			}
 
-            @Override
-            public TextStyle getFoundPatternColor() {
-                return new TextStyle(
-                        TerminalColor
-                                .awt(foreground),
-                        TerminalColor.awt(selection));
-            }
+			@Override
+			public TextStyle getFoundPatternColor() {
+				return new TextStyle(TerminalColor.awt(foreground),
+						TerminalColor.awt(selection));
+			}
 
-            @Override
-            public TextStyle getSelectionColor() {
-                return new TextStyle(
-                        TerminalColor
-                                .awt(foreground),
-                        TerminalColor.awt(selection));
-            }
+			@Override
+			public TextStyle getSelectionColor() {
+				return new TextStyle(TerminalColor.awt(foreground),
+						TerminalColor.awt(selection));
+			}
 
 //			@Override
 //			public Font getTerminalFont() {
 //				return UIManager.getFont("Terminal.font");
 //			}
 
-            @Override
-            public TextStyle getHyperlinkColor() {
-                return new TextStyle(
-                        TerminalColor
-                                .awt(foreground),
-                        TerminalColor.awt(
-                                background));
-            }
+			@Override
+			public TextStyle getHyperlinkColor() {
+				return new TextStyle(TerminalColor.awt(foreground),
+						TerminalColor.awt(background));
+			}
 
-            @Override
-            public boolean pasteOnMiddleMouseClick() {
-                return App.getGlobalSettings().isPuttyLikeCopyPaste();
-            }
+			@Override
+			public boolean pasteOnMiddleMouseClick() {
+				return App.getGlobalSettings().isPuttyLikeCopyPaste();
+			}
 
-            @Override
-            public boolean copyOnSelect() {
-                return App.getGlobalSettings().isPuttyLikeCopyPaste();
-            }
-        };
+			@Override
+			public boolean copyOnSelect() {
+				return App.getGlobalSettings().isPuttyLikeCopyPaste();
+			}
+		};
 
-        if (App.getGlobalSettings().isUseDarkThemeForTerminal()) {
-            return p;
-        } else {
-            return new DefaultSettingsProvider() {
-                @Override
-                public boolean emulateX11CopyPaste() {
-                    return App.getGlobalSettings().isPuttyLikeCopyPaste();
-                }
+		if (App.getGlobalSettings().isUseDarkThemeForTerminal()) {
+			return p;
+		} else {
+			return new DefaultSettingsProvider() {
+				@Override
+				public boolean emulateX11CopyPaste() {
+					return App.getGlobalSettings().isPuttyLikeCopyPaste();
+				}
 
-                @Override
-                public boolean pasteOnMiddleMouseClick() {
-                    return App.getGlobalSettings().isPuttyLikeCopyPaste();
-                }
+				@Override
+				public boolean pasteOnMiddleMouseClick() {
+					return App.getGlobalSettings().isPuttyLikeCopyPaste();
+				}
 
-                @Override
-                public boolean copyOnSelect() {
-                    return App.getGlobalSettings().isPuttyLikeCopyPaste();
-                }
-            };
-        }
-    }
+				@Override
+				public boolean copyOnSelect() {
+					return App.getGlobalSettings().isPuttyLikeCopyPaste();
+				}
+			};
+		}
+	}
 
-    public void sendCommand(String command) {
-        this.term.getTerminalStarter().sendString(command);
-    }
+	public void sendCommand(String command) {
+		this.term.getTerminalStarter().sendString(command);
+	}
+
+	/**
+	 * @return the term
+	 */
+	public JediTermWidget getTerm() {
+		return term;
+	}
 }

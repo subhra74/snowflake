@@ -49,7 +49,7 @@ public class FolderViewRenderer implements TableCellRenderer {
         int iconW = Math.max(d1.width, d2.width);
         int iconH = Math.max(d1.height, d2.height);
 
-        Dimension dm = new Dimension(iconW + 10, iconH);
+        //Dimension dm = new Dimension(iconW + 10, iconH);
 
 //        iconLabel.setPreferredSize(dm);
 //        iconLabel.setMinimumSize(dm);

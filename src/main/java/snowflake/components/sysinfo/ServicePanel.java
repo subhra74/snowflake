@@ -124,9 +124,9 @@ public class ServicePanel extends JPanel {
         chkRunAsSuperUser.addActionListener(a);
     }
 
-    public void setRefreshActionListener(ActionListener a) {
-        btnRefresh.addActionListener(a);
-    }
+//    public void setRefreshActionListener(ActionListener a) {
+//        btnRefresh.addActionListener(a);
+//    }
 
     public void setStartServiceActionListener(ActionListener a) {
         btnStart.addActionListener(a);

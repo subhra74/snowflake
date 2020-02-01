@@ -29,7 +29,7 @@ public class LinuxSysInfo {
     }
 
     public static boolean runCommandWithSudo(SshClient client, AtomicBoolean stopFlag, String command) throws Exception {
-        StringBuilder output = new StringBuilder();
+        //StringBuilder output = new StringBuilder();
         return SudoUtils.runSudo(command, client) == 0;
     }
 

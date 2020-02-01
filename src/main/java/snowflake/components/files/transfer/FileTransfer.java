@@ -185,7 +185,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
                 int x = in.read(buf);
                 if (x == -1) throw new IOException("Unexpected EOF");
                 out.write(buf, 0, x);
-                Thread.sleep(0);
                 len -= x;
                 processedBytes += x;
                 callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles, this);
