@@ -1,0 +1,28 @@
+name: snowflake
+version: "1.0.4"
+summary: Graphical SFTP client and terminal emulator with helpful utilities
+description: |
+  Graphical SFTP client and terminal emulator with helpful utilities.
+confinement: strict
+grade: stable
+base: core18
+
+apps:
+  snowflake:
+    command: java -jar $SNAP/jar/snowflake-1.0.4-full.jar
+    environment:
+      # Needed for fontconfig
+      XDG_DATA_HOME: ${SNAP}/usr/share
+      FONTCONFIG_PATH: ${SNAP}/etc/fonts/config.d
+      FONTCONFIG_FILE: ${SNAP}/etc/fonts/fonts.conf
+    plugs: [x11]
+
+parts:
+  snowflake:
+    plugin: maven
+    source: https://github.com/subhra74/snowflake.git
+    build-packages:
+      - openjdk-11-jdk
+    stage-packages:
+      - openjdk-11-jre
+      - x11-utils

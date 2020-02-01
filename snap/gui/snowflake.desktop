@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Snowflake SSH client
+Exec=snowflake
+Icon=${SNAP}/meta/gui/snowflake.png
+Type=Application

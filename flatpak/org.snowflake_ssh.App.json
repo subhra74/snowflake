@@ -1,0 +1,50 @@
+{
+    "app-id": "org.snowflake_ssh.App",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "19.08",
+    "sdk": "org.freedesktop.Sdk",
+    "sdk-extensions" : [ "org.freedesktop.Sdk.Extension.openjdk11" ],
+    "command": "snowflake",
+    "modules": [
+	   {
+		    "name" : "openjdk",
+		    "buildsystem" : "simple",
+		    "build-commands" : [ "/usr/lib/sdk/openjdk11/install.sh" ]
+	   },
+        {
+            "name": "snowflake",
+            "buildsystem": "simple",
+            "build-commands": [
+            	 "mkdir -p /app/snowflake",
+            	 "mkdir -p /app/bin",
+            	 "mkdir -p /app/share/icons/hicolor/128x128/apps",
+            	 "mkdir -p /app/share/applications",
+            	  "cp snowflake.jar /app/snowflake",
+            	  "cp snowflake /app/bin",
+            	  "chmod 755 /app/bin/snowflake",
+            	  "cp org.snowflake_ssh.App.png /app/share/icons/hicolor/128x128/apps",
+            	  "cp org.snowflake_ssh.App.desktop /app/share/applications"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "snowflake.jar"
+                },
+                {
+                    "type": "file",
+                    "path": "snowflake"
+                },
+                {
+                    "type": "file",
+                    "path": "org.snowflake_ssh.App.png"
+                },
+                {
+                    "type": "file",
+                    "path": "org.snowflake_ssh.App.desktop"
+                }
+            ]
+        }
+    ],
+    "finish-args" : [ "--env=PATH=/app/jre/bin:/usr/bin:/app/bin","--share=ipc", "--socket=x11",
+        "--share=network","--filesystem=host" ]
+}

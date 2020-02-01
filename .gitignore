@@ -6,3 +6,4 @@ target/*
 .classpath
 .project
 .settings/
+flatpak/flatpak-commands.txt
