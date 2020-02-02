@@ -11,7 +11,7 @@ description: |
 grade: stable
 base: core18
 icon: snap/gui/snowflake.png
-confinement: classic
+confinement: strict
 
 apps:
   snowflake:
@@ -21,7 +21,7 @@ apps:
       XDG_DATA_HOME: ${SNAP}/usr/share
       FONTCONFIG_PATH: ${SNAP}/etc/fonts/config.d
       FONTCONFIG_FILE: ${SNAP}/etc/fonts/fonts.conf
-    plugs: [x11, ssh-keys,network, desktop]
+    plugs: [x11, ssh-keys,network, desktop, home, network-bind]
 
 parts:
   snowflake:
