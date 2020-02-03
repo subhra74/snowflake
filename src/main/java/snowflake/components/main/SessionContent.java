@@ -1,6 +1,7 @@
 package snowflake.components.main;
 
 import snowflake.App;
+import snowflake.common.SnowFlakePanel;
 import snowflake.components.diskusage.DiskUsageAnalyzer;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
@@ -21,12 +22,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class SessionContent extends JPanel {
-	private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);// sg
-																				// =
-																				// new
-																				// Color(45,
-																				// 49,
-																				// 58);
+	private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);
 	private SessionInfo info;
 	// private JSplitPane verticalSplitter, horizontalSplitter;
 	private CardLayout mainCard;
@@ -41,13 +37,7 @@ public class SessionContent extends JPanel {
 	private ExternalEditor externalEditor;
 	private BackgroundTransferPanel backgroundTransferPanel;
 	private NetworkToolsPanel networkToolsPanel;
-	private String pageNames[] = new String[] { "Files", "Terminal",
-			"System monitor", "Disk space analyzer", "Active transfers",
-			"Linux tools", "SSH keys", "Network tools" };
 	private JLabel lblProgressCount = new JLabel("");
-
-	private String pageIcons[] = new String[] { "\uf07c", "\uf109", "\uf080",
-			"\uf1fe", "\uf252", "\uf085", "\uf084", "\uf0b1" };
 
 	private MatteBorder matteBorder = new MatteBorder(0, 5, 0, 5,
 			Color.DARK_GRAY);
@@ -114,19 +104,19 @@ public class SessionContent extends JPanel {
 			terminalHolder.createNewTerminal();
 		});
 
-		mainPanel.add(fileComponentHolder, "Files");
-		mainPanel.add(terminalHolder, "Terminal");
+		mainPanel.add(fileComponentHolder, SnowFlakePanel.FILES.getName());
+		mainPanel.add(terminalHolder, SnowFlakePanel.TERMINAL.getName());
 //        mainPanel.add(fileSearchPanel, "Search");
-		mainPanel.add(taskManager, "System monitor");
-		mainPanel.add(diskUsageAnalyzer, "Disk space analyzer");
-		mainPanel.add(backgroundTransferPanel, "Active transfers");
-		mainPanel.add(systemInfoPanel, "Linux tools");
-		mainPanel.add(keyManagerPanel, "SSH keys");
-		mainPanel.add(networkToolsPanel, "Network tools");
+		mainPanel.add(taskManager, SnowFlakePanel.SYSTEM_MONITOR.getName());
+		mainPanel.add(diskUsageAnalyzer, SnowFlakePanel.DISK_SPACE_ANALYZER.getName());
+		mainPanel.add(backgroundTransferPanel, SnowFlakePanel.ACTIVE_TRANSFERS.getName());
+		mainPanel.add(systemInfoPanel, SnowFlakePanel.LINUX_TOOLS.getName());
+		mainPanel.add(keyManagerPanel, SnowFlakePanel.SSH_KEYS.getName());
+		mainPanel.add(networkToolsPanel, SnowFlakePanel.NETWORK_TOOLS.getName());
 
-		panels = new JPanel[pageIcons.length];
+		panels = new JPanel[SnowFlakePanel.values().length];
 		Dimension maxDim = null;
-		for (int i = 0; i < pageIcons.length; i++) {
+		for (SnowFlakePanel snowFlakePanel : SnowFlakePanel.values()) {
 			JPanel panel = new JPanel(new BorderLayout(10, 10));
 
 			MouseAdapter adapter = new MouseAdapter() {
@@ -136,11 +126,11 @@ public class SessionContent extends JPanel {
 				}
 			};
 
-			if (pageNames[i].equals("Active transfers")) {
+			if (snowFlakePanel.getName().equals(SnowFlakePanel.ACTIVE_TRANSFERS.getName())) {
 				panel.add(lblProgressCount, BorderLayout.EAST);
 			}
 
-			panel.setName(pageNames[i]);
+			panel.setName(snowFlakePanel.getName());
 			panel.addMouseListener(adapter);
 			panel.setBackground(bg);
 			// panel.setBackground(new Color(20, 23, 41));
@@ -148,14 +138,14 @@ public class SessionContent extends JPanel {
 			iconLabel.addMouseListener(adapter);
 			iconLabel.setFont(App.getFontAwesomeFont());
 			iconLabel.setForeground(Color.GRAY);
-			iconLabel.setText(pageIcons[i]);
-			JLabel textLabel = new JLabel(pageNames[i]);
+			iconLabel.setText(snowFlakePanel.getIcon());
+			JLabel textLabel = new JLabel(snowFlakePanel.getName());
 			textLabel.addMouseListener(adapter);
 			textLabel.setForeground(Color.GRAY);
 			panel.add(textLabel);
 			panel.add(iconLabel, BorderLayout.WEST);
 			panel.setBorder(new EmptyBorder(10, 15, 10, 15));
-			panels[i] = panel;
+			panels[snowFlakePanel.ordinal()] = panel;
 
 			if (maxDim == null) {
 				maxDim = panel.getPreferredSize();
@@ -226,7 +216,7 @@ public class SessionContent extends JPanel {
 //
 		add(sidePanel, BorderLayout.WEST);
 
-		panelClicked(panels[0]);
+		panelClicked(panels[SnowFlakePanel.fromName(App.getGlobalSettings().getDefaultPanel()).ordinal()]);
 	}
 
 	public void transferInBackground(FileTransfer transfer) {
@@ -274,12 +264,7 @@ public class SessionContent extends JPanel {
 	}
 
 	public void showPage(String pageName) {
-		for (int i = 0; i < pageNames.length; i++) {
-			String name = pageNames[i];
-			if (pageName.equals(name)) {
-				JPanel panel = panels[i];
-				panelClicked(panel);
-			}
-		}
+		JPanel panel = panels[SnowFlakePanel.fromName(pageName).ordinal()];
+		panelClicked(panel);
 	}
 }

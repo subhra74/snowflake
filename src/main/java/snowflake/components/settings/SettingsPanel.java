@@ -2,10 +2,12 @@ package snowflake.components.settings;
 
 import snowflake.App;
 import snowflake.common.Settings;
+import snowflake.common.SnowFlakePanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.util.Arrays;
 
 public class SettingsPanel extends JPanel {
     private JCheckBox chkConfirmBeforeDelete, chkConfirmBeforeMoveOrCopy, chkShowHiddenFilesByDefault,
@@ -15,6 +17,7 @@ public class SettingsPanel extends JPanel {
     private JComboBox<String> cmbDefaultOpenAction;
     private JComboBox<String> cmbTermType;
     private JComboBox<Integer> cmbNumberOfSimultaneousConnection;
+    private JComboBox<String> cmbDefaultPanel;
     private Settings settings;
     private JDialog dlg;
     private JFrame frame;
@@ -35,6 +38,7 @@ public class SettingsPanel extends JPanel {
         cmbDefaultOpenAction.setSelectedIndex(settings.getDefaultOpenAction());
         cmbNumberOfSimultaneousConnection.setSelectedItem(settings.getNumberOfSimultaneousConnection());
         cmbTermType.setSelectedItem(settings.getTerminalType());
+        cmbDefaultPanel.setSelectedItem(settings.getDefaultPanel());
     }
 
     public void applySettings() {
@@ -52,6 +56,7 @@ public class SettingsPanel extends JPanel {
         settings.setDefaultOpenAction(cmbDefaultOpenAction.getSelectedIndex());
         settings.setNumberOfSimultaneousConnection((Integer) cmbNumberOfSimultaneousConnection.getSelectedItem());
         settings.setTerminalType((String) cmbTermType.getSelectedItem());
+        settings.setDefaultPanel((String) cmbDefaultPanel.getSelectedItem());
     }
 
     public SettingsPanel(JFrame frame) {
@@ -74,6 +79,8 @@ public class SettingsPanel extends JPanel {
         cmbNumberOfSimultaneousConnection.setMaximumSize(new Dimension(cmbDefaultOpenAction.getPreferredSize().width * 2, cmbDefaultOpenAction.getPreferredSize().height));
         cmbTermType = new JComboBox<>(new String[]{"vt100", "xterm", "xterm-256color"});
         cmbTermType.setMaximumSize(new Dimension(cmbTermType.getPreferredSize().width * 2, cmbTermType.getPreferredSize().height));
+        cmbDefaultPanel = new JComboBox<>(Arrays.stream(SnowFlakePanel.values()).map(it -> it.getName()).toArray(String[]::new));
+        cmbDefaultPanel.setMaximumSize(new Dimension(cmbDefaultPanel.getPreferredSize().width * 2, cmbDefaultPanel.getPreferredSize().height));
 
 
 //        Box hb1 = Box.createHorizontalBox();
@@ -91,6 +98,11 @@ public class SettingsPanel extends JPanel {
         hb3.add(Box.createHorizontalGlue());
         hb3.add(cmbTermType);
 
+        Box hb4 = Box.createHorizontalBox();
+        hb4.add(new JLabel("Default panel"));
+        hb4.add(Box.createHorizontalGlue());
+        hb4.add(cmbDefaultPanel);
+
         Box vbox = Box.createVerticalBox();
         chkConfirmBeforeDelete.setAlignmentX(Box.LEFT_ALIGNMENT);
         chkConfirmBeforeMoveOrCopy.setAlignmentX(Box.LEFT_ALIGNMENT);
@@ -105,6 +117,7 @@ public class SettingsPanel extends JPanel {
 //        hb1.setAlignmentX(Box.LEFT_ALIGNMENT);
         hb2.setAlignmentX(Box.LEFT_ALIGNMENT);
         hb3.setAlignmentX(Box.LEFT_ALIGNMENT);
+        hb4.setAlignmentX(Box.LEFT_ALIGNMENT);
 
         vbox.add(chkConfirmBeforeDelete);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
@@ -131,6 +144,8 @@ public class SettingsPanel extends JPanel {
         vbox.add(hb2);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
         vbox.add(hb3);
+        vbox.add(Box.createRigidArea(new Dimension(10, 10)));
+        vbox.add(hb4);
         vbox.add(Box.createRigidArea(new Dimension(10, 10)));
         vbox.setBorder(new EmptyBorder(10, 10, 10, 10));
         add(vbox);
