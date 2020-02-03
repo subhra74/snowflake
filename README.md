@@ -3,8 +3,8 @@ Easy and fun way to work with SSH
 
 
 
-Snowflake is a graphical SSH client. It has a file browser, terminal emulator, resource/process manager, disk space analyzer, text editor, log viewer and lots of other helpful tools, which makes it easy to work with remote servers. It runs on Linux and Windows.
-Snowflake has been tested with Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX.
+Snowflake is a graphical SSH client. It has a enhanced SFTP file browser, SSH terminal emulator, remote resource/process manager, server disk space analyzer, remote text editor, huge remote log viewer and lots of other helpful tools, which makes it easy to work with remote servers. Snowflake provides functionality similar to web based control panels but, it works over SSH from local computer, hence no installation required on server. It runs on Linux and Windows.
+Snowflake has been tested with serveral Linux and UNIX servers, like Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX.
 
 <h3>Intended audience</h3>
 <p>The application is targeted mainly towards web/backend developers who often deploy/debug their code on remote servers and not overly fond of complex terminal based commands. It could also be useful for sysadmins as well who manages lots of remote servers manually.
