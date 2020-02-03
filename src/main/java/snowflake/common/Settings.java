@@ -18,6 +18,7 @@ public class Settings {
             //  2 Open with internal editor
             , numberOfSimultaneousConnection = 3;
     private String terminalType = "xterm-256color";
+    private String defaultPanel = SnowFlakePanel.TERMINAL.getName();
 
     public boolean isConfirmBeforeDelete() {
         return confirmBeforeDelete;
@@ -121,5 +122,13 @@ public class Settings {
 
     public void setPuttyLikeCopyPaste(boolean puttyLikeCopyPaste) {
         this.puttyLikeCopyPaste = puttyLikeCopyPaste;
+    }
+
+    public void setDefaultPanel(String defaultPanel) {
+        this.defaultPanel = defaultPanel;
+    }
+
+    public String getDefaultPanel() {
+        return defaultPanel;
     }
 }
