@@ -9,21 +9,21 @@ import snowflake.components.newsession.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class SshClient implements Closeable {
-    private JSch jsch;
-    private Session session;
-    private AbstractUserInteraction source;
-    private AtomicBoolean closed = new AtomicBoolean(false);
+	private JSch jsch;
+	private Session session;
+	private AbstractUserInteraction source;
+	private AtomicBoolean closed = new AtomicBoolean(false);
 
-    public SshClient(AbstractUserInteraction source) {
-        System.out.println("New wrapper session");
-        this.source = source;
-    }
+	public SshClient(AbstractUserInteraction source) {
+		System.out.println("New wrapper session");
+		this.source = source;
+	}
 
-    public boolean isConnected() {
-        if (session == null)
-            return false;
-        return session.isConnected();
-    }
+	public boolean isConnected() {
+		if (session == null)
+			return false;
+		return session.isConnected();
+	}
 
 //    public int connectWithReturn() {
 //        try {
@@ -39,142 +39,180 @@ public class SshClient implements Closeable {
 //        }
 //    }
 
-    @Override
-    public String toString() {
-        return source.getInfo().getName();
-    }
+	@Override
+	public String toString() {
+		return source.getInfo().getName();
+	}
 
-    public void connect() throws Exception {
-        // ResourceManager.register(info.getContainterId(), this);
-        jsch = new JSch();
-        try {
-            jsch.setKnownHosts(new File(App.getConfig("app.dir"), "known_hosts").getAbsolutePath());
-        } catch (Exception e) {
+	public void connect() throws Exception {
+		// ResourceManager.register(info.getContainterId(), this);
+		jsch = new JSch();
+		try {
+			jsch.setKnownHosts(new File(App.getConfig("app.dir"), "known_hosts")
+					.getAbsolutePath());
+		} catch (Exception e) {
 
-        }
+		}
 
-        // JSch.setLogger(new JSCHLogger());
+		// JSch.setLogger(new JSCHLogger());
 //		JSch.setConfig("PreferredAuthentications",
 //				"password,keyboard-interactive");
-        JSch.setConfig("MaxAuthTries", "5");
+		JSch.setConfig("MaxAuthTries", "5");
 
-        if (source.getInfo().getPrivateKeyFile() != null && source.getInfo().getPrivateKeyFile().length() > 0) {
-            jsch.addIdentity(source.getInfo().getPrivateKeyFile());
-        }
+		SessionInfo info = source.getInfo();
 
-        String user = source.getInfo().getUser();
+		if (info.getPrivateKeyFile() != null
+				&& info.getPrivateKeyFile().length() > 0) {
+			jsch.addIdentity(info.getPrivateKeyFile());
+		}
 
-        if (source.getInfo().getUser() == null || source.getInfo().getUser().length() < 1) {
-            throw new Exception("User name is not present");
-        }
+		String user = info.getUser();
 
-        session = jsch.getSession(source.getInfo().getUser(), source.getInfo().getHost(), source.getInfo().getPort());
+		if (user == null || user.length() < 1) {
+			throw new Exception("User name is not present");
+		}
 
-        session.setUserInfo(source);
+		session = jsch.getSession(user, info.getHost(), info.getPort());
 
-        session.setPassword(source.getInfo().getPassword());
-        // session.setConfig("StrictHostKeyChecking", "no");
-        session.setConfig("PreferredAuthentications", "publickey,keyboard-interactive,password");
+		String proxyHost = info.getProxyHost();
+		int proxyType = info.getProxyType();
 
-        if (closed.get()) {
-            return;
-        }
+		String proxyUser = info.getProxyUser();
 
-        session.setTimeout(10 * 1000);
-        session.connect();
+		if (proxyType != 0 && proxyHost != null
+				&& proxyHost.trim().length() > 0) {
+			switch (proxyType) {
+			case 1: {
+				ProxyHTTP proxy = new ProxyHTTP(proxyHost, info.getProxyPort());
+				if (proxyUser != null && proxyUser.trim().length() > 0) {
+					proxy.setUserPasswd(proxyUser, info.getProxyPassword());
+				}
+				break;
+			}
+			case 2: {
+				ProxySOCKS4 proxy = new ProxySOCKS4(proxyHost,
+						info.getProxyPort());
+				if (proxyUser != null && proxyUser.trim().length() > 0) {
+					proxy.setUserPasswd(proxyUser, info.getProxyPassword());
+				}
+				break;
+			}
+			case 3: {
+				ProxySOCKS5 proxy = new ProxySOCKS5(proxyHost,
+						info.getProxyPort());
+				if (proxyUser != null && proxyUser.trim().length() > 0) {
+					proxy.setUserPasswd(proxyUser, info.getProxyPassword());
+				}
+				break;
+			}
+			}
+		}
 
-        if (closed.get()) {
-            disconnect();
-            return;
-        }
+		session.setUserInfo(source);
 
-        System.out.println("Client version: " + session.getClientVersion());
-        System.out.println("Server host: " + session.getHost());
-        System.out.println("Server version: " + session.getServerVersion());
-        System.out.println("Hostkey: " + session.getHostKey().getFingerPrint(jsch));
-    }
+		session.setPassword(source.getInfo().getPassword());
+		// session.setConfig("StrictHostKeyChecking", "no");
+		session.setConfig("PreferredAuthentications",
+				"publickey,keyboard-interactive,password");
 
-    public void disconnect() {
-        closed.set(true);
-        try {
-            session.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        // ResourceManager.unregister(info.getContainterId(), this);
-    }
+		if (closed.get()) {
+			return;
+		}
 
-    public ChannelSftp getSftpChannel() throws Exception {
-        if (closed.get()) {
-            disconnect();
-            throw new IOException("Closed by user");
-        }
-        ChannelSftp sftp = (ChannelSftp) session.openChannel("sftp");
-        sftp.connect();
-        if (closed.get()) {
-            disconnect();
-            throw new IOException("Closed by user");
-        }
-        return sftp;
-    }
+		session.setTimeout(10 * 1000);
+		session.connect();
 
-    public ChannelShell getShellChannel() throws Exception {
-        if (closed.get()) {
-            disconnect();
-            throw new IOException("Closed by user");
-        }
-        ChannelShell shell = (ChannelShell) session.openChannel("shell");
-        if (closed.get()) {
-            disconnect();
-            throw new IOException("Closed by user");
-        }
-        return shell;
-    }
+		if (closed.get()) {
+			disconnect();
+			return;
+		}
 
-    public ChannelExec getExecChannel() throws Exception {
-        if (closed.get()) {
-            disconnect();
-            throw new IOException("Closed by user");
-        }
-        ChannelExec exec = (ChannelExec) session.openChannel("exec");
-        if (closed.get()) {
-            disconnect();
-            throw new IOException("Closed by user");
-        }
-        return exec;
-    }
+		System.out.println("Client version: " + session.getClientVersion());
+		System.out.println("Server host: " + session.getHost());
+		System.out.println("Server version: " + session.getServerVersion());
+		System.out.println(
+				"Hostkey: " + session.getHostKey().getFingerPrint(jsch));
+	}
 
-    public SessionInfo getSource() {
-        return source.getInfo();
-    }
+	public void disconnect() {
+		closed.set(true);
+		try {
+			session.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		// ResourceManager.unregister(info.getContainterId(), this);
+	}
 
+	public ChannelSftp getSftpChannel() throws Exception {
+		if (closed.get()) {
+			disconnect();
+			throw new IOException("Closed by user");
+		}
+		ChannelSftp sftp = (ChannelSftp) session.openChannel("sftp");
+		sftp.connect();
+		if (closed.get()) {
+			disconnect();
+			throw new IOException("Closed by user");
+		}
+		return sftp;
+	}
 
-    class JSCHLogger implements com.jcraft.jsch.Logger {
-        @Override
-        public boolean isEnabled(int level) {
-            // TODO Auto-generated method stub
-            return true;
-        }
+	public ChannelShell getShellChannel() throws Exception {
+		if (closed.get()) {
+			disconnect();
+			throw new IOException("Closed by user");
+		}
+		ChannelShell shell = (ChannelShell) session.openChannel("shell");
+		if (closed.get()) {
+			disconnect();
+			throw new IOException("Closed by user");
+		}
+		return shell;
+	}
 
-        @Override
-        public void log(int level, String message) {
-            // TODO Auto-generated method stub
-            System.out.println(message);
-        }
-    }
+	public ChannelExec getExecChannel() throws Exception {
+		if (closed.get()) {
+			disconnect();
+			throw new IOException("Closed by user");
+		}
+		ChannelExec exec = (ChannelExec) session.openChannel("exec");
+		if (closed.get()) {
+			disconnect();
+			throw new IOException("Closed by user");
+		}
+		return exec;
+	}
 
-    @Override
-    public void close() throws IOException {
-        try {
-            System.out.println("Wrapper closing");
-            disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+	public SessionInfo getSource() {
+		return source.getInfo();
+	}
 
-    public Session getSession() {
-        return session;
-    }
+	class JSCHLogger implements com.jcraft.jsch.Logger {
+		@Override
+		public boolean isEnabled(int level) {
+			// TODO Auto-generated method stub
+			return true;
+		}
+
+		@Override
+		public void log(int level, String message) {
+			// TODO Auto-generated method stub
+			System.out.println(message);
+		}
+	}
+
+	@Override
+	public void close() throws IOException {
+		try {
+			System.out.println("Wrapper closing");
+			disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public Session getSession() {
+		return session;
+	}
 }
-

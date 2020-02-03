@@ -20,8 +20,14 @@ public class SessionInfoPanel extends JPanel {
 	private JButton inpLocalBrowse;
 	private JButton inpKeyBrowse;
 	private JLabel lblHost, lblPort, lblUser, lblPass, lblLocalFolder,
-			lblRemoteFolder, lblKeyFile;
-	private SpinnerNumberModel portModel;
+			lblRemoteFolder, lblKeyFile, lblProxyType, lblProxyHost,
+			lblProxyPort, lblProxyUser, lblProxyPass;
+	private SpinnerNumberModel portModel, proxyPortModel;
+	private JComboBox<String> cmbProxy;
+	private JTextField inpProxyHostName;
+	private JSpinner inpProxyPort;
+	private JTextField inpProxyUserName;
+	private JPasswordField inpProxyPassword;
 
 	public static final int DEFAULT_MAX_PORT = 65535;
 
@@ -65,6 +71,13 @@ public class SessionInfoPanel extends JPanel {
 		setPassword(info.getPassword() == null ? new char[0]
 				: info.getPassword().toCharArray());
 		setKeyFile(info.getPrivateKeyFile());
+		setProxyType(info.getProxyType());
+		setProxyHost(info.getProxyHost());
+		setProxyPort(info.getProxyPort());
+		setProxyUser(info.getProxyUser());
+
+		setProxyPassword(info.getProxyPassword() == null ? new char[0]
+				: info.getProxyPassword().toCharArray());
 	}
 
 	private void setHost(String host) {
@@ -81,6 +94,26 @@ public class SessionInfoPanel extends JPanel {
 
 	private void setPassword(char[] pass) {
 		inpPassword.setText(new String(pass));
+	}
+
+	private void setProxyType(int type) {
+		cmbProxy.setSelectedIndex(type);
+	}
+
+	private void setProxyHost(String host) {
+		inpProxyHostName.setText(host);
+	}
+
+	private void setProxyPort(int port) {
+		proxyPortModel.setValue(port);
+	}
+
+	private void setProxyUser(String user) {
+		inpProxyUserName.setText(user);
+	}
+
+	private void setProxyPassword(char[] pass) {
+		inpProxyPassword.setText(new String(pass));
 	}
 
 	private void setLocalFolder(String folder) {
@@ -107,12 +140,12 @@ public class SessionInfoPanel extends JPanel {
 		lblPort = new JLabel(TextHolder.getString("host.port"));
 		lblUser = new JLabel(TextHolder.getString("host.user"));
 		lblPass = new JLabel(TextHolder.getString("host.pass")
-				+ " ( Warning: it will be saved in plain text! )");
+				+ TextHolder.getString("pass.warn"));
 		lblLocalFolder = new JLabel(TextHolder.getString("host.localdir"));
 		lblRemoteFolder = new JLabel(TextHolder.getString("host.remotedir"));
 		lblKeyFile = new JLabel(TextHolder.getString("host.keyfile"));
 
-		inpHostName = GraphicsUtils.createTextField(30);// new JTextField(30);
+		inpHostName = GraphicsUtils.createTextField(10);// new JTextField(30);
 		inpHostName.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -134,6 +167,7 @@ public class SessionInfoPanel extends JPanel {
 				info.setHost(inpHostName.getText());
 			}
 		});
+
 		portModel = new SpinnerNumberModel(22, 1, DEFAULT_MAX_PORT, 1);
 		portModel.addChangeListener(new ChangeListener() {
 			@Override
@@ -142,7 +176,7 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 		inpPort = new JSpinner(portModel);
-		inpUserName = GraphicsUtils.createTextField(30);// new JTextField(30);
+		inpUserName = GraphicsUtils.createTextField(10);// new JTextField(30);
 		inpUserName.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -165,7 +199,7 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 
-		inpPassword = new JPasswordField(30);
+		inpPassword = new JPasswordField(10);
 		inpPassword.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -188,7 +222,7 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 
-		inpLocalFolder = GraphicsUtils.createTextField(30);// new
+		inpLocalFolder = GraphicsUtils.createTextField(10);// new
 															// JTextField(30);
 		inpLocalFolder.getDocument()
 				.addDocumentListener(new DocumentListener() {
@@ -213,7 +247,7 @@ public class SessionInfoPanel extends JPanel {
 					}
 				});
 
-		inpRemoteFolder = GraphicsUtils.createTextField(30);// new
+		inpRemoteFolder = GraphicsUtils.createTextField(10);// new
 															// JTextField(30);
 		inpRemoteFolder.getDocument()
 				.addDocumentListener(new DocumentListener() {
@@ -248,7 +282,7 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 
-		inpKeyFile = GraphicsUtils.createTextField(30);// new JTextField(30);
+		inpKeyFile = GraphicsUtils.createTextField(10);// new JTextField(30);
 		inpKeyFile.getDocument().addDocumentListener(new DocumentListener() {
 
 			@Override
@@ -282,17 +316,116 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 
+		// -----------
+		lblProxyType = new JLabel(TextHolder.getString("proxy.type"));
+		lblProxyHost = new JLabel(TextHolder.getString("proxy.host"));
+		lblProxyHost.setHorizontalAlignment(JLabel.LEADING);
+		lblProxyPort = new JLabel(TextHolder.getString("proxy.port"));
+		lblProxyUser = new JLabel(TextHolder.getString("proxy.user"));
+		lblProxyPass = new JLabel(TextHolder.getString("proxy.pass")
+				+ TextHolder.getString("pass.warn"));
+
+		cmbProxy = new JComboBox<>(
+				new String[] { "NONE", "HTTP", "SOCKS 4", "SOCKS 5" });
+		cmbProxy.addActionListener(e -> {
+			info.setProxyType(cmbProxy.getSelectedIndex());
+		});
+
+		inpProxyHostName = GraphicsUtils.createTextField(10);// new
+																// JTextField(30);
+		inpProxyHostName.getDocument()
+				.addDocumentListener(new DocumentListener() {
+
+					@Override
+					public void removeUpdate(DocumentEvent arg0) {
+						updateHost();
+					}
+
+					@Override
+					public void insertUpdate(DocumentEvent arg0) {
+						updateHost();
+					}
+
+					@Override
+					public void changedUpdate(DocumentEvent arg0) {
+						updateHost();
+					}
+
+					private void updateHost() {
+						info.setProxyHost(inpProxyHostName.getText());
+					}
+				});
+		proxyPortModel = new SpinnerNumberModel(8080, 1, DEFAULT_MAX_PORT, 1);
+		proxyPortModel.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent arg0) {
+				info.setProxyPort((Integer) proxyPortModel.getValue());
+			}
+		});
+		inpProxyPort = new JSpinner(proxyPortModel);
+		inpProxyUserName = GraphicsUtils.createTextField(10);// new
+																// JTextField(30);
+		inpProxyUserName.getDocument()
+				.addDocumentListener(new DocumentListener() {
+
+					@Override
+					public void removeUpdate(DocumentEvent arg0) {
+						updateUser();
+					}
+
+					@Override
+					public void insertUpdate(DocumentEvent arg0) {
+						updateUser();
+					}
+
+					@Override
+					public void changedUpdate(DocumentEvent arg0) {
+						updateUser();
+					}
+
+					private void updateUser() {
+						info.setProxyUser(inpProxyUserName.getText());
+					}
+				});
+
+		inpProxyPassword = new JPasswordField(10);
+		inpProxyPassword.getDocument()
+				.addDocumentListener(new DocumentListener() {
+
+					@Override
+					public void removeUpdate(DocumentEvent arg0) {
+						updatePassword();
+					}
+
+					@Override
+					public void insertUpdate(DocumentEvent arg0) {
+						updatePassword();
+					}
+
+					@Override
+					public void changedUpdate(DocumentEvent arg0) {
+						updatePassword();
+					}
+
+					private void updatePassword() {
+						info.setProxyPassword(
+								new String(inpProxyPassword.getPassword()));
+					}
+				});
+		// -----------
+
 		Insets topInset = new Insets(10, 10, 0, 10);
-		Insets noInset = new Insets(0, 10, 0, 10);
+		Insets noInset = new Insets(5, 10, 0, 10);
 		Insets noInsetLeft = new Insets(0, 5, 0, 10);
 		Insets noInsetRight = new Insets(0, 10, 0, 0);
+		Insets bottomInset = new Insets(10, 10, 5, 10);
 
 		GridBagLayout gbl = new GridBagLayout();
 
 		setLayout(gbl);
 
 		GridBagConstraints c = new GridBagConstraints();
-		c.weightx = 10;
+		c.weightx = 1;
 		c.fill = GridBagConstraints.HORIZONTAL;
 		c.anchor = GridBagConstraints.LINE_START;
 		c.gridx = 0;
@@ -305,6 +438,7 @@ public class SessionInfoPanel extends JPanel {
 		c.gridy = 1;
 		c.gridwidth = 2;
 		c.insets = noInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
 		add(inpHostName, c);
 
 		c.gridx = 0;
@@ -349,14 +483,14 @@ public class SessionInfoPanel extends JPanel {
 		c.gridx = 0;
 		c.gridy = 12;
 		c.gridwidth = 2;
-		c.insets = topInset;
+		c.insets = new Insets(10, 10, 3, 10);
 		add(lblLocalFolder, c);
 
 		c.gridx = 0;
 		c.gridy = 13;
 		c.gridwidth = 1;
 		c.insets = noInsetRight;
-		c.weightx = 10;
+		c.weightx = 1;
 		add(inpLocalFolder, c);
 
 		c.gridx = 1;
@@ -377,26 +511,28 @@ public class SessionInfoPanel extends JPanel {
 		c.gridy = 16;
 		c.gridwidth = 2;
 		c.insets = noInset;
-		c.weightx = 10;
+		c.weightx = 1;
 		add(inpRemoteFolder, c);
 
 		c.gridx = 1;
 		c.gridy = 16;
 		c.gridwidth = 1;
 		c.weightx = 1;
+		c.insets = new Insets(10, 10, 3, 10);
 		c.insets = noInsetLeft;
 
 		c.gridx = 0;
 		c.gridy = 17;
 		c.gridwidth = 2;
-		c.insets = topInset;
+		c.insets = bottomInset;
+		c.insets = new Insets(10, 10, 3, 10);
 		add(lblKeyFile, c);
 
 		c.gridx = 0;
 		c.gridy = 18;
 		c.gridwidth = 1;
 		c.insets = noInsetRight;
-		c.weightx = 10;
+		c.weightx = 1;
 		add(inpKeyFile, c);
 
 		c.gridx = 1;
@@ -409,9 +545,112 @@ public class SessionInfoPanel extends JPanel {
 		c.gridx = 0;
 		c.gridy = 19;
 		c.gridwidth = 1;
+		c.weightx = 1;
+		c.weighty = 20;
+		c.insets = topInset;
+		add(lblProxyType, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 1;
+		c.gridy = 20;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.NONE;
+		add(cmbProxy, c);
+
+		c.gridx = 0;
+		c.gridy = 21;
+		c.gridwidth = 1;
+		c.weightx = 1;
+		c.weighty = 20;
+		c.insets = topInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(lblProxyHost, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 22;
+		c.insets = noInset;
+		add(inpProxyHostName, c);
+
+		c.gridx = 0;
+		c.gridy = 23;
+		c.gridwidth = 1;
+		c.weightx = 1;
+		c.weighty = 20;
+		c.insets = topInset;
+		add(lblProxyPort, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 24;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.NONE;
+		add(inpProxyPort, c);
+
+		c.gridx = 0;
+		c.gridy = 25;
+		c.gridwidth = 1;
+		c.weightx = 1;
+		c.weighty = 20;
+		c.insets = topInset;
+		add(lblProxyUser, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 26;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(inpProxyUserName, c);
+
+		c.gridx = 0;
+		c.gridy = 27;
+		c.gridwidth = 1;
 		c.weightx = 5;
 		c.weighty = 20;
-		add(new JLabel(), c);
+		c.insets = topInset;
+		add(lblProxyPass, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 28;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(inpProxyPassword, c);
+
+//		System.out.println("min size: " + inpHostName.getMinimumSize());
+
+//		c.gridx = 0;
+//		c.gridy = 21;
+//		c.gridwidth = 1;
+//		c.weightx = 5;
+//		c.weighty = 20;
+//		c.insets = topInset;
+//		add(lblProxyType, c);
+//
+//		c.gridx = 0;
+//		c.gridy = 20;
+//		c.gridwidth = 2;
+//		c.insets = noInset;
+//		add(cmbProxy, c);
+
+//		c.gridx = 0;
+//		c.gridy = 21;
+//		c.gridwidth = 1;
+//		c.weightx = 5;
+//		c.weighty = 20;
+//		c.insets = topInset;
+//		add(lblProxyType, c);
+//
+//		c.gridx = 0;
+//		c.gridy = 20;
+//		c.gridwidth = 2;
+//		c.insets = noInset;
+//		add(inpProxyHostName, c);
 	}
 
 }
