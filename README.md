@@ -1,5 +1,5 @@
 # Snowflake ![Java CI](https://github.com/subhra74/snowflake/workflows/Java%20CI/badge.svg?branch=master)
-Easy and fun way to work with SSH
+Easy and fun way to work with remote servers over SSH.
 
 
 
