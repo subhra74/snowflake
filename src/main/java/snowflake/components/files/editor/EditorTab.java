@@ -29,8 +29,8 @@ public class EditorTab extends JPanel implements SearchListener {
     private JComboBox<String> cmbSyntax;
     private String localFile;
     private boolean hasChanges;
-    private JPanel replaceToolBar;
-    private ReplaceToolBar rtb;
+    private JPanel replaceToolBarWrapper;
+    private ReplaceToolBar replaceToolBar;
     private boolean replaceToolBarVisible = false;
     private GoToDialog goToDialog;
     private boolean wrapText = false;
@@ -56,15 +56,15 @@ public class EditorTab extends JPanel implements SearchListener {
         gutter.setBorder(new Gutter.GutterBorder(0, 0, 0, 0));
         add(sp);
 
-        replaceToolBar = new JPanel(new BorderLayout());
-        rtb = new ReplaceToolBar(this);
-        replaceToolBar.add(rtb);
+        replaceToolBarWrapper = new JPanel(new BorderLayout());
+        replaceToolBar = new ReplaceToolBar(this);
+        replaceToolBarWrapper.add(replaceToolBar);
 
         JButton closeToolbar = new JButton();
         closeToolbar.setFont(App.getFontAwesomeFont());
         closeToolbar.setText("\uf00d");
         closeToolbar.addActionListener(e -> {
-            this.remove(replaceToolBar);
+            this.remove(replaceToolBarWrapper);
             this.revalidate();
             this.repaint();
             replaceToolBarVisible = false;
@@ -76,7 +76,7 @@ public class EditorTab extends JPanel implements SearchListener {
         JPanel xp = new JPanel();
         xp.add(closeToolbar);
 
-        replaceToolBar.add(xp, BorderLayout.EAST);
+        replaceToolBarWrapper.add(xp, BorderLayout.EAST);
 
         TokenMakerFactory factory = TokenMakerFactory.getDefaultInstance();
         Set<String> styles = factory.keySet();
@@ -180,13 +180,13 @@ public class EditorTab extends JPanel implements SearchListener {
 
     public void openFindReplace() {
         if (!replaceToolBarVisible) {
-            this.add(replaceToolBar, BorderLayout.SOUTH);
+            this.add(replaceToolBarWrapper, BorderLayout.SOUTH);
             replaceToolBarVisible = true;
             this.revalidate();
             this.repaint();
         }
         // Request Focus to ReplaceToolBar
-        rtb.requestFocusInWindow();
+        replaceToolBar.requestFocusInWindow();
     }
 
     public void setText(String content) {
