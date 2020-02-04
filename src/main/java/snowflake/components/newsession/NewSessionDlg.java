@@ -4,8 +4,10 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 import javax.swing.tree.*;
+
 import java.awt.event.*;
 
+import snowflake.App;
 import snowflake.utils.*;
 
 import java.awt.*;
@@ -21,16 +23,18 @@ public class NewSessionDlg extends JDialog
 	private DefaultMutableTreeNode rootNode;
 	private JScrollPane jsp;
 	private SessionInfoPanel sessionInfoPanel;
-	private JButton btnNewHost, btnDel, btnDup, btnNewFolder;
+	private JButton btnNewHost, btnDel, btnDup, btnNewFolder, btnExport,
+			btnImport;
 	private JButton btnConnect, btnCancel;
 	private JTextField txtName;
 	private JPanel namePanel;
 	private NamedItem selectedInfo;
-	private DefaultMutableTreeNode lastConnected;
+	// private DefaultMutableTreeNode lastConnected;
 	private String lastSelected;
 	private JPanel prgPanel;
 	private JPanel pdet;
 	private SessionInfo info;
+	private JLabel lblName;
 
 	public NewSessionDlg(Window wnd) {
 		super(wnd);
@@ -71,10 +75,14 @@ public class NewSessionDlg extends JDialog
 
 		treeModel = new DefaultTreeModel(rootNode, true);
 		treeModel.addTreeModelListener(this);
-		tree = new JTree(treeModel);
+		tree = new AutoScrollingJTree(treeModel);
+		tree.setDragEnabled(true);
+		tree.setDropMode(DropMode.ON_OR_INSERT);
+		tree.setTransferHandler(new TreeTransferHandler());
 		tree.getSelectionModel()
 				.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.getSelectionModel().addTreeSelectionListener(this);
+		// tree.setDragEnabled(true);
 
 		tree.setEditable(false);
 		jsp = new JScrollPane(tree);
@@ -110,6 +118,16 @@ public class NewSessionDlg extends JDialog
 											// JButton(TextHolder.getString("session.cancel"));
 		btnCancel.addActionListener(this);
 		btnCancel.putClientProperty("button.name", "btnCancel");
+
+		btnExport = new JButton("Export");// new
+		// JButton(TextHolder.getString("session.cancel"));
+		btnExport.addActionListener(this);
+		btnExport.putClientProperty("button.name", "btnExport");
+
+		btnImport = new JButton("Import");// new
+		// JButton(TextHolder.getString("session.cancel"));
+		btnImport.addActionListener(this);
+		btnImport.putClientProperty("button.name", "btnImport");
 		// btnCancel.setFont(Utility.getFont(Constants.SMALL));
 
 		normalizeButtonSize();
@@ -124,13 +142,18 @@ public class NewSessionDlg extends JDialog
 		box1.add(Box.createHorizontalStrut(10));
 		box1.add(btnCancel);
 
-		GridLayout gl = new GridLayout(2, 2, 5, 5);
+		GridLayout gl = new GridLayout(3, 2, 5, 5);
 		JPanel btnPane = new JPanel(gl);
 		btnPane.setBorder(new EmptyBorder(10, 0, 0, 0));
 		btnPane.add(btnNewHost);
 		btnPane.add(btnNewFolder);
 		btnPane.add(btnDup);
 		btnPane.add(btnDel);
+		btnPane.add(btnExport);
+		btnPane.add(btnImport);
+
+		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+		splitPane.putClientProperty("Nimbus.Overrides", App.splitPaneSkin);
 
 		JPanel treePane = new JPanel(new BorderLayout());
 		treePane.setBorder(new EmptyBorder(10, 10, 10, 0));
@@ -148,21 +171,22 @@ public class NewSessionDlg extends JDialog
 		pp.add(sessionInfoPanel);
 
 		pdet = new JPanel(new BorderLayout());
+		// pdet.setVisible(false);
 
 		JScrollPane scrollPane = new JScrollPane(pp);
-		scrollPane.setHorizontalScrollBarPolicy(
-				ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		// scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
 		scrollPane.setBorder(null);
 		pdet.add(scrollPane);
 		pdet.add(box1, BorderLayout.SOUTH);
-		add(pdet);
+
+		// add(pdet);
 
 		BoxLayout boxLayout = new BoxLayout(namePanel, BoxLayout.PAGE_AXIS);
 		namePanel.setLayout(boxLayout);
 
 		namePanel.setBorder(new EmptyBorder(10, 10, 0, 10));
 
-		JLabel lblName = new JLabel(TextHolder.getString("session.name"));
+		lblName = new JLabel(TextHolder.getString("session.name"));
 		lblName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		lblName.setHorizontalAlignment(JLabel.LEADING);
 		lblName.setBorder(new EmptyBorder(0, 0, 5, 0));
@@ -191,6 +215,16 @@ public class NewSessionDlg extends JDialog
 
 			private void updateName() {
 				selectedInfo.setName(txtName.getText());
+				TreePath parentPath = tree.getSelectionPath();
+				DefaultMutableTreeNode parentNode = null;
+
+				if (parentPath != null) {
+					parentNode = (DefaultMutableTreeNode) (parentPath
+							.getLastPathComponent());
+					if (parentNode != null) {
+						treeModel.nodeChanged(parentNode);
+					}
+				}
 			}
 		});
 
@@ -227,6 +261,16 @@ public class NewSessionDlg extends JDialog
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		splitPane.setLeftComponent(treePane);
+		splitPane.setRightComponent(pdet);
+
+		add(splitPane);
+
+		lblName.setVisible(false);
+		txtName.setVisible(false);
+		sessionInfoPanel.setVisible(false);
+		btnConnect.setVisible(false);
 	}
 
 	private boolean selectNode(String id, DefaultMutableTreeNode node) {
@@ -400,6 +444,31 @@ public class NewSessionDlg extends JDialog
 			save();
 			dispose();
 			break;
+		case "btnImport":
+			if (parentNode == null) {
+				parentNode = rootNode;
+			}
+			if (parentNode.getUserObject() instanceof SessionInfo) {
+				parentNode = (DefaultMutableTreeNode) parentNode.getParent();
+			}
+			new ImportDlg(this, parentNode).setVisible(true);
+			treeModel.nodeStructureChanged(parentNode);
+			break;
+		case "btnExport":
+			JFileChooser jfc = new JFileChooser();
+			if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+				String id = null;
+				TreePath path3 = tree.getSelectionPath();
+				if (path3 != null) {
+					DefaultMutableTreeNode node3 = (DefaultMutableTreeNode) path3
+							.getLastPathComponent();
+					NamedItem item = (NamedItem) node3.getUserObject();
+					id = item.getId();
+				}
+				SessionStore.save(SessionStore.convertModelFromTree(rootNode),
+						id, jfc.getSelectedFile());
+			}
+			break;
 		default:
 			break;
 		}
@@ -427,6 +496,7 @@ public class NewSessionDlg extends JDialog
 
 	@Override
 	public void valueChanged(TreeSelectionEvent e) {
+		System.out.println("value changed");
 		DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree
 				.getLastSelectedPathComponent();
 
@@ -440,14 +510,21 @@ public class NewSessionDlg extends JDialog
 			SessionInfo info = (SessionInfo) nodeInfo;
 			sessionInfoPanel.setSessionInfo(info);
 			selectedInfo = info;
+			txtName.setVisible(true);
+			lblName.setVisible(true);
 			txtName.setText(selectedInfo.getName());
 			btnConnect.setVisible(true);
-		} else {
+		} else if (nodeInfo instanceof NamedItem) {
 			selectedInfo = (NamedItem) nodeInfo;
+			lblName.setVisible(true);
+			txtName.setVisible(true);
 			txtName.setText(selectedInfo.getName());
 			sessionInfoPanel.setVisible(false);
 			btnConnect.setVisible(false);
 		}
+
+		revalidate();
+		repaint();
 	}
 
 	private void save() {
