@@ -1,6 +1,7 @@
 package snowflake.components.newsession;
 
 import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.awt.Window;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,9 @@ import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.ListSelectionModel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -28,6 +31,8 @@ public class ImportDlg extends JDialog {
 		setModal(true);
 		model = new DefaultListModel<>();
 		sessionList = new JList<>(model);
+		sessionList
+				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 		items = new JComboBox<String>(new String[] { "Putty", "WinSCP" });
 		items.addActionListener(e -> {
 			int index = items.getSelectedIndex();
@@ -41,14 +46,41 @@ public class ImportDlg extends JDialog {
 			}
 
 		});
-		add(new JScrollPane(sessionList));
+
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.setBorder(new EmptyBorder(0, 5, 0, 5));
+		panel.add(new JScrollPane(sessionList));
+		add(panel);
 		Box b1 = Box.createHorizontalBox();
 		b1.setBorder(new EmptyBorder(5, 5, 5, 5));
 		b1.add(new JLabel("Import from"));
+		b1.add(Box.createHorizontalGlue());
 		b1.add(items);
 		add(b1, BorderLayout.NORTH);
 
 		Box b2 = Box.createHorizontalBox();
+		b2.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		JButton btnSelect = new JButton("Select all");
+		btnSelect.addActionListener(e -> {
+			int arr[] = new int[model.size()];
+			for (int i = 0; i < model.size(); i++) {
+				arr[i] = i;
+			}
+			sessionList.setSelectedIndices(arr);
+		});
+
+		JButton btnUnSelect = new JButton("Un-select all");
+		btnUnSelect.addActionListener(e -> {
+			int arr[] = new int[0];
+			sessionList.setSelectedIndices(arr);
+		});
+
+		b2.add(btnSelect);
+		b2.add(Box.createRigidArea(new Dimension(5, 5)));
+		b2.add(btnUnSelect);
+
+		b2.add(Box.createHorizontalGlue());
 
 		JButton btnImport = new JButton("Import");
 		btnImport.addActionListener(e -> {
@@ -84,8 +116,11 @@ public class ImportDlg extends JDialog {
 
 	private void importSessionsFromPutty(DefaultMutableTreeNode node) {
 		List<String> list = new ArrayList<String>();
-		for (int i = 0; i < model.size(); i++) {
-			list.add(model.get(i));
+		int arr[] = sessionList.getSelectedIndices();
+		if (arr != null) {
+			for (int i = 0; i < arr.length; i++) {
+				list.add(model.get(arr[i]));
+			}
 		}
 
 		PuttyImporter.importSessions(node, list);
@@ -96,8 +131,12 @@ public class ImportDlg extends JDialog {
 
 	private void importSessionsFromWinScp(DefaultMutableTreeNode node) {
 		List<String> list = new ArrayList<String>();
-		for (int i = 0; i < model.size(); i++) {
-			list.add(model.get(i));
+
+		int arr[] = sessionList.getSelectedIndices();
+		if (arr != null) {
+			for (int i = 0; i < arr.length; i++) {
+				list.add(model.get(arr[i]));
+			}
 		}
 
 		WinScpImporter.importSessions(node, list);
