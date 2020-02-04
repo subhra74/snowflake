@@ -30,6 +30,7 @@ public class EditorTab extends JPanel implements SearchListener {
     private String localFile;
     private boolean hasChanges;
     private JPanel replaceToolBar;
+    private ReplaceToolBar rtb;
     private boolean replaceToolBarVisible = false;
     private GoToDialog goToDialog;
     private boolean wrapText = false;
@@ -56,7 +57,8 @@ public class EditorTab extends JPanel implements SearchListener {
         add(sp);
 
         replaceToolBar = new JPanel(new BorderLayout());
-        replaceToolBar.add(new ReplaceToolBar(this));
+        rtb = new ReplaceToolBar(this);
+        replaceToolBar.add(rtb);
 
         JButton closeToolbar = new JButton();
         closeToolbar.setFont(App.getFontAwesomeFont());
@@ -183,6 +185,8 @@ public class EditorTab extends JPanel implements SearchListener {
             this.revalidate();
             this.repaint();
         }
+        // Request Focus to ReplaceToolBar
+        rtb.requestFocusInWindow();
     }
 
     public void setText(String content) {
