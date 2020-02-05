@@ -20,46 +20,35 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 public class ImportDlg extends JDialog {
-	private JComboBox<String> items;
+	// private JComboBox<String> items;
 	private JList<String> sessionList;
 	private DefaultListModel<String> model;
 
-	public ImportDlg(Window w, DefaultMutableTreeNode node) {
+	public ImportDlg(Window w, int index, DefaultMutableTreeNode node) {
 		super(w);
 		setSize(400, 300);
 		setLocationRelativeTo(w);
 		setModal(true);
 		model = new DefaultListModel<>();
 		sessionList = new JList<>(model);
-		sessionList
-				.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-		items = new JComboBox<String>(new String[] { "Putty", "WinSCP" });
-		items.addActionListener(e -> {
-			int index = items.getSelectedIndex();
-			switch (index) {
-			case 0:
-				importFromPutty();
-				break;
-			case 1:
-				importFromWinScp();
-				break;
-			}
+		sessionList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-		});
+		switch (index) {
+		case 0:
+			importFromPutty();
+			break;
+		case 1:
+			importFromWinScp();
+			break;
+		}
 
 		JPanel panel = new JPanel(new BorderLayout());
-		panel.setBorder(new EmptyBorder(0, 5, 0, 5));
+		panel.setBorder(new EmptyBorder(5, 5, 5, 5));
 		panel.add(new JScrollPane(sessionList));
 		add(panel);
-		Box b1 = Box.createHorizontalBox();
-		b1.setBorder(new EmptyBorder(5, 5, 5, 5));
-		b1.add(new JLabel("Import from"));
-		b1.add(Box.createHorizontalGlue());
-		b1.add(items);
-		add(b1, BorderLayout.NORTH);
 
 		Box b2 = Box.createHorizontalBox();
-		b2.setBorder(new EmptyBorder(5, 5, 5, 5));
+		b2.setBorder(new EmptyBorder(0, 5, 5, 5));
 
 		JButton btnSelect = new JButton("Select all");
 		btnSelect.addActionListener(e -> {
@@ -84,7 +73,7 @@ public class ImportDlg extends JDialog {
 
 		JButton btnImport = new JButton("Import");
 		btnImport.addActionListener(e -> {
-			int index = items.getSelectedIndex();
+
 			switch (index) {
 			case 0:
 				importSessionsFromPutty(node);
@@ -101,7 +90,7 @@ public class ImportDlg extends JDialog {
 
 		add(b2, BorderLayout.SOUTH);
 
-		importFromPutty();
+		//importFromPutty();
 	}
 
 	private void importFromPutty() {

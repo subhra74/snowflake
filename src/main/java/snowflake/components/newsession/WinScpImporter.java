@@ -35,6 +35,8 @@ public class WinScpImporter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
+		System.out.println(map);
 
 		return map;
 	}
