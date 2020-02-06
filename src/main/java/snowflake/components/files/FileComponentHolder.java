@@ -264,6 +264,9 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
             tabs.setSelectedIndex(1);
             editor.setSavingFile(false);
             downloadFileToTempFolder(fileInfo, editor.hashCode());
+        }else {
+        	tabs.setSelectedIndex(1);
+        	editor.showTab(fileInfo);
         }
     }
 
