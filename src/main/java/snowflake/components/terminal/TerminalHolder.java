@@ -12,6 +12,8 @@ import java.awt.event.ComponentEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.*;
 
+import java.util.concurrent.atomic.*;
+
 public class TerminalHolder extends JPanel implements AutoCloseable , LazyInitComponent{
 	private SessionInfo info;
 	private DefaultComboBoxModel<TerminalComponent> terminals;
