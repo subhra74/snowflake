@@ -241,9 +241,9 @@ public class SessionContent extends JPanel {
 					child.setForeground(Color.WHITE);
 				}
 
-if(panel.getName().equals(SnowflakePanel.TERMINAL.getName())){
+if(panel.getName().equals(SnowFlakePanel.TERMINAL.getName())){
 this.terminalHolder.lazyInit();
-}else if(panel.getName().equals(SnowflakePanel.FILES.getName())){
+}else if(panel.getName().equals(SnowFlakePanel.FILES.getName())){
 this.fileComponentHolder.lazyInit();
 }
 
