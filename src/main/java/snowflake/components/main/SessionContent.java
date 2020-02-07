@@ -240,6 +240,14 @@ public class SessionContent extends JPanel {
 				for (Component child : panel1.getComponents()) {
 					child.setForeground(Color.WHITE);
 				}
+
+if(panel.getName().equals(SnowFlakePanel.TERMINAL.getName())){
+this.terminalHolder.lazyInit();
+}else if(panel.getName().equals(SnowFlakePanel.FILES.getName())){
+this.fileComponentHolder.lazyInit();
+}
+
+
 				//panel.requestFocusInWindow();
 			} else {
 				panel1.setBackground(bg);

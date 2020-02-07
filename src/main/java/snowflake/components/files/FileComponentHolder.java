@@ -20,6 +20,9 @@ import snowflake.components.files.transfer.FileTransferProgress;
 import snowflake.components.files.transfer.TransferProgressPanel;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.main.SessionContent;
+
+import snowflake.components.main.LazyInitComponent;
+
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.newsession.SessionStore;
 import snowflake.utils.PathUtils;
@@ -40,7 +43,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
-public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource {
+
+public class FileComponentHolder extends JPanel implements FileTransferProgress, ConnectedResource, LazyInitComponent {
     private ExecutorService threadPool = Executors.newSingleThreadExecutor();
     private static final int DEFAULT_APP = 10, DEFAULT_EDITOR = 20;
     private JRootPane rootPane;
@@ -65,14 +69,25 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
     private FileSearchPanel fileSearchPanel;
     private SessionContent sessionContent;
     private Map<String, List<FileInfo>> directoryCache = new ConcurrentHashMap<>();
+    private AtomicBoolean init=new AtomicBoolean(false);
 
     public FileComponentHolder(SessionInfo info, ExternalEditor externalEditor, SessionContent sessionContent) {
         super(new BorderLayout());
-        setOpaque(true);
+       
         this.sessionContent = sessionContent;
         //setBorder(new LineBorder(new Color(200, 200, 200), 1));
         this.externalEditor = externalEditor;
         this.info = info;
+       
+    }
+
+    @Override
+    public void lazyInit() {
+        if(init.get()){
+          return;
+        }
+        init.set(true);
+        setOpaque(true);
         contentPane = new JPanel(new BorderLayout());
         contentPane.setOpaque(true);
         rootPane = new JRootPane();
@@ -116,6 +131,7 @@ public class FileComponentHolder extends JPanel implements FileTransferProgress,
 
 
         contentPane.add(tabs);
+
     }
 
     @Override

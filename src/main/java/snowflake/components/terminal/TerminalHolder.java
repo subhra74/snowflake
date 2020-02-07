@@ -2,6 +2,7 @@ package snowflake.components.terminal;
 
 import snowflake.App;
 import snowflake.components.newsession.SessionInfo;
+import snowflake.components.main.*;
 import snowflake.components.terminal.snippets.SnippetPanel;
 
 import javax.swing.*;
@@ -9,9 +10,11 @@ import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
-public class TerminalHolder extends JPanel implements AutoCloseable {
+import java.util.concurrent.atomic.*;
+
+public class TerminalHolder extends JPanel implements AutoCloseable , LazyInitComponent{
 	private SessionInfo info;
 	private DefaultComboBoxModel<TerminalComponent> terminals;
 	private JComboBox<TerminalComponent> cmbTerminals;
@@ -21,14 +24,21 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
 	private ExecutorService threadPool = Executors.newFixedThreadPool(1);
 	private JPopupMenu snippetPopupMenu;
 	private SnippetPanel snippetPanel;
-
+private AtomicBoolean init=new AtomicBoolean(false);
 	private int c = 1;
 
 	public TerminalHolder(SessionInfo info) {
 		super(new BorderLayout());
-		card = new CardLayout();
+                this.info = info;
+	}
+
+public void lazyInit(){
+if(init.get()){
+return;}
+init.set(true);
+card = new CardLayout();
 		content = new JPanel(card);
-		this.info = info;
+	
 		this.terminals = new DefaultComboBoxModel<>();
 		this.cmbTerminals = new JComboBox<>(terminals);
 		this.cmbTerminals.addItemListener(e -> {
@@ -128,7 +138,8 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
 				requestFocusInWindow();
 			}
 		});
-	}
+
+}
 
 	private void showSnippets() {
 		this.snippetPanel.loadSnippets();
@@ -145,6 +156,7 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
 	}
 
 	public void createNewTerminal(String command) {
+lazyInit();
 		int count = terminals.getSize();
 		TerminalComponent tc = new TerminalComponent(info, c + "", command);
 		c++;
@@ -154,12 +166,7 @@ public class TerminalHolder extends JPanel implements AutoCloseable {
 	}
 
 	public void createNewTerminal() {
-		int count = terminals.getSize();
-		TerminalComponent tc = new TerminalComponent(info, c + "", null);
-		c++;
-		content.add(tc, tc.hashCode() + "");
-		terminals.addElement(tc);
-		cmbTerminals.setSelectedIndex(count);
+		createNewTerminal(null);
 	}
 
 	public void removeTerminal() {
