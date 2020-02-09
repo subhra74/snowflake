@@ -1,5 +1,7 @@
 package snowflake.common;
 
+import lombok.Getter;
+
 import java.util.Arrays;
 
 public enum SnowFlakePanel {
@@ -7,20 +9,14 @@ public enum SnowFlakePanel {
     DISK_SPACE_ANALYZER("Disk space analyzer", "\uf1fe"), ACTIVE_TRANSFERS("Active transfers", "\uf252"),
     LINUX_TOOLS("Linux tools", "\uf085"), SSH_KEYS("SSH keys", "\uf084"), NETWORK_TOOLS("Network tools", "\uf0b1");
 
+    @Getter
     private String name;
+    @Getter
     private String icon;
 
     SnowFlakePanel(String name, String icon) {
         this.name = name;
         this.icon = icon;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getIcon() {
-        return icon;
     }
 
     public static SnowFlakePanel fromName(String name) {
