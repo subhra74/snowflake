@@ -1,7 +1,7 @@
 package
         snowflake.components.files.logviewer;
 
-import com.google.common.primitives.Longs;
+//import com.google.common.primitives.Longs;
 import org.tukaani.xz.XZInputStream;
 import snowflake.App;
 import snowflake.common.ssh.SshClient;
@@ -16,6 +16,7 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.datatransfer.StringSelection;
 import java.io.*;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
@@ -357,7 +358,7 @@ public class LogPage extends JPanel {
             throw new Exception("EOF found");
         }
 
-        long startOffset = Longs.fromByteArray(longBytes);
+        long startOffset = ByteBuffer.wrap(longBytes).getLong();//Longs.fromByteArray(longBytes);
 
         //System.out.println("startOffset: " + startOffset);
 
@@ -367,13 +368,13 @@ public class LogPage extends JPanel {
             raf.read(longBytes);
         }
 
-        long endOffset = Longs.fromByteArray(longBytes);
+        long endOffset = ByteBuffer.wrap(longBytes).getLong();//Longs.fromByteArray(longBytes);
         raf.seek(lineEnd * 16 + 8);
         if (raf.read(longBytes) != 8) {
             raf.seek(raf.length() - 8);
             raf.read(longBytes);
         }
-        long lineLength = Longs.fromByteArray(longBytes);
+        long lineLength = ByteBuffer.wrap(longBytes).getLong();//Longs.fromByteArray(longBytes);
 
         //System.out.println("endOffset: " + endOffset + " lineLength: " + lineLength);
 

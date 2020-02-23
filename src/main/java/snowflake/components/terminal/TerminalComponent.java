@@ -79,7 +79,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 			});
 		});
 		term.setTtyConnector(tty);
-		term.start();
+		//term.start();
 		contentPane.add(term);
 
 	}
@@ -226,5 +226,9 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 	 */
 	public JediTermWidget getTerm() {
 		return term;
+	}
+	
+	public void start() {
+		term.start();
 	}
 }

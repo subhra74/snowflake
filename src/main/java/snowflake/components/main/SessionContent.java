@@ -108,11 +108,14 @@ public class SessionContent extends JPanel {
 		mainPanel.add(terminalHolder, SnowFlakePanel.TERMINAL.getName());
 //        mainPanel.add(fileSearchPanel, "Search");
 		mainPanel.add(taskManager, SnowFlakePanel.SYSTEM_MONITOR.getName());
-		mainPanel.add(diskUsageAnalyzer, SnowFlakePanel.DISK_SPACE_ANALYZER.getName());
-		mainPanel.add(backgroundTransferPanel, SnowFlakePanel.ACTIVE_TRANSFERS.getName());
+		mainPanel.add(diskUsageAnalyzer,
+				SnowFlakePanel.DISK_SPACE_ANALYZER.getName());
+		mainPanel.add(backgroundTransferPanel,
+				SnowFlakePanel.ACTIVE_TRANSFERS.getName());
 		mainPanel.add(systemInfoPanel, SnowFlakePanel.LINUX_TOOLS.getName());
 		mainPanel.add(keyManagerPanel, SnowFlakePanel.SSH_KEYS.getName());
-		mainPanel.add(networkToolsPanel, SnowFlakePanel.NETWORK_TOOLS.getName());
+		mainPanel.add(networkToolsPanel,
+				SnowFlakePanel.NETWORK_TOOLS.getName());
 
 		panels = new JPanel[SnowFlakePanel.values().length];
 		Dimension maxDim = null;
@@ -126,7 +129,8 @@ public class SessionContent extends JPanel {
 				}
 			};
 
-			if (snowFlakePanel.getName().equals(SnowFlakePanel.ACTIVE_TRANSFERS.getName())) {
+			if (snowFlakePanel.getName()
+					.equals(SnowFlakePanel.ACTIVE_TRANSFERS.getName())) {
 				panel.add(lblProgressCount, BorderLayout.EAST);
 			}
 
@@ -216,7 +220,9 @@ public class SessionContent extends JPanel {
 //
 		add(sidePanel, BorderLayout.WEST);
 
-		panelClicked(panels[SnowFlakePanel.fromName(App.getGlobalSettings().getDefaultPanel()).ordinal()]);
+		panelClicked(panels[SnowFlakePanel
+				.fromName(App.getGlobalSettings().getDefaultPanel())
+				.ordinal()]);
 	}
 
 	public void transferInBackground(FileTransfer transfer) {
@@ -241,14 +247,14 @@ public class SessionContent extends JPanel {
 					child.setForeground(Color.WHITE);
 				}
 
-if(panel.getName().equals(SnowFlakePanel.TERMINAL.getName())){
-this.terminalHolder.lazyInit();
-}else if(panel.getName().equals(SnowFlakePanel.FILES.getName())){
-this.fileComponentHolder.lazyInit();
-}
+				if (panel.getName().equals(SnowFlakePanel.TERMINAL.getName())) {
+					this.terminalHolder.lazyInit();
+				} else if (panel.getName()
+						.equals(SnowFlakePanel.FILES.getName())) {
+					this.fileComponentHolder.lazyInit();
+				}
 
-
-				//panel.requestFocusInWindow();
+				// panel.requestFocusInWindow();
 			} else {
 				panel1.setBackground(bg);
 //                panel1.setBackground(new Color(20, 23, 41));

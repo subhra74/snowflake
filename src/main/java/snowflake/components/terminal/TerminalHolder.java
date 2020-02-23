@@ -14,7 +14,8 @@ import java.util.concurrent.*;
 
 import java.util.concurrent.atomic.*;
 
-public class TerminalHolder extends JPanel implements AutoCloseable , LazyInitComponent{
+public class TerminalHolder extends JPanel
+		implements AutoCloseable, LazyInitComponent {
 	private SessionInfo info;
 	private DefaultComboBoxModel<TerminalComponent> terminals;
 	private JComboBox<TerminalComponent> cmbTerminals;
@@ -24,21 +25,15 @@ public class TerminalHolder extends JPanel implements AutoCloseable , LazyInitCo
 	private ExecutorService threadPool = Executors.newFixedThreadPool(1);
 	private JPopupMenu snippetPopupMenu;
 	private SnippetPanel snippetPanel;
-private AtomicBoolean init=new AtomicBoolean(false);
+	private AtomicBoolean init = new AtomicBoolean(false);
 	private int c = 1;
 
 	public TerminalHolder(SessionInfo info) {
 		super(new BorderLayout());
-                this.info = info;
-	}
-
-public void lazyInit(){
-if(init.get()){
-return;}
-init.set(true);
-card = new CardLayout();
+		this.info = info;
+		card = new CardLayout();
 		content = new JPanel(card);
-	
+
 		this.terminals = new DefaultComboBoxModel<>();
 		this.cmbTerminals = new JComboBox<>(terminals);
 		this.cmbTerminals.addItemListener(e -> {
@@ -138,8 +133,15 @@ card = new CardLayout();
 				requestFocusInWindow();
 			}
 		});
+	}
 
-}
+	public void lazyInit() {
+		if (init.get()) {
+			return;
+		}
+		init.set(true);
+		terminals.getElementAt(0).start();
+	}
 
 	private void showSnippets() {
 		this.snippetPanel.loadSnippets();
@@ -156,13 +158,16 @@ card = new CardLayout();
 	}
 
 	public void createNewTerminal(String command) {
-lazyInit();
+		//lazyInit();
 		int count = terminals.getSize();
 		TerminalComponent tc = new TerminalComponent(info, c + "", command);
 		c++;
 		content.add(tc, tc.hashCode() + "");
 		terminals.addElement(tc);
 		cmbTerminals.setSelectedIndex(count);
+		if(this.init.get()) {
+			tc.start();
+		}
 	}
 
 	public void createNewTerminal() {
