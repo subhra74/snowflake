@@ -26,6 +26,7 @@ Snowflake has been tested with serveral Linux and UNIX servers, like Ubuntu serv
 
 <table>
   <tr>
+    <th>Versions</th>
     <th>Windows</th>
     <th>Ubuntu/Mint/Debian</th>
     <th>Linux</th>
@@ -33,6 +34,29 @@ Snowflake has been tested with serveral Linux and UNIX servers, like Ubuntu serv
     <th>Other</th>
   </tr>
   <tr>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/tag/v1.0.4">v1.0.4</a>
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.4/snowflake.msi">MSI installer</a>
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.4/snowflake-1.0.4-setup-amd64.deb">DEB installer</a>
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.4/snowflake-1.0.4-setup-amd64.bin">Generic installer (64 bit)</a>
+    </td>
+    <td>
+      TBD
+    </td>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.4/snowflake.jar">Portable JAR (Java 13)</a>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <a href="https://github.com/subhra74/snowflake/releases/tag/v1.0.3">v1.0.3</a>
+    </td>
     <td>
       <a href="https://github.com/subhra74/snowflake/releases/download/v1.0.3/snowflake.msi">MSI installer</a>
     </td>
