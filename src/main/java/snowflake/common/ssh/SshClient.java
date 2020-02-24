@@ -3,6 +3,8 @@ package snowflake.common.ssh;
 import java.io.*;
 
 import com.jcraft.jsch.*;
+
+import net.schmizz.sshj.SSHClient;
 import snowflake.App;
 import snowflake.components.newsession.*;
 
