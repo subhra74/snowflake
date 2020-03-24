@@ -4,7 +4,15 @@ import snowflake.utils.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import net.schmizz.sshj.common.KeyType;
+import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile;
+
 import java.awt.*;
+import java.io.File;
+import java.nio.file.Files;
 
 public class SessionInfoPanel extends JPanel {
 
@@ -310,8 +318,20 @@ public class SessionInfoPanel extends JPanel {
 		inpKeyBrowse.addActionListener(e -> {
 			JFileChooser jfc = new JFileChooser();
 			jfc.setFileHidingEnabled(false);
+
+			jfc.addChoosableFileFilter(new FileNameExtensionFilter(
+					"Putty key files (*.ppk)", "ppk"));
+
 			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+				String selectedFile = jfc.getSelectedFile().getAbsolutePath();
+				if (selectedFile.endsWith(".ppk")) {
+					if (!isSupportedPuttyKeyFile(jfc.getSelectedFile())) {
+						JOptionPane.showMessageDialog(this,
+								"This key format is not supported, please convert it to OpenSSH format");
+						return;
+					}
+				}
 				inpKeyFile.setText(jfc.getSelectedFile().getAbsolutePath());
 			}
 		});
@@ -651,6 +671,23 @@ public class SessionInfoPanel extends JPanel {
 //		c.gridwidth = 2;
 //		c.insets = noInset;
 //		add(inpProxyHostName, c);
+	}
+
+	private boolean isSupportedPuttyKeyFile(File file) {
+		try {
+			String content = Files.readString(file.toPath());
+			if (content.contains("ssh-ed25519")) {
+				return false;
+			}
+			if (content.contains("Encryption:")
+					&& (content.contains("Encryption: aes256-cbc")
+							|| content.contains("Encryption: none"))) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return false;
 	}
 
 }

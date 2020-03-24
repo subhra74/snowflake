@@ -16,26 +16,35 @@ import net.schmizz.sshj.userauth.password.Resource;
  *
  */
 public class PasswordFinderDialog implements PasswordFinder {
-	private String password;
-	private AtomicBoolean firstAttempt = new AtomicBoolean(true);
-	private JPasswordField txtPass = new JPasswordField(30);
+
+	private boolean retry = true;
 
 	@Override
 	public char[] reqPassword(Resource<?> resource) {
-		return "Starscream@64".toCharArray();
+		JPasswordField txtPass = new JPasswordField();
+
+		int ret = JOptionPane.showOptionDialog(null,
+				new Object[] { resource.toString(), txtPass }, "Passphrase",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null,
+				null, null);
+		if (ret == JOptionPane.OK_OPTION) {
+			return txtPass.getPassword();
+		}
+		retry = false;
+		return null;
 //		if (password != null && firstAttempt.get()) {
 //			return password.toCharArray();
 //		}
 //		txtPass.setText("");
 //		
-//		if(JOptionPane.showOptionDialog(null, new Object[] {resource.toString(),txtPass}, resource, JOptionPane., messageType, icon, options, initialValue))
+//if(JOptionPane.showOptionDialog(null, , resource, JOptionPane., messageType, icon, options, initialValue))
 //		return null;
 	}
 
 	@Override
 	public boolean shouldRetry(Resource<?> resource) {
 		// TODO Auto-generated method stub
-		return false;
+		return retry;
 	}
 
 }

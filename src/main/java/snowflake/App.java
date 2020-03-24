@@ -1,24 +1,10 @@
 package snowflake;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import net.i2p.crypto.eddsa.EdDSASecurityProvider;
-
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import snowflake.common.Settings;
-import snowflake.components.common.CustomScrollBarUI;
-import snowflake.components.main.MainContent;
-import snowflake.components.terminal.snippets.SnippetItem;
-import snowflake.utils.GraphicsUtils;
-import snowflake.utils.PathUtils;
-
-import javax.imageio.ImageIO;
-import javax.swing.*;
-import javax.swing.plaf.nimbus.NimbusLookAndFeel;
-import javax.swing.plaf.synth.SynthScrollBarUI;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Insets;
+import java.awt.Rectangle;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,9 +13,35 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.imageio.ImageIO;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.Painter;
+import javax.swing.UIDefaults;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+import javax.swing.plaf.nimbus.NimbusLookAndFeel;
+
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import net.i2p.crypto.eddsa.EdDSASecurityProvider;
+import net.schmizz.sshj.common.SecurityUtils;
+import snowflake.common.Settings;
+import snowflake.components.common.CustomScrollBarUI;
+import snowflake.components.main.MainContent;
+import snowflake.components.terminal.snippets.SnippetItem;
+import snowflake.utils.GraphicsUtils;
+import snowflake.utils.PathUtils;
+
 public class App {
-	public static final String APP_VERSION = "104";
-	public static final String APP_VERSION_STR = "1.0.4";
+	public static final String APP_VERSION = "105";
+	public static final String APP_VERSION_STR = "1.0.5";
 	public static UIDefaults comboBoxSkin = new UIDefaults();
 	public static UIDefaults toolBarButtonSkin = new UIDefaults();
 	public static UIDefaults scrollBarSkin = new UIDefaults();
@@ -66,7 +78,9 @@ public class App {
 			throws UnsupportedLookAndFeelException {
 
 		Security.addProvider(new BouncyCastleProvider());
-		Security.addProvider(new EdDSASecurityProvider());
+		//Security.addProvider(new EdDSASecurityProvider());
+		
+		//System.out.println(SecurityUtils.isBouncyCastleRegistered());
 
 		NimbusLookAndFeel nimbusLookAndFeel = new NimbusLookAndFeel();
 		GraphicsUtils.createTextFieldSkin(nimbusLookAndFeel.getDefaults());
