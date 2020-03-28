@@ -47,6 +47,7 @@ public class SshTtyConnector implements DisposableTtyConnector {
 			this.wr = new SshClient2(source.getInfo());
 			this.wr.connect();
 			this.channel = wr.openSession();
+			this.channel.setAutoExpand(true);
 			this.channel.allocatePTY(App.getGlobalSettings().getTerminalType(),
 					80, 24, 0, 0, Collections.<PTYMode, Integer>emptyMap());
 			this.shell = (SessionChannel) this.channel.startShell();
@@ -70,7 +71,7 @@ public class SshTtyConnector implements DisposableTtyConnector {
 			myInputStream = shell.getInputStream();// channel.getInputStream();
 			myOutputStream = shell.getOutputStream();// channel.getOutputStream();
 			myInputStreamReader = new InputStreamReader(myInputStream, "utf-8");
-			//channel.connect();
+			// channel.connect();
 
 			resizeImmediately();
 			System.out.println("Initiated");

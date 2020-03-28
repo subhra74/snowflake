@@ -6,8 +6,8 @@ package snowflake.common.ssh;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.Proxy;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -15,17 +15,11 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import com.hierynomus.sshj.userauth.keyprovider.OpenSSHKeyV1KeyFile;
-
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
-import net.schmizz.sshj.userauth.keyprovider.OpenSSHKeyFile;
-import net.schmizz.sshj.userauth.keyprovider.PuTTYKeyFile;
 import net.schmizz.sshj.userauth.method.AuthKeyboardInteractive;
-import net.schmizz.sshj.userauth.method.AuthMethod;
 import net.schmizz.sshj.userauth.method.AuthNone;
-import net.schmizz.sshj.userauth.method.PasswordResponseProvider;
 import snowflake.components.newsession.SessionInfo;
 
 /**
@@ -39,6 +33,8 @@ public class SshClient2 implements Closeable {
 	private PasswordFinderDialog passwordFinder = new PasswordFinderDialog();
 
 	/**
+	 * O
+	 * 
 	 * @param info2
 	 */
 	public SshClient2(SessionInfo info) {
@@ -48,12 +44,30 @@ public class SshClient2 implements Closeable {
 	public void connect() throws IOException, OperationCancelledException {
 		sshj = new SSHClient();
 
+		String proxyHost = info.getProxyHost();
+		int proxyType = info.getProxyType();
+		String proxyUser = info.getProxyUser();
+		String proxyPass = info.getProxyPassword();
+		int proxyPort = info.getProxyPort();
+
+		Proxy.Type proxyType1 = Proxy.Type.DIRECT;
+
+		if (proxyType == 1) {
+			proxyType1 = Proxy.Type.HTTP;
+		} else if (proxyType > 1) {
+			proxyType1 = Proxy.Type.SOCKS;
+		}
+
+		sshj.setSocketFactory(new CustomSocketFactory(proxyHost, proxyPort,
+				proxyUser, proxyPass, proxyType1));
+
 		sshj.loadKnownHosts();
 
 		File knownHostFile = new File(System.getProperty("user.home"),
 				".ssh" + File.separator + "known_hosts");
 
 		sshj.addHostKeyVerifier(new GraphicalHostKeyVerifier(knownHostFile));
+
 		// sshj.setRemoteCharset(remoteCharset);
 		sshj.connect(info.getHost(), info.getPort());
 		// sshj.authPassword(info.getUser(), info.getPassword());
@@ -272,4 +286,43 @@ public class SshClient2 implements Closeable {
 	public SSHClient getSession() {
 		return sshj;
 	}
+
+//	private Proxy getProxy() {
+//		String proxyHost = info.getProxyHost();
+//		int proxyType = info.getProxyType();
+//
+//		String proxyUser = info.getProxyUser();
+//		
+//		Proxy proxy=null;
+//
+//		if (proxyType != 0 && proxyHost != null
+//				&& proxyHost.trim().length() > 0) {
+//			switch (proxyType) {
+//			case 1: {
+//				proxy=new Proxy(Type.HTTP, new InetSocketAddress(proxyHost, info.getProxyPort()));
+//				if (proxyUser != null && proxyUser.trim().length() > 0) {
+//					//proxy.
+//					proxy.setUserPasswd(proxyUser, info.getProxyPassword());
+//				}
+//				break;
+//			}
+//			case 2: {
+//				ProxySOCKS4 proxy = new ProxySOCKS4(proxyHost,
+//						info.getProxyPort());
+//				if (proxyUser != null && proxyUser.trim().length() > 0) {
+//					proxy.setUserPasswd(proxyUser, info.getProxyPassword());
+//				}
+//				break;
+//			}
+//			case 3: {
+//				ProxySOCKS5 proxy = new ProxySOCKS5(proxyHost,
+//						info.getProxyPort());
+//				if (proxyUser != null && proxyUser.trim().length() > 0) {
+//					proxy.setUserPasswd(proxyUser, info.getProxyPassword());
+//				}
+//				break;
+//			}
+//			}
+//		}
+//	}
 }

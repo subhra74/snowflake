@@ -2,6 +2,7 @@ package snowflake.components.main;
 
 import snowflake.App;
 import snowflake.common.SnowFlakePanel;
+import snowflake.common.ssh.RemoteSessionInstance;
 import snowflake.components.diskusage.DiskUsageAnalyzer;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.editor.ExternalEditor;
@@ -38,6 +39,8 @@ public class SessionContent extends JPanel {
 	private BackgroundTransferPanel backgroundTransferPanel;
 	private NetworkToolsPanel networkToolsPanel;
 	private JLabel lblProgressCount = new JLabel("");
+
+	private RemoteSessionInstance sessionInstance;
 
 	private MatteBorder matteBorder = new MatteBorder(0, 5, 0, 5,
 			Color.DARK_GRAY);
@@ -76,6 +79,8 @@ public class SessionContent extends JPanel {
 //    }
 
 	public void init() {
+		this.sessionInstance = new RemoteSessionInstance(info);
+
 		this.mainCard = new CardLayout();
 		this.mainPanel = new JPanel(this.mainCard);
 		this.mainPanel.setOpaque(false);
@@ -88,7 +93,7 @@ public class SessionContent extends JPanel {
 			lblProgressCount.setOpaque(count > 0);
 			lblProgressCount.setBorder(count > 0 ? matteBorder : emptyBorder);
 		});
-		taskManager = new TaskManager(this.info);
+		taskManager = new TaskManager(this.sessionInstance);
 		diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
 		systemInfoPanel = new SystemInfoPanel(this.info);
 		keyManagerPanel = new KeyManagerPanel(this.info);
