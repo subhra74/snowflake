@@ -1,15 +1,11 @@
 package snowflake.components.taskmgr.plaformsupport;
 
-import com.jcraft.jsch.ChannelExec;
-
-import snowflake.common.ssh.RemoteSessionInstance;
-import snowflake.common.ssh.SshClient;
-import snowflake.components.taskmgr.ProcessTableEntry;
-
-import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import snowflake.common.ssh.RemoteSessionInstance;
+import snowflake.components.taskmgr.ProcessTableEntry;
 
 public class LinuxPlatformSupport implements PlatformSupport {
 	private double cpuUsage, memoryUsage, swapUsage;

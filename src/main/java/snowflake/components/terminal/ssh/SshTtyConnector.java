@@ -1,21 +1,24 @@
 package snowflake.components.terminal.ssh;
 
-import java.awt.*;
-import java.io.*;
+import java.awt.Dimension;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.Collections;
-import java.util.concurrent.atomic.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.jediterm.terminal.*;
+import com.jediterm.terminal.Questioner;
 
 import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.PTYMode;
 import net.schmizz.sshj.connection.channel.direct.Session;
-import net.schmizz.sshj.connection.channel.direct.SessionChannel;
 import net.schmizz.sshj.connection.channel.direct.Session.Shell;
+import net.schmizz.sshj.connection.channel.direct.SessionChannel;
 import net.schmizz.sshj.transport.TransportException;
 import snowflake.App;
 import snowflake.common.ssh.SshClient2;
-import snowflake.common.ssh.SshUserInteraction;
+import snowflake.components.newsession.SessionInfo;
 
 public class SshTtyConnector implements DisposableTtyConnector {
 	private InputStreamReader myInputStreamReader;
@@ -24,27 +27,27 @@ public class SshTtyConnector implements DisposableTtyConnector {
 	private SessionChannel shell;
 	private Session channel;
 	private AtomicBoolean isInitiated = new AtomicBoolean(false);
-	private SshUserInteraction source;
 	private AtomicBoolean isCancelled = new AtomicBoolean(false);
 	private AtomicBoolean stopFlag = new AtomicBoolean(false);
 	private Dimension myPendingTermSize;
 	private Dimension myPendingPixelSize;
 	private SshClient2 wr;
 	private String initialCommand;
+	private SessionInfo info;
 
-	public SshTtyConnector(SshUserInteraction source, String initialCommand) {
+	public SshTtyConnector(SessionInfo info, String initialCommand) {
 		this.initialCommand = initialCommand;
-		this.source = source;
+		this.info = info;
 	}
 
-	public SshTtyConnector(SshUserInteraction source) {
-		this(source, null);
+	public SshTtyConnector(SessionInfo info) {
+		this(info, null);
 	}
 
 	@Override
 	public boolean init(Questioner q) {
 		try {
-			this.wr = new SshClient2(source.getInfo());
+			this.wr = new SshClient2(this.info);
 			this.wr.connect();
 			this.channel = wr.openSession();
 			this.channel.setAutoExpand(true);

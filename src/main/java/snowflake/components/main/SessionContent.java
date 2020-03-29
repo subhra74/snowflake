@@ -85,7 +85,7 @@ public class SessionContent extends JPanel {
 		this.mainPanel = new JPanel(this.mainCard);
 		this.mainPanel.setOpaque(false);
 		this.fileComponentHolder = new FileComponentHolder(info, externalEditor,
-				this);
+				this, sessionInstance);
 //        TabbedPanel bottomTabs = new TabbedPanel();
 		terminalHolder = new TerminalHolder(info);
 		backgroundTransferPanel = new BackgroundTransferPanel((count) -> {
@@ -94,10 +94,10 @@ public class SessionContent extends JPanel {
 			lblProgressCount.setBorder(count > 0 ? matteBorder : emptyBorder);
 		});
 		taskManager = new TaskManager(this.sessionInstance);
-		diskUsageAnalyzer = new DiskUsageAnalyzer(this.info);
-		systemInfoPanel = new SystemInfoPanel(this.info);
-		keyManagerPanel = new KeyManagerPanel(this.info);
-		networkToolsPanel = new NetworkToolsPanel(this.info);
+		diskUsageAnalyzer = new DiskUsageAnalyzer(this.info, sessionInstance);
+		systemInfoPanel = new SystemInfoPanel(this.info, sessionInstance);
+		keyManagerPanel = new KeyManagerPanel(this.info, this.sessionInstance);
+		networkToolsPanel = new NetworkToolsPanel(this.info, sessionInstance);
 
 		// JToolBar toolBar = new JToolBar();
 		JButton btn = new JButton();
@@ -279,6 +279,7 @@ public class SessionContent extends JPanel {
 			terminalHolder.close();
 			externalEditor.close();
 			backgroundTransferPanel.close();
+			this.sessionInstance.close();
 		}).start();
 	}
 

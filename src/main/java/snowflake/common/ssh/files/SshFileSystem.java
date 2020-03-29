@@ -1,516 +1,637 @@
 package snowflake.common.ssh.files;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.SftpATTRS;
-import com.jcraft.jsch.SftpException;
-import com.jcraft.jsch.SftpStatVFS;
-import snowflake.common.*;
-import snowflake.common.FileSystem;
-import snowflake.common.ssh.AbstractUserInteraction;
-import snowflake.common.ssh.SshClient;
-import snowflake.utils.PathUtils;
-
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.AccessDeniedException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import net.schmizz.sshj.sftp.FileAttributes;
+import net.schmizz.sshj.sftp.FileMode;
+import net.schmizz.sshj.sftp.FileMode.Type;
+import net.schmizz.sshj.sftp.OpenMode;
+import net.schmizz.sshj.sftp.PacketType;
+import net.schmizz.sshj.sftp.RemoteFile;
+import net.schmizz.sshj.sftp.RemoteResourceInfo;
+import net.schmizz.sshj.sftp.Response;
+import net.schmizz.sshj.sftp.SFTPClient;
+import net.schmizz.sshj.sftp.SFTPEngine;
+import net.schmizz.sshj.sftp.SFTPException;
+import net.schmizz.sshj.xfer.FilePermission;
+import snowflake.common.FileInfo;
+import snowflake.common.FileSystem;
+import snowflake.common.FileType;
+import snowflake.common.InputTransferChannel;
+import snowflake.common.OutputTransferChannel;
+import snowflake.common.ssh.ExtendedRemoteDirectory;
+import snowflake.common.ssh.RemoteResourceInfoWrapper;
+//import snowflake.common.ssh.SshClient;
+import snowflake.common.ssh.SshClient2;
+import snowflake.utils.PathUtils;
+
 public class SshFileSystem implements FileSystem {
-    public static final String PROTO_SFTP = "sftp";
-    private Object lock = new Object();
-    private AbstractUserInteraction source;
-    private SshClient wrapper;
-    private ChannelSftp sftp;
-    private AtomicBoolean stopFlag = new AtomicBoolean(false);
+	public static final String PROTO_SFTP = "sftp";
+	private Object lock = new Object();
+	private SFTPClient sftp;
+	private AtomicBoolean stopFlag = new AtomicBoolean(false);
+	private SshClient2 ssh;
+	private String home;
 
-    public SshFileSystem(AbstractUserInteraction source) {
-        this.source = source;
-    }
+	public SshFileSystem(SshClient2 ssh) {
+		this.ssh = ssh;
+	}
 
-    public ChannelSftp getSftp() throws Exception {
-        ensureConnected();
-        return sftp;
-    }
+	public SFTPClient getSftp() throws Exception {
+		ensureConnected();
+		return sftp;
+	}
 
-    private void ensureConnected() throws Exception {
-        if (sftp != null && sftp.isConnected()) {
-            return;
-        }
-        connect();
-    }
+	private void ensureConnected() throws Exception {
+		if (!ssh.isConnected()) {
+			ssh.connect();
+			this.sftp = ssh.createSftpClient();
+		}
+	}
 
-    @Override
-    public synchronized void delete(FileInfo f) throws Exception {
-        ensureConnected();
-        try {
-            if (f.getType() == FileType.Directory) {
-                List<FileInfo> list = list(f.getPath());
-                if (list != null && list.size() > 0) {
-                    for (FileInfo fc : list) {
-                        delete(fc);
-                    }
-                }
-                this.sftp.rmdir(f.getPath());
-            } else {
-                this.sftp.rm(f.getPath());
-            }
-        } catch (SftpException e) {
-            if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                throw new AccessDeniedException("Access is denied");
-            }
-        }
-    }
+	@Override
+	public void delete(FileInfo f) throws Exception {
+		synchronized (this.ssh) {
+			ensureConnected();
+			try {
+				if (f.getType() == FileType.Directory) {
+					List<FileInfo> list = list(f.getPath());
+					if (list != null && list.size() > 0) {
+						for (FileInfo fc : list) {
+							delete(fc);
+						}
+					}
+					this.sftp.rmdir(f.getPath());
+				} else {
+					this.sftp.rm(f.getPath());
+				}
+			} catch (SFTPException e) {
+				if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+					throw new AccessDeniedException("Access is denied");
+				}
+			}
+		}
 
-    @Override
-    public void chmod(int perm, String path) throws Exception {
-        ensureConnected();
-        this.sftp.chmod(perm, path);
-    }
+	}
 
-    @Override
-    public synchronized void connect() throws Exception {
-        synchronized (lock) {
-            System.out.println("Connecting to: " + source.getInfo() + " on thread: " + Thread.currentThread().getName());
-            wrapper = new SshClient(source);
-            wrapper.connect();
-            if (stopFlag.get()) {
-                close();
-                throw new Exception("Operation cancelled");
-            }
-            this.sftp = wrapper.getSftpChannel();
-        }
-    }
+	@Override
+	public void chmod(int perm, String path) throws Exception {
+		synchronized (this.ssh) {
+			ensureConnected();
+			try {
+				this.sftp.chmod(path, perm);
+			} catch (SFTPException sftp) {
+				if (sftp.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+					throw new AccessDeniedException("Access is denied");
+				}
+				throw sftp;
+			}
+		}
+	}
 
-    @Override
-    public synchronized List<FileInfo> list(String path) throws Exception {
-        ensureConnected();
-        return listFiles(path);
-    }
+	@Override
+	public List<FileInfo> list(String path) throws Exception {
+		synchronized (this.ssh) {
+			ensureConnected();
+			return listFiles(path);
+		}
+	}
 
-    private FileInfo resolveSymlink(String name, String pathToResolve,
-                                    SftpATTRS attrs, String longName) throws Exception {
-        try {
-            System.out.println("Following symlink: " + pathToResolve);
-            while (true) {
-                String str = sftp.readlink(pathToResolve);
-                System.out
-                        .println("Read symlink: " + pathToResolve + "=" + str);
-                pathToResolve = str.startsWith("/") ? str
-                        : PathUtils.combineUnix(pathToResolve, str);
-                System.out.println("Getting link attrs: " + pathToResolve);
-                attrs = sftp.stat(pathToResolve);
+	private FileInfo resolveSymlink(String name, String pathToResolve,
+			FileAttributes attrs, String longName) throws Exception {
+		try {
+			System.out.println("Following symlink: " + pathToResolve);
+			while (true) {
+				String str = sftp.readlink(pathToResolve);
+				System.out
+						.println("Read symlink: " + pathToResolve + "=" + str);
+				pathToResolve = str.startsWith("/") ? str
+						: PathUtils.combineUnix(pathToResolve, str);
+				System.out.println("Getting link attrs: " + pathToResolve);
+				attrs = sftp.stat(pathToResolve);
 
-                if (!attrs.isLink()) {
-                    FileInfo e = new FileInfo(name, pathToResolve,
-                            (attrs.isDir() ? -1 : attrs.getSize()),
-                            attrs.isDir() ? FileType.DirLink
-                                    : FileType.FileLink,
-                            (long) attrs.getMTime() * 1000,
-                            attrs.getPermissions(), PROTO_SFTP,
-                            attrs.getPermissionsString(), attrs.getATime(),
-                            longName,
-                            name.startsWith("."));
-                    return e;
-                }
-            }
-        } catch (SftpException e) {
-            if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE
-                    || e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                return new FileInfo(name, pathToResolve, 0, FileType.FileLink,
-                        (long) attrs.getMTime() * 1000, attrs.getPermissions(),
-                        PROTO_SFTP, attrs.getPermissionsString(),
-                        attrs.getATime(), longName, name.startsWith("."));
-            }
-            throw e;
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
+				if (attrs.getType() != Type.SYMLINK) {
+					FileInfo e = new FileInfo(name, pathToResolve,
+							(attrs.getType() == Type.DIRECTORY ? -1
+									: attrs.getSize()),
+							attrs.getType() == Type.DIRECTORY ? FileType.DirLink
+									: FileType.FileLink,
+							attrs.getMtime(),
+							FilePermission.toMask(attrs.getPermissions()),
+							PROTO_SFTP,
+							getPermissionStr(attrs.getPermissions()),
+							attrs.getAtime(), longName, name.startsWith("."));
+					return e;
+				}
+			}
+		} catch (SFTPException e) {
+			if (e.getStatusCode() == Response.StatusCode.NO_SUCH_FILE
+					|| e.getStatusCode() == Response.StatusCode.NO_SUCH_PATH
+					|| e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+				return new FileInfo(name, pathToResolve, 0, FileType.FileLink,
+						attrs.getMtime(),
+						FilePermission.toMask(attrs.getPermissions()),
+						PROTO_SFTP, getPermissionStr(attrs.getPermissions()),
+						attrs.getAtime(), longName, name.startsWith("."));
+			}
+			throw e;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
 
-    }
+	}
 
-    private List<FileInfo> listFiles(String path) throws Exception {
-        synchronized (sftp) {
-            System.out.println("Listing file: " + path);
-            List<FileInfo> childs = new ArrayList<>();
-            try {
-                if (path == null || path.length() < 1) {
-                    path = sftp.getHome();
-                }
-                Vector<?> files = sftp.ls(path);
-                if (files.size() > 0) {
-                    for (int i = 0; i < files.size(); i++) {
-                        ChannelSftp.LsEntry ent = (ChannelSftp.LsEntry) files.get(i);
-                        if (ent.getFilename().equals(".")
-                                || ent.getFilename().equals("..")) {
-                            continue;
-                        }
-                        SftpATTRS attrs = ent.getAttrs();
+	private List<FileInfo> listFiles(String path) throws Exception {
+		synchronized (this.ssh) {
+			System.out.println("Listing file: " + path);
+			List<FileInfo> childs = new ArrayList<>();
+			try {
+				if (path == null || path.length() < 1) {
+					path = this.getHome();
+				}
+				List<RemoteResourceInfoWrapper> files = ls(path);
+				if (files.size() > 0) {
+					for (int i = 0; i < files.size(); i++) {
+						RemoteResourceInfo ent = files.get(i).getInfo();
+						String longName = files.get(i).getLongPath();
+//						if (ent.getFilename().equals(".")
+//								|| ent.getFilename().equals("..")) {
+//							continue;
+//						}
+//						SftpATTRS attrs = ent.getAttrs();
 
-                        if (attrs.isLink()) {
-                            childs.add(resolveSymlink(ent.getFilename(),
-                                    PathUtils.combineUnix(path,
-                                            ent.getFilename()),
-                                    attrs, ent.getLongname()));
-                        } else {
-                            FileInfo e = new FileInfo(ent.getFilename(),
-                                    PathUtils.combineUnix(path,
-                                            ent.getFilename()),
-                                    (attrs.isDir() ? -1 : attrs.getSize()),
-                                    attrs.isDir() ? FileType.Directory
-                                            : FileType.File,
-                                    (long) attrs.getMTime() * 1000,
-                                    ent.getAttrs().getPermissions(), PROTO_SFTP,
-                                    ent.getAttrs().getPermissionsString(),
-                                    attrs.getATime(), ent.getLongname(),
-                                    ent.getFilename().startsWith("."));
-                            childs.add(e);
-                        }
-                    }
-                }
-            } catch (SftpException e) {
-                e.printStackTrace();
-                if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                    throw new FileNotFoundException(path);
-                }
-                if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                    throw new AccessDeniedException(path);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-                throw new IOException(e);
-            }
-            return childs;
-        }
-    }
+						FileAttributes attrs = ent.getAttributes();
 
-    @Override
-    public void close() throws Exception {
-        stopFlag.set(true);
-        System.out.println("Inside fs wrapper: " + stopFlag.get());
-        synchronized (lock) {
-            if (wrapper != null) {
-                System.out.println("Closing wrapper");
-                wrapper.close();
-            }
-        }
-    }
+						if (attrs.getType() == Type.SYMLINK) {
+							try {
+								childs.add(resolveSymlink(ent.getName(),
+										ent.getPath(), attrs, longName));
+							} catch (Exception e) {
+								e.printStackTrace();
+							}
+						} else {
+							FileInfo e = new FileInfo(ent.getName(),
+									ent.getPath(),
+									(ent.isDirectory() ? -1 : attrs.getSize()),
+									ent.isDirectory() ? FileType.Directory
+											: FileType.File,
+									attrs.getMtime(),
+									net.schmizz.sshj.xfer.FilePermission.toMask(
+											attrs.getPermissions()),
+									PROTO_SFTP,
+									getPermissionStr(attrs.getPermissions()),
+									attrs.getAtime(), longName,
+									ent.getName().startsWith("."));
+							childs.add(e);
+						}
+					}
+				}
+			} catch (SFTPException e) {
+				e.printStackTrace();
+				if (e.getStatusCode() == Response.StatusCode.NO_SUCH_FILE || e
+						.getStatusCode() == Response.StatusCode.NO_SUCH_PATH) {
+					throw new FileNotFoundException(path);
+				}
+				if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+					throw new AccessDeniedException(path);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new IOException(e);
+			}
+			return childs;
+		}
+	}
 
-    @Override
-    public synchronized String getHome() throws Exception {
-        System.out.println("Getting home directory");
-        ensureConnected();
-        return sftp.getHome();
-    }
+	@Override
+	public void close() throws Exception {
+//		stopFlag.set(true);
+//		System.out.println("Inside fs wrapper: " + stopFlag.get());
+//		synchronized (lock) {
+//			if (wrapper != null) {
+//				System.out.println("Closing wrapper");
+//				wrapper.close();
+//			}
+//		}
+	}
 
-    @Override
-    public String[] getRoots() throws Exception {
-        return new String[]{"/"};
-    }
+	@Override
+	public String getHome() throws Exception {
+		if (home != null) {
+			return home;
+		}
+		synchronized (ssh) {
+			System.out.println("Getting home directory");
+			ensureConnected();
+			this.home = sftp.canonicalize("");
+			return this.home;
+		}
 
-    @Override
-    public boolean isLocal() {
-        return false;
-    }
+	}
 
-    @Override
-    public synchronized FileInfo getInfo(String path) throws Exception {
-        ensureConnected();
-        try {
-            SftpATTRS attrs = sftp.stat(path);
-            if (attrs.isLink()) {
-                return resolveSymlink(PathUtils.getFileName(path), path, attrs,
-                        null);
-            } else {
-                String name = PathUtils.getFileName(path);
-                FileInfo e = new FileInfo(name, path,
-                        (attrs.isDir() ? -1 : attrs.getSize()),
-                        attrs.isDir() ? FileType.Directory : FileType.File,
-                        (long) attrs.getMTime() * 1000, attrs.getPermissions(),
-                        PROTO_SFTP, attrs.getPermissionsString(),
-                        attrs.getATime(), null, name.startsWith("."));
-                return e;
-            }
-        } catch (SftpException e) {
-            if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) {
-                throw new FileNotFoundException(path);
-            }
-            throw e;
-        }
+	@Override
+	public String[] getRoots() throws Exception {
+		return new String[] { "/" };
+	}
 
-    }
+	@Override
+	public boolean isLocal() {
+		return false;
+	}
 
-    @Override
-    public void createLink(String src, String dst, boolean hardLink)
-            throws Exception {
-        ensureConnected();
-        if (hardLink) {
-            this.sftp.hardlink(src, dst);
-        } else {
-            this.sftp.symlink(src, dst);
-        }
-    }
+	@Override
+	public FileInfo getInfo(String path) throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			try {
+				FileAttributes attrs = sftp.stat(path);
+				if (attrs.getType() == Type.SYMLINK) {
+					return resolveSymlink(PathUtils.getFileName(path), path,
+							attrs, null);
+				} else {
+					String name = PathUtils.getFileName(path);
+					FileInfo e = new FileInfo(name, path,
+							(attrs.getType() == Type.DIRECTORY ? -1
+									: attrs.getSize()),
+							attrs.getType() == Type.DIRECTORY
+									? FileType.Directory
+									: FileType.File,
+							attrs.getMtime(),
+							FilePermission.toMask(attrs.getPermissions()),
+							PROTO_SFTP,
+							getPermissionStr(attrs.getPermissions()),
+							attrs.getAtime(), null, name.startsWith("."));
+					return e;
+				}
+			} catch (SFTPException e) {
+				if (e.getStatusCode() == Response.StatusCode.NO_SUCH_FILE || e
+						.getStatusCode() == Response.StatusCode.NO_SUCH_PATH) {
+					throw new FileNotFoundException(path);
+				}
+				throw e;
+			}
+		}
+	}
 
-    @Override
-    public String getName() {
-        return wrapper.getSource().getName();
-    }
+	@Override
+	public void createLink(String src, String dst, boolean hardLink)
+			throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			if (hardLink) {
+				throw new IOException("Not implemented");
+				// this.sftp..hardlink(src, dst);
+			} else {
+				this.sftp.symlink(src, dst);
+			}
+		}
+	}
 
-    @Override
-    public void deleteFile(String f) throws Exception {
-        ensureConnected();
-        this.sftp.rm(f);
-    }
+	@Override
+	public String getName() {
+		return this.ssh.getInfo().getName();
+	}
 
-    @Override
-    public void createFile(String path)
-            throws AccessDeniedException, Exception {
-        ensureConnected();
-        try {
-            sftp.put(path).close();
-        } catch (SftpException e) {
-            if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                throw new AccessDeniedException(path);
-            }
-        } catch (Exception e) {
-            if (sftp.isConnected()) {
-                throw new FileNotFoundException(e.getMessage());
-            }
-            throw new Exception(e);
-        }
-    }
+	@Override
+	public void deleteFile(String f) throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			this.sftp.rm(f);
+		}
+	}
 
-    @Override
-    public OutputStream getOutputStream(String file)
-            throws FileNotFoundException, Exception {
-        ensureConnected();
-        synchronized (sftp) {
-            return sftp.put(file, ChannelSftp.OVERWRITE);
-        }
-    }
+	@Override
+	public void createFile(String path)
+			throws AccessDeniedException, Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			try {
+				sftp.open(path, EnumSet.of(OpenMode.APPEND, OpenMode.CREAT))
+						.close();
+			} catch (SFTPException e) {
+				if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+					throw new AccessDeniedException(path);
+				}
+			} catch (Exception e) {
+				if (ssh.isConnected()) {
+					throw new FileNotFoundException(e.getMessage());
+				}
+				throw new Exception(e);
+			}
+		}
+	}
 
-    @Override
-    public InputStream getInputStream(String file, long offset)
-            throws FileNotFoundException, Exception {
-        ensureConnected();
-        synchronized (sftp) {
-            try {
-                return sftp.get(file, null, offset);
-            } catch (Exception e) {
-                if (sftp.isConnected()) {
-                    throw new FileNotFoundException();
-                }
-                throw new Exception();
-            }
-        }
-    }
+	@Override
+	public OutputStream getOutputStream(String file)
+			throws FileNotFoundException, Exception {
+		synchronized (ssh) {
+			throw new IOException("not implemented");
+		}
+//		synchronized (ssh) {
+//			ensureConnected();
+//			sftp.open(file,
+//					EnumSet.of(OpenMode.TRUNC, OpenMode.WRITE, OpenMode.CREAT));
+//		}
+	}
 
-    @Override
-    public void rename(String oldName, String newName)
-            throws Exception {
-        ensureConnected();
-        try {
-            synchronized (sftp) {
-                sftp.rename(oldName, newName);
-            }
-        } catch (SftpException e) {
-            e.printStackTrace();
-            if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                throw new AccessDeniedException("Access denied");
-            }
-            if (sftp.isConnected()) {
-                throw new FileNotFoundException();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            if (sftp.isConnected()) {
-                throw new FileNotFoundException();
-            }
-            throw new Exception();
-        }
-    }
+	@Override
+	public InputStream getInputStream(String file, long offset)
+			throws FileNotFoundException, Exception {
+		synchronized (ssh) {
+			throw new IOException("not implemented");
+		}
+//		ensureConnected();
+//		synchronized (sftp) {
+//			try {
+//				return sftp.get(file, null, offset);
+//			} catch (Exception e) {
+//				if (sftp.isConnected()) {
+//					throw new FileNotFoundException();
+//				}
+//				throw new Exception();
+//			}
+//		}
+	}
 
-    @Override
-    public void mkdir(String path) throws Exception {
-        ensureConnected();
-        try {
-            sftp.mkdir(path);
-        } catch (SftpException e) {
-            if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                throw new AccessDeniedException(path);
-            }
-        } catch (Exception e) {
-            if (sftp.isConnected()) {
-                throw new FileNotFoundException(e.getMessage());
-            }
-            throw new Exception(e);
-        }
-    }
+	@Override
+	public void rename(String oldName, String newName) throws Exception {
+		synchronized (ssh) {
+			try {
+				ensureConnected();
+				sftp.rename(oldName, newName);
+			} catch (SFTPException e) {
+				if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+					throw new AccessDeniedException(oldName);
+				}
+			} catch (Exception e) {
+				if (ssh.isConnected()) {
+					throw new FileNotFoundException(e.getMessage());
+				}
+				throw new Exception(e);
+			}
 
-    @Override
-    public boolean mkdirs(String absPath) throws Exception {
-        ensureConnected();
-        System.out.println("mkdirs: " + absPath);
-        if (absPath.equals("/")) {
-            return true;
-        }
+		}
+	}
 
-        try {
-            sftp.stat(absPath);
-            return false;
-        } catch (Exception e) {
-            if (!sftp.isConnected()) {
-                throw e;
-            }
-        }
+	@Override
+	public void mkdir(String path) throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			try {
+				sftp.mkdir(path);
+			} catch (SFTPException e) {
+				if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+					throw new AccessDeniedException(path);
+				}
+			} catch (Exception e) {
+				if (ssh.isConnected()) {
+					throw new FileNotFoundException(e.getMessage());
+				}
+				throw new Exception(e);
+			}
+		}
+	}
 
-        System.out.println("Folder does not exists: " + absPath);
+	@Override
+	public boolean mkdirs(String absPath) throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			System.out.println("mkdirs: " + absPath);
+			if (absPath.equals("/")) {
+				return true;
+			}
 
-        String parent = PathUtils.getParent(absPath);
+			try {
+				sftp.stat(absPath);
+				return false;
+			} catch (Exception e) {
+				if (!ssh.isConnected()) {
+					throw e;
+				}
+			}
 
-        mkdirs(parent);
-        sftp.mkdir(absPath);
+			System.out.println("Folder does not exists: " + absPath);
 
-        return true;
-    }
+			String parent = PathUtils.getParent(absPath);
 
-    @Override
-    public long getAllFiles(String dir, String baseDir,
-                            Map<String, String> fileMap, Map<String, String> folderMap)
-            throws Exception {
-        ensureConnected();
-        long size = 0;
-        System.out.println("get files: " + dir);
-        String parentFolder = PathUtils.combine(baseDir,
-                PathUtils.getFileName(dir), File.separator);
+			mkdirs(parent);
+			sftp.mkdir(absPath);
 
-        folderMap.put(dir, parentFolder);
+			return true;
+		}
 
-        List<FileInfo> list = list(dir);
-        for (FileInfo f : list) {
-            if (f.getType() == FileType.Directory) {
-                folderMap.put(f.getPath(), PathUtils.combine(parentFolder,
-                        f.getName(), File.separator));
-                size += getAllFiles(f.getPath(), parentFolder, fileMap,
-                        folderMap);
-            } else {
-                fileMap.put(f.getPath(), PathUtils.combine(parentFolder,
-                        f.getName(), File.separator));
-                size += f.getSize();
-            }
-        }
-        return size;
-    }
+	}
 
-    @Override
-    public boolean isConnected() {
-        return this.wrapper != null && this.wrapper.isConnected();
-    }
+	@Override
+	public long getAllFiles(String dir, String baseDir,
+			Map<String, String> fileMap, Map<String, String> folderMap)
+			throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			long size = 0;
+			System.out.println("get files: " + dir);
+			String parentFolder = PathUtils.combine(baseDir,
+					PathUtils.getFileName(dir), File.separator);
 
-    @Override
-    public String getProtocol() {
-        return PROTO_SFTP;
-    }
+			folderMap.put(dir, parentFolder);
 
-    /**
-     * @return the wrapper
-     */
-    public SshClient getWrapper() {
-        return wrapper;
-    }
+			List<FileInfo> list = list(dir);
+			for (FileInfo f : list) {
+				if (f.getType() == FileType.Directory) {
+					folderMap.put(f.getPath(), PathUtils.combine(parentFolder,
+							f.getName(), File.separator));
+					size += getAllFiles(f.getPath(), parentFolder, fileMap,
+							folderMap);
+				} else {
+					fileMap.put(f.getPath(), PathUtils.combine(parentFolder,
+							f.getName(), File.separator));
+					size += f.getSize();
+				}
+			}
+			return size;
+		}
 
-    public InputTransferChannel inputTransferChannel() throws Exception {
-        ensureConnected();
-        synchronized (sftp) {
-            try {
-                ChannelSftp sftp = wrapper.getSftpChannel();
-                InputTransferChannel tc = new InputTransferChannel() {
-                    @Override
-                    public InputStream getInputStream(String path) throws Exception {
-                        return sftp.get(path);
-                    }
+	}
 
-                    @Override
-                    public InputStream getInputStream(String path, long offset) throws Exception {
-                        return sftp.get(path, null, offset);
-                    }
+	@Override
+	public boolean isConnected() {
+		return ssh.isConnected();
+	}
 
-                    @Override
-                    public String getSeparator() {
-                        return "/";
-                    }
+	@Override
+	public String getProtocol() {
+		return PROTO_SFTP;
+	}
 
-                    @Override
-                    public long getSize(String path) throws Exception {
-                        return getInfo(path).getSize();
-                    }
+	/**
+	 * @return the wrapper
+	 */
+//	public SshClient getWrapper() {
+//		return null;
+//		// return wrapper;
+//	}
 
-                    @Override
-                    public void close() {
-                        try {
-                            sftp.disconnect();
-                        } catch (Exception e) {
-                        }
-                    }
-                };
-                return tc;
-            } catch (Exception e) {
-                if (sftp.isConnected()) {
-                    throw new FileNotFoundException();
-                }
-                throw new Exception();
-            }
-        }
-    }
+	public InputTransferChannel inputTransferChannel() throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			try {
+				InputTransferChannel tc = new InputTransferChannel() {
+					@Override
+					public InputStream getInputStream(String path)
+							throws Exception {
+						RemoteFile remoteFile = sftp.open(path,
+								EnumSet.of(OpenMode.READ));
+						return new SSHRemoteFileInputStream(remoteFile);
+					}
 
-    public OutputTransferChannel outputTransferChannel() throws Exception {
-        ensureConnected();
-        synchronized (sftp) {
-            try {
-                ChannelSftp sftp = wrapper.getSftpChannel();
-                OutputTransferChannel tc = new OutputTransferChannel() {
-                    @Override
-                    public OutputStream getOutputStream(String path) throws Exception {
-                        try {
-                            return sftp.put(path);
-                        } catch (SftpException e) {
-                            if (e.id == ChannelSftp.SSH_FX_PERMISSION_DENIED) {
-                                throw new AccessDeniedException(e.getMessage());
-                            }
-                            throw e;
-                        }
-                    }
+					@Override
+					public InputStream getInputStream(String path, long offset)
+							throws Exception {
+						InputStream in = getInputStream(path);
+						in.skip(offset);
+						return in;
+					}
 
-                    @Override
-                    public void close() {
-                        try {
-                            sftp.disconnect();
-                        } catch (Exception e) {
-                        }
-                    }
+					@Override
+					public String getSeparator() {
+						return "/";
+					}
 
-                    @Override
-                    public String getSeparator() {
-                        return "/";
-                    }
-                };
-                return tc;
-            } catch (Exception e) {
-                if (sftp.isConnected()) {
-                    throw new FileNotFoundException();
-                }
-                throw new Exception();
-            }
-        }
-    }
+					@Override
+					public long getSize(String path) throws Exception {
+						return getInfo(path).getSize();
+					}
 
-    public String getSeparator() {
-        return "/";
-    }
+					@Override
+					public void close() {
+//						try {
+//							sftp.disconnect();
+//						} catch (Exception e) {
+//						}
+					}
+				};
+				return tc;
+			} catch (Exception e) {
+				if (ssh.isConnected()) {
+					throw new FileNotFoundException();
+				}
+				throw new Exception();
+			}
+		}
+	}
 
-    public void statFs() throws Exception {
-        ensureConnected();
-        SftpStatVFS statVFS = this.sftp.statVFS("/");
-        System.out.println(statVFS.getSize() + " " + statVFS.getUsed());
-    }
+	public OutputTransferChannel outputTransferChannel() throws Exception {
+		synchronized (ssh) {
+			ensureConnected();
+			try {
+				OutputTransferChannel tc = new OutputTransferChannel() {
+					@Override
+					public OutputStream getOutputStream(String path)
+							throws Exception {
+						try {
+							RemoteFile remoteFile = sftp.open(path,
+									EnumSet.of(OpenMode.WRITE, OpenMode.TRUNC,
+											OpenMode.CREAT));
+							return new SSHRemoteFileOutputStream(remoteFile);
+						} catch (SFTPException e) {
+							if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
+								throw new AccessDeniedException(e.getMessage());
+							}
+							throw e;
+						}
+					}
+
+					@Override
+					public void close() {
+//						try {
+//							sftp.disconnect();
+//						} catch (Exception e) {
+//						}
+					}
+
+					@Override
+					public String getSeparator() {
+						return "/";
+					}
+				};
+				return tc;
+			} catch (Exception e) {
+				if (ssh.isConnected()) {
+					throw new FileNotFoundException();
+				}
+				throw new Exception();
+			}
+		}
+
+	}
+
+	public String getSeparator() {
+		return "/";
+	}
+
+	public void statFs() throws Exception {
+//		ensureConnected();
+//		SftpStatVFS statVFS = this.sftp.statVFS("/");
+//		System.out.println(statVFS.getSize() + " " + statVFS.getUsed());
+	}
+
+	private List<RemoteResourceInfoWrapper> ls(String path) throws Exception {
+		final SFTPEngine requester = sftp.getSFTPEngine();
+		final byte[] handle = requester
+				.request(requester.newRequest(PacketType.OPENDIR).putString(
+						path, requester.getSubsystem().getRemoteCharset()))
+				.retrieve(requester.getTimeoutMs(), TimeUnit.MILLISECONDS)
+				.ensurePacketTypeIs(PacketType.HANDLE).readBytes();
+		try (ExtendedRemoteDirectory dir = new ExtendedRemoteDirectory(
+				requester, path, handle)) {
+			return dir.scanExtended(null);
+		}
+	}
+
+	private String getPermissionStr(Set<FilePermission> perms) {
+		char[] arr = { '-', '-', '-', '-', '-', '-', '-', '-', '-' };
+		if (perms.contains(FilePermission.USR_R)) {
+			arr[0] = 'r';
+		}
+		if (perms.contains(FilePermission.USR_W)) {
+			arr[1] = 'w';
+		}
+		if (perms.contains(FilePermission.USR_X)) {
+			arr[2] = 'x';
+		}
+
+		if (perms.contains(FilePermission.GRP_R)) {
+			arr[3] = 'r';
+		}
+		if (perms.contains(FilePermission.GRP_W)) {
+			arr[4] = 'w';
+		}
+		if (perms.contains(FilePermission.GRP_X)) {
+			arr[5] = 'x';
+		}
+
+		if (perms.contains(FilePermission.OTH_R)) {
+			arr[6] = 'r';
+		}
+		if (perms.contains(FilePermission.OTH_W)) {
+			arr[7] = 'w';
+		}
+		if (perms.contains(FilePermission.OTH_W)) {
+			arr[8] = 'x';
+		}
+		return new String(arr);
+	}
 }

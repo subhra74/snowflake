@@ -222,12 +222,6 @@ public class LocalFileSystem implements FileSystem {
 	}
 
 	@Override
-	public void connect() throws Exception {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
 	public String[] getRoots() throws Exception {
 		File[] roots = File.listRoots();
 		String arr[] = new String[roots.length];

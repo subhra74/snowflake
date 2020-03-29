@@ -60,12 +60,12 @@ public class FileTransfer implements Runnable, AutoCloseable {
             return;
         }
 
-        if(!sourceFs.isConnected()){
-            sourceFs.connect();
-        }
-        if(!targetFs.isConnected()){
-            targetFs.connect();
-        }
+//        if(!sourceFs.isConnected()){
+//            sourceFs.connect();
+//        }
+//        if(!targetFs.isConnected()){
+//            targetFs.connect();
+//        }
 
         totalSize = 0;
         for (FileInfo file : files) {
@@ -127,7 +127,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
                     String command = "sh -c  \"cd '" + tmpDir + "'; cp -r * '" + this.targetFolder + "'\"";
                     //String command = "sh -c      cp -r \"" + tmpDir + "/*\" \"" + this.targetFolder + "\"";
                     System.out.println("Invoke sudo: " + command);
-                    int ret = SudoUtils.runSudo(command.toString(), ((SshFileSystem) targetFs).getWrapper());
+                    int ret = -1;//SudoUtils.runSudo(command.toString(), ((SshFileSystem) targetFs).getWrapper());
                     if (ret == 0) {
                         callback.done(this);
                         return;

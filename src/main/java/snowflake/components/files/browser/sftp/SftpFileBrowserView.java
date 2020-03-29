@@ -1,10 +1,23 @@
 package snowflake.components.files.browser.sftp;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
+
 import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
-import snowflake.common.ssh.SshModalUserInteraction;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.common.AddressBar;
 import snowflake.components.files.DndTransferData;
@@ -14,15 +27,6 @@ import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PathUtils;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class SftpFileBrowserView extends AbstractFileBrowserView {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -41,7 +45,7 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         super(rootPane, holder, orientation, fileBrowser, new Color(250, 250, 250));//new Color(240, 240, 255));
         this.fileBrowser = fileBrowser;
         this.foreignInfo = foreignInfo;
-        this.fs = new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
+        this.fs = null;//new SshFileSystem(new SshUserInteraction(foreignInfo, rootPane));
         this.menuHandler = new SftpMenuHandler(fileBrowser, this, holder, fs);
         this.menuHandler.initMenuHandler(this.folderView);
         this.transferHandler = new DndTransferHandler(this.folderView, null,
@@ -171,8 +175,8 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
                 if (backgroundTransfer) {
-                    FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
-                    FileSystem targetFs = new SshFileSystem(new SshModalUserInteraction(this.foreignInfo));
+                    FileSystem sourceFs = null;//new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
+                    FileSystem targetFs = null;//new SshFileSystem(new SshModalUserInteraction(this.foreignInfo));
                     holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
                             this.path, this.hashCode(), -1, true);
                     return true;

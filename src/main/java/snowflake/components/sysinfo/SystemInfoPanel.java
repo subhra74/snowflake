@@ -1,32 +1,43 @@
 package snowflake.components.sysinfo;
 
-import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.SshUserInteraction;
-import snowflake.components.common.DisabledPanel;
-import snowflake.components.common.StartPage;
-import snowflake.components.newsession.SessionInfo;
-import snowflake.components.sysinfo.platforms.SystemInfo;
-import snowflake.components.sysinfo.platforms.linux.LinuxSysInfo;
-import snowflake.components.taskmgr.PlatformChecker;
-import snowflake.utils.GraphicsUtils;
-import snowflake.utils.SshCommandUtils;
-import snowflake.utils.SudoUtils;
-
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+
+import snowflake.common.ssh.RemoteSessionInstance;
+//import snowflake.common.ssh.SshClient;
+import snowflake.components.common.DisabledPanel;
+import snowflake.components.common.StartPage;
+import snowflake.components.newsession.SessionInfo;
+import snowflake.components.sysinfo.platforms.SystemInfo;
+import snowflake.components.sysinfo.platforms.linux.LinuxSysInfo;
+import snowflake.utils.GraphicsUtils;
+import snowflake.utils.SudoUtils;
+
 public class SystemInfoPanel extends JPanel implements AutoCloseable {
 	private AtomicBoolean stopFlag;
 	private ExecutorService threadPool = Executors.newSingleThreadExecutor();
-	private SshUserInteraction userInteraction;
 	private Box tabbedBox;
 	private SessionInfo info;
 	private JLabel labels[] = new JLabel[3];
@@ -38,7 +49,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 	private CardLayout mainCardLayout;
 	private JRootPane rootPane;
 	private JPanel contentPane;
-	private SshClient client;
+	private RemoteSessionInstance client;
 	private String platform;
 	private SystemInfo systemInfo;
 	private JTextArea txtSystemOverview;
@@ -46,7 +57,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 	private SocketPanel socketPanel;
 	private DisabledPanel disabledPanel;
 
-	public SystemInfoPanel(SessionInfo info) {
+	public SystemInfoPanel(SessionInfo info, RemoteSessionInstance client) {
 		super(new BorderLayout());
 		mainCardLayout = new CardLayout();
 		stopFlag = new AtomicBoolean(false);
@@ -56,8 +67,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 		rootPane = new JRootPane();
 		rootPane.setContentPane(contentPane);
 		add(rootPane);
-		userInteraction = new SshUserInteraction(info, rootPane);
-		client = new SshClient(userInteraction);
+		this.client = client;
 
 		disabledPanel = new DisabledPanel();
 		disabledPanel.startAnimation(null);
@@ -73,7 +83,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 
 		StartPage startPage = new StartPage("Linux tools",
 				"A set of useful tools for Linux", "Open", e -> {
-					client = new SshClient(userInteraction);
+
 					mainCardLayout.show(contentPane, "Main");
 					disableUi();
 					threadPool.submit(() -> {
@@ -139,7 +149,7 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 		btnClose.addActionListener(e -> {
 			threadPool.submit(() -> {
 				try {
-					client.disconnect();
+//					client.disconnect();
 				} catch (Exception err) {
 
 				}
@@ -230,7 +240,8 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 					StringBuilder output = new StringBuilder();
 					if (elevated) {
 						try {
-							if (SudoUtils.runSudo(cmd, client, output) == 0) {
+							if (SudoUtils.runSudo(cmd, client, output,
+									new StringBuilder()) == 0) {
 								java.util.List<SocketEntry> list = SocketPanel
 										.parseSocketList(output.toString());
 								systemInfo.setSockets(list);
@@ -243,17 +254,17 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 					} else {
 						System.out.println("Command was: " + cmd);
 						try {
-							if (SshCommandUtils.exec(client, cmd,
-									new AtomicBoolean(false), output)) {
-								System.out.println(
-										"Command was: " + cmd + " " + output);
-								java.util.List<SocketEntry> list = SocketPanel
-										.parseSocketList(output.toString());
-								systemInfo.setSockets(list);
-								getSysInfo();
-								return;
-							}
-							System.out.println("Error: " + output);
+//							if (SshCommandUtils.exec(client, cmd,
+//									new AtomicBoolean(false), output)) {
+//								System.out.println(
+//										"Command was: " + cmd + " " + output);
+//								java.util.List<SocketEntry> list = SocketPanel
+//										.parseSocketList(output.toString());
+//								systemInfo.setSockets(list);
+//								getSysInfo();
+//								return;
+//							}
+//							System.out.println("Error: " + output);
 						} catch (Exception ex) {
 							ex.printStackTrace();
 						}
@@ -387,19 +398,16 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 	}
 
 	private void getSysInfo() throws Exception {
-		if (!client.isConnected()) {
-			client.connect();
-		}
 
 		if (platform == null) {
-			platform = PlatformChecker.getPlatformName(client);
+			// platform = PlatformChecker.getPlatformName(client);
 		}
 
 		if ("Linux".equals(platform)) {
 			systemInfo = LinuxSysInfo.retrieveSystemInfo(client, stopFlag);
 		} else {
 			try {
-				client.disconnect();
+				// client.disconnect();
 			} catch (Exception e) {
 			}
 			throw new Exception("Not supported on: " + platform);
@@ -407,8 +415,8 @@ public class SystemInfoPanel extends JPanel implements AutoCloseable {
 	}
 
 	public void close() {
-		client.disconnect();
-		client = null;
+//		client.disconnect();
+//		client = null;
 	}
 
 	private void disableUi() {

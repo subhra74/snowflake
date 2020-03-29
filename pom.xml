@@ -21,11 +21,8 @@
 			<scope>test</scope>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.jcraft/jsch -->
-		<dependency>
-			<groupId>com.jcraft</groupId>
-			<artifactId>jsch</artifactId>
-			<version>0.1.54</version>
-		</dependency>
+		<!-- <dependency> <groupId>com.jcraft</groupId> <artifactId>jsch</artifactId> 
+			<version>0.1.54</version> </dependency> -->
 		<!-- https://mvnrepository.com/artifact/org.jetbrains/jediterm-pty -->
 		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
@@ -54,6 +51,16 @@
 		</dependency>
 
 
+
+
+
+
+		<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+			<version>1.7.30</version>
+		</dependency>
 
 
 
@@ -127,11 +134,8 @@
 			<artifactId>jna-platform</artifactId>
 			<version>5.5.0</version>
 		</dependency>
-<!-- 		<dependency>
-			<groupId>snowflake</groupId>
-			<artifactId>terminal</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency> -->
+		<!-- <dependency> <groupId>snowflake</groupId> <artifactId>terminal</artifactId> 
+			<version>0.0.1-SNAPSHOT</version> </dependency> -->
 		<dependency>
 			<groupId>net.i2p.crypto</groupId>
 			<artifactId>eddsa</artifactId>

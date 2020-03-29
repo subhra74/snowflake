@@ -1,23 +1,10 @@
 package snowflake.components.taskmgr;
 
-import snowflake.common.ssh.RemoteSessionInstance;
-import snowflake.common.ssh.SshClient;
-import snowflake.common.ssh.SshUserInteraction;
-import snowflake.components.common.DisabledPanel;
-import snowflake.components.common.StartPage;
-import snowflake.components.common.TabbedPanel;
-import snowflake.components.main.ConnectedResource;
-import snowflake.components.newsession.SessionInfo;
-import snowflake.components.taskmgr.ProcessListPanel.CommandMode;
-import snowflake.components.taskmgr.plaformsupport.*;
-import snowflake.utils.SshCommandUtils;
-import snowflake.utils.SudoUtils;
-
-import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.util.concurrent.Executors;
@@ -26,6 +13,27 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+
+import snowflake.common.ssh.RemoteSessionInstance;
+import snowflake.components.common.DisabledPanel;
+import snowflake.components.common.TabbedPanel;
+import snowflake.components.main.ConnectedResource;
+import snowflake.components.taskmgr.ProcessListPanel.CommandMode;
+import snowflake.components.taskmgr.plaformsupport.LinuxPlatformSupport;
+import snowflake.components.taskmgr.plaformsupport.PlatformSupport;
+import snowflake.utils.SudoUtils;
 
 public class TaskManager extends JPanel implements ConnectedResource {
 //	private JRootPane rootPane;

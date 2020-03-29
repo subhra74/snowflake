@@ -1,7 +1,6 @@
 package snowflake.components.taskmgr.plaformsupport;
 
 import snowflake.common.ssh.RemoteSessionInstance;
-import snowflake.common.ssh.SshClient;
 import snowflake.components.taskmgr.ProcessTableEntry;
 
 import java.util.List;

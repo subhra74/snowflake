@@ -1,22 +1,29 @@
 package snowflake.components.terminal;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+
+import javax.swing.Box;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
 import com.jediterm.terminal.TerminalColor;
 import com.jediterm.terminal.TextStyle;
 import com.jediterm.terminal.emulator.ColorPalette;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
+
 import snowflake.App;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.main.ConnectedResource;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.components.terminal.ssh.DisposableTtyConnector;
 import snowflake.components.terminal.ssh.SshTtyConnector;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 
 public class TerminalComponent extends JPanel implements ConnectedResource {
 	private JRootPane rootPane;
@@ -48,8 +55,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 			}
 		});
 
-		tty = new SshTtyConnector(new SshUserInteraction(info, rootPane),
-				command);
+		tty = new SshTtyConnector(info, command);
 
 		reconnectionBox = Box.createHorizontalBox();
 		reconnectionBox.setOpaque(true);
@@ -60,8 +66,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 			contentPane.remove(reconnectionBox);
 			contentPane.revalidate();
 			contentPane.repaint();
-			tty = new SshTtyConnector(new SshUserInteraction(info, rootPane),
-					command);
+			tty = new SshTtyConnector(info, command);
 			term.setTtyConnector(tty);
 			term.start();
 		});
@@ -79,7 +84,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 			});
 		});
 		term.setTtyConnector(tty);
-		//term.start();
+		// term.start();
 		contentPane.add(term);
 
 	}
@@ -227,7 +232,7 @@ public class TerminalComponent extends JPanel implements ConnectedResource {
 	public JediTermWidget getTerm() {
 		return term;
 	}
-	
+
 	public void start() {
 		term.start();
 	}

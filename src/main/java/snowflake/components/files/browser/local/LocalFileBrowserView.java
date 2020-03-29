@@ -1,11 +1,25 @@
 package snowflake.components.files.browser.local;
 
+import java.awt.Color;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
+import javax.swing.JRootPane;
+import javax.swing.SwingUtilities;
+
 import snowflake.App;
 import snowflake.common.FileInfo;
 import snowflake.common.FileSystem;
 import snowflake.common.local.files.LocalFileSystem;
-import snowflake.common.ssh.SshModalUserInteraction;
-import snowflake.common.ssh.files.SshFileSystem;
 import snowflake.components.common.AddressBar;
 import snowflake.components.files.DndTransferData;
 import snowflake.components.files.DndTransferHandler;
@@ -14,16 +28,6 @@ import snowflake.components.files.browser.AbstractFileBrowserView;
 import snowflake.components.files.browser.FileBrowser;
 import snowflake.components.newsession.SessionInfo;
 import snowflake.utils.PlatformAppLauncher;
-
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.io.File;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class LocalFileBrowserView extends AbstractFileBrowserView {
     private ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -179,7 +183,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
             SessionInfo info = holder.getInfo();
             if (info != null && info.hashCode() == sessionHashCode) {
                 if (backgroundTransfer) {
-                    FileSystem sourceFs = new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
+                    FileSystem sourceFs = null;//new SshFileSystem(new SshModalUserInteraction(holder.getInfo()));
                     FileSystem targetFs = new LocalFileSystem();
                     holder.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), transferData.getCurrentDirectory(),
                             this.path, this.hashCode(), -1, true);

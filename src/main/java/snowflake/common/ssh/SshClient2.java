@@ -17,6 +17,7 @@ import javax.swing.JTextField;
 
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 import net.schmizz.sshj.userauth.method.AuthKeyboardInteractive;
 import net.schmizz.sshj.userauth.method.AuthNone;
@@ -285,6 +286,17 @@ public class SshClient2 implements Closeable {
 
 	public SSHClient getSession() {
 		return sshj;
+	}
+
+	public SFTPClient createSftpClient() throws IOException {
+		return sshj.newSFTPClient();
+	}
+
+	/**
+	 * @return the info
+	 */
+	public SessionInfo getInfo() {
+		return info;
 	}
 
 //	private Proxy getProxy() {

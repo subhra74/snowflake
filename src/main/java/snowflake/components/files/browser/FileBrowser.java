@@ -1,20 +1,28 @@
 package snowflake.components.files.browser;
 
+import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Component;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JRootPane;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+
 import snowflake.App;
 import snowflake.common.FileSystem;
-import snowflake.common.ssh.SshUserInteraction;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.components.files.browser.local.LocalFileBrowserView;
 import snowflake.components.files.browser.sftp.SftpFileBrowserView;
 import snowflake.components.files.browser.ssh.SshFileBrowserView;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
-
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.*;
-import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class FileBrowser extends JPanel {
     private DefaultComboBoxModel<Object> leftList, rightList;
@@ -29,7 +37,6 @@ public class FileBrowser extends JPanel {
 
 
     public FileBrowser(SessionInfo info,
-                       SshUserInteraction source,
                        Map<SessionInfo, FileSystem> fileSystemMap,
                        Map<FileSystem, Integer> fileViewMap,
                        AtomicBoolean closeRequested,
