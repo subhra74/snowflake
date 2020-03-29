@@ -2,6 +2,7 @@ package snowflake.components.files.editor;
 
 import snowflake.App;
 import snowflake.common.FileInfo;
+import snowflake.components.common.TabHeader;
 import snowflake.components.files.FileComponentHolder;
 import snowflake.utils.GraphicsUtils;
 import snowflake.utils.LayoutUtils;
@@ -37,6 +38,29 @@ public class TextEditor extends JPanel {
 		super(new BorderLayout());
 		this.holder = holder;
 		tabs = new JTabbedPane();
+		tabs.setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+
+		tabs.addChangeListener(e -> {
+			if (tabs.getSelectedIndex() != -1 && tabs.getTabCount() > 0) {
+				System.out
+						.println("selected index: " + tabs.getSelectedIndex());
+				System.out.println(
+						tabs.getTabComponentAt(tabs.getSelectedIndex()));
+
+				for (int i = 0; i < tabs.getTabCount(); i++) {
+					TabHeader header1 = (TabHeader) tabs.getTabComponentAt(i);
+					if (header1 != null) {
+						header1.getBtnClose().setSelected(false);
+					}
+				}
+
+				TabHeader header = (TabHeader) tabs
+						.getTabComponentAt(tabs.getSelectedIndex());
+				if (header != null) {
+					header.getBtnClose().setSelected(true);
+				}
+			}
+		});
 
 		cardLayout = new CardLayout();
 
@@ -566,6 +590,7 @@ public class TextEditor extends JPanel {
 		}
 		if (close) {
 			tabs.removeTabAt(index);
+			tabSet.remove(tab);
 		}
 	}
 

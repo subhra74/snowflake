@@ -38,6 +38,8 @@ public class CustomJediterm extends JediTermWidget {
         started = true;
         super.start();
     }
+    
+    
 
 
 }

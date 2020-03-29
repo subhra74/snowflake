@@ -1,8 +1,8 @@
 package snowflake.components.files.logviewer;
 
 import snowflake.common.FileInfo;
+import snowflake.components.common.TabHeader;
 import snowflake.components.files.FileComponentHolder;
-import snowflake.components.files.editor.TabHeader;
 import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;

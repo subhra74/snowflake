@@ -14,6 +14,7 @@ import snowflake.components.newsession.SessionInfo;
 import snowflake.components.sysinfo.SystemInfoPanel;
 import snowflake.components.taskmgr.TaskManager;
 import snowflake.components.terminal.TerminalHolder;
+import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -23,7 +24,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class SessionContent extends JPanel {
-	private static Color bg = new Color(33, 36, 43), sg = new Color(62, 68, 81);
+	private static Color bg = new Color(40, 44, 52), sg = new Color(62, 68, 81);
 	private SessionInfo info;
 	// private JSplitPane verticalSplitter, horizontalSplitter;
 	private CardLayout mainCard;
@@ -50,6 +51,7 @@ public class SessionContent extends JPanel {
 
 	public SessionContent(SessionInfo info, ExternalEditor externalEditor) {
 		super(new BorderLayout(0, 0));
+		setBackground(GraphicsUtils.getThemeColor("tab-background"));
 		this.info = info;
 		this.externalEditor = externalEditor;
 		lblProgressCount.setBackground(Color.DARK_GRAY);

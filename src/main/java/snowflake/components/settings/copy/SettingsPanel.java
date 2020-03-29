@@ -1,4 +1,4 @@
-package snowflake.components.settings;
+package snowflake.components.settings.copy;
 
 import snowflake.App;
 import snowflake.common.Settings;

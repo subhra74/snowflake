@@ -136,6 +136,9 @@ public class FileComponentHolder extends JPanel
 		tabs.addTab("Text editor", editor);
 		tabs.addTab("Log viewer", logViewerComponent);
 		tabs.addTab("Search", fileSearchPanel);
+		tabs.addTab("Transfers", fileSearchPanel);
+		
+
 		tabs.setSelectedIndex(0);
 
 		contentPane.add(tabs);

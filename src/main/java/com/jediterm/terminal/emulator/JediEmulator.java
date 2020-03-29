@@ -209,6 +209,7 @@ public class JediEmulator extends DataStreamIteratingEmulator {
         case 2: //Title
           String name = args.getStringAt(1);
           if (name != null) {
+        	  System.out.println("***************name: "+name);
             myTerminal.setWindowTitle(name);
             return true;
           }
@@ -216,6 +217,7 @@ public class JediEmulator extends DataStreamIteratingEmulator {
         case 7: //Path
           String path = args.getStringAt(1);
           if (path != null) {
+        	  System.out.println("***************path: "+path);
             myTerminal.setCurrentPath(path);
             return true;
           }

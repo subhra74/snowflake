@@ -16,6 +16,7 @@ import java.util.Properties;
 import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.Painter;
 import javax.swing.UIDefaults;
@@ -30,8 +31,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import net.i2p.crypto.eddsa.EdDSASecurityProvider;
-import net.schmizz.sshj.common.SecurityUtils;
 import snowflake.common.Settings;
 import snowflake.components.common.CustomScrollBarUI;
 import snowflake.components.main.MainContent;
@@ -51,6 +50,7 @@ public class App {
 	private static Properties config = new Properties();
 	private static Font fontAwesomeFont;
 	private static Settings settings;
+	private static JFrame mainWindow;
 
 	private static List<SnippetItem> snippetItems;
 
@@ -66,6 +66,10 @@ public class App {
 		return settings;
 	}
 
+	public static boolean useDarkTheme() {
+		return settings.isUseGlobalDarkTheme();
+	}
+
 //    class MySynthFactory extends SynthStyleFactory {
 //
 //        @Override
@@ -78,10 +82,51 @@ public class App {
 			throws UnsupportedLookAndFeelException {
 
 		Security.addProvider(new BouncyCastleProvider());
-		//Security.addProvider(new EdDSASecurityProvider());
-		
-		//System.out.println(SecurityUtils.isBouncyCastleRegistered());
+		// Security.addProvider(new EdDSASecurityProvider());
 
+		// System.out.println(SecurityUtils.isBouncyCastleRegistered());
+
+		config.put("temp.dir",
+				PathUtils.combine(System.getProperty("user.home"),
+						"snowflake-ssh" + File.separator + "temp",
+						File.separator));
+
+		config.put("app.dir", PathUtils.combine(System.getProperty("user.home"),
+				"snowflake-ssh", File.separator));
+
+		new File(config.get("app.dir").toString()).mkdirs();
+		new File(config.get("temp.dir").toString()).mkdirs();
+
+		loadFonts();
+
+		loadSettings();
+
+		loadSnippets();
+
+		applyTheme();
+
+		mainWindow = new JFrame("Snowflake");
+		try {
+			mainWindow.setIconImage(
+					ImageIO.read(App.class.getResource("/snowflake-logo.png")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		mainWindow.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		mainWindow.setSize(800, 600);
+		mainWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
+
+		mainWindow.add(new MainContent(mainWindow));
+		mainWindow.setLocationRelativeTo(null);
+		mainWindow.setVisible(true);
+
+//        testDraw();
+
+//        createSampleWindow();
+//        createSampleWindow1();
+	}
+
+	public static void applyTheme() throws UnsupportedLookAndFeelException {
 		NimbusLookAndFeel nimbusLookAndFeel = new NimbusLookAndFeel();
 		GraphicsUtils.createTextFieldSkin(nimbusLookAndFeel.getDefaults());
 		GraphicsUtils.createSpinnerSkin(nimbusLookAndFeel.getDefaults());
@@ -91,11 +136,22 @@ public class App {
 		GraphicsUtils.customizeTableHeader(nimbusLookAndFeel.getDefaults());
 		GraphicsUtils.createSkinnedButton(nimbusLookAndFeel.getDefaults());
 		GraphicsUtils.createSkinnedMenu(nimbusLookAndFeel.getDefaults());
+		GraphicsUtils.createTreeSkin(nimbusLookAndFeel.getDefaults());
+		GraphicsUtils.createSplitPaneSkin(nimbusLookAndFeel.getDefaults());
+		GraphicsUtils.createPopupSkin(nimbusLookAndFeel.getDefaults());
+
+		nimbusLookAndFeel.getDefaults().put("Tree.rendererMargins",
+				new Insets(5, 5, 5, 5));
 		nimbusLookAndFeel.getDefaults().put("ScrollBarUI",
 				CustomScrollBarUI.class.getName());
 
-		UIManager.setLookAndFeel(nimbusLookAndFeel);
-		UIManager.put("control", Color.WHITE);
+		for (String key : new String[] { "control", "text", "Tree.background",
+				"nimbusBorder", "scrollbar", "Tree.textForeground",
+				"controlText", "infoText", "menuText", "textForeground",
+				"List.foreground", "Label.foreground" }) {
+			UIManager.put(key, GraphicsUtils.getThemeColor(key));
+		}
+
 		UIManager.put("nimbusSelectionBackground", new Color(3, 155, 229));
 
 		// UIManager.put("nimbusBase", new Color(200, 200, 200));
@@ -104,68 +160,77 @@ public class App {
 		// UIManager.put("ScrollBar.thumbHeight", 8);
 		// UIManager.put("ScrollBar:\"ScrollBar.button\".size", 5);
 		// UIManager.put("Panel.background", new Color(245, 245, 245));
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Enabled].backgroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Enabled].backgroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Enabled].foregroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Focused].backgroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Enabled].foregroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-
-		splitPaneSkin.put("SplitPane.contentMargins", new Insets(0, 0, 0, 0));
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Enabled].backgroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, JComponent object,
+//							int width, int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, Object object, int width,
+//							int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Enabled].backgroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, Object object, int width,
+//							int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Enabled].foregroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, Object object, int width,
+//							int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Focused].backgroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, Object object, int width,
+//							int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Enabled].foregroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, Object object, int width,
+//							int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
+//
+//		splitPaneSkin.put(
+//				"SplitPane:SplitPaneDivider[Enabled].foregroundPainter",
+//				new Painter<JComponent>() {
+//					@Override
+//					public void paint(Graphics2D g, JComponent object,
+//							int width, int height) {
+//						g.setColor(Color.WHITE);
+//						g.fill(new Rectangle(0, 0, width, height));
+//					}
+//				});
 
 		createVerticalScrollSkin();
 		createVerticalScrollSkin1();
@@ -341,7 +406,7 @@ public class App {
 
 		UIManager.put("ScrollBar.width", 7);
 
-		//SynthScrollBarUI basic = new SynthScrollBarUI();
+		// SynthScrollBarUI basic = new SynthScrollBarUI();
 //        BasicTableHeaderUI headerUI=new BasicTableHeaderUI();
 //
 //        UIManager.put("ScrollBarUI",basic);
@@ -377,53 +442,7 @@ public class App {
 //            }
 //        });
 
-		splitPaneSkin.put(
-				"SplitPane:SplitPaneDivider[Enabled].foregroundPainter",
-				new Painter() {
-					@Override
-					public void paint(Graphics2D g, Object object, int width,
-							int height) {
-						g.setColor(Color.WHITE);
-						g.fill(new Rectangle(0, 0, width, height));
-					}
-				});
-
-		config.put("temp.dir",
-				PathUtils.combine(System.getProperty("user.home"),
-						"snowflake-ssh" + File.separator + "temp",
-						File.separator));
-
-		config.put("app.dir", PathUtils.combine(System.getProperty("user.home"),
-				"snowflake-ssh", File.separator));
-
-		new File(config.get("app.dir").toString()).mkdirs();
-		new File(config.get("temp.dir").toString()).mkdirs();
-
-		loadFonts();
-
-		loadSettings();
-
-		loadSnippets();
-
-		JFrame f = new JFrame("Snowflake");
-		try {
-			f.setIconImage(
-					ImageIO.read(App.class.getResource("/snowflake-logo.png")));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		f.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		f.setSize(800, 600);
-		f.setExtendedState(JFrame.MAXIMIZED_BOTH);
-
-		f.add(new MainContent(f));
-		f.setLocationRelativeTo(null);
-		f.setVisible(true);
-
-//        testDraw();
-
-//        createSampleWindow();
-//        createSampleWindow1();
+		UIManager.setLookAndFeel(nimbusLookAndFeel);
 	}
 
 	private static void createVerticalScrollSkin() {
@@ -675,5 +694,12 @@ public class App {
 
 	public static List<SnippetItem> getSnippetItems() {
 		return snippetItems;
+	}
+
+	/**
+	 * @return the mainWindow
+	 */
+	public static JFrame getMainWindow() {
+		return mainWindow;
 	}
 }

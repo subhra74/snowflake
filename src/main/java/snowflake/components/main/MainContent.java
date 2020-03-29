@@ -122,228 +122,244 @@
 //    }
 //}
 
-
 package snowflake.components.main;
 
 import snowflake.App;
+import snowflake.components.main.settings.SettingsPanel;
 import snowflake.components.newsession.NewSessionDlg;
 import snowflake.components.newsession.SessionInfo;
-import snowflake.components.settings.SettingsPanel;
 import snowflake.utils.GraphicsUtils;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-
 public class MainContent extends JPanel {
-    //private GradientPaint gradientPaint;
-    private JFrame frame;
-    private SettingsPanel settingsPanel;
-    private JComboBox<SessionInfo> cmb;
+	// private GradientPaint gradientPaint;
+	private JFrame frame;
+	private SettingsPanel settingsPanel;
+	private JComboBox<SessionInfo> cmb;
 
-    public MainContent(JFrame frame) {
-        super(new BorderLayout(0, 0));
-        this.frame = frame;
+	public MainContent(JFrame frame) {
+		super(new BorderLayout(0, 0));
+		this.frame = frame;
 //        gradientPaint = new GradientPaint(0.0f, 0.0f, new Color(200, 200, 200),
 //                0.0f, 50.0f, new Color(150, 150, 150));
-        init();
-    }
+		init();
+	}
 
-    private UIDefaults getSkinnedDropDown() {
-        UIDefaults comboBoxSkin = new UIDefaults();
-        Painter<JComboBox> comboBoxPainterNormal = new Painter<JComboBox>() {
-            @Override
-            public void paint(Graphics2D g, JComboBox object, int width, int height) {
-                g.setColor(new Color(62, 68, 81));//g.setColor(new Color(62,68,81));
-                g.fillRect(0, 0, width - 1, height - 1);
-            }
-        };
+	private UIDefaults getSkinnedDropDown() {
+		UIDefaults comboBoxSkin = new UIDefaults();
+		Painter<JComboBox> comboBoxPainterNormal = new Painter<JComboBox>() {
+			@Override
+			public void paint(Graphics2D g, JComboBox object, int width,
+					int height) {
+				g.setColor(new Color(62, 68, 81));// g.setColor(new
+													// Color(62,68,81));
+				g.fillRect(0, 0, width - 1, height - 1);
+			}
+		};
 
-        Painter<JComboBox> comboBoxPainterHot = new Painter<JComboBox>() {
-            @Override
-            public void paint(Graphics2D g, JComboBox object, int width, int height) {
-                g.setColor(new Color(90, 90, 90));
-                g.fillRect(0, 0, width - 1, height - 1);
-            }
-        };
+		Painter<JComboBox> comboBoxPainterHot = new Painter<JComboBox>() {
+			@Override
+			public void paint(Graphics2D g, JComboBox object, int width,
+					int height) {
+				g.setColor(new Color(90, 90, 90));
+				g.fillRect(0, 0, width - 1, height - 1);
+			}
+		};
 
-        Painter<JComboBox> comboBoxPainterPressed = new Painter<JComboBox>() {
-            @Override
-            public void paint(Graphics2D g, JComboBox object, int width, int height) {
-                g.setColor(new Color(50, 50, 50));
-                g.fillRect(0, 0, width - 1, height - 1);
-            }
-        };
+		Painter<JComboBox> comboBoxPainterPressed = new Painter<JComboBox>() {
+			@Override
+			public void paint(Graphics2D g, JComboBox object, int width,
+					int height) {
+				g.setColor(new Color(50, 50, 50));
+				g.fillRect(0, 0, width - 1, height - 1);
+			}
+		};
 
+		comboBoxSkin.put("ComboBox.foreground", Color.WHITE);
+		comboBoxSkin.put("ComboBox[Enabled].backgroundPainter",
+				comboBoxPainterNormal);
+		comboBoxSkin.put("ComboBox[Focused].backgroundPainter",
+				comboBoxPainterNormal);
+		comboBoxSkin.put("ComboBox[MouseOver].backgroundPainter",
+				comboBoxPainterHot);
+		comboBoxSkin.put("ComboBox[Pressed].backgroundPainter",
+				comboBoxPainterPressed);
 
-        comboBoxSkin.put("ComboBox.foreground", Color.WHITE);
-        comboBoxSkin.put("ComboBox[Enabled].backgroundPainter", comboBoxPainterNormal);
-        comboBoxSkin.put("ComboBox[Focused].backgroundPainter", comboBoxPainterNormal);
-        comboBoxSkin.put("ComboBox[MouseOver].backgroundPainter", comboBoxPainterHot);
-        comboBoxSkin.put("ComboBox[Pressed].backgroundPainter", comboBoxPainterPressed);
+		comboBoxSkin.put("ComboBox[Focused+Pressed].backgroundPainter",
+				comboBoxPainterPressed);
+		comboBoxSkin.put("ComboBox[Focused+MouseOver].backgroundPainter",
+				comboBoxPainterHot);
+		comboBoxSkin.put("ComboBox[Enabled+Selected].backgroundPainter",
+				comboBoxPainterNormal);
 
-        comboBoxSkin.put("ComboBox[Focused+Pressed].backgroundPainter", comboBoxPainterPressed);
-        comboBoxSkin.put("ComboBox[Focused+MouseOver].backgroundPainter", comboBoxPainterHot);
-        comboBoxSkin.put("ComboBox[Enabled+Selected].backgroundPainter", comboBoxPainterNormal);
+		return comboBoxSkin;
+	}
 
+	private void init() {
+		setBackground(new Color(245, 245, 245));
+		this.settingsPanel = new SettingsPanel(frame);
+		SessionContentPanel contentPanel = new SessionContentPanel();
+		// setBackground(new Color(80,80,80));
+		contentPanel.setOpaque(true);
 
-        return comboBoxSkin;
-    }
+		this.add(contentPanel);
 
+		// DefaultComboBoxModel<SessionInfo> model = new
+		// DefaultComboBoxModel<>();
 
-    private void init() {
-        setBackground(new Color(245, 245, 245));
-        this.settingsPanel = new SettingsPanel(frame);
-        SessionContentPanel contentPanel = new SessionContentPanel();
-        //setBackground(new Color(80,80,80));
-        contentPanel.setOpaque(true);
-        add(contentPanel);
-
-        DefaultComboBoxModel<SessionInfo> model = new DefaultComboBoxModel<>();
-
-        Box topPanel = Box.createHorizontalBox();
+		Box topPanel = Box.createHorizontalBox();
 //        topPanel.setBackground(new Color(33, 136, 255));
-        //topPanel.setBackground(new Color(36, 41, 46));
-        //topPanel.setBackground(new Color(36, 41, 46));
+		// topPanel.setBackground(new Color(36, 41, 46));
+		// topPanel.setBackground(new Color(36, 41, 46));
 //        topPanel.setBackground(new Color(20, 23, 41));
-        //topPanel.setBackground(new Color(29,32,51));
-        topPanel.setBackground(new Color(47, 51, 62));
-        topPanel.setOpaque(true);
+		// topPanel.setBackground(new Color(29,32,51));
+		topPanel.setBackground(new Color(40, 44, 52));
+		topPanel.setOpaque(true);
 
-        topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
-        JButton newConnection = GraphicsUtils.createSkinnedButton(new Color(92, 167, 25), new Color(128, 167, 25), new Color(50, 167, 25));// new JButton("New connection");
-        newConnection.setText("New connection");
-        //newConnection.setBackground(new Color(0, 105, 0));
-        //newConnection.setFocusPainted(false);
-        newConnection.setForeground(Color.WHITE);
-        newConnection.addActionListener(e -> {
-            SessionInfo info = new NewSessionDlg(SwingUtilities.windowForComponent(this)).newSession();
-            if (info != null) {
-                int index = model.getSize();
-                model.addElement(info);
-                contentPanel.addNewSession(info);
-                cmb.setSelectedIndex(index);
-            }
-        });
-        //newConnection.setBackground(Color.GREEN);
-        topPanel.add(newConnection);
-        topPanel.add(Box.createHorizontalGlue());
+		topPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		JButton newConnection = GraphicsUtils.createSkinnedButton(
+				new Color(92, 167, 25), new Color(128, 167, 25),
+				new Color(50, 167, 25));// new JButton("New connection");
+		newConnection.setText("New connection");
+		// newConnection.setBackground(new Color(0, 105, 0));
+		// newConnection.setFocusPainted(false);
+		newConnection.setForeground(Color.WHITE);
+		newConnection.addActionListener(e -> {
+			SessionInfo info = new NewSessionDlg(
+					SwingUtilities.windowForComponent(this)).newSession();
+			if (info != null) {
+//                int index = model.getSize();
+//                model.addElement(info);
+				contentPanel.addNewSession(info);
+//                cmb.setSelectedIndex(index);
+			}
+		});
+		// newConnection.setBackground(Color.GREEN);
+		topPanel.add(newConnection);
+		topPanel.add(Box.createHorizontalGlue());
 
-        cmb = new JComboBox<>(model);
-        cmb.putClientProperty("Nimbus.Overrides", getSkinnedDropDown());
-        cmb.setRenderer(new ListCellRenderer<SessionInfo>() {
-            JLabel lbl = new JLabel();
+//        cmb = new JComboBox<>(model);
+//        cmb.putClientProperty("Nimbus.Overrides", getSkinnedDropDown());
+//        cmb.setRenderer(new ListCellRenderer<SessionInfo>() {
+//            JLabel lbl = new JLabel();
+//
+//            {
+//                setOpaque(true);
+//                lbl.setBackground(Color.DARK_GRAY);
+//                lbl.setForeground(Color.WHITE);
+//                lbl.setBorder(new EmptyBorder(5, 5, 5, 5));
+//            }
+//
+//            @Override
+//            public Component getListCellRendererComponent(JList<? extends SessionInfo> list, SessionInfo value, int index, boolean isSelected, boolean cellHasFocus) {
+//                if (value != null) {
+//                    lbl.setText(value.toString());
+//                } else {
+//                    lbl.setText("");
+//                }
+//                if (isSelected) {
+//                    lbl.setBackground(new Color(3, 155, 229));
+//                } else {
+//                    lbl.setBackground(Color.DARK_GRAY);
+//                }
+//
+//                return lbl;
+//            }
+//        });
+//
+//        cmb.addItemListener(e -> {
+//            int index = cmb.getSelectedIndex();
+//            if (index >= 0) {
+//                contentPanel.selectSession(model.getElementAt(index));
+//            }
+//        });
+//        topPanel.add(cmb);
 
-            {
-                setOpaque(true);
-                lbl.setBackground(Color.DARK_GRAY);
-                lbl.setForeground(Color.WHITE);
-            }
+		Color c1 = new Color(3, 155, 229);
+		Color c2 = new Color(2, 132, 195);
+		Color c3 = new Color(70, 130, 180);
 
-            @Override
-            public Component getListCellRendererComponent(JList<? extends SessionInfo> list, SessionInfo value, int index, boolean isSelected, boolean cellHasFocus) {
-                if (value != null) {
-                    lbl.setText(value.toString());
-                } else {
-                    lbl.setText("");
-                }
-                if (isSelected) {
-                    lbl.setBackground(Color.BLACK);
-                } else {
-                    lbl.setBackground(Color.DARK_GRAY);
-                }
+		Dimension maxDim = new Dimension(0, 0);
 
-                return lbl;
-            }
-        });
+//        JButton disconnect = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
+//        disconnect.setFont(App.getFontAwesomeFont());
+//        disconnect.setToolTipText("Disconnect session");
+//        //disconnect.setText("Disconnect");
+//        disconnect.setText("\uf052");
+//        //disconnect.setBackground(new Color(100, 0, 0));
+//        disconnect.setForeground(Color.WHITE);
+//        disconnect.addActionListener(e -> {
+//            int index = cmb.getSelectedIndex();
+//            if (index != -1) {
+//                SessionInfo info = model.getElementAt(index);
+//                if (contentPanel.removeSession(info)) {
+//                    model.removeElementAt(index);
+//                }
+//                if (model.getSize() < 1) {
+//                    cmb.setSelectedIndex(-1);
+//                    cmb.setSelectedItem("");
+//                }
+//            }
+//        });
 
-        cmb.addItemListener(e -> {
-            int index = cmb.getSelectedIndex();
-            if (index >= 0) {
-                contentPanel.selectSession(model.getElementAt(index));
-            }
-        });
-        topPanel.add(cmb);
+//        if (disconnect.getPreferredSize().width > maxDim.width) {
+//            maxDim.width = disconnect.getPreferredSize().width;
+//        }
 
-        Color c1 = new Color(3, 155, 229);
-        Color c2 = new Color(2, 132, 195);
-        Color c3 = new Color(70, 130, 180);
+		JButton settings = GraphicsUtils.createSkinnedButton(c1, c2, c3);// new
+																			// JButton("Disconnect");
+		settings.setToolTipText("Settings");
+		settings.setFont(App.getFontAwesomeFont());
+		// settings.setText("Settings");
+		settings.setText("\uf085");
+		// disconnect.setBackground(new Color(100, 0, 0));
+		settings.setForeground(Color.WHITE);
+		settings.addActionListener(e -> {
+			settingsPanel.showDialog(App.getGlobalSettings());
+		});
 
-        Dimension maxDim = new Dimension(0, 0);
+		if (settings.getPreferredSize().width > maxDim.width) {
+			maxDim.width = settings.getPreferredSize().width;
+		}
 
-        JButton disconnect = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
-        disconnect.setFont(App.getFontAwesomeFont());
-        disconnect.setToolTipText("Disconnect session");
-        //disconnect.setText("Disconnect");
-        disconnect.setText("\uf052");
-        //disconnect.setBackground(new Color(100, 0, 0));
-        disconnect.setForeground(Color.WHITE);
-        disconnect.addActionListener(e -> {
-            int index = cmb.getSelectedIndex();
-            if (index != -1) {
-                SessionInfo info = model.getElementAt(index);
-                if (contentPanel.removeSession(info)) {
-                    model.removeElementAt(index);
-                }
-                if (model.getSize() < 1) {
-                    cmb.setSelectedIndex(-1);
-                    cmb.setSelectedItem("");
-                }
-            }
-        });
+		JButton info = GraphicsUtils.createSkinnedButton(c1, c2, c3);// new
+																		// JButton("Disconnect");
+		info.setToolTipText("Help and about");
+		info.setFont(App.getFontAwesomeFont());
+		// settings.setText("Settings");
+		info.setText("\uf05a");
+		// disconnect.setBackground(new Color(100, 0, 0));
+		info.setForeground(Color.WHITE);
+		info.addActionListener(e -> {
+			new AppInfoDialog(SwingUtilities.windowForComponent(this))
+					.setVisible(true);
+		});
 
-        if (disconnect.getPreferredSize().width > maxDim.width) {
-            maxDim.width = disconnect.getPreferredSize().width;
-        }
+		if (info.getPreferredSize().width > maxDim.width) {
+			maxDim.width = info.getPreferredSize().width;
+		}
 
+		for (JButton btn : new JButton[] { // disconnect,
+				settings, info }) {
+			btn.setPreferredSize(
+					new Dimension(maxDim.width, btn.getPreferredSize().height));
+		}
 
-        JButton settings = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
-        settings.setToolTipText("Settings");
-        settings.setFont(App.getFontAwesomeFont());
-        //settings.setText("Settings");
-        settings.setText("\uf085");
-        //disconnect.setBackground(new Color(100, 0, 0));
-        settings.setForeground(Color.WHITE);
-        settings.addActionListener(e -> {
-            settingsPanel.showDialog(App.getGlobalSettings());
-        });
+		topPanel.add(Box.createHorizontalStrut(5));
+		// topPanel.add(disconnect);
 
-        if (settings.getPreferredSize().width > maxDim.width) {
-            maxDim.width = settings.getPreferredSize().width;
-        }
+		topPanel.add(Box.createHorizontalStrut(5));
+		topPanel.add(settings);
 
-        JButton info = GraphicsUtils.createSkinnedButton(c1, c2, c3);//new JButton("Disconnect");
-        info.setToolTipText("Help and about");
-        info.setFont(App.getFontAwesomeFont());
-        //settings.setText("Settings");
-        info.setText("\uf05a");
-        //disconnect.setBackground(new Color(100, 0, 0));
-        info.setForeground(Color.WHITE);
-        info.addActionListener(e -> {
-            new AppInfoDialog(SwingUtilities.windowForComponent(this)).setVisible(true);
-        });
+		topPanel.add(Box.createHorizontalStrut(5));
+		topPanel.add(info);
 
-        if (info.getPreferredSize().width > maxDim.width) {
-            maxDim.width = info.getPreferredSize().width;
-        }
-
-        for (JButton btn : new JButton[]{disconnect, settings, info}) {
-            btn.setPreferredSize(new Dimension(maxDim.width, btn.getPreferredSize().height));
-        }
-
-        topPanel.add(Box.createHorizontalStrut(5));
-        topPanel.add(disconnect);
-
-        topPanel.add(Box.createHorizontalStrut(5));
-        topPanel.add(settings);
-
-        topPanel.add(Box.createHorizontalStrut(5));
-        topPanel.add(info);
-
-        add(topPanel, BorderLayout.NORTH);
-        setOpaque(true);
-    }
+		add(topPanel, BorderLayout.NORTH);
+		setOpaque(true);
+	}
 
 //    @Override
 //    protected void paintComponent(Graphics g) {

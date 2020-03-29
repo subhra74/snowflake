@@ -10,6 +10,7 @@ public class Settings {
 	private boolean confirmBeforeTerminalClosing = true;
 	private boolean useDarkThemeForTerminal = false;
 	private boolean showMessagePrompt = false;
+	private boolean useGlobalDarkTheme = true;
 
 	private boolean puttyLikeCopyPaste = false;
 	private int defaultOpenAction = 0
@@ -132,5 +133,19 @@ public class Settings {
 
 	public String getDefaultPanel() {
 		return defaultPanel;
+	}
+
+	/**
+	 * @return the useGlobalDarkTheme
+	 */
+	public boolean isUseGlobalDarkTheme() {
+		return useGlobalDarkTheme;
+	}
+
+	/**
+	 * @param useGlobalDarkTheme the useGlobalDarkTheme to set
+	 */
+	public void setUseGlobalDarkTheme(boolean useGlobalDarkTheme) {
+		this.useGlobalDarkTheme = useGlobalDarkTheme;
 	}
 }

@@ -1498,6 +1498,7 @@ public class TerminalPanel extends JComponent
 
 	@Override
 	public void setWindowTitle(String name) {
+		System.out.println("########## name: "+name);
 		myWindowTitle = name;
 		if (myTerminalPanelListener != null) {
 			myTerminalPanelListener.onTitleChanged(myWindowTitle);
@@ -1506,6 +1507,7 @@ public class TerminalPanel extends JComponent
 
 	@Override
 	public void setCurrentPath(String path) {
+		System.out.println("########## path: "+path);
 		myCurrentPath = path;
 	}
 
