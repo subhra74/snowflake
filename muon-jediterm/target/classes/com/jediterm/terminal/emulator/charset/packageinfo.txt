@@ -1,5 +1,0 @@
-Classes of this package are derived from https://github.com/jawi/jVT220 
-distributed under Apache 2.0 license: http://www.apache.org/licenses/LICENSE-2.0
-
-License headers were removed from the sources as all the sources have been slightly modified and differ from
-initial version.

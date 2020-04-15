@@ -9,3 +9,5 @@ target/*
 .project
 .settings/
 flatpak/flatpak-commands.txt
+muon-app/target/
+muon-jediterm/target/
