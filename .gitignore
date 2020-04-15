@@ -2,6 +2,8 @@
 target/*
 .idea/*
 *.iml
+*.class
+*.jar
 /target/
 .classpath
 .project
