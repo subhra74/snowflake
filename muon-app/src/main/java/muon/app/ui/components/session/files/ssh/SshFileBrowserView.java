@@ -35,15 +35,13 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 	private JComboBox<String> cmbOptions = new JComboBox<>(
 			new String[] { "Transfer normally", "Transfer in background" });
 
-	public SshFileBrowserView(FileBrowser fileBrowser, String initialPath,
-			PanelOrientation orientation) {
+	public SshFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
 		super(orientation, fileBrowser);// new Color(240, 255,
 										// 240));
 		this.fileBrowser = fileBrowser;
 		this.menuHandler = new SshMenuHandler(fileBrowser, this);
 		this.menuHandler.initMenuHandler(this.folderView);
-		this.transferHandler = new DndTransferHandler(this.folderView,
-				this.fileBrowser.getInfo(), this,
+		this.transferHandler = new DndTransferHandler(this.folderView, this.fileBrowser.getInfo(), this,
 				DndTransferData.DndSourceType.SSH);
 		this.folderView.setTransferHandler(transferHandler);
 		this.folderView.setFolderViewTransferHandler(transferHandler);
@@ -89,8 +87,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 	@Override
 	public String toString() {
 		return this.fileBrowser.getInfo().getName()
-				+ (this.path == null || this.path.length() < 1 ? ""
-						: " [" + this.path + "]");
+				+ (this.path == null || this.path.length() < 1 ? "" : " [" + this.path + "]");
 	}
 
 //    private void connect() throws Exception {
@@ -134,8 +131,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 		return path;
 	}
 
-	private void renderDirectory(final String path, final boolean fromCache)
-			throws Exception {
+	private void renderDirectory(final String path, final boolean fromCache) throws Exception {
 		List<FileInfo> list = null;
 		if (fromCache) {
 			list = this.fileBrowser.getSSHDirectoryCache().get(trimPath(path));
@@ -143,8 +139,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 		if (list == null) {
 			list = this.fileBrowser.getSSHFileSystem().list(path);
 			if (list != null) {
-				this.fileBrowser.getSSHDirectoryCache().put(trimPath(path),
-						list);
+				this.fileBrowser.getSSHDirectoryCache().put(trimPath(path), list);
 			}
 		}
 		if (list != null) {
@@ -169,8 +164,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 					System.out.println("Listing files now ...");
 					try {
 						if (path == null) {
-							SshFileSystem sshfs = this.fileBrowser
-									.getSSHFileSystem();
+							SshFileSystem sshfs = this.fileBrowser.getSSHFileSystem();
 							this.path = sshfs.getHome();
 							// holder.getSshFileSystem().statFs();
 						}
@@ -181,16 +175,13 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 						if (this.fileBrowser.isSessionClosed()) {
 							return;
 						}
-						System.out.println(
-								"Exception caught in sftp file browser");
+						System.out.println("Exception caught in sftp file browser");
 
 						e.printStackTrace();
 						if (JOptionPane.showConfirmDialog(null,
-								"Unable to connect to server "
-										+ this.fileBrowser.getInfo().getName()
-										+ " at "
-										+ this.fileBrowser.getInfo().getHost()
-										+ "\nDo you want to retry?") == JOptionPane.YES_OPTION) {
+								"Unable to connect to server " + this.fileBrowser.getInfo().getName() + " at "
+										+ this.fileBrowser.getInfo().getHost() + "\n\nReason: " + e.getMessage()
+										+ "\n\nDo you want to retry?") == JOptionPane.YES_OPTION) {
 							continue;
 						}
 						break;
@@ -242,24 +233,19 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
 	public boolean handleDrop(DndTransferData transferData) {
 		if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
-				&& JOptionPane.showConfirmDialog(null,
-						"Move/copy files?") != JOptionPane.YES_OPTION) {
+				&& JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
 			return false;
 		}
 		try {
 			int sessionHashCode = transferData.getInfo();
 			System.out.println("Session hash code: " + sessionHashCode);
 			FileSystem sourceFs = null;
-			if (sessionHashCode == 0 && transferData
-					.getSourceType() == DndTransferData.DndSourceType.LOCAL) {
+			if (sessionHashCode == 0 && transferData.getSourceType() == DndTransferData.DndSourceType.LOCAL) {
 				sourceFs = new LocalFileSystem();
-			} else if (transferData
-					.getSourceType() == DndTransferData.DndSourceType.SSH
-					&& sessionHashCode == this.fileBrowser.getInfo()
-							.hashCode()) {
+			} else if (transferData.getSourceType() == DndTransferData.DndSourceType.SSH
+					&& sessionHashCode == this.fileBrowser.getInfo().hashCode()) {
 				sourceFs = this.fileBrowser.getSSHFileSystem();
-			} else if (transferData
-					.getSourceType() == DndTransferData.DndSourceType.SFTP) {
+			} else if (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP) {
 				// handle server to server drop - sftp
 //				System.out.println("Foreign file drop");
 //				sourceFs = this.fileBrowser.getFs(transferData.getSource());
@@ -290,19 +276,14 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 //					return true;
 				}
 				FileSystem targetFs = this.fileBrowser.getSSHFileSystem();
-				this.fileBrowser.newFileTransfer(sourceFs, targetFs,
-						transferData.getFiles(),
-						transferData.getCurrentDirectory(), this.path,
-						this.hashCode(), -1, false);
-			} else if (sourceFs instanceof SshFileSystem
-					&& (sourceFs == this.fileBrowser.getSSHFileSystem())) {
-				System.out.println("SshFs is of same instance: "
-						+ (sourceFs == this.fileBrowser.getSSHFileSystem()));
+				this.fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
+						transferData.getCurrentDirectory(), this.path, this.hashCode(), -1, false);
+			} else if (sourceFs instanceof SshFileSystem && (sourceFs == this.fileBrowser.getSSHFileSystem())) {
+				System.out.println("SshFs is of same instance: " + (sourceFs == this.fileBrowser.getSSHFileSystem()));
 				if (transferData.getFiles().length > 0) {
 					FileInfo fileInfo = transferData.getFiles()[0];
 					String parent = PathUtils.getParent(fileInfo.getPath());
-					System.out.println("Parent: " + parent + " == "
-							+ this.getCurrentDirectory());
+					System.out.println("Parent: " + parent + " == " + this.getCurrentDirectory());
 					if (!parent.endsWith("/")) {
 						parent += "/";
 					}
@@ -311,22 +292,18 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 						pwd += "/";
 					}
 					if (parent.equals(pwd)) {
-						JOptionPane.showMessageDialog(null,
-								"Source and target directory is same!");
+						JOptionPane.showMessageDialog(null, "Source and target directory is same!");
 						return false;
 					}
 				}
 
-				if (transferData
-						.getTransferAction() == DndTransferData.TransferAction.Copy) {
-					menuHandler.copy(Arrays.asList(transferData.getFiles()),
-							getCurrentDirectory());
+				if (transferData.getTransferAction() == DndTransferData.TransferAction.Copy) {
+					menuHandler.copy(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
 				} else {
-					menuHandler.move(Arrays.asList(transferData.getFiles()),
-							getCurrentDirectory());
+					menuHandler.move(Arrays.asList(transferData.getFiles()), getCurrentDirectory());
 				}
-			} else if (sourceFs instanceof SshFileSystem && (transferData
-					.getSourceType() == DndTransferData.DndSourceType.SFTP)) {
+			} else if (sourceFs instanceof SshFileSystem
+					&& (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP)) {
 //				System.out.println("Sftp file drop");
 //				FileSystem targetFs = holder.getSshFileSystem();
 //				holder.newFileTransfer(sourceFs, targetFs,
@@ -334,8 +311,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 //						transferData.getCurrentDirectory(), this.path,
 //						this.hashCode(), -1, false);
 			}
-			System.out.println("12345: " + (sourceFs instanceof SshFileSystem)
-					+ " " + transferData.getSourceType());
+			System.out.println("12345: " + (sourceFs instanceof SshFileSystem) + " " + transferData.getSourceType());
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();

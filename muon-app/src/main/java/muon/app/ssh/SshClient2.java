@@ -15,6 +15,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import muon.app.App;
 import muon.app.ui.components.session.SessionInfo;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -59,19 +60,24 @@ public class SshClient2 implements Closeable {
 			proxyType1 = Proxy.Type.SOCKS;
 		}
 
-		sshj.setSocketFactory(new CustomSocketFactory(proxyHost, proxyPort,
-				proxyUser, proxyPass, proxyType1));
+		sshj.setSocketFactory(new CustomSocketFactory(proxyHost, proxyPort, proxyUser, proxyPass, proxyType1));
 	}
 
 	private void setupKnowHostVerifier() throws IOException {
-		sshj.loadKnownHosts();
-		File knownHostFile = new File(System.getProperty("user.home"),
-				".ssh" + File.separator + "known_hosts");
+		File knownHostFile = new File(System.getProperty("user.home"), ".ssh" + File.separator + "known_hosts");
+		final File sshDir = new File(System.getProperty("user.home"), ".ssh");
+		if (!sshDir.exists()) {
+			if (!sshDir.mkdir()) {
+				knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
+			}
+		}
+		sshj.loadKnownHosts(knownHostFile);
+		// File knownHostFile = new File(System.getProperty("user.home"), ".ssh" +
+		// File.separator + "known_hosts");
 		sshj.addHostKeyVerifier(new GraphicalHostKeyVerifier(knownHostFile));
 	}
 
-	private void getAuthMethods(AtomicBoolean authenticated,
-			List<String> allowedMethods) {
+	private void getAuthMethods(AtomicBoolean authenticated, List<String> allowedMethods) {
 		try {
 			sshj.auth(info.getUser(), new AuthNone());
 			authenticated.set(true); // Surprise! no authentication!!!
@@ -79,19 +85,16 @@ public class SshClient2 implements Closeable {
 			for (String method : sshj.getUserAuth().getAllowedMethods()) {
 				allowedMethods.add(method);
 			}
-			System.out.println(
-					"List of allowed authentications: " + allowedMethods);
+			System.out.println("List of allowed authentications: " + allowedMethods);
 		}
 	}
 
 	private void authPublicKey() throws Exception {
 		KeyProvider provider = null;
-		if (info.getPrivateKeyFile() != null
-				&& info.getPrivateKeyFile().length() > 0) {
+		if (info.getPrivateKeyFile() != null && info.getPrivateKeyFile().length() > 0) {
 			File keyFile = new File(info.getPrivateKeyFile());
 			if (keyFile.exists()) {
-				provider = sshj.loadKeys(info.getPrivateKeyFile(),
-						passwordFinder);
+				provider = sshj.loadKeys(info.getPrivateKeyFile(), passwordFinder);
 				System.out.println("Key provider: " + provider);
 				System.out.println("Key type: " + provider.getType());
 			}
@@ -118,11 +121,8 @@ public class SshClient2 implements Closeable {
 				JTextField txtUser = new JTextField(30);
 				JPasswordField txtPassword = new JPasswordField(30);
 				txtUser.setText(user);
-				int ret = JOptionPane.showOptionDialog(null,
-						new Object[] { "User", txtUser, "Password",
-								txtPassword },
-						"Authentication", JOptionPane.OK_CANCEL_OPTION,
-						JOptionPane.PLAIN_MESSAGE, null, null, null);
+				int ret = JOptionPane.showOptionDialog(null, new Object[] { "User", txtUser, "Password", txtPassword },
+						"Authentication", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 				if (ret == JOptionPane.OK_OPTION) {
 					user = txtUser.getText();
 					password = new String(txtPassword.getPassword());
@@ -202,8 +202,7 @@ public class SshClient2 implements Closeable {
 
 				case "keyboard-interactive":
 					try {
-						sshj.auth(info.getUser(), new AuthKeyboardInteractive(
-								new InteractiveResponseProvider()));
+						sshj.auth(info.getUser(), new AuthKeyboardInteractive(new InteractiveResponseProvider()));
 						authenticated.set(true);
 					} catch (Exception e) {
 						e.printStackTrace();
