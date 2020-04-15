@@ -88,6 +88,9 @@ public class AppSkinDark extends AppSkin {
 		createTreeSkin(this.defaults);
 		createTableHeaderSkin(this.defaults);
 		createPopupMenuSkin(this.defaults);
+		createCheckboxSkin(this.defaults);
+		createRadioButtonSkin(this.defaults);
+		createTooltipSkin(this.defaults);
 
 		this.defaults.put("ScrollBarUI", CustomScrollBarUI.class.getName());
 	}
