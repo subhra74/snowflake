@@ -12,6 +12,9 @@ public class CustomJediterm extends JediTermWidget {
 
 	public CustomJediterm(SettingsProvider settingsProvider) {
 		super(settingsProvider);
+		setFont(settingsProvider.getTerminalFont());
+		getTerminal().setAutoNewLine(false);
+		getTerminalPanel().setFont(settingsProvider.getTerminalFont());
 	}
 
 	@Override

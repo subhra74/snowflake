@@ -82,8 +82,7 @@ public class ExternalEditorHandler extends JDialog {
 
 		this.add(box);
 		this.fileWatcher = new FileChangeWatcher(files -> {
-			if (JOptionPane.showConfirmDialog(this.frame,
-					files + "") == JOptionPane.YES_OPTION) {
+			if (JOptionPane.showConfirmDialog(this.frame, files + "") == JOptionPane.YES_OPTION) {
 				this.fileWatcher.stopWatching();
 				App.EXECUTOR.submit(() -> {
 					try {
@@ -113,8 +112,7 @@ public class ExternalEditorHandler extends JDialog {
 		System.out.println("Total size: " + totalSize);
 		long totalBytes = 0L;
 		for (FileModificationInfo info : files) {
-			System.out
-					.println("Total size: " + totalSize + " opcying: " + info);
+			System.out.println("Total size: " + totalSize + " opcying: " + info);
 			totalBytes += saveRemoteFile(info, totalSize, totalBytes);
 		}
 		fileWatcher.resumeWatching();
@@ -130,8 +128,7 @@ public class ExternalEditorHandler extends JDialog {
 	 * @param totalBytes
 	 * @return
 	 */
-	private long saveRemoteFile(FileModificationInfo info, long total,
-			long totalBytes) {
+	private long saveRemoteFile(FileModificationInfo info, long total, long totalBytes) {
 		System.out.println("Init transfer...1");
 		SessionContentPanel scp = App.getSessionContainer(info.activeSessionId);
 		if (scp == null) {
@@ -140,10 +137,8 @@ public class ExternalEditorHandler extends JDialog {
 		}
 
 		System.out.println("Init transfer...2");
-		try (OutputStream out = scp.getRemoteSessionInstance().getSshFs()
-				.outputTransferChannel()
-				.getOutputStream(info.remoteFile.getPath());
-				InputStream in = new FileInputStream(info.localFile)) {
+		try (OutputStream out = scp.getRemoteSessionInstance().getSshFs().outputTransferChannel()
+				.getOutputStream(info.remoteFile.getPath()); InputStream in = new FileInputStream(info.localFile)) {
 			byte[] b = new byte[8 * 8192];
 			System.out.println("Init transfer...");
 			while (!this.stopFlag.get()) {
@@ -169,8 +164,8 @@ public class ExternalEditorHandler extends JDialog {
 	}
 
 	/**
-	 * Downloads a remote file using SFTP in a temporary directory and if
-	 * download completes successfully, adds it for monitoring.
+	 * Downloads a remote file using SFTP in a temporary directory and if download
+	 * completes successfully, adds it for monitoring.
 	 * 
 	 * @param sourceFs
 	 * @param targetFs
@@ -182,20 +177,17 @@ public class ExternalEditorHandler extends JDialog {
 	 * @param backgroundTransfer
 	 * @throws IOException
 	 */
-	public void openRemoteFile(FileInfo remoteFile, SshFileSystem remoteFs,
-			int activeSessionId) throws IOException {
+	public void openRemoteFile(FileInfo remoteFile, SshFileSystem remoteFs, int activeSessionId, boolean openWith)
+			throws IOException {
 		this.fileWatcher.stopWatching();
-		Path tempFolderPath = Files
-				.createTempDirectory(UUID.randomUUID().toString());
+		Path tempFolderPath = Files.createTempDirectory(UUID.randomUUID().toString());
 		Path localFile = tempFolderPath.resolve(remoteFile.getName());
 		this.stopFlag.set(false);
 		this.progressLabel.setText(remoteFile.getName());
 
 		App.EXECUTOR.submit(() -> {
-			try (InputStream in = remoteFs.inputTransferChannel()
-					.getInputStream(remoteFile.getPath());
-					OutputStream out = new FileOutputStream(
-							localFile.toFile())) {
+			try (InputStream in = remoteFs.inputTransferChannel().getInputStream(remoteFile.getPath());
+					OutputStream out = new FileOutputStream(localFile.toFile())) {
 				byte[] b = new byte[8 * 8192];
 				long totalBytes = 0L;
 				while (!this.stopFlag.get()) {
@@ -205,20 +197,22 @@ public class ExternalEditorHandler extends JDialog {
 					}
 					totalBytes += x;
 					out.write(b, 0, x);
-					final int progress = (int) ((totalBytes * 100)
-							/ remoteFile.getSize());
+					final int progress = (int) ((totalBytes * 100) / remoteFile.getSize());
 					SwingUtilities.invokeLater(() -> {
 						progressBar.setValue(progress);
 					});
 				}
-				fileWatcher.addForMonitoring(remoteFile,
-						localFile.toAbsolutePath().toString(), activeSessionId);
+				fileWatcher.addForMonitoring(remoteFile, localFile.toAbsolutePath().toString(), activeSessionId);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
 				fileWatcher.resumeWatching();
 				SwingUtilities.invokeLater(() -> {
-					PlatformUtils.openWithDefaultApp(localFile.toFile());
+					try {
+						PlatformUtils.openWithDefaultApp(localFile.toFile(), openWith);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
 					setVisible(false);
 				});
 			}

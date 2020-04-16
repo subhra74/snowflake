@@ -69,34 +69,28 @@ public class CustomizedSettingsProvider extends DefaultSettingsProvider {
 
 	@Override
 	public TextStyle getDefaultStyle() {
-		return new TextStyle(
-				getTerminalColor(App.getGlobalSettings().getDefaultColorFg()),
+		return new TextStyle(getTerminalColor(App.getGlobalSettings().getDefaultColorFg()),
 				getTerminalColor(App.getGlobalSettings().getDefaultColorBg()));
 		// return terminalTheme.getDefaultStyle();
 	}
 
 	@Override
 	public TextStyle getFoundPatternColor() {
-		return new TextStyle(
-				getTerminalColor(App.getGlobalSettings().getDefaultFoundFg()),
+		return new TextStyle(getTerminalColor(App.getGlobalSettings().getDefaultFoundFg()),
 				getTerminalColor(App.getGlobalSettings().getDefaultFoundBg()));
 		// return terminalTheme.getFoundPatternColor();
 	}
 
 	@Override
 	public TextStyle getSelectionColor() {
-		return new TextStyle(
-				getTerminalColor(
-						App.getGlobalSettings().getDefaultSelectionFg()),
-				getTerminalColor(
-						App.getGlobalSettings().getDefaultSelectionBg()));
+		return new TextStyle(getTerminalColor(App.getGlobalSettings().getDefaultSelectionFg()),
+				getTerminalColor(App.getGlobalSettings().getDefaultSelectionBg()));
 		//
 	}
 
 	@Override
 	public TextStyle getHyperlinkColor() {
-		return new TextStyle(
-				getTerminalColor(App.getGlobalSettings().getDefaultHrefFg()),
+		return new TextStyle(getTerminalColor(App.getGlobalSettings().getDefaultHrefFg()),
 				getTerminalColor(App.getGlobalSettings().getDefaultHrefBg()));
 		// return
 		// terminalTheme.getHyperlinkColor();
@@ -129,8 +123,9 @@ public class CustomizedSettingsProvider extends DefaultSettingsProvider {
 
 	@Override
 	public Font getTerminalFont() {
-		return new Font(App.getGlobalSettings().getTerminalFontName(),
-				Font.PLAIN, App.getGlobalSettings().getTerminalFontSize());
+		System.out.println("Called terminal font: " + App.getGlobalSettings().getTerminalFontName());
+		return new Font(App.getGlobalSettings().getTerminalFontName(), Font.PLAIN,
+				App.getGlobalSettings().getTerminalFontSize());
 	}
 
 	@Override
@@ -168,8 +163,7 @@ public class CustomizedSettingsProvider extends DefaultSettingsProvider {
 	}
 
 	private KeyStroke getKeyStroke(String key) {
-		return KeyStroke.getKeyStroke(
-				App.getGlobalSettings().getKeyCodeMap().get(key),
+		return KeyStroke.getKeyStroke(App.getGlobalSettings().getKeyCodeMap().get(key),
 				App.getGlobalSettings().getKeyModifierMap().get(key));
 	}
 

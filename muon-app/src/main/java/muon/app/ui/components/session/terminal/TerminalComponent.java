@@ -43,6 +43,7 @@ public class TerminalComponent extends JPanel implements ClosableTabContent {
 
 	public TerminalComponent(SessionInfo info, String name, String command) {
 		setLayout(new BorderLayout());
+		System.out.println("Current terminal font: "+App.getGlobalSettings().getTerminalFontName());
 		this.name = name;
 		this.tabTitle = new TabTitle();
 		contentPane = new JPanel(new BorderLayout());
