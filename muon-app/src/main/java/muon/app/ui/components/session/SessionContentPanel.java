@@ -6,8 +6,14 @@ package muon.app.ui.components.session;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.io.File;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -19,10 +25,15 @@ import javax.swing.border.MatteBorder;
 
 import muon.app.App;
 import muon.app.common.FileInfo;
+import muon.app.common.FileSystem;
+import muon.app.common.local.LocalFileSystem;
 import muon.app.ssh.RemoteSessionInstance;
+import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.DisabledPanel;
 import muon.app.ui.components.session.diskspace.DiskspaceAnalyzer;
 import muon.app.ui.components.session.files.FileBrowser;
+import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
+import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.session.files.transfer.TransferProgressPanel;
 import muon.app.ui.components.session.logviewer.LogViewer;
 import muon.app.ui.components.session.processview.ProcessViewer;
@@ -54,6 +65,8 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 	private ProcessViewer processViewer;
 	private UtilityPage utilityPage;
 	private AtomicBoolean closed = new AtomicBoolean(false);
+	private Deque<RemoteSessionInstance> cachedSessions = new LinkedList<>();
+	private ThreadPoolExecutor backgroundTransferPool;
 
 	/**
 	 * 
@@ -62,11 +75,9 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 		super(new BorderLayout());
 		this.info = info;
 		this.disabledPanel = new DisabledPanel();
-		this.remoteSessionInstance = new RemoteSessionInstance(info,
-				App.getInputBlocker());
+		this.remoteSessionInstance = new RemoteSessionInstance(info, App.getInputBlocker());
 		Box contentTabs = Box.createHorizontalBox();
-		contentTabs.setBorder(
-				new MatteBorder(0, 0, 1, 0, App.SKIN.getDefaultBorderColor()));
+		contentTabs.setBorder(new MatteBorder(0, 0, 1, 0, App.SKIN.getDefaultBorderColor()));
 
 //		String names[] = { "File browser", "Log viewer", "Terminal",
 //				"File search", "Utilities" };
@@ -83,8 +94,8 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 		processViewer = new ProcessViewer(this);
 		utilityPage = new UtilityPage(this);
 
-		Page[] pageArr = new Page[] { fileBrowser, terminalHolder, logViewer,
-				searchPanel, diskspaceAnalyzer, processViewer, utilityPage };
+		Page[] pageArr = new Page[] { fileBrowser, terminalHolder, logViewer, searchPanel, diskspaceAnalyzer,
+				processViewer, utilityPage };
 
 //		JPanel[] panels = {
 //				new FileBrowser(info, new AtomicBoolean(), this, null,
@@ -202,8 +213,7 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 		return this.hashCode();
 	}
 
-	public void downloadFileToLocal(FileInfo remoteFile,
-			Consumer<File> callback) {
+	public void downloadFileToLocal(FileInfo remoteFile, Consumer<File> callback) {
 
 	}
 
@@ -231,6 +241,7 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		App.removePendingTransfers(this.getActiveSessionId());
 		EXECUTOR.submit(() -> {
 			try {
 				this.remoteSessionInstance.close();
@@ -239,4 +250,47 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 			}
 		});
 	}
+
+	public void uploadInBackground(FileInfo[] localFiles, String targetRemoteDirectory) {
+		RemoteSessionInstance instance = createBackgroundSession();
+		FileSystem sourceFs = new LocalFileSystem();
+		FileSystem targetFs = instance.getSshFs();
+		FileTransfer transfer = new FileTransfer(sourceFs, targetFs, localFiles, targetRemoteDirectory, null, -1);
+		App.addUpload(new BackgroundFileTransfer(transfer, instance, this));
+	}
+
+	public void downloadInBackground(FileInfo[] remoteFiles, String targetLocalDirectory) {
+		FileSystem targetFs = new LocalFileSystem();
+		RemoteSessionInstance instance = createBackgroundSession();
+		SshFileSystem sourceFs = instance.getSshFs();
+		FileTransfer transfer = new FileTransfer(sourceFs, targetFs, remoteFiles, targetLocalDirectory, null, -1);
+		App.addDownload(new BackgroundFileTransfer(transfer, instance, this));
+	}
+
+	public synchronized ThreadPoolExecutor getBackgroundTransferPool() {
+		if (this.backgroundTransferPool == null) {
+			this.backgroundTransferPool = new ThreadPoolExecutor(App.getGlobalSettings().getBackgroundTransferQueueSize(),
+					App.getGlobalSettings().getBackgroundTransferQueueSize(), 0, TimeUnit.NANOSECONDS,
+					new LinkedBlockingQueue<Runnable>());
+		} else {
+			if (this.backgroundTransferPool.getMaximumPoolSize() != App.getGlobalSettings()
+					.getBackgroundTransferQueueSize()) {
+				this.backgroundTransferPool
+						.setMaximumPoolSize(App.getGlobalSettings().getBackgroundTransferQueueSize());
+			}
+		}
+		return this.backgroundTransferPool;
+	}
+
+	public synchronized RemoteSessionInstance createBackgroundSession() {
+		if (this.cachedSessions.size() == 0) {
+			return new RemoteSessionInstance(info, App.getInputBlocker());
+		}
+		return this.cachedSessions.pop();
+	}
+
+	public synchronized void addToSessionCache(RemoteSessionInstance session) {
+		this.cachedSessions.push(session);
+	}
+
 }

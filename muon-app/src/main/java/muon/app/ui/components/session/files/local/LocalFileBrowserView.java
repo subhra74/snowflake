@@ -33,15 +33,13 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 	private JComboBox<String> cmbOptions = new JComboBox<>(
 			new String[] { "Transfer normally", "Transfer in background" });
 
-	public LocalFileBrowserView(FileBrowser fileBrowser, String initialPath,
-			PanelOrientation orientation) {
+	public LocalFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
 		super(orientation, fileBrowser);// new Color(255, 255,
 										// 240));
 		this.fileBrowser = fileBrowser;
 		this.menuHandler = new LocalMenuHandler(fileBrowser, this);
 		this.menuHandler.initMenuHandler(this.folderView);
-		this.transferHandler = new DndTransferHandler(this.folderView, null,
-				this, DndTransferData.DndSourceType.LOCAL);
+		this.transferHandler = new DndTransferHandler(this.folderView, null, this, DndTransferData.DndSourceType.LOCAL);
 		this.folderView.setTransferHandler(transferHandler);
 		this.folderView.setFolderViewTransferHandler(transferHandler);
 		this.addressPopup = menuHandler.createAddressPopup();
@@ -115,8 +113,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 				SwingUtilities.invokeLater(() -> {
 					addressBar.setText(this.path);
 					folderView.setItems(list);
-					tabTitle.getCallback()
-							.accept(PathUtils.getFileName(this.path));
+					tabTitle.getCallback().accept(PathUtils.getFileName(this.path));
 				});
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -155,27 +152,22 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 	}
 
 	public boolean handleDrop(DndTransferData transferData) {
-		System.out.println(
-				"### " + transferData.getSource() + " " + this.hashCode());
+		System.out.println("### " + transferData.getSource() + " " + this.hashCode());
 		if (transferData.getSource() == this.hashCode()) {
 			return false;
 		}
 		if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
-				&& JOptionPane.showConfirmDialog(null,
-						"Move/copy files?") != JOptionPane.YES_OPTION) {
+				&& JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
 			return false;
 		}
 		try {
-//			if (JOptionPane.showOptionDialog(holder,
-//					new Object[] { "Please select a transfer mode",
-//							cmbOptions },
-//					"Transfer options", JOptionPane.OK_CANCEL_OPTION,
-//					JOptionPane.PLAIN_MESSAGE, null, null,
-//					null) != JOptionPane.OK_OPTION) {
-//				return false;
-//			}
-			boolean backgroundTransfer = false;// cmbOptions.getSelectedIndex()
-												// == 1;
+			if (JOptionPane.showOptionDialog(this.fileBrowser,
+					new Object[] { "Please select a transfer mode", cmbOptions }, "Transfer options",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
+					null) != JOptionPane.OK_OPTION) {
+				return false;
+			}
+			boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
 			System.out.println("Dropped: " + transferData);
 			int sessionHashCode = transferData.getInfo();
 			if (sessionHashCode == 0)
@@ -183,13 +175,12 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 			SessionInfo info = fileBrowser.getInfo();
 			if (info != null && info.hashCode() == sessionHashCode) {
 				if (backgroundTransfer) {
-					FileSystem sourceFs = null;// new SshFileSystem(new
-												// SshModalUserInteraction(holder.getInfo()));
-					FileSystem targetFs = new LocalFileSystem();
-					fileBrowser.newFileTransfer(sourceFs, targetFs,
-							transferData.getFiles(),
-							transferData.getCurrentDirectory(), this.path,
-							this.hashCode(), -1, true);
+					fileBrowser.getHolder().downloadInBackground(transferData.getFiles(), this.path);
+//					FileSystem sourceFs = null;// new SshFileSystem(new
+//												// SshModalUserInteraction(holder.getInfo()));
+//					FileSystem targetFs = new LocalFileSystem();
+//					fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
+//							transferData.getCurrentDirectory(), this.path, this.hashCode(), -1, true);
 					return true;
 				}
 				FileSystem sourceFs = fileBrowser.getSSHFileSystem();
@@ -197,10 +188,8 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 					return false;
 				}
 				FileSystem targetFs = this.fs;
-				fileBrowser.newFileTransfer(sourceFs, targetFs,
-						transferData.getFiles(),
-						transferData.getCurrentDirectory(), this.path,
-						this.hashCode(), -1, false);
+				fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), this.path, this.hashCode(),
+						-1);
 			}
 			return true;
 		} catch (Exception e) {

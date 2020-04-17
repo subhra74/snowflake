@@ -254,10 +254,6 @@ public class LocalFileSystem implements FileSystem {
 				return getInfo(path).getSize();
 			}
 
-			@Override
-			public void close() {
-			}
-
 		};
 		return tc;
 	}
@@ -267,10 +263,6 @@ public class LocalFileSystem implements FileSystem {
 			@Override
 			public OutputStream getOutputStream(String path) throws Exception {
 				return new FileOutputStream(path);
-			}
-
-			@Override
-			public void close() {
 			}
 
 			@Override

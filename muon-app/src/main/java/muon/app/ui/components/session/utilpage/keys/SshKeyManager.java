@@ -28,8 +28,7 @@ import net.schmizz.sshj.sftp.SFTPException;
 import util.PathUtils;
 
 public class SshKeyManager {
-	public static SshKeyHolder getKeyDetails(SessionContentPanel content)
-			throws Exception {
+	public static SshKeyHolder getKeyDetails(SessionContentPanel content) throws Exception {
 		SshKeyHolder holder = new SshKeyHolder();
 		loadLocalKey(getPubKeyPath(content.getInfo()), holder);
 		loadRemoteKeys(holder, content.getRemoteSessionInstance().getSshFs());
@@ -39,8 +38,7 @@ public class SshKeyManager {
 	private static void loadLocalKey(String pubKeyPath, SshKeyHolder holder) {
 		try {
 			Path defaultPath = pubKeyPath == null
-					? Paths.get(System.getProperty("user.home"), ".ssh",
-							"id_rsa.pub").toAbsolutePath()
+					? Paths.get(System.getProperty("user.home"), ".ssh", "id_rsa.pub").toAbsolutePath()
 					: Paths.get(pubKeyPath);
 			byte[] bytes = Files.readAllBytes(defaultPath);
 			holder.setLocalPublicKey(new String(bytes, "utf-8"));
@@ -57,13 +55,12 @@ public class SshKeyManager {
 //        }
 //    }
 
-	private static void loadRemoteKeys(SshKeyHolder holder,
-			SshFileSystem fileSystem) throws Exception {
+	private static void loadRemoteKeys(SshKeyHolder holder, SshFileSystem fileSystem) throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		String path = fileSystem.getHome() + "/.ssh/id_rsa.pub";
 		try {
-			try (InputTransferChannel itc = fileSystem.inputTransferChannel();
-					InputStream in = itc.getInputStream(path)) {
+			InputTransferChannel itc = fileSystem.inputTransferChannel();
+			try (InputStream in = itc.getInputStream(path)) {
 				byte[] bytes = in.readAllBytes();
 				out.write(bytes);
 			}
@@ -80,15 +77,14 @@ public class SshKeyManager {
 		out = new ByteArrayOutputStream();
 		path = fileSystem.getHome() + "/.ssh/authorized_keys";
 		try {
-			try (InputTransferChannel itc = fileSystem.inputTransferChannel();
-					InputStream in = itc.getInputStream(path)) {
+			InputTransferChannel itc = fileSystem.inputTransferChannel();
+			try (InputStream in = itc.getInputStream(path)) {
 				byte[] bytes = in.readAllBytes();
 				out.write(bytes);
 			}
 
 			// fileSystem.getSftp().get(path, out);
-			holder.setRemoteAuthorizedKeys(
-					new String(out.toByteArray(), "utf-8"));
+			holder.setRemoteAuthorizedKeys(new String(out.toByteArray(), "utf-8"));
 		} catch (SFTPException e) {
 			if (e.getStatusCode() != Response.StatusCode.NO_SUCH_FILE
 					&& e.getStatusCode() != Response.StatusCode.NO_SUCH_PATH) {
@@ -97,23 +93,20 @@ public class SshKeyManager {
 		}
 	}
 
-	public static void generateKeys(SshKeyHolder holder,
-			RemoteSessionInstance instance, boolean local) throws Exception {
+	public static void generateKeys(SshKeyHolder holder, RemoteSessionInstance instance, boolean local)
+			throws Exception {
 		if (holder.getLocalPublicKey() != null) {
 			if (JOptionPane.showConfirmDialog(null,
 					"WARNING: This will overwrite the existing SSH key"
-							+ "\n\nIf the key was being used to connect to other servers,"
-							+ "\nconnection will fail."
+							+ "\n\nIf the key was being used to connect to other servers," + "\nconnection will fail."
 							+ "\nYou have to reconfigure all the servers"
 							+ "\nto use the new key\nDo you still want to continue?",
-					"Warning", JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) {
+					"Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION) {
 				return;
 			}
 		}
 
-		JCheckBox chkGenPassPhrase = new JCheckBox(
-				"Use passphrase to protect private key (Optional)");
+		JCheckBox chkGenPassPhrase = new JCheckBox("Use passphrase to protect private key (Optional)");
 		JPasswordField txtPassPhrase = new JPasswordField(30);
 		txtPassPhrase.setEditable(false);
 		chkGenPassPhrase.addActionListener(e -> {
@@ -122,10 +115,8 @@ public class SshKeyManager {
 
 		String passPhrase = new String(txtPassPhrase.getPassword());
 
-		if (JOptionPane.showOptionDialog(null,
-				new Object[] { chkGenPassPhrase, "Passphrase", txtPassPhrase },
-				"Passphrase", JOptionPane.OK_CANCEL_OPTION,
-				JOptionPane.PLAIN_MESSAGE, null, null,
+		if (JOptionPane.showOptionDialog(null, new Object[] { chkGenPassPhrase, "Passphrase", txtPassPhrase },
+				"Passphrase", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
 				null) == JOptionPane.YES_OPTION) {
 			if (local) {
 				generateLocalKeys(holder, passPhrase);
@@ -135,37 +126,29 @@ public class SshKeyManager {
 		}
 	}
 
-	public static void generateLocalKeys(SshKeyHolder holder, String passPhrase)
-			throws Exception {
+	public static void generateLocalKeys(SshKeyHolder holder, String passPhrase) throws Exception {
 		Path sshDir = Paths.get(System.getProperty("user.home"), ".ssh");
-		Path pubKeyPath = Paths
-				.get(System.getProperty("user.home"), ".ssh", "id_rsa.pub")
-				.toAbsolutePath();
-		Path keyPath = Paths
-				.get(System.getProperty("user.home"), ".ssh", "id_rsa")
-				.toAbsolutePath();
+		Path pubKeyPath = Paths.get(System.getProperty("user.home"), ".ssh", "id_rsa.pub").toAbsolutePath();
+		Path keyPath = Paths.get(System.getProperty("user.home"), ".ssh", "id_rsa").toAbsolutePath();
 		JSch jsch = new JSch();
 		KeyPair kpair = KeyPair.genKeyPair(jsch, KeyPair.RSA);
 		Files.createDirectories(sshDir);
 		if (passPhrase.length() > 0) {
-			kpair.writePrivateKey(keyPath.toString(),
-					passPhrase.getBytes("utf-8"));
+			kpair.writePrivateKey(keyPath.toString(), passPhrase.getBytes("utf-8"));
 		} else {
 			kpair.writePrivateKey(keyPath.toString());
 		}
-		kpair.writePublicKey(pubKeyPath.toString(),
-				System.getProperty("user.name") + "@localcomputer");
+		kpair.writePublicKey(pubKeyPath.toString(), System.getProperty("user.name") + "@localcomputer");
 		kpair.dispose();
 		loadLocalKey(pubKeyPath.toString(), holder);
 	}
 
-	public static void generateRemoteKeys(RemoteSessionInstance instance,
-			SshKeyHolder holder, String passPhrase) throws Exception {
+	public static void generateRemoteKeys(RemoteSessionInstance instance, SshKeyHolder holder, String passPhrase)
+			throws Exception {
 		String path1 = "$HOME/.ssh/id_rsa";
 		String path = path1 + ".pub";
 
-		String cmd = "ssh-keygen -q -N \"" + passPhrase + "\" -f \"" + path1
-				+ "\"";
+		String cmd = "ssh-keygen -q -N \"" + passPhrase + "\" -f \"" + path1 + "\"";
 
 		try {
 			instance.getSshFs().deleteFile(path1);
@@ -193,12 +176,9 @@ public class SshKeyManager {
 	}
 
 	private static String getPubKeyPath(SessionInfo info) {
-		if (info.getPrivateKeyFile() != null
-				&& info.getPrivateKeyFile().length() > 0) {
-			String path = PathUtils.combine(
-					PathUtils.getParent(info.getPrivateKeyFile()),
-					PathUtils.getFileName(info.getPrivateKeyFile()) + ".pub",
-					File.separator);
+		if (info.getPrivateKeyFile() != null && info.getPrivateKeyFile().length() > 0) {
+			String path = PathUtils.combine(PathUtils.getParent(info.getPrivateKeyFile()),
+					PathUtils.getFileName(info.getPrivateKeyFile()) + ".pub", File.separator);
 			if (new File(path).exists()) {
 				return path;
 			}
@@ -206,22 +186,19 @@ public class SshKeyManager {
 		return null;
 	}
 
-	public static void saveAuthorizedKeysFile(String authorizedKeys,
-			SshFileSystem fileSystem) throws Exception {
+	public static void saveAuthorizedKeysFile(String authorizedKeys, SshFileSystem fileSystem) throws Exception {
 		boolean found = false;
 		try {
-			fileSystem.getInfo(
-					PathUtils.combineUnix(fileSystem.getHome(), ".ssh"));
+			fileSystem.getInfo(PathUtils.combineUnix(fileSystem.getHome(), ".ssh"));
 			found = true;
 		} catch (Exception e) {
 		}
 		if (!found) {
-			fileSystem
-					.mkdir(PathUtils.combineUnix(fileSystem.getHome(), ".ssh"));
+			fileSystem.mkdir(PathUtils.combineUnix(fileSystem.getHome(), ".ssh"));
 		}
-		try (OutputTransferChannel otc = fileSystem.outputTransferChannel();
-				OutputStream out = otc.getOutputStream(PathUtils.combineUnix(
-						fileSystem.getHome(), "/.ssh/authorized_keys"))) {
+		OutputTransferChannel otc = fileSystem.outputTransferChannel();
+		try (OutputStream out = otc
+				.getOutputStream(PathUtils.combineUnix(fileSystem.getHome(), "/.ssh/authorized_keys"))) {
 			out.write(authorizedKeys.getBytes("utf-8"));
 		}
 	}

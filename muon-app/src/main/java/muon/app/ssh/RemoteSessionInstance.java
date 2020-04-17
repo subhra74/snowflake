@@ -31,8 +31,7 @@ public class RemoteSessionInstance {
 		this.sshFs = new SshFileSystem(this.ssh);
 	}
 
-	public int exec(String command, Function<Command, Integer> callback,
-			boolean pty) throws Exception {
+	public int exec(String command, Function<Command, Integer> callback, boolean pty) throws Exception {
 		synchronized (this.ssh) {
 			if (this.closed.get()) {
 				throw new OperationCancelledException();
@@ -44,8 +43,7 @@ public class RemoteSessionInstance {
 				try (Session session = ssh.openSession()) {
 					session.setAutoExpand(true);
 					if (pty) {
-						session.allocatePTY("vt100", 80, 24, 0, 0,
-								Collections.<PTYMode, Integer>emptyMap());
+						session.allocatePTY("vt100", 80, 24, 0, 0, Collections.<PTYMode, Integer>emptyMap());
 					}
 					try (final Command cmd = session.exec(command)) {
 						return callback.apply(cmd);
@@ -63,17 +61,14 @@ public class RemoteSessionInstance {
 		return exec(command, stopFlag, null, null);
 	}
 
-	public int exec(String command, AtomicBoolean stopFlag,
-			StringBuilder output) throws Exception {
+	public int exec(String command, AtomicBoolean stopFlag, StringBuilder output) throws Exception {
 		return exec(command, stopFlag, output, null);
 	}
 
-	public int exec(String command, AtomicBoolean stopFlag,
-			StringBuilder output, StringBuilder error) throws Exception {
-		ByteArrayOutputStream bout = output == null ? null
-				: new ByteArrayOutputStream();
-		ByteArrayOutputStream berr = error == null ? null
-				: new ByteArrayOutputStream();
+	public int exec(String command, AtomicBoolean stopFlag, StringBuilder output, StringBuilder error)
+			throws Exception {
+		ByteArrayOutputStream bout = output == null ? null : new ByteArrayOutputStream();
+		ByteArrayOutputStream berr = error == null ? null : new ByteArrayOutputStream();
 		int ret = execBin(command, stopFlag, bout, berr);
 		if (output != null) {
 			try {
@@ -92,8 +87,7 @@ public class RemoteSessionInstance {
 		return ret;
 	}
 
-	public int execBin(String command, AtomicBoolean stopFlag,
-			OutputStream bout, OutputStream berr) throws Exception {
+	public int execBin(String command, AtomicBoolean stopFlag, OutputStream bout, OutputStream berr) throws Exception {
 		synchronized (this.ssh) {
 			if (this.closed.get()) {
 				throw new OperationCancelledException();
@@ -130,8 +124,7 @@ public class RemoteSessionInstance {
 							if (in.available() > 0) {
 								int m = in.available();
 								while (m > 0) {
-									int x = in.read(b, 0,
-											m > b.length ? b.length : m);
+									int x = in.read(b, 0, m > b.length ? b.length : m);
 									if (x == -1) {
 										break;
 									}
@@ -146,8 +139,7 @@ public class RemoteSessionInstance {
 							if (err.available() > 0) {
 								int m = err.available();
 								while (m > 0) {
-									int x = err.read(b, 0,
-											m > b.length ? b.length : m);
+									int x = err.read(b, 0, m > b.length ? b.length : m);
 									if (x == -1) {
 										break;
 									}
@@ -167,8 +159,7 @@ public class RemoteSessionInstance {
 							// Thread.sleep(500);
 						} while (cmd.isOpen());
 
-						System.out.println(cmd.isOpen() + " " + cmd.isEOF()
-								+ " " + cmd.getExitStatus());
+						System.out.println(cmd.isOpen() + " " + cmd.isEOF() + " " + cmd.getExitStatus());
 						// System.out.println((char)in.read());
 
 						// System.out.println(output + " " + error);
@@ -208,6 +199,7 @@ public class RemoteSessionInstance {
 	 */
 	public SshFileSystem getSshFs() {
 		return sshFs;
+
 	}
 
 	public boolean isSessionClosed() {

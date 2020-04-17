@@ -1,23 +1,18 @@
 package muon.app.ui.components.session.files;
 
-import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import javax.swing.Box;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
-import javax.swing.border.MatteBorder;
 
-import muon.app.App;
 import muon.app.common.FileInfo;
 import muon.app.common.FileSystem;
 import muon.app.ssh.RemoteSessionInstance;
@@ -46,8 +41,7 @@ public class FileBrowser extends Page {
 	private JPopupMenu popup;
 	private boolean leftPopup = false;
 
-	public FileBrowser(SessionInfo info, SessionContentPanel holder,
-			JRootPane rootPane, int activeSessionId) {
+	public FileBrowser(SessionInfo info, SessionContentPanel holder, JRootPane rootPane, int activeSessionId) {
 		this.activeSessionId = activeSessionId;
 		this.info = info;
 		this.holder = holder;
@@ -123,8 +117,6 @@ public class FileBrowser extends Page {
 		horizontalSplitter.setDividerSize(5);
 
 		this.add(horizontalSplitter);
-
-		
 
 //		leftDropdown.addActionListener(e -> {
 //			System.out.println("Left drop down changed");
@@ -244,10 +236,8 @@ public class FileBrowser extends Page {
 		holder.enableUi();
 	}
 
-	public void openSshFileBrowserView(String path,
-			AbstractFileBrowserView.PanelOrientation orientation) {
-		SshFileBrowserView tab = new SshFileBrowserView(this, path,
-				orientation);
+	public void openSshFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
+		SshFileBrowserView tab = new SshFileBrowserView(this, path, orientation);
 		if (orientation == PanelOrientation.Left) {
 			this.leftTabs.addTab(tab.getTabTitle(), tab);
 		} else {
@@ -255,11 +245,9 @@ public class FileBrowser extends Page {
 		}
 	}
 
-	public void openLocalFileBrowserView(String path,
-			AbstractFileBrowserView.PanelOrientation orientation) {
+	public void openLocalFileBrowserView(String path, AbstractFileBrowserView.PanelOrientation orientation) {
 
-		LocalFileBrowserView tab = new LocalFileBrowserView(this, path,
-				orientation);
+		LocalFileBrowserView tab = new LocalFileBrowserView(this, path, orientation);
 		if (orientation == PanelOrientation.Left) {
 			this.leftTabs.addTab(tab.getTabTitle(), tab);
 		} else {
@@ -391,37 +379,25 @@ public class FileBrowser extends Page {
 	 * @param defaultOverwriteAction
 	 * @param backgroundTransfer
 	 */
-	public void newFileTransfer(FileSystem sourceFs, FileSystem targetFs,
-			FileInfo[] files, String sourceFolder, String targetFolder,
-			int dragsource, int defaultOverwriteAction,
-			boolean backgroundTransfer) {
-		if (backgroundTransfer) {
-//			sessionContent.transferInBackground(
-//					new FileTransfer(sourceFs, targetFs, files, sourceFolder,
-//							targetFolder, null, defaultOverwriteAction));
-//			return;
-		}
-		this.ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files,
-				sourceFolder, targetFolder, new FileTransferProgress() {
+	public void newFileTransfer(FileSystem sourceFs, FileSystem targetFs, FileInfo[] files, String targetFolder,
+			int dragsource, int defaultOverwriteAction) {
+		this.ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
+				new FileTransferProgress() {
 
 					@Override
-					public void progress(long processedBytes, long totalBytes,
-							long processedCount, long totalCount,
+					public void progress(long processedBytes, long totalBytes, long processedCount, long totalCount,
 							FileTransfer fileTransfer) {
 						SwingUtilities.invokeLater(() -> {
 							if (totalBytes == 0) {
 								holder.setTransferProgress(0);
 							} else {
-								holder.setTransferProgress(
-										(int) ((processedBytes * 100)
-												/ totalBytes));
+								holder.setTransferProgress((int) ((processedBytes * 100) / totalBytes));
 							}
 						});
 					}
 
 					@Override
-					public void init(long totalSize, long files,
-							FileTransfer fileTransfer) {
+					public void init(long totalSize, long files, FileTransfer fileTransfer) {
 					}
 
 					@Override
@@ -429,8 +405,7 @@ public class FileBrowser extends Page {
 						SwingUtilities.invokeLater(() -> {
 							holder.endFileTransfer();
 							if (!holder.isSessionClosed()) {
-								JOptionPane.showMessageDialog(null,
-										"Operation failed");
+								JOptionPane.showMessageDialog(null, "Operation failed");
 							}
 						});
 					}
@@ -476,12 +451,11 @@ public class FileBrowser extends Page {
 			return;
 		}
 		init.set(true);
-		SshFileBrowserView left = new SshFileBrowserView(this, null,
-				PanelOrientation.Left);
+		SshFileBrowserView left = new SshFileBrowserView(this, null, PanelOrientation.Left);
 		this.leftTabs.addTab(left.getTabTitle(), left);
 
-		LocalFileBrowserView right = new LocalFileBrowserView(this,
-				System.getProperty("user.home"), PanelOrientation.Right);
+		LocalFileBrowserView right = new LocalFileBrowserView(this, System.getProperty("user.home"),
+				PanelOrientation.Right);
 		this.rightTabs.addTab(right.getTabTitle(), right);
 	}
 

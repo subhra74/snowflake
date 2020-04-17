@@ -10,8 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -28,6 +32,8 @@ import muon.app.ssh.InputBlocker;
 import muon.app.ui.AppWindow;
 import muon.app.ui.components.session.ExternalEditorHandler;
 import muon.app.ui.components.session.SessionContentPanel;
+import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
+import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.laf.AppSkin;
 import muon.app.ui.laf.AppSkinDark;
 import muon.app.ui.laf.AppSkinLight;
@@ -171,5 +177,17 @@ public class App {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static synchronized void addUpload(BackgroundFileTransfer transfer) {
+		mw.addUpload(transfer);
+	}
+
+	public static synchronized void addDownload(BackgroundFileTransfer transfer) {
+		mw.addDownload(transfer);
+	}
+
+	public static synchronized void removePendingTransfers(int sessionId) {
+		mw.removePendingTransfers(sessionId);
 	}
 }

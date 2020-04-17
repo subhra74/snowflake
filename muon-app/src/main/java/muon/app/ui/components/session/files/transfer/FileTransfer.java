@@ -1,27 +1,30 @@
 package muon.app.ui.components.session.files.transfer;
 
-import javax.swing.*;
-
-import muon.app.common.*;
-import muon.app.ssh.SshFileSystem;
-import util.PathUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.AccessDeniedException;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
+
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+
+import muon.app.common.FileInfo;
+import muon.app.common.FileSystem;
+import muon.app.common.FileType;
+import muon.app.common.InputTransferChannel;
+import muon.app.common.OutputTransferChannel;
+import muon.app.ssh.SshFileSystem;
+import muon.app.ui.components.session.SessionContentPanel;
+import util.PathUtils;
 
 public class FileTransfer implements Runnable, AutoCloseable {
 	private FileSystem sourceFs, targetFs;
-	// private ExecutorService threadPool = Executors.newFixedThreadPool(2);
 	private FileInfo[] files;
-	private String sourceFolder, targetFolder;
-	private BlockingQueue<ByteChunk> dataQueue = new ArrayBlockingQueue<>(10);
-	// private ExecutorService runningThread =
-	// Executors.newSingleThreadExecutor();
+	private String targetFolder;
 	private long totalSize;
 	private AtomicBoolean stopFlag = new AtomicBoolean(false);
 
@@ -32,13 +35,11 @@ public class FileTransfer implements Runnable, AutoCloseable {
 	private int conflictOnOverwrite = -1; // 0 -> overwrite, 1 -> auto rename, 2
 											// -> skip
 
-	public FileTransfer(FileSystem sourceFs, FileSystem targetFs,
-			FileInfo[] files, String sourceFolder, String targetFolder,
+	public FileTransfer(FileSystem sourceFs, FileSystem targetFs, FileInfo[] files, String targetFolder,
 			FileTransferProgress callback, int defaultConflictAction) {
 		this.sourceFs = sourceFs;
 		this.targetFs = targetFs;
 		this.files = files;
-		this.sourceFolder = sourceFolder;
 		this.targetFolder = targetFolder;
 		this.callback = callback;
 		this.conflictOnOverwrite = defaultConflictAction;
@@ -58,13 +59,6 @@ public class FileTransfer implements Runnable, AutoCloseable {
 			return;
 		}
 
-//        if(!sourceFs.isConnected()){
-//            sourceFs.connect();
-//        }
-//        if(!targetFs.isConnected()){
-//            targetFs.connect();
-//        }
-
 		totalSize = 0;
 		for (FileInfo file : files) {
 			if (stopFlag.get()) {
@@ -81,33 +75,29 @@ public class FileTransfer implements Runnable, AutoCloseable {
 				}
 			}
 
-			if (file.getType() == FileType.Directory
-					|| file.getType() == FileType.DirLink) {
-				fileList.addAll(
-						createFileList(file, targetFolder, proposedName));
+			if (file.getType() == FileType.Directory || file.getType() == FileType.DirLink) {
+				fileList.addAll(createFileList(file, targetFolder, proposedName));
 			} else {
-				fileList.add(
-						new FileInfoHolder(file, targetFolder, proposedName));
+				fileList.add(new FileInfoHolder(file, targetFolder, proposedName));
 				totalSize += file.getSize();
 			}
 		}
 		totalFiles = fileList.size();
 
 		callback.init(totalSize, totalFiles, this);
-		try (InputTransferChannel inc = sourceFs.inputTransferChannel();
-				OutputTransferChannel outc = targetFs.outputTransferChannel()) {
-			for (FileInfoHolder file : fileList) {
-				System.out.println("Copying: " + file.info.getPath());
-				if (stopFlag.get()) {
-					System.out.println("Operation cancelled by user");
-					return;
-				}
-				copyFile(file.info, file.targetPath, file.proposedName, inc,
-						outc);
-				System.out.println("Copying done: " + file.info.getPath());
-				processedFilesCount++;
+		InputTransferChannel inc = sourceFs.inputTransferChannel();
+		OutputTransferChannel outc = targetFs.outputTransferChannel();
+		for (FileInfoHolder file : fileList) {
+			System.out.println("Copying: " + file.info.getPath());
+			if (stopFlag.get()) {
+				System.out.println("Operation cancelled by user");
+				return;
 			}
+			copyFile(file.info, file.targetPath, file.proposedName, inc, outc);
+			System.out.println("Copying done: " + file.info.getPath());
+			processedFilesCount++;
 		}
+
 	}
 
 	public void run() {
@@ -119,15 +109,13 @@ public class FileTransfer implements Runnable, AutoCloseable {
 				if (targetFs instanceof SshFileSystem) {
 					if (JOptionPane.showConfirmDialog(null,
 							"Permission denied, do you want to copy files to a temporary folder first and copy them to destination with sudo?",
-							"Insufficient permission",
-							JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
+							"Insufficient permission", JOptionPane.YES_NO_OPTION) != JOptionPane.YES_OPTION) {
 						throw e;
 					}
 					String tmpDir = "/tmp/" + UUID.randomUUID();
 					targetFs.mkdir(tmpDir);
 					transfer(tmpDir);
-					String command = "sh -c  \"cd '" + tmpDir + "'; cp -r * '"
-							+ this.targetFolder + "'\"";
+					String command = "sh -c  \"cd '" + tmpDir + "'; cp -r * '" + this.targetFolder + "'\"";
 					// String command = "sh -c cp -r \"" + tmpDir + "/*\" \"" +
 					// this.targetFolder + "\"";
 					System.out.println("Invoke sudo: " + command);
@@ -152,13 +140,11 @@ public class FileTransfer implements Runnable, AutoCloseable {
 		}
 	}
 
-	private List<FileInfoHolder> createFileList(FileInfo folder, String target,
-			String proposedName) throws Exception {
+	private List<FileInfoHolder> createFileList(FileInfo folder, String target, String proposedName) throws Exception {
 		if (stopFlag.get()) {
 			throw new Exception("Interrupted");
 		}
-		String folderTarget = PathUtils.combineUnix(target,
-				proposedName == null ? folder.getName() : proposedName);
+		String folderTarget = PathUtils.combineUnix(target, proposedName == null ? folder.getName() : proposedName);
 		targetFs.mkdir(folderTarget);
 		List<FileInfoHolder> fileInfoHolders = new ArrayList<>();
 		List<FileInfo> list = sourceFs.list(folder.getPath());
@@ -167,11 +153,9 @@ public class FileTransfer implements Runnable, AutoCloseable {
 				throw new Exception("Interrupted");
 			}
 			if (file.getType() == FileType.Directory) {
-				fileInfoHolders
-						.addAll(createFileList(file, folderTarget, null));
+				fileInfoHolders.addAll(createFileList(file, folderTarget, null));
 			} else if (file.getType() == FileType.File) {
-				fileInfoHolders
-						.add(new FileInfoHolder(file, folderTarget, null));
+				fileInfoHolders.add(new FileInfoHolder(file, folderTarget, null));
 				totalSize += file.getSize();
 			}
 		}
@@ -179,17 +163,14 @@ public class FileTransfer implements Runnable, AutoCloseable {
 		return fileInfoHolders;
 	}
 
-	private synchronized void copyFile(FileInfo file, String targetDirectory,
-			String proposedName, InputTransferChannel inc,
-			OutputTransferChannel outc) throws Exception {
+	private synchronized void copyFile(FileInfo file, String targetDirectory, String proposedName,
+			InputTransferChannel inc, OutputTransferChannel outc) throws Exception {
 		byte buf[] = new byte[8192];
-		String outPath = PathUtils.combine(targetDirectory,
-				proposedName == null ? file.getName() : proposedName,
+		String outPath = PathUtils.combine(targetDirectory, proposedName == null ? file.getName() : proposedName,
 				outc.getSeparator());
 		String inPath = file.getPath();
 		System.out.println("Copying -- " + inPath + " to " + outPath);
-		try (InputStream in = inc.getInputStream(inPath);
-				OutputStream out = outc.getOutputStream(outPath)) {
+		try (InputStream in = inc.getInputStream(inPath); OutputStream out = outc.getOutputStream(outPath)) {
 			long len = inc.getSize(inPath);
 			while (len > 0 && !stopFlag.get()) {
 				int x = in.read(buf);
@@ -198,96 +179,28 @@ public class FileTransfer implements Runnable, AutoCloseable {
 				out.write(buf, 0, x);
 				len -= x;
 				processedBytes += x;
-				callback.progress(processedBytes, totalSize,
-						processedFilesCount, totalFiles, this);
-			}
-		}
-
-//        final CountDownLatch countDownLatch = new CountDownLatch(2);
-//        AtomicBoolean error = new AtomicBoolean(false);
-//        threadPool.submit(() -> {
-//            try {
-//                readData(file.getPath(), file.getSize());
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                error.set(true);
-//                threadPool.shutdownNow();
-//            } finally {
-//                countDownLatch.countDown();
-//            }
-//        });
-//
-//        threadPool.submit(() -> {
-//            try {
-//                writeData(PathUtils.combineUnix(targetDirectory, file.getName()), file.getSize());
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//                error.set(true);
-//                threadPool.shutdownNow();
-//            } finally {
-//                countDownLatch.countDown();
-//            }
-//        });
-//
-//        try {
-//
-//            countDownLatch.await();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            threadPool.shutdownNow();
-//        }
-	}
-
-	private void readData(String file, long size) throws Exception {
-		try (InputTransferChannel itc = sourceFs.inputTransferChannel()) {
-			try (InputStream in = itc.getInputStream(file, 0)) {
-				long len = size;
-				while (len > 0 && !stopFlag.get()) {
-					byte[] buf = new byte[8192];
-					int x = in.read(buf);
-					if (x == -1)
-						throw new IOException("Unexpected EOF");
-					dataQueue.put(new ByteChunk(buf, x));
-					len -= x;
-				}
-			}
-		}
-	}
-
-	private void writeData(String file, long size) throws Exception {
-		try (OutputTransferChannel otc = targetFs.outputTransferChannel()) {
-			try (OutputStream out = otc.getOutputStream(file)) {
-				long len = size;
-				while (len > 0 && !stopFlag.get()) {
-					ByteChunk chunk = dataQueue.take();
-					out.write(chunk.getBuf(), 0, (int) chunk.getLen());
-					len -= chunk.getLen();
-					processedBytes += chunk.getLen();
-					callback.progress(processedBytes, totalSize,
-							processedFilesCount, totalFiles, this);
-				}
+				callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles, this);
+				//Thread.sleep(500);
 			}
 		}
 	}
 
 	public void stop() {
 		stopFlag.set(true);
-		// runningThread.shutdownNow();
-		// threadPool.shutdownNow();
 	}
 
 	@Override
 	public void close() {
-		try {
-			this.sourceFs.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		try {
-			this.targetFs.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+//		try {
+//			this.sourceFs.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
+//		try {
+//			this.targetFs.close();
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		}
 	}
 
 	static class FileInfoHolder {
@@ -295,8 +208,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 		String targetPath;
 		String proposedName;
 
-		public FileInfoHolder(FileInfo info, String targetPath,
-				String proposedName) {
+		public FileInfoHolder(FileInfo info, String targetPath, String proposedName) {
 			this.info = info;
 			this.targetPath = targetPath;
 			this.proposedName = proposedName;
@@ -323,12 +235,10 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 		int action = 0;
 		if (dupList.size() > 0) {
-			JComboBox<String> cmbs = new JComboBox<>(
-					new String[] { "Overwrite", "Auto rename", "Skip" });
-			if (JOptionPane.showOptionDialog(null, new Object[] {
-					"Some file with the same name already exists. Please choose an action",
-					cmbs }, "Action required", JOptionPane.YES_NO_OPTION,
-					JOptionPane.PLAIN_MESSAGE, null, null,
+			JComboBox<String> cmbs = new JComboBox<>(new String[] { "Overwrite", "Auto rename", "Skip" });
+			if (JOptionPane.showOptionDialog(null,
+					new Object[] { "Some file with the same name already exists. Please choose an action", cmbs },
+					"Action required", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
 					null) == JOptionPane.YES_OPTION) {
 				action = cmbs.getSelectedIndex();
 			} else {
@@ -341,8 +251,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 	private boolean isDuplicate(List<FileInfo> list, String name) {
 		for (FileInfo s : list) {
-			System.out.println(
-					"Checking for duplicate: " + s.getName() + " --- " + name);
+			System.out.println("Checking for duplicate: " + s.getName() + " --- " + name);
 			if (s.getName().equalsIgnoreCase(name)) {
 				return true;
 			}

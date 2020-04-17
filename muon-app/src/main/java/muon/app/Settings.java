@@ -34,41 +34,27 @@ public class Settings {
 	private int terminalFontSize = 14;
 	private String terminalTheme = "Dark";
 	private String terminalPalette = "xterm";
-	private int[] palleteColors = { 0x000000, 0xcd0000, 0x00cd00, 0xcdcd00,
-			0x1e90ff, 0xcd00cd, 0x00cdcd, 0xe5e5e5, 0x4c4c4c, 0xff0000,
-			0x00ff00, 0xffff00, 0x4682b4, 0xff00ff, 0x00ffff, 0xffffff };
+	private int[] palleteColors = { 0x000000, 0xcd0000, 0x00cd00, 0xcdcd00, 0x1e90ff, 0xcd00cd, 0x00cdcd, 0xe5e5e5,
+			0x4c4c4c, 0xff0000, 0x00ff00, 0xffff00, 0x4682b4, 0xff00ff, 0x00ffff, 0xffffff };
+	private int backgroundTransferQueueSize = 2;
+	private int defaultColorFg = DarkTerminalTheme.DEF_FG, defaultColorBg = DarkTerminalTheme.DEF_BG,
+			defaultSelectionFg = DarkTerminalTheme.SEL_FG, defaultSelectionBg = DarkTerminalTheme.SEL_BG,
+			defaultFoundFg = DarkTerminalTheme.FIND_FG, defaultFoundBg = DarkTerminalTheme.FIND_BG,
+			defaultHrefFg = DarkTerminalTheme.HREF_FG, defaultHrefBg = DarkTerminalTheme.HREF_BG;
 
-	private int defaultColorFg = DarkTerminalTheme.DEF_FG,
-			defaultColorBg = DarkTerminalTheme.DEF_BG,
-			defaultSelectionFg = DarkTerminalTheme.SEL_FG,
-			defaultSelectionBg = DarkTerminalTheme.SEL_BG,
-			defaultFoundFg = DarkTerminalTheme.FIND_FG,
-			defaultFoundBg = DarkTerminalTheme.FIND_BG,
-			defaultHrefFg = DarkTerminalTheme.HREF_FG,
-			defaultHrefBg = DarkTerminalTheme.HREF_BG;
-
-	public static final String COPY_KEY = "Copy", PASTE_KEY = "Paste",
-			CLEAR_BUFFER = "Clear buffer", FIND_KEY = "Find";
+	public static final String COPY_KEY = "Copy", PASTE_KEY = "Paste", CLEAR_BUFFER = "Clear buffer", FIND_KEY = "Find";
 
 	private Map<String, Integer> keyCodeMap = new CollectionHelper.OrderedDict<String, Integer>()
 			.putItem(COPY_KEY, KeyEvent.VK_C).putItem(PASTE_KEY, KeyEvent.VK_V)
-			.putItem(CLEAR_BUFFER, App.IS_MAC ? KeyEvent.VK_K : KeyEvent.VK_L)
-			.putItem(FIND_KEY, KeyEvent.VK_F);
+			.putItem(CLEAR_BUFFER, App.IS_MAC ? KeyEvent.VK_K : KeyEvent.VK_L).putItem(FIND_KEY, KeyEvent.VK_F);
 
 	private Map<String, Integer> keyModifierMap = new CollectionHelper.Dict<String, Integer>()
 			.putItem(COPY_KEY,
-					App.IS_MAC ? KeyEvent.META_DOWN_MASK
-							: InputEvent.CTRL_DOWN_MASK
-									| InputEvent.SHIFT_DOWN_MASK)
+					App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK)
 			.putItem(PASTE_KEY,
-					App.IS_MAC ? KeyEvent.META_DOWN_MASK
-							: InputEvent.CTRL_DOWN_MASK
-									| InputEvent.SHIFT_DOWN_MASK)
-			.putItem(CLEAR_BUFFER,
-					App.IS_MAC ? KeyEvent.META_DOWN_MASK
-							: InputEvent.CTRL_DOWN_MASK)
-			.putItem(FIND_KEY, App.IS_MAC ? KeyEvent.META_DOWN_MASK
-					: InputEvent.CTRL_DOWN_MASK);
+					App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK | InputEvent.SHIFT_DOWN_MASK)
+			.putItem(CLEAR_BUFFER, App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK)
+			.putItem(FIND_KEY, App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK);
 
 	private int defaultOpenAction = 0
 	// 0 Open with default application
@@ -130,8 +116,7 @@ public class Settings {
 		return confirmBeforeTerminalClosing;
 	}
 
-	public void setConfirmBeforeTerminalClosing(
-			boolean confirmBeforeTerminalClosing) {
+	public void setConfirmBeforeTerminalClosing(boolean confirmBeforeTerminalClosing) {
 		this.confirmBeforeTerminalClosing = confirmBeforeTerminalClosing;
 	}
 
@@ -163,8 +148,7 @@ public class Settings {
 		return numberOfSimultaneousConnection;
 	}
 
-	public void setNumberOfSimultaneousConnection(
-			int numberOfSimultaneousConnection) {
+	public void setNumberOfSimultaneousConnection(int numberOfSimultaneousConnection) {
 		this.numberOfSimultaneousConnection = numberOfSimultaneousConnection;
 	}
 
@@ -513,4 +497,20 @@ public class Settings {
 	public void setSysloadRefreshInterval(int sysloadRefreshInterval) {
 		this.sysloadRefreshInterval = sysloadRefreshInterval;
 	}
+
+	/**
+	 * @return Number of transfer allowed in background per session
+	 */
+	public int getBackgroundTransferQueueSize() {
+		return backgroundTransferQueueSize;
+	}
+
+	/**
+	 * @param backgroundTransferQueueSize Number of transfer allowed in background
+	 *                                    per session
+	 */
+	public void setBackgroundTransferQueueSize(int backgroundTransferQueueSize) {
+		this.backgroundTransferQueueSize = backgroundTransferQueueSize;
+	}
+
 }

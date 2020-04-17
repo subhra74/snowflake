@@ -1,9 +1,8 @@
 package muon.app.common;
 
-import java.io.Closeable;
 import java.io.InputStream;
 
-public interface InputTransferChannel extends AutoCloseable {
+public interface InputTransferChannel {
 	InputStream getInputStream(String path) throws Exception;
 
 	InputStream getInputStream(String path, long offset) throws Exception;
@@ -11,6 +10,4 @@ public interface InputTransferChannel extends AutoCloseable {
 	String getSeparator();
 
 	long getSize(String path) throws Exception;
-
-	void close();
 }

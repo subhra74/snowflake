@@ -10,7 +10,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
-import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 import javax.swing.TransferHandler;
 
@@ -253,31 +252,26 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 			}
 
 			if (sourceFs instanceof LocalFileSystem) {
-//				if (JOptionPane.showOptionDialog(this.fileBrowser,
-//						new Object[] { "Please select a transfer mode",
-//								cmbOptions },
-//						"Transfer options", JOptionPane.OK_CANCEL_OPTION,
-//						JOptionPane.PLAIN_MESSAGE, null, null,
-//						null) != JOptionPane.OK_OPTION) {
-//					return false;
-//				}
-				boolean backgroundTransfer = false;// cmbOptions.getSelectedIndex()
-													// == 1;
+				if (JOptionPane.showOptionDialog(this.fileBrowser,
+						new Object[] { "Please select a transfer mode", cmbOptions }, "Transfer options",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
+						null) != JOptionPane.OK_OPTION) {
+					return false;
+				}
+				boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
 				System.out.println("Dropped: " + transferData);
 				if (backgroundTransfer) {
-					JOptionPane.showMessageDialog(null, "Not implemented");
-					return false;
-//					FileSystem targetFs = null;// new SshFileSystem(new
-//												// SshModalUserInteraction(holder.getInfo()));
-//					holder.newFileTransfer(sourceFs, targetFs,
-//							transferData.getFiles(),
-//							transferData.getCurrentDirectory(), this.path,
-//							this.hashCode(), -1, true);
-//					return true;
+					// FileSystem targetFs = null;// new SshFileSystem(new
+					// SshModalUserInteraction(holder.getInfo()));
+					this.fileBrowser.getHolder().uploadInBackground(transferData.getFiles(), this.path); // .newFileTransfer(sourceFs,
+																											// targetFs,
+																											// transferData.getFiles(),
+					// transferData.getCurrentDirectory(), this.path, this.hashCode(), -1, true);
+					return true;
 				}
 				FileSystem targetFs = this.fileBrowser.getSSHFileSystem();
-				this.fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
-						transferData.getCurrentDirectory(), this.path, this.hashCode(), -1, false);
+				this.fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), this.path,
+						this.hashCode(), -1);
 			} else if (sourceFs instanceof SshFileSystem && (sourceFs == this.fileBrowser.getSSHFileSystem())) {
 				System.out.println("SshFs is of same instance: " + (sourceFs == this.fileBrowser.getSSHFileSystem()));
 				if (transferData.getFiles().length > 0) {
