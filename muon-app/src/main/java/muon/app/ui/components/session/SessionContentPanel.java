@@ -35,6 +35,7 @@ import muon.app.ui.components.session.files.FileBrowser;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.session.files.transfer.TransferProgressPanel;
+import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
 import muon.app.ui.components.session.logviewer.LogViewer;
 import muon.app.ui.components.session.processview.ProcessViewer;
 import muon.app.ui.components.session.search.SearchPanel;
@@ -242,34 +243,50 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 			e.printStackTrace();
 		}
 		App.removePendingTransfers(this.getActiveSessionId());
+		this.backgroundTransferPool.shutdownNow();
+
 		EXECUTOR.submit(() -> {
+			try {
+				this.backgroundTransferPool.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
 			try {
 				this.remoteSessionInstance.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			try {
+				this.cachedSessions.forEach(c -> c.close());
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
 		});
+		EXECUTOR.shutdown();
 	}
 
-	public void uploadInBackground(FileInfo[] localFiles, String targetRemoteDirectory) {
+	public void uploadInBackground(FileInfo[] localFiles, String targetRemoteDirectory, ConflictAction confiAction) {
 		RemoteSessionInstance instance = createBackgroundSession();
 		FileSystem sourceFs = new LocalFileSystem();
 		FileSystem targetFs = instance.getSshFs();
-		FileTransfer transfer = new FileTransfer(sourceFs, targetFs, localFiles, targetRemoteDirectory, null, -1);
+		FileTransfer transfer = new FileTransfer(sourceFs, targetFs, localFiles, targetRemoteDirectory, null,
+				confiAction);
 		App.addUpload(new BackgroundFileTransfer(transfer, instance, this));
 	}
 
-	public void downloadInBackground(FileInfo[] remoteFiles, String targetLocalDirectory) {
+	public void downloadInBackground(FileInfo[] remoteFiles, String targetLocalDirectory, ConflictAction confiAction) {
 		FileSystem targetFs = new LocalFileSystem();
 		RemoteSessionInstance instance = createBackgroundSession();
 		SshFileSystem sourceFs = instance.getSshFs();
-		FileTransfer transfer = new FileTransfer(sourceFs, targetFs, remoteFiles, targetLocalDirectory, null, -1);
+		FileTransfer transfer = new FileTransfer(sourceFs, targetFs, remoteFiles, targetLocalDirectory, null,
+				confiAction);
 		App.addDownload(new BackgroundFileTransfer(transfer, instance, this));
 	}
 
 	public synchronized ThreadPoolExecutor getBackgroundTransferPool() {
 		if (this.backgroundTransferPool == null) {
-			this.backgroundTransferPool = new ThreadPoolExecutor(App.getGlobalSettings().getBackgroundTransferQueueSize(),
+			this.backgroundTransferPool = new ThreadPoolExecutor(
+					App.getGlobalSettings().getBackgroundTransferQueueSize(),
 					App.getGlobalSettings().getBackgroundTransferQueueSize(), 0, TimeUnit.NANOSECONDS,
 					new LinkedBlockingQueue<Runnable>());
 		} else {

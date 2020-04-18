@@ -27,6 +27,7 @@ import muon.app.ui.components.session.files.local.LocalFileBrowserView;
 import muon.app.ui.components.session.files.ssh.SshFileBrowserView;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.session.files.transfer.FileTransferProgress;
+import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
 import util.FontAwesomeContants;
 
 public class FileBrowser extends Page {
@@ -380,7 +381,7 @@ public class FileBrowser extends Page {
 	 * @param backgroundTransfer
 	 */
 	public void newFileTransfer(FileSystem sourceFs, FileSystem targetFs, FileInfo[] files, String targetFolder,
-			int dragsource, int defaultOverwriteAction) {
+			int dragsource, ConflictAction defaultConflictAction) {
 		this.ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
 				new FileTransferProgress() {
 
@@ -418,7 +419,7 @@ public class FileBrowser extends Page {
 							reloadView();
 						});
 					}
-				}, defaultOverwriteAction);
+				}, defaultConflictAction);
 		holder.startFileTransferModal(e -> {
 			this.ongoingFileTransfer.close();
 		});

@@ -21,6 +21,7 @@ import muon.app.ssh.RemoteSessionInstance;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.session.files.AbstractFileBrowserView;
 import muon.app.ui.components.session.files.FileBrowser;
+import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.session.files.view.AddressBar;
 import muon.app.ui.components.session.files.view.DndTransferData;
 import muon.app.ui.components.session.files.view.DndTransferHandler;
@@ -28,16 +29,13 @@ import util.PathUtils;
 
 public class SshFileBrowserView extends AbstractFileBrowserView {
 	private SshMenuHandler menuHandler;
-	private FileBrowser fileBrowser;
 	private JPopupMenu addressPopup;
 	private DndTransferHandler transferHandler;
 	private JComboBox<String> cmbOptions = new JComboBox<>(
 			new String[] { "Transfer normally", "Transfer in background" });
 
 	public SshFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
-		super(orientation, fileBrowser);// new Color(240, 255,
-										// 240));
-		this.fileBrowser = fileBrowser;
+		super(orientation, fileBrowser);
 		this.menuHandler = new SshMenuHandler(fileBrowser, this);
 		this.menuHandler.initMenuHandler(this.folderView);
 		this.transferHandler = new DndTransferHandler(this.folderView, this.fileBrowser.getInfo(), this,
@@ -244,34 +242,27 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 			} else if (transferData.getSourceType() == DndTransferData.DndSourceType.SSH
 					&& sessionHashCode == this.fileBrowser.getInfo().hashCode()) {
 				sourceFs = this.fileBrowser.getSSHFileSystem();
-			} else if (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP) {
-				// handle server to server drop - sftp
+			}
+//			else if (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP) {
+			// handle server to server drop - sftp
 //				System.out.println("Foreign file drop");
 //				sourceFs = this.fileBrowser.getFs(transferData.getSource());
 //				System.out.println("Foreign sftp fs: " + sourceFs);
-			}
+//			}
 
 			if (sourceFs instanceof LocalFileSystem) {
-				if (JOptionPane.showOptionDialog(this.fileBrowser,
-						new Object[] { "Please select a transfer mode", cmbOptions }, "Transfer options",
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
-						null) != JOptionPane.OK_OPTION) {
+				System.out.println("Dropped: " + transferData);
+				if (!super.selectTransferModeAndConflictAction()) {
 					return false;
 				}
-				boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
-				System.out.println("Dropped: " + transferData);
-				if (backgroundTransfer) {
-					// FileSystem targetFs = null;// new SshFileSystem(new
-					// SshModalUserInteraction(holder.getInfo()));
-					this.fileBrowser.getHolder().uploadInBackground(transferData.getFiles(), this.path); // .newFileTransfer(sourceFs,
-																											// targetFs,
-																											// transferData.getFiles(),
-					// transferData.getCurrentDirectory(), this.path, this.hashCode(), -1, true);
+				if (transferMode == TransferMode.Background) {
+					this.fileBrowser.getHolder().uploadInBackground(transferData.getFiles(), this.path,
+							this.conflictAction);
 					return true;
 				}
 				FileSystem targetFs = this.fileBrowser.getSSHFileSystem();
 				this.fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), this.path,
-						this.hashCode(), -1);
+						this.hashCode(), this.conflictAction);
 			} else if (sourceFs instanceof SshFileSystem && (sourceFs == this.fileBrowser.getSSHFileSystem())) {
 				System.out.println("SshFs is of same instance: " + (sourceFs == this.fileBrowser.getSSHFileSystem()));
 				if (transferData.getFiles().length > 0) {

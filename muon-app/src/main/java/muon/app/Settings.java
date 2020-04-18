@@ -4,10 +4,14 @@ import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
 import java.util.Map;
 
+import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
+import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.settings.DarkTerminalTheme;
 import util.CollectionHelper;
 
 public class Settings {
+	private TransferMode fileTransferMode = TransferMode.Prompt;
+	private ConflictAction conflictAction = ConflictAction.AutoRename;
 	private boolean confirmBeforeDelete = true;
 	private boolean confirmBeforeMoveOrCopy = false;
 	private boolean showHiddenFilesByDefault = false;
@@ -511,6 +515,22 @@ public class Settings {
 	 */
 	public void setBackgroundTransferQueueSize(int backgroundTransferQueueSize) {
 		this.backgroundTransferQueueSize = backgroundTransferQueueSize;
+	}
+
+	public TransferMode getFileTransferMode() {
+		return fileTransferMode;
+	}
+
+	public void setFileTransferMode(TransferMode fileTransferMode) {
+		this.fileTransferMode = fileTransferMode;
+	}
+
+	public ConflictAction getConflictAction() {
+		return conflictAction;
+	}
+
+	public void setConflictAction(ConflictAction conflictAction) {
+		this.conflictAction = conflictAction;
 	}
 
 }

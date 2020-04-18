@@ -4,8 +4,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -19,6 +22,8 @@ import muon.app.common.local.LocalFileSystem;
 import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.files.AbstractFileBrowserView;
 import muon.app.ui.components.session.files.FileBrowser;
+import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
+import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.session.files.view.AddressBar;
 import muon.app.ui.components.session.files.view.DndTransferData;
 import muon.app.ui.components.session.files.view.DndTransferHandler;
@@ -26,17 +31,12 @@ import util.PathUtils;
 
 public class LocalFileBrowserView extends AbstractFileBrowserView {
 	private LocalMenuHandler menuHandler;
-	private FileBrowser fileBrowser;
 	private DndTransferHandler transferHandler;
 	private LocalFileSystem fs;
 	private JPopupMenu addressPopup;
-	private JComboBox<String> cmbOptions = new JComboBox<>(
-			new String[] { "Transfer normally", "Transfer in background" });
 
 	public LocalFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
-		super(orientation, fileBrowser);// new Color(255, 255,
-										// 240));
-		this.fileBrowser = fileBrowser;
+		super(orientation, fileBrowser);
 		this.menuHandler = new LocalMenuHandler(fileBrowser, this);
 		this.menuHandler.initMenuHandler(this.folderView);
 		this.transferHandler = new DndTransferHandler(this.folderView, null, this, DndTransferData.DndSourceType.LOCAL);
@@ -160,27 +160,20 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 				&& JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
 			return false;
 		}
+
 		try {
-			if (JOptionPane.showOptionDialog(this.fileBrowser,
-					new Object[] { "Please select a transfer mode", cmbOptions }, "Transfer options",
-					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
-					null) != JOptionPane.OK_OPTION) {
+			if (!super.selectTransferModeAndConflictAction()) {
 				return false;
 			}
-			boolean backgroundTransfer = cmbOptions.getSelectedIndex() == 1;
+
 			System.out.println("Dropped: " + transferData);
 			int sessionHashCode = transferData.getInfo();
 			if (sessionHashCode == 0)
 				return true;
 			SessionInfo info = fileBrowser.getInfo();
 			if (info != null && info.hashCode() == sessionHashCode) {
-				if (backgroundTransfer) {
-					fileBrowser.getHolder().downloadInBackground(transferData.getFiles(), this.path);
-//					FileSystem sourceFs = null;// new SshFileSystem(new
-//												// SshModalUserInteraction(holder.getInfo()));
-//					FileSystem targetFs = new LocalFileSystem();
-//					fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(),
-//							transferData.getCurrentDirectory(), this.path, this.hashCode(), -1, true);
+				if (transferMode == TransferMode.Background) {
+					fileBrowser.getHolder().downloadInBackground(transferData.getFiles(), this.path, conflictAction);
 					return true;
 				}
 				FileSystem sourceFs = fileBrowser.getSSHFileSystem();
@@ -189,7 +182,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 				}
 				FileSystem targetFs = this.fs;
 				fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), this.path, this.hashCode(),
-						-1);
+						conflictAction);
 			}
 			return true;
 		} catch (Exception e) {

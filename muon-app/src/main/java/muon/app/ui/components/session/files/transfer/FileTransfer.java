@@ -32,17 +32,28 @@ public class FileTransfer implements Runnable, AutoCloseable {
 	private long processedBytes;
 	private int processedFilesCount;
 	private long totalFiles;
-	private int conflictOnOverwrite = -1; // 0 -> overwrite, 1 -> auto rename, 2
-											// -> skip
+	private ConflictAction conflictAction = ConflictAction.Prompt; // 0 -> overwrite, 1 -> auto rename, 2
+	// -> skip
+
+	public enum ConflictAction {
+		OverWrite, AutoRename, Skip, Prompt, Cancel
+	}
+
+	public enum TransferMode {
+		Prompt, Background, Normal
+	}
 
 	public FileTransfer(FileSystem sourceFs, FileSystem targetFs, FileInfo[] files, String targetFolder,
-			FileTransferProgress callback, int defaultConflictAction) {
+			FileTransferProgress callback, ConflictAction defaultConflictAction) {
 		this.sourceFs = sourceFs;
 		this.targetFs = targetFs;
 		this.files = files;
 		this.targetFolder = targetFolder;
 		this.callback = callback;
-		this.conflictOnOverwrite = defaultConflictAction;
+		this.conflictAction = defaultConflictAction;
+		if (defaultConflictAction == ConflictAction.Cancel) {
+			throw new IllegalArgumentException("defaultConflictAction can not be ConflictAction.Cancel");
+		}
 	}
 
 	private void transfer(String targetFolder) throws Exception {
@@ -51,12 +62,11 @@ public class FileTransfer implements Runnable, AutoCloseable {
 		List<FileInfo> list = targetFs.list(targetFolder);
 		List<FileInfo> dupList = new ArrayList<>();
 
-		if (this.conflictOnOverwrite == -1) {
-			this.conflictOnOverwrite = checkForConflict(dupList);
-		}
-
-		if (this.conflictOnOverwrite == -1) {
-			return;
+		if (this.conflictAction == ConflictAction.Prompt) {
+			this.conflictAction = checkForConflict(dupList);
+			if (this.conflictAction == ConflictAction.Cancel) {
+				return;
+			}
 		}
 
 		totalSize = 0;
@@ -67,10 +77,10 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 			String proposedName = null;
 			if (isDuplicate(list, file.getName())) {
-				if (conflictOnOverwrite == 1) {
+				if (this.conflictAction == ConflictAction.AutoRename) {
 					proposedName = generateNewName(list, file.getName());
 					System.out.println("new name: " + proposedName);
-				} else if (conflictOnOverwrite == 3) {
+				} else if (this.conflictAction == ConflictAction.Skip) {
 					continue;
 				}
 			}
@@ -180,7 +190,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 				len -= x;
 				processedBytes += x;
 				callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles, this);
-				//Thread.sleep(500);
+				// Thread.sleep(500);
 			}
 		}
 	}
@@ -223,7 +233,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 		return this.targetFolder;
 	}
 
-	private int checkForConflict(List<FileInfo> dupList) throws Exception {
+	private ConflictAction checkForConflict(List<FileInfo> dupList) throws Exception {
 		List<FileInfo> fileList = targetFs.list(targetFolder);
 		for (FileInfo file : files) {
 			for (FileInfo file1 : fileList) {
@@ -233,16 +243,26 @@ public class FileTransfer implements Runnable, AutoCloseable {
 			}
 		}
 
-		int action = 0;
+		ConflictAction action = ConflictAction.Cancel;
 		if (dupList.size() > 0) {
 			JComboBox<String> cmbs = new JComboBox<>(new String[] { "Overwrite", "Auto rename", "Skip" });
 			if (JOptionPane.showOptionDialog(null,
 					new Object[] { "Some file with the same name already exists. Please choose an action", cmbs },
 					"Action required", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
 					null) == JOptionPane.YES_OPTION) {
-				action = cmbs.getSelectedIndex();
-			} else {
-				return -1;
+				switch (cmbs.getSelectedIndex()) {
+				case 0:
+					action = ConflictAction.OverWrite;
+					break;
+				case 1:
+					action = ConflictAction.AutoRename;
+					break;
+				case 2:
+					action = ConflictAction.Skip;
+					break;
+				default:
+					break;
+				}
 			}
 		}
 

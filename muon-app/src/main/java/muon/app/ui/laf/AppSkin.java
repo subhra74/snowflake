@@ -366,6 +366,7 @@ public abstract class AppSkin {
 		uiDefaults.put("ComboBox:\"ComboBox.arrowButton\"[Editable+Pressed].backgroundPainter", painter2);
 		uiDefaults.put("ComboBox:\"ComboBox.arrowButton\"[Editable+Selected].backgroundPainter", painter3);
 		uiDefaults.put("ComboBox.contentMargins", new Insets(3, 5, 3, 5));
+		uiDefaults.put("ComboBox:\"ComboBox.listRenderer\".contentMargins", new Insets(3, 5, 3, 5));
 		uiDefaults.put("ComboBox.rendererUseListColors", Boolean.TRUE);
 	}
 

@@ -8,6 +8,8 @@ import muon.app.App;
 import muon.app.common.FileSystem;
 import muon.app.ui.components.ClosableTabContent;
 import muon.app.ui.components.ClosableTabbedPanel.TabTitle;
+import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
+import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.session.files.view.AddressBar;
 import muon.app.ui.components.session.files.view.DndTransferData;
 import muon.app.ui.components.session.files.view.FolderView;
@@ -19,9 +21,10 @@ import util.PathUtils;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.List;
 
-public abstract class AbstractFileBrowserView extends JPanel
-		implements FolderViewEventListener, ClosableTabContent {
+public abstract class AbstractFileBrowserView extends JPanel implements FolderViewEventListener, ClosableTabContent {
 	protected AddressBar addressBar;
 	protected FolderView folderView;
 	protected String path;
@@ -31,9 +34,13 @@ public abstract class AbstractFileBrowserView extends JPanel
 	private OverflowMenuHandler overflowMenuHandler;
 	protected TabTitle tabTitle;
 
-	public AbstractFileBrowserView(PanelOrientation orientation,
-			FileBrowser fileBrowser) {
+	protected TransferMode transferMode;
+	protected ConflictAction conflictAction;
+	protected FileBrowser fileBrowser;
+
+	public AbstractFileBrowserView(PanelOrientation orientation, FileBrowser fileBrowser) {
 		super(new BorderLayout());
+		this.fileBrowser = fileBrowser;
 		this.orientation = orientation;
 		this.tabTitle = new TabTitle();
 
@@ -47,8 +54,7 @@ public abstract class AbstractFileBrowserView extends JPanel
 		createAddressBar();
 		addressBar.addActionListener(e -> {
 			String text = e.getActionCommand();
-			System.out
-					.println("Address changed: " + text + " old: " + this.path);
+			System.out.println("Address changed: " + text + " old: " + this.path);
 			if (PathUtils.isSamePath(this.path, text)) {
 				System.out.println("Same text");
 				return;
@@ -150,8 +156,7 @@ public abstract class AbstractFileBrowserView extends JPanel
 			popupMenu.show(btnMore, x, y);
 		});
 
-		LayoutUtilities.equalizeSize(btnMore, btnReload, btnUp, btnHome,
-				btnNext, btnBack);// , btnSort);
+		LayoutUtilities.equalizeSize(btnMore, btnReload, btnUp, btnHome, btnNext, btnBack);// , btnSort);
 
 		smallToolbar.add(btnBack);
 		smallToolbar.add(btnNext);
@@ -264,5 +269,68 @@ public abstract class AbstractFileBrowserView extends JPanel
 	 */
 	public TabTitle getTabTitle() {
 		return tabTitle;
+	}
+
+	protected boolean selectTransferModeAndConflictAction() {
+		transferMode = App.getGlobalSettings().getFileTransferMode();
+		conflictAction = App.getGlobalSettings().getConflictAction();
+
+		if (transferMode == TransferMode.Prompt) {
+			DefaultComboBoxModel<String> conflictOptions = new DefaultComboBoxModel<>();
+			JComboBox<String> cmbConflictOptions = new JComboBox<>(conflictOptions);
+
+			List<String> conflictOption1 = Arrays.asList("Overwrite", "Auto rename", "Skip", "Prompt");
+			List<String> conflictOption2 = Arrays.asList("Overwrite", "Auto rename", "Skip");
+
+			JComboBox<String> cmbOptions = new JComboBox<>(
+					new String[] { "Transfer normally", "Transfer in background" });
+
+			cmbOptions.addActionListener(e -> {
+				if (cmbOptions.getSelectedIndex() == 0) {
+					conflictOptions.removeAllElements();
+					conflictOptions.addAll(conflictOption1);
+					cmbConflictOptions.setSelectedIndex(3);
+				} else {
+					conflictOptions.removeAllElements();
+					conflictOptions.addAll(conflictOption2);
+					cmbConflictOptions.setSelectedIndex(0);
+				}
+			});
+
+			cmbOptions.setSelectedIndex(0);
+			// set initial values
+			conflictOptions.addAll(conflictOption1);
+
+			JCheckBox chkRememberOptions = new JCheckBox("Remember this options and don't ask again");
+
+			if (JOptionPane.showOptionDialog(this.fileBrowser,
+					new Object[] { "Please select a transfer mode", cmbOptions, "\n",
+							"If a file/folder with same name exists", cmbConflictOptions, "\n", chkRememberOptions },
+					"Transfer options", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
+					null) != JOptionPane.OK_OPTION) {
+				return false;
+			}
+			transferMode = cmbOptions.getSelectedIndex() == 0 ? TransferMode.Normal : TransferMode.Background;
+			switch (cmbConflictOptions.getSelectedIndex()) {
+			case 0:
+				conflictAction = ConflictAction.OverWrite;
+				break;
+			case 1:
+				conflictAction = ConflictAction.AutoRename;
+				break;
+			case 2:
+				conflictAction = ConflictAction.Skip;
+				break;
+			case 3:// this is allowed in normal transfer mode
+				conflictAction = ConflictAction.Prompt;
+				break;
+			}
+			if (chkRememberOptions.isSelected()) {
+				App.getGlobalSettings().setFileTransferMode(transferMode);
+				App.getGlobalSettings().setConflictAction(conflictAction);
+				App.saveSettings();
+			}
+		}
+		return true;
 	}
 }
