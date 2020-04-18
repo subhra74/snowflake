@@ -167,18 +167,15 @@ public class ExternalEditorHandler extends JDialog {
 	 * Downloads a remote file using SFTP in a temporary directory and if download
 	 * completes successfully, adds it for monitoring.
 	 * 
-	 * @param sourceFs
-	 * @param targetFs
-	 * @param files
-	 * @param sourceFolder
-	 * @param targetFolder
-	 * @param dragsource
-	 * @param defaultOverwriteAction
-	 * @param backgroundTransfer
+	 * @param remoteFile
+	 * @param remoteFs
+	 * @param activeSessionId
+	 * @param openWith        should show windows open with dialog
+	 * @param app             should open with specified app
 	 * @throws IOException
 	 */
-	public void openRemoteFile(FileInfo remoteFile, SshFileSystem remoteFs, int activeSessionId, boolean openWith)
-			throws IOException {
+	public void openRemoteFile(FileInfo remoteFile, SshFileSystem remoteFs, int activeSessionId, boolean openWith,
+			String app) throws IOException {
 		this.fileWatcher.stopWatching();
 		Path tempFolderPath = Files.createTempDirectory(UUID.randomUUID().toString());
 		Path localFile = tempFolderPath.resolve(remoteFile.getName());
@@ -209,8 +206,12 @@ public class ExternalEditorHandler extends JDialog {
 				fileWatcher.resumeWatching();
 				SwingUtilities.invokeLater(() -> {
 					try {
-						PlatformUtils.openWithDefaultApp(localFile.toFile(), openWith);
-					} catch (IOException e) {
+						if (app == null) {
+							PlatformUtils.openWithDefaultApp(localFile.toFile(), openWith);
+						} else {
+							PlatformUtils.openWithApp(localFile.toFile(), app);
+						}
+					} catch (Exception e) {
 						e.printStackTrace();
 					}
 					setVisible(false);

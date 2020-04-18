@@ -7,16 +7,23 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import com.sun.jna.Native;
 import com.sun.jna.WString;
+import com.sun.jna.platform.win32.Advapi32Util;
 import com.sun.jna.platform.win32.ShellAPI;
 import com.sun.jna.platform.win32.WinDef;
+import com.sun.jna.platform.win32.WinReg;
+import com.sun.jna.platform.win32.WinReg.HKEY;
 import com.sun.jna.win32.StdCallLibrary;
 
 import muon.app.App;
+import muon.app.ui.components.settings.EditorEntry;
 
 /**
  * @author subhro
@@ -46,6 +53,10 @@ public class PlatformUtils {
 //					e.printStackTrace();
 //				}
 //			}
+	}
+
+	public static void openWithApp(File f, String app) throws Exception {
+		new ProcessBuilder(app, f.getAbsolutePath()).start();
 	}
 
 	public static void openWin(File f, boolean openWith) throws FileNotFoundException {
@@ -149,6 +160,70 @@ public class PlatformUtils {
 	public interface Shell32 extends ShellAPI, StdCallLibrary {
 		WinDef.HINSTANCE ShellExecuteW(WinDef.HWND hwnd, WString lpOperation, WString lpFile, WString lpParameters,
 				WString lpDirectory, int nShowCmd);
+	}
+
+	public static List<EditorEntry> getKnownEditors() {
+		List<EditorEntry> list = new ArrayList<EditorEntry>();
+		if (App.IS_WINDOWS) {
+			try {
+				String vscode = detectVSCode(false);
+				if (vscode != null) {
+					EditorEntry ent = new EditorEntry("Visual Studio Code", vscode);
+					list.add(ent);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				String vscode = detectVSCode(true);
+				if (vscode != null) {
+					EditorEntry ent = new EditorEntry("Visual Studio Code", vscode);
+					list.add(ent);
+				}
+			}
+
+			try {
+				String npp = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE,
+						"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\Notepad++", "DisplayIcon");
+				EditorEntry ent = new EditorEntry("Notepad++", npp);
+				list.add(ent);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			try {
+				String atom = Advapi32Util.registryGetStringValue(WinReg.HKEY_CURRENT_USER,
+						"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\atom", "InstallLocation");
+				EditorEntry ent = new EditorEntry("Atom", atom + "\\atom.exe");
+				list.add(ent);
+			} catch (Exception e) {
+				e.printStackTrace();
+				try {
+					String atom = Advapi32Util.registryGetStringValue(WinReg.HKEY_LOCAL_MACHINE,
+							"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\atom", "InstallLocation");
+					EditorEntry ent = new EditorEntry("Atom", atom + "\\atom.exe");
+					list.add(ent);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+				}
+			}
+
+		}
+		return list;
+	}
+
+	private static String detectVSCode(boolean hklm) {
+		HKEY hkey = hklm ? WinReg.HKEY_LOCAL_MACHINE : WinReg.HKEY_CURRENT_USER;
+		String[] keys = Advapi32Util.registryGetKeys(hkey, "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall");
+		for (String key : keys) {
+			Map<String, Object> values = Advapi32Util.registryGetValues(hkey,
+					"Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\" + key);
+			if (values.containsKey("DisplayName")) {
+				String text = (values.get("DisplayName") + "").toLowerCase(Locale.ENGLISH);
+				if (text.contains("visual studio code")) {
+					return values.get("DisplayIcon") + "";
+				}
+			}
+		}
+		return null;
 	}
 
 }

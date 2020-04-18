@@ -36,6 +36,8 @@ import muon.app.ui.components.session.files.FileBrowser;
 import muon.app.ui.components.session.files.view.DndTransferData;
 import muon.app.ui.components.session.files.view.DndTransferHandler;
 import muon.app.ui.components.session.files.view.FolderView;
+import muon.app.ui.components.settings.EditorEntry;
+import muon.app.ui.components.settings.SettingsPageName;
 import util.PathUtils;
 
 public class SshMenuHandler {
@@ -46,11 +48,11 @@ public class SshMenuHandler {
 			ksAddToFav, ksChangePerm, ksSendFiles, ksUpload, ksDownload, ksCreateLink, ksCopyPath;
 
 	private JMenuItem mOpenInTab, mOpen, mRename, mDelete, mNewFile, mNewFolder, mCopy, mPaste, mCut, mAddToFav,
-			mChangePerm, mSendFiles, mUpload, mOpenWithDefApp, mOpenWthInternalEdit, mOpenWithCustom, mOpenWithLogView,
+			mChangePerm, mSendFiles, mUpload, mOpenWithDefApp, mOpenWthInternalEdit, mEditorConfig, mOpenWithLogView,
 			mDownload, mCreateLink, mCopyPath, mOpenFolderInTerminal, mOpenTerminalHere, mRunScriptInTerminal,
 			mRunScriptInBackground, mExtractHere, mExtractTo, mCreateArchive, mOpenWithMenu;
 
-	private JMenu mOpenWith;
+	private JMenu mEditWith;
 	private Map<String, String> extractCommands;
 	private FileBrowser fileBrowser;
 	private FolderView folderView;
@@ -93,7 +95,7 @@ public class SshMenuHandler {
 				FileInfo fileInfo = folderView.getSelectedFiles()[0];
 				try {
 					App.getExternalEditorHandler().openRemoteFile(fileInfo, fileBrowser.getSSHFileSystem(),
-							fileBrowser.getActiveSessionId(), false);
+							fileBrowser.getActiveSessionId(), false, null);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -108,8 +110,8 @@ public class SshMenuHandler {
 		act.put("mOpen", aOpen);
 		mOpen.setAccelerator(ksOpen);
 
-		mOpenWithDefApp = new JMenuItem("Default application");
-		mOpenWithDefApp.addActionListener(e -> openDefaultApp());
+//		mOpenWithDefApp = new JMenuItem("Default application");
+//		mOpenWithDefApp.addActionListener(e -> openDefaultApp());
 
 		if (App.IS_WINDOWS) {
 			mOpenWithMenu = new JMenuItem("Open with...");
@@ -118,7 +120,7 @@ public class SshMenuHandler {
 				try {
 					System.out.println("Called open with");
 					App.getExternalEditorHandler().openRemoteFile(fileInfo, fileBrowser.getSSHFileSystem(),
-							fileBrowser.getActiveSessionId(), true);
+							fileBrowser.getActiveSessionId(), true, null);
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
@@ -126,20 +128,26 @@ public class SshMenuHandler {
 			});
 		}
 
-		mOpenWthInternalEdit = new JMenuItem("Internal editor");
-		mOpenWthInternalEdit.addActionListener(e -> openWithInternalEditor());
+//		mOpenWthInternalEdit = new JMenuItem("Internal editor");
+//		mOpenWthInternalEdit.addActionListener(e -> openWithInternalEditor());
 
-		mOpenWithCustom = new JMenuItem("Default editor");
-		mOpenWithCustom.addActionListener(e -> openDefaultEditor());
+		mEditorConfig = new JMenuItem("Configure editor");
+		mEditorConfig.addActionListener(e -> openEditorConfig());
 
-		mOpenWithLogView = new JMenuItem("Log viewer");
+		mOpenWithLogView = new JMenuItem("Open with Log viewer");
 		mOpenWithLogView.addActionListener(e -> openLogViewer());
 
-		mOpenWith = new JMenu("Open with");
-		mOpenWith.add(mOpenWithDefApp);
-		mOpenWith.add(mOpenWithCustom);
-		mOpenWith.add(mOpenWthInternalEdit);
-		mOpenWith.add(mOpenWithLogView);
+		mEditWith = new JMenu("Edit with");
+		for (EditorEntry ent : App.getGlobalSettings().getEditors()) {
+			JMenuItem mEditorItem = new JMenuItem(ent.getName());
+			mEditorItem.addActionListener(e -> openWithEditor(ent.getPath()));
+			mEditWith.add(mEditorItem);
+		}
+		mEditWith.add(mEditorConfig);
+//		mEditWith.add(mOpenWithDefApp);
+//		mEditWith.add(mOpenWithCustom);
+//		mEditWith.add(mOpenWthInternalEdit);
+//		mEditWith.add(mOpenWithLogView);
 
 		mRunScriptInTerminal = new JMenuItem("Run in terminal");
 		mRunScriptInTerminal.addActionListener(e -> {
@@ -411,12 +419,6 @@ public class SshMenuHandler {
 		fileBrowser.getHolder().openLog(folderView.getSelectedFiles()[0]);
 	}
 
-	private void openWithInternalEditor() {
-		FileInfo file = folderView.getSelectedFiles()[0];
-		throw new RuntimeException("Not implemented");
-		// holder.editRemoteFileInternal(file);
-	}
-
 	public boolean createMenu(JPopupMenu popup, FileInfo[] files) {
 		popup.removeAll();
 		int selectionCount = files.length;
@@ -439,14 +441,23 @@ public class SshMenuHandler {
 			if ((selectedFiles[0].getType() == FileType.File || selectedFiles[0].getType() == FileType.FileLink)) {
 				popup.add(mOpen);
 				count++;
-				popup.add(mOpenWith);
-				count++;
-				popup.add(mRunScriptInTerminal);
-				popup.add(mRunScriptInBackground);
+
 				if (App.IS_WINDOWS) {
 					popup.add(mOpenWithMenu);
 					count++;
 				}
+
+				popup.add(mEditWith);
+				count++;
+
+				popup.add(mRunScriptInTerminal);
+				count++;
+
+				popup.add(mRunScriptInBackground);
+				count++;
+
+				popup.add(mOpenWithLogView);
+				count++;
 			}
 		}
 
@@ -655,18 +666,6 @@ public class SshMenuHandler {
 				fileBrowser.enableUi();
 			}
 		});
-	}
-
-	public void openDefaultApp() {
-		FileInfo fileInfo = folderView.getSelectedFiles()[0];
-		throw new RuntimeException("Not implemented");
-		// holder.openWithDefaultApp(fileInfo);
-	}
-
-	public void openDefaultEditor() {
-		FileInfo fileInfo = folderView.getSelectedFiles()[0];
-		throw new RuntimeException("Not implemented");
-		// holder.openWithDefaultEditor(fileInfo);
 	}
 
 	private void handlePaste() {
@@ -895,16 +894,32 @@ public class SshMenuHandler {
 			System.out.println("After file selection");
 			File[] files = jfc.getSelectedFiles();
 			if (files.length > 0) {
-				LocalFileSystem localFileSystem = new LocalFileSystem();
 				List<FileInfo> list = new ArrayList<>();
-				for (File file : files) {
-					FileInfo fileInfo = localFileSystem.getInfo(file.getAbsolutePath());
-					list.add(fileInfo);
+
+				try (LocalFileSystem localFileSystem = new LocalFileSystem()) {
+					for (File file : files) {
+						FileInfo fileInfo = localFileSystem.getInfo(file.getAbsolutePath());
+						list.add(fileInfo);
+					}
 				}
 				DndTransferData uploadData = new DndTransferData(0, list.toArray(new FileInfo[0]), files[0].getParent(),
 						0, DndTransferData.DndSourceType.LOCAL);
 				fileBrowserView.handleDrop(uploadData);
 			}
 		}
+	}
+
+	private void openWithEditor(String path) {
+		FileInfo fileInfo = folderView.getSelectedFiles()[0];
+		try {
+			App.getExternalEditorHandler().openRemoteFile(fileInfo, fileBrowser.getSSHFileSystem(),
+					fileBrowser.getActiveSessionId(), false, path);
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+
+	public void openEditorConfig() {
+		App.openSettings(SettingsPageName.Editor);
 	}
 }

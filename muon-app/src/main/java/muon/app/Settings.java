@@ -2,11 +2,14 @@ package muon.app;
 
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
 import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.settings.DarkTerminalTheme;
+import muon.app.ui.components.settings.EditorEntry;
 import util.CollectionHelper;
 
 public class Settings {
@@ -65,6 +68,8 @@ public class Settings {
 	// 1 Open with default editor
 	// 2 Open with internal editor
 			, numberOfSimultaneousConnection = 3;
+
+	private List<EditorEntry> editors = new ArrayList<>();
 
 	private String defaultPanel = "FILES";
 
@@ -531,6 +536,14 @@ public class Settings {
 
 	public void setConflictAction(ConflictAction conflictAction) {
 		this.conflictAction = conflictAction;
+	}
+
+	public List<EditorEntry> getEditors() {
+		return editors;
+	}
+
+	public void setEditors(List<EditorEntry> editors) {
+		this.editors = editors;
 	}
 
 }

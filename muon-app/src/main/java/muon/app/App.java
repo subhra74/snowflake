@@ -34,10 +34,12 @@ import muon.app.ui.components.session.ExternalEditorHandler;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
+import muon.app.ui.components.settings.SettingsPageName;
 import muon.app.ui.laf.AppSkin;
 import muon.app.ui.laf.AppSkinDark;
 import muon.app.ui.laf.AppSkinLight;
 import util.CollectionHelper;
+import util.PlatformUtils;
 
 /**
  * Hello world!
@@ -72,6 +74,13 @@ public class App {
 			appDir.mkdirs();
 		}
 		loadSettings();
+
+		if (settings.getEditors().size() == 0) {
+			System.out.println("Searching for known editors...");
+			settings.setEditors(PlatformUtils.getKnownEditors());
+			saveSettings();
+			System.out.println("Searching for known editors...done");
+		}
 
 		SKIN = settings.isUseGlobalDarkTheme() ? new AppSkinDark() : new AppSkinLight();
 
@@ -189,5 +198,9 @@ public class App {
 
 	public static synchronized void removePendingTransfers(int sessionId) {
 		mw.removePendingTransfers(sessionId);
+	}
+
+	public static synchronized void openSettings(SettingsPageName page) {
+		mw.openSettings(page);
 	}
 }

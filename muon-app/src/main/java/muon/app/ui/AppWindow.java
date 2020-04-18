@@ -35,6 +35,7 @@ import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.session.files.transfer.BackgroundTransferPanel;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.settings.SettingsDialog;
+import muon.app.ui.components.settings.SettingsPageName;
 import util.FontAwesomeContants;
 
 /**
@@ -121,8 +122,7 @@ public class AppWindow extends JFrame {
 		btnSettings.setFont(App.SKIN.getIconFont().deriveFont(12.0f));
 		btnSettings.setText(FontAwesomeContants.FA_COG);
 		btnSettings.addActionListener(e -> {
-			SettingsDialog settingsDialog = new SettingsDialog(this);
-			settingsDialog.showDialog(this);
+			openSettings(null);
 		});
 
 		Box topBox = Box.createHorizontalBox();
@@ -306,5 +306,10 @@ public class AppWindow extends JFrame {
 	public void removePendingTransfers(int sessionId) {
 		this.uploadPanel.removePendingTransfers(sessionId);
 		this.downloadPanel.removePendingTransfers(sessionId);
+	}
+
+	public void openSettings(SettingsPageName page) {
+		SettingsDialog settingsDialog = new SettingsDialog(this);
+		settingsDialog.showDialog(this, page);
 	}
 }

@@ -10,6 +10,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -22,12 +23,16 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.border.CompoundBorder;
@@ -40,16 +45,19 @@ import muon.app.App;
 import muon.app.Settings;
 import muon.app.ui.components.KeyShortcutComponent;
 import muon.app.ui.components.SkinnedScrollPane;
+import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
 import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import util.FontUtils;
 import util.LayoutUtilities;
+import util.OptionPaneUtils;
 
 /**
  * @author subhro
  *
  */
 public class SettingsDialog extends JDialog {
+	private EditorTableModel editorModel = new EditorTableModel();
 	private JSpinner spTermWidth, spTermHeight, spFontSize;
 	private JCheckBox chkAudibleBell, chkPuttyLikeCopyPaste;
 	private JComboBox<String> cmbFonts, cmbTermType, cmbTermPalette;
@@ -70,8 +78,14 @@ public class SettingsDialog extends JDialog {
 	private JComboBox<String> cmbTransferMode, cmbConflictAction;
 	private DefaultComboBoxModel<String> conflictOptions = new DefaultComboBoxModel<>();
 
-	List<String> conflictOption1 = Arrays.asList("Overwrite", "Auto rename", "Skip", "Prompt");
-	List<String> conflictOption2 = Arrays.asList("Overwrite", "Auto rename", "Skip");
+	private List<String> conflictOption1 = Arrays.asList("Overwrite", "Auto rename", "Skip", "Prompt");
+	private List<String> conflictOption2 = Arrays.asList("Overwrite", "Auto rename", "Skip");
+
+	private JTable editorTable;
+
+	private CardLayout cardLayout;
+	private JPanel cardPanel;
+	private JList<String> navList;
 
 	/**
 	 * 
@@ -82,11 +96,11 @@ public class SettingsDialog extends JDialog {
 		setModal(true);
 		setSize(800, 600);
 
-		CardLayout cardLayout = new CardLayout();
-		JPanel cardPanel = new JPanel(cardLayout, true);
+		cardLayout = new CardLayout();
+		cardPanel = new JPanel(cardLayout, true);
 
 		DefaultListModel<String> navModel = new DefaultListModel<>();
-		JList<String> navList = new JList<String>(navModel);
+		navList = new JList<String>(navModel);
 		navList.setCellRenderer(new CellRenderer());
 
 		navList.addListSelectionListener(e -> {
@@ -102,9 +116,10 @@ public class SettingsDialog extends JDialog {
 		});
 
 		Map<String, Component> panelMap = new LinkedHashMap<>();
-		panelMap.put("General", createGeneralPanel());
-		panelMap.put("Terminal", createTerminalPanel());
-		panelMap.put("Misc", new JPanel());
+		panelMap.put(SettingsPageName.General.toString(), createGeneralPanel());
+		panelMap.put(SettingsPageName.Terminal.toString(), createTerminalPanel());
+		panelMap.put(SettingsPageName.Editor.toString(), createEditorPanel());
+		panelMap.put(SettingsPageName.Misc.toString(), new JPanel());
 
 		for (String key : panelMap.keySet()) {
 			navModel.addElement(key);
@@ -559,11 +574,17 @@ public class SettingsDialog extends JDialog {
 
 		settings.setSysloadRefreshInterval((Integer) spSysLoadInterval.getValue());
 
+		settings.setEditors(editorModel.getEntries());
+
 		App.saveSettings();
 		super.setVisible(false);
 	}
 
 	public boolean showDialog(JFrame window) {
+		return this.showDialog(window, null);
+	}
+
+	public boolean showDialog(JFrame window, SettingsPageName page) {
 		Settings settings = App.getGlobalSettings();
 
 		this.setLocationRelativeTo(window);
@@ -645,6 +666,13 @@ public class SettingsDialog extends JDialog {
 			break;
 		}
 
+		this.editorModel.clear();
+		this.editorModel.addEntries(settings.getEditors());
+
+		if (page != null) {
+			navList.setSelectedIndex(page.index);
+		}
+
 		super.setVisible(true);
 		return false;
 	}
@@ -658,6 +686,42 @@ public class SettingsDialog extends JDialog {
 			fontNames[c++] = ttf.getFontName();
 		}
 		return fontNames;
+	}
+
+	public JPanel createEditorPanel() {
+		JPanel panel = new JPanel(new BorderLayout(10, 10));
+		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+		editorTable = new JTable(editorModel);
+		panel.add(new SkinnedScrollPane(editorTable));
+		Box box = Box.createHorizontalBox();
+		JButton btnAddEditor = new JButton("+ Add editor");
+		JButton btnDelEditor = new JButton("- Remove editor");
+		box.add(Box.createHorizontalGlue());
+		box.add(btnAddEditor);
+		box.add(Box.createHorizontalStrut(10));
+		box.add(btnDelEditor);
+		panel.add(box, BorderLayout.SOUTH);
+
+		btnAddEditor.addActionListener(e -> {
+			JFileChooser jfc = new JFileChooser();
+			if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+				File file = jfc.getSelectedFile();
+				JTextField txt = new SkinnedTextField(30);
+				txt.setText(file.getName());
+				String name = OptionPaneUtils.showInputDialog(this, "Editor name", file.getName(), "Add editor?");
+				if (name != null) {
+					editorModel.addEntry(new EditorEntry(name, file.getAbsolutePath()));
+				}
+			}
+		});
+		btnDelEditor.addActionListener(e -> {
+			int index = editorTable.getSelectedRow();
+			if (index != -1) {
+				editorModel.deleteEntry(index);
+			}
+		});
+		return panel;
 	}
 
 //	private void resizeTextField(JTextField txt) {
