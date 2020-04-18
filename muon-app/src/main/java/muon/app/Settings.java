@@ -69,6 +69,9 @@ public class Settings {
 	// 2 Open with internal editor
 			, numberOfSimultaneousConnection = 3;
 
+	private float uiScaling = 1.0f;
+	private boolean manualScaling = false;
+
 	private List<EditorEntry> editors = new ArrayList<>();
 
 	private String defaultPanel = "FILES";
@@ -544,6 +547,22 @@ public class Settings {
 
 	public void setEditors(List<EditorEntry> editors) {
 		this.editors = editors;
+	}
+
+	public float getUiScaling() {
+		return uiScaling;
+	}
+
+	public void setUiScaling(float uiScaling) {
+		this.uiScaling = uiScaling;
+	}
+
+	public boolean isManualScaling() {
+		return manualScaling;
+	}
+
+	public void setManualScaling(boolean manualScaling) {
+		this.manualScaling = manualScaling;
 	}
 
 }

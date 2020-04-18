@@ -68,12 +68,19 @@ public class App {
 		Security.setProperty("networkaddress.cache.ttl", "0");
 		Security.setProperty("networkaddress.cache.negative.ttl", "0");
 
+		System.out.println("Sacle: " + System.getProperty("sun.java2d.uiScale"));
+
 		Security.addProvider(new BouncyCastleProvider());
 		File appDir = new File(CONFIG_DIR);
 		if (!appDir.exists()) {
 			appDir.mkdirs();
 		}
 		loadSettings();
+
+		if (settings.isManualScaling()) {
+			System.setProperty("sun.java2d.uiScale.enabled", "true");
+			System.setProperty("sun.java2d.uiScale", String.format("%.2f", settings.getUiScaling()));
+		}
 
 		if (settings.getEditors().size() == 0) {
 			System.out.println("Searching for known editors...");
