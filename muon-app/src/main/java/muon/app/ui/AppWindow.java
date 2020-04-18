@@ -24,6 +24,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 
 import muon.app.App;
@@ -172,6 +173,7 @@ public class AppWindow extends JFrame {
 
 	private Component createBottomPanel() {
 		popup = new JPopupMenu();
+		popup.setBorder(new LineBorder(App.SKIN.getDefaultBorderColor(), 1));
 		popup.setPreferredSize(new Dimension(250, 300));
 
 		Box b1 = Box.createHorizontalBox();
