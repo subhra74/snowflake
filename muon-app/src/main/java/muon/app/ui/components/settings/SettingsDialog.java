@@ -130,7 +130,7 @@ public class SettingsDialog extends JDialog {
 		}
 
 		JScrollPane scrollPane = new SkinnedScrollPane(navList);
-		scrollPane.setPreferredSize(new Dimension(150, 300));
+		scrollPane.setPreferredSize(new Dimension(150, 200));
 		scrollPane.setBorder(new MatteBorder(0, 0, 0, 1, App.SKIN.getDefaultBorderColor()));
 
 		Box bottomBox = Box.createHorizontalBox();
@@ -496,7 +496,7 @@ public class SettingsDialog extends JDialog {
 		 * 
 		 */
 		public CellRenderer() {
-			setBorder(new EmptyBorder(15, 15, 15, 20));
+			setBorder(new EmptyBorder(15, 15, 15, 15));
 			setFont(App.SKIN.getDefaultFont().deriveFont(14.0f));
 			setOpaque(true);
 		}
