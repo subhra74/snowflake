@@ -27,6 +27,7 @@ import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import muon.app.App;
 import muon.app.ui.components.ClosableTabContent;
 import muon.app.ui.components.ClosableTabbedPanel.TabTitle;
+import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.terminal.ssh.DisposableTtyConnector;
 import muon.app.ui.components.session.terminal.ssh.SshTtyConnector;
@@ -40,10 +41,12 @@ public class TerminalComponent extends JPanel implements ClosableTabContent {
 	private String name;
 	private Box reconnectionBox;
 	private TabTitle tabTitle;
+	private SessionContentPanel sessionContentPanel;
 
-	public TerminalComponent(SessionInfo info, String name, String command) {
+	public TerminalComponent(SessionInfo info, String name, String command, SessionContentPanel sessionContentPanel) {
 		setLayout(new BorderLayout());
-		System.out.println("Current terminal font: "+App.getGlobalSettings().getTerminalFontName());
+		this.sessionContentPanel = sessionContentPanel;
+		System.out.println("Current terminal font: " + App.getGlobalSettings().getTerminalFontName());
 		this.name = name;
 		this.tabTitle = new TabTitle();
 		contentPane = new JPanel(new BorderLayout());
@@ -64,7 +67,7 @@ public class TerminalComponent extends JPanel implements ClosableTabContent {
 			}
 		});
 
-		tty = new SshTtyConnector(info, command);
+		tty = new SshTtyConnector(info, command, sessionContentPanel);
 
 		reconnectionBox = Box.createHorizontalBox();
 		reconnectionBox.setOpaque(true);
@@ -75,7 +78,7 @@ public class TerminalComponent extends JPanel implements ClosableTabContent {
 			contentPane.remove(reconnectionBox);
 			contentPane.revalidate();
 			contentPane.repaint();
-			tty = new SshTtyConnector(info, command);
+			tty = new SshTtyConnector(info, command, sessionContentPanel);
 			term.setTtyConnector(tty);
 			term.start();
 		});
@@ -110,8 +113,7 @@ public class TerminalComponent extends JPanel implements ClosableTabContent {
 			}
 
 			@Override
-			public void onPanelResize(Dimension pixelDimension,
-					RequestOrigin origin) {
+			public void onPanelResize(Dimension pixelDimension, RequestOrigin origin) {
 //				System.out.println("pixelDimension: " + pixelDimension
 //						+ " origin: " + origin);
 			}

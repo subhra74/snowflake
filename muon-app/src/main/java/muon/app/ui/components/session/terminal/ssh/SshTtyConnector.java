@@ -11,8 +11,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.jediterm.terminal.Questioner;
 
 import muon.app.App;
-import muon.app.ssh.InputBlocker;
 import muon.app.ssh.SshClient2;
+import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
 import net.schmizz.sshj.connection.ConnectionException;
 import net.schmizz.sshj.connection.channel.direct.PTYMode;
@@ -35,29 +35,29 @@ public class SshTtyConnector implements DisposableTtyConnector {
 	private SshClient2 wr;
 	private String initialCommand;
 	private SessionInfo info;
+	private SessionContentPanel sessionContentPanel;
 
-	public SshTtyConnector(SessionInfo info, String initialCommand) {
+	public SshTtyConnector(SessionInfo info, String initialCommand, SessionContentPanel sessionContentPanel) {
 		this.initialCommand = initialCommand;
 		this.info = info;
+		this.sessionContentPanel = sessionContentPanel;
 	}
 
-	public SshTtyConnector(SessionInfo info) {
-		this(info, null);
+	public SshTtyConnector(SessionInfo info, SessionContentPanel sessionContentPanel) {
+		this(info, null, sessionContentPanel);
 	}
 
 	@Override
 	public boolean init(Questioner q) {
 		try {
-			this.wr = new SshClient2(this.info, App.getInputBlocker());
+			this.wr = new SshClient2(this.info, App.getInputBlocker(), sessionContentPanel);
 			this.wr.connect();
 			this.channel = wr.openSession();
 			this.channel.setAutoExpand(true);
-			this.channel.allocatePTY(App.getGlobalSettings().getTerminalType(),
-					App.getGlobalSettings().getTermWidth(),
-					App.getGlobalSettings().getTermHeight(), 0, 0,
-					Collections.<PTYMode, Integer>emptyMap());
+			this.channel.allocatePTY(App.getGlobalSettings().getTerminalType(), App.getGlobalSettings().getTermWidth(),
+					App.getGlobalSettings().getTermHeight(), 0, 0, Collections.<PTYMode, Integer>emptyMap());
 			this.shell = (SessionChannel) this.channel.startShell();
-			
+
 			// String lang = System.getenv().get("LANG");
 
 			// this.channel.setEnvVar("LANG", lang != null ? lang :
@@ -194,16 +194,15 @@ public class SshTtyConnector implements DisposableTtyConnector {
 
 	private void resizeImmediately() {
 		if (myPendingTermSize != null && myPendingPixelSize != null) {
-			setPtySize(shell, myPendingTermSize.width, myPendingTermSize.height,
-					myPendingPixelSize.width, myPendingPixelSize.height);
+			setPtySize(shell, myPendingTermSize.width, myPendingTermSize.height, myPendingPixelSize.width,
+					myPendingPixelSize.height);
 			myPendingTermSize = null;
 			myPendingPixelSize = null;
 		}
 	}
 
 	private void setPtySize(Shell shell, int col, int row, int wp, int hp) {
-		System.out.println("Exec pty resized:- col: " + col + " row: " + row
-				+ " wp: " + wp + " hp: " + hp);
+		System.out.println("Exec pty resized:- col: " + col + " row: " + row + " wp: " + wp + " hp: " + hp);
 		if (shell != null) {
 			try {
 				shell.changeWindowDimensions(col, row, wp, hp);

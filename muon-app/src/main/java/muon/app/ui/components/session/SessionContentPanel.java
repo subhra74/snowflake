@@ -6,7 +6,6 @@ package muon.app.ui.components.session;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.io.File;
-import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.concurrent.ExecutorService;
@@ -27,6 +26,7 @@ import muon.app.App;
 import muon.app.common.FileInfo;
 import muon.app.common.FileSystem;
 import muon.app.common.local.LocalFileSystem;
+import muon.app.ssh.CachedCredentialProvider;
 import muon.app.ssh.RemoteSessionInstance;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.DisabledPanel;
@@ -34,8 +34,8 @@ import muon.app.ui.components.session.diskspace.DiskspaceAnalyzer;
 import muon.app.ui.components.session.files.FileBrowser;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
-import muon.app.ui.components.session.files.transfer.TransferProgressPanel;
 import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
+import muon.app.ui.components.session.files.transfer.TransferProgressPanel;
 import muon.app.ui.components.session.logviewer.LogViewer;
 import muon.app.ui.components.session.processview.ProcessViewer;
 import muon.app.ui.components.session.search.SearchPanel;
@@ -47,7 +47,7 @@ import util.LayoutUtilities;
  * @author subhro
  *
  */
-public class SessionContentPanel extends JPanel implements PageHolder {
+public class SessionContentPanel extends JPanel implements PageHolder, CachedCredentialProvider {
 	private SessionInfo info;
 	private CardLayout cardLayout;
 	private JPanel cardPanel;
@@ -68,6 +68,9 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 	private AtomicBoolean closed = new AtomicBoolean(false);
 	private Deque<RemoteSessionInstance> cachedSessions = new LinkedList<>();
 	private ThreadPoolExecutor backgroundTransferPool;
+	private char[] cachedPassword;
+	private char[] cachedPassPhrase;
+	private String cachedUser;
 
 	/**
 	 * 
@@ -76,7 +79,7 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 		super(new BorderLayout());
 		this.info = info;
 		this.disabledPanel = new DisabledPanel();
-		this.remoteSessionInstance = new RemoteSessionInstance(info, App.getInputBlocker());
+		this.remoteSessionInstance = new RemoteSessionInstance(info, App.getInputBlocker(), this);
 		Box contentTabs = Box.createHorizontalBox();
 		contentTabs.setBorder(new MatteBorder(0, 0, 1, 0, App.SKIN.getDefaultBorderColor()));
 
@@ -89,7 +92,7 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 //				FontAwesomeContants.FA_SEARCH, FontAwesomeContants.FA_SLIDERS };
 		fileBrowser = new FileBrowser(info, this, null, this.hashCode());
 		logViewer = new LogViewer(this);
-		terminalHolder = new TerminalHolder(info);
+		terminalHolder = new TerminalHolder(info, this);
 		diskspaceAnalyzer = new DiskspaceAnalyzer(this);
 		searchPanel = new SearchPanel(this);
 		processViewer = new ProcessViewer(this);
@@ -301,13 +304,43 @@ public class SessionContentPanel extends JPanel implements PageHolder {
 
 	public synchronized RemoteSessionInstance createBackgroundSession() {
 		if (this.cachedSessions.size() == 0) {
-			return new RemoteSessionInstance(info, App.getInputBlocker());
+			return new RemoteSessionInstance(info, App.getInputBlocker(), this);
 		}
 		return this.cachedSessions.pop();
 	}
 
 	public synchronized void addToSessionCache(RemoteSessionInstance session) {
 		this.cachedSessions.push(session);
+	}
+
+	@Override
+	public synchronized char[] getCachedPassword() {
+		return cachedPassword;
+	}
+
+	@Override
+	public synchronized void cachePassword(char[] password) {
+		this.cachedPassword = password;
+	}
+
+	@Override
+	public synchronized char[] getCachedPassPhrase() {
+		return cachedPassPhrase;
+	}
+
+	@Override
+	public synchronized void setCachedPassPhrase(char[] cachedPassPhrase) {
+		this.cachedPassPhrase = cachedPassPhrase;
+	}
+
+	@Override
+	public synchronized String getCachedUser() {
+		return cachedUser;
+	}
+
+	@Override
+	public synchronized void setCachedUser(String cachedUser) {
+		this.cachedUser = cachedUser;
 	}
 
 }

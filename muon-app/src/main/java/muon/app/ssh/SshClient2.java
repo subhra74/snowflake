@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
 import muon.app.App;
+import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.session.SessionInfo;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.Session;
@@ -32,17 +34,20 @@ public class SshClient2 implements Closeable {
 	private AtomicBoolean closed = new AtomicBoolean(false);
 	private SessionInfo info;
 	private SSHClient sshj;
-	private PasswordFinderDialog passwordFinder = new PasswordFinderDialog();
+	private PasswordFinderDialog passwordFinder;
 	private InputBlocker inputBlocker;
+	private CachedCredentialProvider cachedCredentialProvider;
 
 	/**
 	 * O
 	 * 
 	 * @param info2
 	 */
-	public SshClient2(SessionInfo info, InputBlocker inputBlocker) {
+	public SshClient2(SessionInfo info, InputBlocker inputBlocker, CachedCredentialProvider cachedCredentialProvider) {
 		this.info = info;
 		this.inputBlocker = inputBlocker;
+		this.cachedCredentialProvider = cachedCredentialProvider;
+		passwordFinder = new PasswordFinderDialog(cachedCredentialProvider);
 	}
 
 	private void setupProxyAndSocketFactory() {
@@ -77,10 +82,18 @@ public class SshClient2 implements Closeable {
 		sshj.addHostKeyVerifier(new GraphicalHostKeyVerifier(knownHostFile));
 	}
 
-	private void getAuthMethods(AtomicBoolean authenticated, List<String> allowedMethods) {
+	private void getAuthMethods(AtomicBoolean authenticated, List<String> allowedMethods)
+			throws OperationCancelledException {
+		System.out.println("Trying to get allowed authentication methods...");
 		try {
-			sshj.auth(info.getUser(), new AuthNone());
+			String user = promptUser();
+			if (user == null || user.length() < 1) {
+				throw new OperationCancelledException();
+			}
+			sshj.auth(user, new AuthNone());
 			authenticated.set(true); // Surprise! no authentication!!!
+		} catch (OperationCancelledException e) {
+			throw e;
 		} catch (Exception e) {
 			for (String method : sshj.getUserAuth().getAllowedMethods()) {
 				allowedMethods.add(method);
@@ -109,23 +122,32 @@ public class SshClient2 implements Closeable {
 			throw new Exception("No suitable key providers");
 		}
 
-		sshj.authPublickey(info.getUser(), provider);
+		sshj.authPublickey(promptUser(), provider);
 	}
 
 	private void authPassoword() throws Exception {
+		String user = getUser();
+		char[] password = getPassword();
+		if (user == null || user.length() < 1) {
+			password = null;
+		}
 		// keep on trying with password
-		String password = info.getPassword();
-		String user = info.getUser();
 		while (!closed.get()) {
-			if (password == null || password.length() < 1) {
-				JTextField txtUser = new JTextField(30);
+			if (password == null || password.length < 1) {
+				JTextField txtUser = new SkinnedTextField(30);
 				JPasswordField txtPassword = new JPasswordField(30);
+				JCheckBox chkUseCache = new JCheckBox("Remember credential for this session");
 				txtUser.setText(user);
-				int ret = JOptionPane.showOptionDialog(null, new Object[] { "User", txtUser, "Password", txtPassword },
-						"Authentication", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+				int ret = JOptionPane.showOptionDialog(null,
+						new Object[] { "User", txtUser, "Password", txtPassword, chkUseCache }, "Authentication",
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
 				if (ret == JOptionPane.OK_OPTION) {
 					user = txtUser.getText();
-					password = new String(txtPassword.getPassword());
+					password = txtPassword.getPassword();
+					if (chkUseCache.isSelected()) {
+						cachedCredentialProvider.setCachedUser(user);
+						cachedCredentialProvider.cachePassword(password);
+					}
 				} else {
 					throw new OperationCancelledException();
 				}
@@ -202,7 +224,7 @@ public class SshClient2 implements Closeable {
 
 				case "keyboard-interactive":
 					try {
-						sshj.auth(info.getUser(), new AuthKeyboardInteractive(new InteractiveResponseProvider()));
+						sshj.auth(promptUser(), new AuthKeyboardInteractive(new InteractiveResponseProvider()));
 						authenticated.set(true);
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -340,13 +362,53 @@ public class SshClient2 implements Closeable {
 //			if (!authenticated.get()) {
 //				throw new IOException("Authentication failed");
 //			}
-		} finally {
+		} catch (Exception e) {
+			if (this.sshj != null) {
+				this.sshj.close();
+			}
+			throw e;
+		}
+
+		finally {
 			this.inputBlocker.unblockInput();
 		}
 	}
 
 	private boolean isPasswordSet() {
 		return info.getPassword() != null && info.getPassword().length() > 0;
+	}
+
+	private String getUser() {
+		String user = cachedCredentialProvider.getCachedUser();
+		if (user == null || user.length() < 1) {
+			user = this.info.getUser();
+		}
+		return user;
+	}
+
+	private char[] getPassword() {
+		char[] password = cachedCredentialProvider.getCachedPassword();
+		if (password == null && (this.info.getPassword() != null && this.info.getPassword().length() > 0)) {
+			password = this.info.getPassword().toCharArray();
+		}
+		return password;
+	}
+
+	private String promptUser() {
+		String user = getUser();
+		if (user == null || user.length() < 1) {
+			JTextField txtUser = new SkinnedTextField(30);
+			JCheckBox chkCacheUser = new JCheckBox("Remember user name for this session");
+			int ret = JOptionPane.showOptionDialog(null, new Object[] { "User name", txtUser, chkCacheUser }, "User",
+					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+			if (ret == JOptionPane.OK_OPTION) {
+				user = txtUser.getText();
+				if (chkCacheUser.isSelected()) {
+					cachedCredentialProvider.setCachedUser(user);
+				}
+			}
+		}
+		return user;
 	}
 
 	public Session openSession() throws Exception {

@@ -26,8 +26,9 @@ public class RemoteSessionInstance {
 	private SshFileSystem sshFs;
 	private AtomicBoolean closed = new AtomicBoolean(false);
 
-	public RemoteSessionInstance(SessionInfo info, InputBlocker inputBlocker) {
-		this.ssh = new SshClient2(info, inputBlocker);
+	public RemoteSessionInstance(SessionInfo info, InputBlocker inputBlocker,
+			CachedCredentialProvider cachedCredentialProvider) {
+		this.ssh = new SshClient2(info, inputBlocker, cachedCredentialProvider);
 		this.sshFs = new SshFileSystem(this.ssh);
 	}
 

@@ -17,6 +17,7 @@ import muon.app.App;
 import muon.app.common.FileInfo;
 import muon.app.common.FileSystem;
 import muon.app.common.local.LocalFileSystem;
+import muon.app.ssh.OperationCancelledException;
 import muon.app.ssh.RemoteSessionInstance;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.session.files.AbstractFileBrowserView;
@@ -167,17 +168,22 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 						}
 						renderDirectory(this.path, useCache);
 						break;
+					} catch (OperationCancelledException e) {
+						e.printStackTrace();
+						
+						break;
 					} catch (Exception e) {
 						e.printStackTrace();
 						if (this.fileBrowser.isSessionClosed()) {
 							return;
 						}
-						System.out.println("Exception caught in sftp file browser");
+						System.out.println("Exception caught in sftp file browser: "+e.getMessage());
 
 						e.printStackTrace();
 						if (JOptionPane.showConfirmDialog(null,
 								"Unable to connect to server " + this.fileBrowser.getInfo().getName() + " at "
-										+ this.fileBrowser.getInfo().getHost() + "\n\nReason: " + e.getMessage()
+										+ this.fileBrowser.getInfo().getHost()
+										+ (e.getMessage() != null ? "\n\nReason: " + e.getMessage() : "\n")
 										+ "\n\nDo you want to retry?") == JOptionPane.YES_OPTION) {
 							continue;
 						}

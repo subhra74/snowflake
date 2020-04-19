@@ -11,6 +11,7 @@ import javax.swing.JPopupMenu;
 import muon.app.App;
 import muon.app.ui.components.ClosableTabbedPanel;
 import muon.app.ui.components.session.Page;
+import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.terminal.snippets.SnippetPanel;
 import util.FontAwesomeContants;
@@ -24,11 +25,12 @@ public class TerminalHolder extends Page implements AutoCloseable {
 	private AtomicBoolean init = new AtomicBoolean(false);
 	private int c = 1;
 	private JButton btn;
+	private SessionContentPanel sessionContentPanel;
 
-	public TerminalHolder(SessionInfo info) {
+	public TerminalHolder(SessionInfo info, SessionContentPanel sessionContentPanel) {
 		this.tabs = new ClosableTabbedPanel(e -> {
 			c++;
-			TerminalComponent tc = new TerminalComponent(info, c + "", null);
+			TerminalComponent tc = new TerminalComponent(info, c + "", null, sessionContentPanel);
 			this.tabs.addTab(tc.getTabTitle(), tc);
 			tc.getTabTitle().getCallback().accept(tc.toString());
 			tc.start();
@@ -41,13 +43,12 @@ public class TerminalHolder extends Page implements AutoCloseable {
 		});
 		btn.setFont(App.SKIN.getIconFont().deriveFont(16.0f));
 		btn.setText(FontAwesomeContants.FA_BOOKMARK);
-		btn.putClientProperty("Nimbus.Overrides",
-				App.SKIN.createTabButtonSkin());
+		btn.putClientProperty("Nimbus.Overrides", App.SKIN.createTabButtonSkin());
 		btn.setForeground(App.SKIN.getInfoTextForeground());
 		tabs.getButtonsBox().add(btn);
 
 		long t1 = System.currentTimeMillis();
-		TerminalComponent tc = new TerminalComponent(info, c + "", null);
+		TerminalComponent tc = new TerminalComponent(info, c + "", null, sessionContentPanel);
 		this.tabs.addTab(tc.getTabTitle(), tc);
 		long t2 = System.currentTimeMillis();
 		System.out.println("Terminal init in: " + (t2 - t1) + " ms");
@@ -121,8 +122,7 @@ public class TerminalHolder extends Page implements AutoCloseable {
 //		this.add(content);
 //
 		snippetPanel = new SnippetPanel(e -> {
-			TerminalComponent tc1 = (TerminalComponent) tabs
-					.getSelectedContent();
+			TerminalComponent tc1 = (TerminalComponent) tabs.getSelectedContent();
 			tc1.sendCommand(e + "\n");
 		}, e -> {
 			this.snippetPopupMenu.setVisible(false);
@@ -137,8 +137,7 @@ public class TerminalHolder extends Page implements AutoCloseable {
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
-				TerminalComponent comp = (TerminalComponent) tabs
-						.getSelectedContent();
+				TerminalComponent comp = (TerminalComponent) tabs.getSelectedContent();
 				if (comp != null) {
 					comp.getTerm().requestFocusInWindow();
 				}
@@ -162,8 +161,7 @@ public class TerminalHolder extends Page implements AutoCloseable {
 			return;
 		}
 		init.set(true);
-		TerminalComponent tc = (TerminalComponent) this.tabs
-				.getSelectedContent();
+		TerminalComponent tc = (TerminalComponent) this.tabs.getSelectedContent();
 		tc.getTabTitle().getCallback().accept(tc.toString());
 		tc.start();
 	}
@@ -174,9 +172,7 @@ public class TerminalHolder extends Page implements AutoCloseable {
 		this.snippetPopupMenu.setOpaque(true);
 		this.snippetPopupMenu.pack();
 		this.snippetPopupMenu.setInvoker(this.btn);
-		this.snippetPopupMenu.show(this.btn,
-				this.btn.getWidth()
-						- this.snippetPopupMenu.getPreferredSize().width,
+		this.snippetPopupMenu.show(this.btn, this.btn.getWidth() - this.snippetPopupMenu.getPreferredSize().width,
 				this.btn.getHeight());
 	}
 

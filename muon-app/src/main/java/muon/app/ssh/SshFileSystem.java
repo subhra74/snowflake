@@ -56,6 +56,8 @@ public class SshFileSystem implements FileSystem {
 		}
 		if (!ssh.isConnected()) {
 			ssh.connect();
+		}
+		if (sftp == null) {
 			this.sftp = ssh.createSftpClient();
 		}
 	}
