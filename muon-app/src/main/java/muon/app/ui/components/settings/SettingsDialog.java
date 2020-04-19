@@ -149,6 +149,11 @@ public class SettingsDialog extends JDialog {
 			super.setVisible(false);
 		});
 
+		btnReset.addActionListener(e -> {
+			loadSettings(new Settings());
+			JOptionPane.showMessageDialog(this, "Settings have been reset,\nplease save and restart the app");
+		});
+
 		bottomBox.add(btnReset);
 		bottomBox.add(Box.createHorizontalGlue());
 		bottomBox.add(btnCancel);
@@ -587,9 +592,20 @@ public class SettingsDialog extends JDialog {
 	}
 
 	public boolean showDialog(JFrame window, SettingsPageName page) {
+		this.setLocationRelativeTo(window);
 		Settings settings = App.getGlobalSettings();
 
-		this.setLocationRelativeTo(window);
+		if (page != null) {
+			navList.setSelectedIndex(page.index);
+		}
+
+		loadSettings(settings);
+
+		super.setVisible(true);
+		return false;
+	}
+
+	private void loadSettings(Settings settings) {
 		this.chkAudibleBell.setSelected(settings.isTerminalBell());
 		this.chkPuttyLikeCopyPaste.setSelected(settings.isPuttyLikeCopyPaste());
 
@@ -671,15 +687,9 @@ public class SettingsDialog extends JDialog {
 		this.editorModel.clear();
 		this.editorModel.addEntries(settings.getEditors());
 
-		if (page != null) {
-			navList.setSelectedIndex(page.index);
-		}
-
 		this.chkUseManualScaling.setSelected(settings.isManualScaling());
 		this.spScaleValue.setValue(settings.getUiScaling());
 
-		super.setVisible(true);
-		return false;
 	}
 
 	private String[] getTerminalFonts() {
