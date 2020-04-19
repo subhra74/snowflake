@@ -87,6 +87,9 @@ public class SettingsDialog extends JDialog {
 	private JPanel cardPanel;
 	private JList<String> navList;
 
+	private JCheckBox chkUseManualScaling;
+	private JSpinner spScaleValue;
+
 	/**
 	 * 
 	 */
@@ -119,7 +122,7 @@ public class SettingsDialog extends JDialog {
 		panelMap.put(SettingsPageName.General.toString(), createGeneralPanel());
 		panelMap.put(SettingsPageName.Terminal.toString(), createTerminalPanel());
 		panelMap.put(SettingsPageName.Editor.toString(), createEditorPanel());
-		panelMap.put(SettingsPageName.Misc.toString(), new JPanel());
+		panelMap.put(SettingsPageName.Misc.toString(), createMiscPanel());
 
 		for (String key : panelMap.keySet()) {
 			navModel.addElement(key);
@@ -161,8 +164,8 @@ public class SettingsDialog extends JDialog {
 
 	private void resizeNumericSpinner(JSpinner spinner) {
 		SpinnerNumberModel model = (SpinnerNumberModel) spinner.getModel();
-		int val = (Integer) model.getValue();
-		int max = (Integer) model.getMaximum();
+		Number val = (Number) model.getValue();
+		Number max = (Number) model.getMaximum();
 		spinner.getModel().setValue(max);
 		Dimension d = spinner.getPreferredSize();
 		spinner.getModel().setValue(val);
@@ -387,7 +390,6 @@ public class SettingsDialog extends JDialog {
 		chkPromptForSudo = new JCheckBox("Prompt for sudo if operation fails due to permission issues");
 		chkDirectoryCache = new JCheckBox("Use directory caching");
 		chkShowPathBar = new JCheckBox("Show current folder in path bar style");
-		chkUseGlobalDarkTheme = new JCheckBox("Use global dark theme (Needs restart)");
 		chkShowMessagePrompt = new JCheckBox("Show banner");
 
 		chkLogWrap = new JCheckBox("Word wrap on log viewer");
@@ -421,7 +423,6 @@ public class SettingsDialog extends JDialog {
 		chkPromptForSudo.setAlignmentX(Box.LEFT_ALIGNMENT);
 		chkDirectoryCache.setAlignmentX(Box.LEFT_ALIGNMENT);
 		chkShowPathBar.setAlignmentX(Box.LEFT_ALIGNMENT);
-		chkUseGlobalDarkTheme.setAlignmentX(Box.LEFT_ALIGNMENT);
 		chkShowMessagePrompt.setAlignmentX(Box.LEFT_ALIGNMENT);
 
 		chkLogWrap.setAlignmentX(Box.LEFT_ALIGNMENT);
@@ -456,8 +457,6 @@ public class SettingsDialog extends JDialog {
 		vbox.add(chkShowPathBar);
 		vbox.add(Box.createRigidArea(new Dimension(10, 10)));
 		vbox.add(chkShowMessagePrompt);
-		vbox.add(Box.createRigidArea(new Dimension(10, 10)));
-		vbox.add(chkUseGlobalDarkTheme);
 		vbox.add(Box.createRigidArea(new Dimension(10, 20)));
 
 		JLabel lbl1 = new JLabel("Log viewer lines per page"), lbl2 = new JLabel("Log viewer font size"),
@@ -484,7 +483,7 @@ public class SettingsDialog extends JDialog {
 		vbox.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		vbox.setBorder(new EmptyBorder(30, 10, 10, 10));
-		add(vbox);
+		// add(vbox);
 
 		panel.add(vbox);
 
@@ -575,6 +574,9 @@ public class SettingsDialog extends JDialog {
 		settings.setSysloadRefreshInterval((Integer) spSysLoadInterval.getValue());
 
 		settings.setEditors(editorModel.getEntries());
+
+		settings.setManualScaling(chkUseManualScaling.isSelected());
+		settings.setUiScaling((double) spScaleValue.getValue());
 
 		App.saveSettings();
 		super.setVisible(false);
@@ -673,6 +675,9 @@ public class SettingsDialog extends JDialog {
 			navList.setSelectedIndex(page.index);
 		}
 
+		this.chkUseManualScaling.setSelected(settings.isManualScaling());
+		this.spScaleValue.setValue(settings.getUiScaling());
+
 		super.setVisible(true);
 		return false;
 	}
@@ -690,7 +695,7 @@ public class SettingsDialog extends JDialog {
 
 	public JPanel createEditorPanel() {
 		JPanel panel = new JPanel(new BorderLayout(10, 10));
-		panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+		panel.setBorder(new EmptyBorder(30, 10, 10, 10));
 
 		editorTable = new JTable(editorModel);
 		panel.add(new SkinnedScrollPane(editorTable));
@@ -721,6 +726,31 @@ public class SettingsDialog extends JDialog {
 				editorModel.deleteEntry(index);
 			}
 		});
+		return panel;
+	}
+
+	private Component createMiscPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+
+		chkUseManualScaling = new JCheckBox("Zoom application view (Needs restart)");
+		spScaleValue = new JSpinner(new SpinnerNumberModel(1.0, 0.5, 100.0, 0.01));
+		resizeNumericSpinner(spScaleValue);
+
+		chkUseGlobalDarkTheme = new JCheckBox("Use global dark theme (Needs restart)");
+		chkUseGlobalDarkTheme.setAlignmentX(Box.LEFT_ALIGNMENT);
+
+		Box vbox = Box.createVerticalBox();
+		chkUseManualScaling.setAlignmentX(Box.LEFT_ALIGNMENT);
+		vbox.add(chkUseManualScaling);
+		vbox.add(Box.createRigidArea(new Dimension(10, 10)));
+		vbox.add(createRow(new JLabel("Zoom percentage"), Box.createHorizontalGlue(), spScaleValue));
+		vbox.add(Box.createRigidArea(new Dimension(10, 10)));
+		vbox.add(chkUseGlobalDarkTheme);
+		vbox.setBorder(new EmptyBorder(30, 10, 10, 10));
+		// add(vbox);
+
+		panel.add(vbox);
+
 		return panel;
 	}
 

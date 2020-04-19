@@ -64,7 +64,6 @@ public class App {
 	private static Map<String, List<String>> pinnedLogs = new HashMap<>();
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException {
-
 		Security.setProperty("networkaddress.cache.ttl", "0");
 		Security.setProperty("networkaddress.cache.negative.ttl", "0");
 

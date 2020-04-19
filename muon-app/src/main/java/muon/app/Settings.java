@@ -69,7 +69,7 @@ public class Settings {
 	// 2 Open with internal editor
 			, numberOfSimultaneousConnection = 3;
 
-	private float uiScaling = 1.0f;
+	private double uiScaling = 1.0;
 	private boolean manualScaling = false;
 
 	private List<EditorEntry> editors = new ArrayList<>();
@@ -549,11 +549,11 @@ public class Settings {
 		this.editors = editors;
 	}
 
-	public float getUiScaling() {
+	public double getUiScaling() {
 		return uiScaling;
 	}
 
-	public void setUiScaling(float uiScaling) {
+	public void setUiScaling(double uiScaling) {
 		this.uiScaling = uiScaling;
 	}
 
