@@ -124,8 +124,8 @@ public class SshFileSystem implements FileSystem {
 				if (attrs.getType() != Type.SYMLINK) {
 					FileInfo e = new FileInfo(name, pathToResolve,
 							(attrs.getType() == Type.DIRECTORY ? -1 : attrs.getSize()),
-							attrs.getType() == Type.DIRECTORY ? FileType.DirLink : FileType.FileLink, attrs.getMtime(),
-							FilePermission.toMask(attrs.getPermissions()), PROTO_SFTP,
+							attrs.getType() == Type.DIRECTORY ? FileType.DirLink : FileType.FileLink,
+							attrs.getMtime() * 1000, FilePermission.toMask(attrs.getPermissions()), PROTO_SFTP,
 							getPermissionStr(attrs.getPermissions()), attrs.getAtime(), longName, name.startsWith("."));
 					return e;
 				}
@@ -134,7 +134,7 @@ public class SshFileSystem implements FileSystem {
 			if (e.getStatusCode() == Response.StatusCode.NO_SUCH_FILE
 					|| e.getStatusCode() == Response.StatusCode.NO_SUCH_PATH
 					|| e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
-				return new FileInfo(name, pathToResolve, 0, FileType.FileLink, attrs.getMtime(),
+				return new FileInfo(name, pathToResolve, 0, FileType.FileLink, attrs.getMtime() * 1000,
 						FilePermission.toMask(attrs.getPermissions()), PROTO_SFTP,
 						getPermissionStr(attrs.getPermissions()), attrs.getAtime(), longName, name.startsWith("."));
 			}
@@ -176,7 +176,7 @@ public class SshFileSystem implements FileSystem {
 						} else {
 							FileInfo e = new FileInfo(ent.getName(), ent.getPath(),
 									(ent.isDirectory() ? -1 : attrs.getSize()),
-									ent.isDirectory() ? FileType.Directory : FileType.File, attrs.getMtime(),
+									ent.isDirectory() ? FileType.Directory : FileType.File, attrs.getMtime() * 1000,
 									net.schmizz.sshj.xfer.FilePermission.toMask(attrs.getPermissions()), PROTO_SFTP,
 									getPermissionStr(attrs.getPermissions()), attrs.getAtime(), longName,
 									ent.getName().startsWith("."));
@@ -252,8 +252,8 @@ public class SshFileSystem implements FileSystem {
 				} else {
 					String name = PathUtils.getFileName(path);
 					FileInfo e = new FileInfo(name, path, (attrs.getType() == Type.DIRECTORY ? -1 : attrs.getSize()),
-							attrs.getType() == Type.DIRECTORY ? FileType.Directory : FileType.File, attrs.getMtime(),
-							FilePermission.toMask(attrs.getPermissions()), PROTO_SFTP,
+							attrs.getType() == Type.DIRECTORY ? FileType.Directory : FileType.File,
+							attrs.getMtime() * 1000, FilePermission.toMask(attrs.getPermissions()), PROTO_SFTP,
 							getPermissionStr(attrs.getPermissions()), attrs.getAtime(), null, name.startsWith("."));
 					return e;
 				}
@@ -463,14 +463,8 @@ public class SshFileSystem implements FileSystem {
 					@Override
 					public InputStream getInputStream(String path) throws Exception {
 						RemoteFile remoteFile = sftp.open(path, EnumSet.of(OpenMode.READ));
-						return new SSHRemoteFileInputStream(remoteFile);
-					}
-
-					@Override
-					public InputStream getInputStream(String path, long offset) throws Exception {
-						InputStream in = getInputStream(path);
-						in.skip(offset);
-						return in;
+						return new SSHRemoteFileInputStream(remoteFile,
+								sftp.getSFTPEngine().getSubsystem().getLocalMaxPacketSize());
 					}
 
 					@Override
@@ -504,7 +498,8 @@ public class SshFileSystem implements FileSystem {
 						try {
 							RemoteFile remoteFile = sftp.open(path,
 									EnumSet.of(OpenMode.WRITE, OpenMode.TRUNC, OpenMode.CREAT));
-							return new SSHRemoteFileOutputStream(remoteFile);
+							return new SSHRemoteFileOutputStream(remoteFile,
+									sftp.getSFTPEngine().getSubsystem().getRemoteMaxPacketSize());
 						} catch (SFTPException e) {
 							if (e.getStatusCode() == Response.StatusCode.PERMISSION_DENIED) {
 								throw new AccessDeniedException(e.getMessage());

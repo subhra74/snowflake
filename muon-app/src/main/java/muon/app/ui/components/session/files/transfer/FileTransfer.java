@@ -34,6 +34,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 	private long totalFiles;
 	private ConflictAction conflictAction = ConflictAction.Prompt; // 0 -> overwrite, 1 -> auto rename, 2
 	// -> skip
+	private static final int BUF_SIZE = Short.MAX_VALUE;
 
 	public enum ConflictAction {
 		OverWrite, AutoRename, Skip, Prompt, Cancel
@@ -64,7 +65,8 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 		if (this.conflictAction == ConflictAction.Prompt) {
 			this.conflictAction = checkForConflict(dupList);
-			if (this.conflictAction == ConflictAction.Cancel) {
+			if (dupList.size() > 0 && this.conflictAction == ConflictAction.Cancel) {
+				System.out.println("Operation cancelled by user");
 				return;
 			}
 		}
@@ -175,13 +177,14 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 	private synchronized void copyFile(FileInfo file, String targetDirectory, String proposedName,
 			InputTransferChannel inc, OutputTransferChannel outc) throws Exception {
-		byte buf[] = new byte[8192];
+		byte buf[] = new byte[BUF_SIZE];
 		String outPath = PathUtils.combine(targetDirectory, proposedName == null ? file.getName() : proposedName,
 				outc.getSeparator());
 		String inPath = file.getPath();
 		System.out.println("Copying -- " + inPath + " to " + outPath);
 		try (InputStream in = inc.getInputStream(inPath); OutputStream out = outc.getOutputStream(outPath)) {
 			long len = inc.getSize(inPath);
+			System.out.println("Initiate write");
 			while (len > 0 && !stopFlag.get()) {
 				int x = in.read(buf);
 				if (x == -1)
@@ -192,7 +195,10 @@ public class FileTransfer implements Runnable, AutoCloseable {
 				callback.progress(processedBytes, totalSize, processedFilesCount, totalFiles, this);
 				// Thread.sleep(500);
 			}
+			System.out.println("Copy done before stream closing");
+			out.flush();
 		}
+		System.out.println("Copy done");
 	}
 
 	public void stop() {

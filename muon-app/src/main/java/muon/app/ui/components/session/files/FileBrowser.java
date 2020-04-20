@@ -382,6 +382,7 @@ public class FileBrowser extends Page {
 	 */
 	public void newFileTransfer(FileSystem sourceFs, FileSystem targetFs, FileInfo[] files, String targetFolder,
 			int dragsource, ConflictAction defaultConflictAction) {
+		System.out.println("Initiating new file transfer...");
 		this.ongoingFileTransfer = new FileTransfer(sourceFs, targetFs, files, targetFolder,
 				new FileTransferProgress() {
 

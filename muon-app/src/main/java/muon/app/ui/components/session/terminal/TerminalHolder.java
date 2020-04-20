@@ -7,6 +7,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JButton;
 import javax.swing.JPopupMenu;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import muon.app.App;
 import muon.app.ui.components.ClosableTabbedPanel;
@@ -28,12 +30,9 @@ public class TerminalHolder extends Page implements AutoCloseable {
 	private SessionContentPanel sessionContentPanel;
 
 	public TerminalHolder(SessionInfo info, SessionContentPanel sessionContentPanel) {
+		this.sessionContentPanel = sessionContentPanel;
 		this.tabs = new ClosableTabbedPanel(e -> {
-			c++;
-			TerminalComponent tc = new TerminalComponent(info, c + "", null, sessionContentPanel);
-			this.tabs.addTab(tc.getTabTitle(), tc);
-			tc.getTabTitle().getCallback().accept(tc.toString());
-			tc.start();
+			openNewTerminal(null);
 		});
 
 		btn = new JButton();
@@ -133,14 +132,32 @@ public class TerminalHolder extends Page implements AutoCloseable {
 //
 //		createNewTerminal();
 		this.add(tabs);
+		
+		addAncestorListener(new AncestorListener() {
+			
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+				System.err.println("Terminal ancestor component shown");
+				focusTerminal();
+			}
+		});
 
 		addComponentListener(new ComponentAdapter() {
 			@Override
 			public void componentShown(ComponentEvent e) {
-				TerminalComponent comp = (TerminalComponent) tabs.getSelectedContent();
-				if (comp != null) {
-					comp.getTerm().requestFocusInWindow();
-				}
+				focusTerminal();
 //				int index = cmbTerminals.getSelectedIndex();
 //				if (index != -1) {
 //					TerminalComponent comp = terminals.getElementAt(index);
@@ -150,9 +167,19 @@ public class TerminalHolder extends Page implements AutoCloseable {
 //				}
 //				terminals.addElement(tc);
 //				cmbTerminals.setSelectedIndex(count);
-				requestFocusInWindow();
+				//requestFocusInWindow();
 			}
 		});
+	}
+
+	private void focusTerminal() {
+		tabs.requestFocusInWindow();
+		System.err.println("Terminal component shown");
+		TerminalComponent comp = (TerminalComponent) tabs.getSelectedContent();
+		if (comp != null) {
+			comp.requestFocusInWindow();
+			comp.getTerm().requestFocusInWindow();
+		}
 	}
 
 	@Override
@@ -232,5 +259,14 @@ public class TerminalHolder extends Page implements AutoCloseable {
 	@Override
 	public String getText() {
 		return "Terminal";
+	}
+
+	public void openNewTerminal(String command) {
+		c++;
+		TerminalComponent tc = new TerminalComponent(this.sessionContentPanel.getInfo(), c + "", command,
+				this.sessionContentPanel);
+		this.tabs.addTab(tc.getTabTitle(), tc);
+		tc.getTabTitle().getCallback().accept(tc.toString());
+		tc.start();
 	}
 }

@@ -244,9 +244,11 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 			System.out.println("Session hash code: " + sessionHashCode);
 			FileSystem sourceFs = null;
 			if (sessionHashCode == 0 && transferData.getSourceType() == DndTransferData.DndSourceType.LOCAL) {
+				System.out.println("Source fs is local");
 				sourceFs = new LocalFileSystem();
 			} else if (transferData.getSourceType() == DndTransferData.DndSourceType.SSH
 					&& sessionHashCode == this.fileBrowser.getInfo().hashCode()) {
+				System.out.println("Source fs is remote");
 				sourceFs = this.fileBrowser.getSSHFileSystem();
 			}
 //			else if (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP) {

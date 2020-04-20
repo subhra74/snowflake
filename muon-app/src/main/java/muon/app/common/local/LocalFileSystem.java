@@ -19,18 +19,15 @@ public class LocalFileSystem implements FileSystem {
 	}
 
 	@Override
-	public FileInfo getInfo(String path)
-			throws FileNotFoundException, IOException {
+	public FileInfo getInfo(String path) throws FileNotFoundException, IOException {
 		File f = new File(path);
 		if (!f.exists()) {
 			throw new FileNotFoundException(path);
 		}
 		Path p = f.toPath();
-		BasicFileAttributes attrs = Files.readAttributes(p,
-				BasicFileAttributes.class);
+		BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
 		FileInfo info = new FileInfo(f.getName(), path, f.length(),
-				f.isDirectory() ? FileType.Directory : FileType.File,
-				f.lastModified(), -1, PROTO_LOCAL_FILE, "",
+				f.isDirectory() ? FileType.Directory : FileType.File, f.lastModified(), -1, PROTO_LOCAL_FILE, "",
 				attrs.creationTime().toMillis(), "", f.isHidden());
 		return info;
 	}
@@ -56,13 +53,10 @@ public class LocalFileSystem implements FileSystem {
 		for (File f : childs) {
 			try {
 				Path p = f.toPath();
-				BasicFileAttributes attrs = Files.readAttributes(p,
-						BasicFileAttributes.class);
-				FileInfo info = new FileInfo(f.getName(), f.getAbsolutePath(),
-						f.length(),
-						f.isDirectory() ? FileType.Directory : FileType.File,
-						f.lastModified(), -1, PROTO_LOCAL_FILE, "",
-						attrs.creationTime().toMillis(), "", f.isHidden());
+				BasicFileAttributes attrs = Files.readAttributes(p, BasicFileAttributes.class);
+				FileInfo info = new FileInfo(f.getName(), f.getAbsolutePath(), f.length(),
+						f.isDirectory() ? FileType.Directory : FileType.File, f.lastModified(), -1, PROTO_LOCAL_FILE,
+						"", attrs.creationTime().toMillis(), "", f.isHidden());
 				list.add(info);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -76,21 +70,18 @@ public class LocalFileSystem implements FileSystem {
 		return true;
 	}
 
-	public InputStream getInputStream(String file, long offset)
-			throws FileNotFoundException, Exception {
+	public InputStream getInputStream(String file, long offset) throws FileNotFoundException, Exception {
 		FileInputStream fout = new FileInputStream(file);
 		fout.skip(offset);
 		return fout;
 	}
 
-	public OutputStream getOutputStream(String file)
-			throws FileNotFoundException, Exception {
+	public OutputStream getOutputStream(String file) throws FileNotFoundException, Exception {
 		return new FileOutputStream(file);
 	}
 
 	@Override
-	public void rename(String oldName, String newName)
-			throws FileNotFoundException, Exception {
+	public void rename(String oldName, String newName) throws FileNotFoundException, Exception {
 		System.out.println("Renaming from " + oldName + " to: " + newName);
 		if (!new File(oldName).renameTo(new File(newName))) {
 			throw new FileNotFoundException();
@@ -157,26 +148,21 @@ public class LocalFileSystem implements FileSystem {
 //	}
 
 	@Override
-	public long getAllFiles(String dir, String baseDir,
-			Map<String, String> fileMap, Map<String, String> folderMap)
+	public long getAllFiles(String dir, String baseDir, Map<String, String> fileMap, Map<String, String> folderMap)
 			throws Exception {
 		long size = 0;
 		System.out.println("get files: " + dir);
-		String parentFolder = PathUtils.combineUnix(baseDir,
-				PathUtils.getFileName(dir));
+		String parentFolder = PathUtils.combineUnix(baseDir, PathUtils.getFileName(dir));
 
 		folderMap.put(dir, parentFolder);
 
 		List<FileInfo> list = list(dir);
 		for (FileInfo f : list) {
 			if (f.getType() == FileType.Directory) {
-				folderMap.put(f.getPath(),
-						PathUtils.combineUnix(parentFolder, f.getName()));
-				size += getAllFiles(f.getPath(), parentFolder, fileMap,
-						folderMap);
+				folderMap.put(f.getPath(), PathUtils.combineUnix(parentFolder, f.getName()));
+				size += getAllFiles(f.getPath(), parentFolder, fileMap, folderMap);
 			} else {
-				fileMap.put(f.getPath(),
-						PathUtils.combineUnix(parentFolder, f.getName()));
+				fileMap.put(f.getPath(), PathUtils.combineUnix(parentFolder, f.getName()));
 				size += f.getSize();
 			}
 		}
@@ -208,8 +194,7 @@ public class LocalFileSystem implements FileSystem {
 		Files.createFile(Paths.get(path));
 	}
 
-	public void createLink(String src, String dst, boolean hardLink)
-			throws Exception {
+	public void createLink(String src, String dst, boolean hardLink) throws Exception {
 
 	}
 
@@ -233,15 +218,7 @@ public class LocalFileSystem implements FileSystem {
 		InputTransferChannel tc = new InputTransferChannel() {
 			@Override
 			public InputStream getInputStream(String path) throws Exception {
-				return getInputStream(path, 0);
-			}
-
-			@Override
-			public InputStream getInputStream(String path, long offset)
-					throws Exception {
-				FileInputStream fin = new FileInputStream(path);
-				fin.skip(offset);
-				return fin;
+				return new FileInputStream(path);
 			}
 
 			@Override

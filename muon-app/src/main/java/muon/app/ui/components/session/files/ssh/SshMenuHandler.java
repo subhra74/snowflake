@@ -786,15 +786,11 @@ public class SshMenuHandler {
 	}
 
 	private void openFolderInTerminal(String folder) {
-		throw new RuntimeException("Not implemented");
-//		holder.openTerminal("cd \"" + folder + "\"");
-//		holder.showPage("Terminal");
+		fileBrowser.getHolder().openTerminal("cd \"" + folder + "\"");
 	}
 
 	private void openRunInTerminal(String folder, String file) {
-		throw new RuntimeException("Not implemented");
-//		holder.openTerminal("cd \"" + folder + "\"; \"" + file + "\"");
-//		holder.showPage("Terminal");
+		fileBrowser.getHolder().openTerminal("cd \"" + folder + "\"; \"" + file + "\"");
 	}
 
 	private void openRunInBackground(String folder, String file) {

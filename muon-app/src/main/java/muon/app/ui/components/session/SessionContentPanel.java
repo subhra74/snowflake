@@ -231,6 +231,11 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 		fileBrowser.openPath(path);
 	}
 
+	public void openTerminal(String command) {
+		showPage(this.terminalHolder.getClientProperty("pageId") + "");
+		this.terminalHolder.openNewTerminal(command);
+	}
+
 	/**
 	 * @return the closed
 	 */

@@ -34,7 +34,11 @@ public class ClosableTabbedPanel extends JPanel {
 //	private Border unselectedTabBorder = new MatteBorder(2, 0, 0, 0,
 //			App.SKIN.getDefaultBackground());
 
-	public ClosableTabbedPanel(final Consumer<JButton> callback) {
+	/**
+	 * Create a tabbed pane with closable tabs
+	 * @param newTabCallback Called whenever new tab button is clicked
+	 */
+	public ClosableTabbedPanel(final Consumer<JButton> newTabCallback) {
 		super(new BorderLayout(0, 0), true);
 		setOpaque(true);
 
@@ -86,7 +90,7 @@ public class ClosableTabbedPanel extends JPanel {
 //		popup.setInvoker(btn);
 		btn.addActionListener(e -> {
 			System.out.println("Callback called");
-			callback.accept(btn);
+			newTabCallback.accept(btn);
 			// popup.show(btn, 0, btn.getHeight());
 		});
 		buttonsBox = new JPanel(new GridLayout(1, 0));
