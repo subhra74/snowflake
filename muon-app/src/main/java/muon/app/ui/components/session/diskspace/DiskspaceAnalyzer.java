@@ -63,11 +63,9 @@ public class DiskspaceAnalyzer extends Page {
 	}
 
 	private Component createResultPanel() {
-		treeModel = new DefaultTreeModel(
-				new DefaultMutableTreeNode("results", true), true);
+		treeModel = new DefaultTreeModel(new DefaultMutableTreeNode("results", true), true);
 		resultTree = new JTree(treeModel);
-		resultTree.getSelectionModel()
-				.setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+		resultTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
 		JButton btnStart = new JButton("Start another analysis");
 		btnStart.addActionListener(e -> {
@@ -106,8 +104,7 @@ public class DiskspaceAnalyzer extends Page {
 				cardLayout.show(this, "volPanel");
 				listVolumes();
 			} else {
-				String text = OptionPaneUtils.showInputDialog(this,
-						"Please enter folder path to analyze", "Input");
+				String text = OptionPaneUtils.showInputDialog(this, "Please enter folder path to analyze", "Input");
 				if (text != null) {
 					cardLayout.show(this, "resultPanel");
 					analyze(text);
@@ -154,8 +151,7 @@ public class DiskspaceAnalyzer extends Page {
 		table.setAutoCreateRowSorter(true);
 		table.setDefaultRenderer(Object.class, r1);
 		table.setDefaultRenderer(Double.class, r2);
-		table.setRowHeight(Math.max(r1.getPreferredSize().height,
-				r2.getPreferredSize().height));
+		table.setRowHeight(Math.max(r1.getPreferredSize().height, r2.getPreferredSize().height));
 		table.setSelectionForeground(App.SKIN.getDefaultSelectionForeground());
 		JScrollPane jsp = new SkinnedScrollPane(table);
 
@@ -170,10 +166,13 @@ public class DiskspaceAnalyzer extends Page {
 				cardLayout.show(this, "resultPanel");
 				analyze(model.get(r).getMountPoint());
 			} else {
-				JOptionPane.showMessageDialog(this,
-						"Please select a partition");
+				JOptionPane.showMessageDialog(this, "Please select a partition");
 				return;
 			}
+		});
+
+		btnBack.addActionListener(e -> {
+			cardLayout.show(this, "firstPanel");
 		});
 
 		Box bottomBox = Box.createHorizontalBox();
@@ -212,9 +211,7 @@ public class DiskspaceAnalyzer extends Page {
 	private void listPartitions(AtomicBoolean stopFlag) {
 		try {
 			StringBuilder output = new StringBuilder();
-			if (holder.getRemoteSessionInstance().exec(
-					"export POSIXLY_CORRECT=1;df -P -k", stopFlag,
-					output) == 0) {
+			if (holder.getRemoteSessionInstance().exec("export POSIXLY_CORRECT=1;df -P -k", stopFlag, output) == 0) {
 				List<PartitionEntry> list = new ArrayList<>();
 				boolean first = true;
 				for (String line : output.toString().split("\n")) {
@@ -228,10 +225,8 @@ public class DiskspaceAnalyzer extends Page {
 					String[] arr = line.split("\\s+");
 					if (arr.length < 6)
 						continue;
-					PartitionEntry ent = new PartitionEntry(arr[0], arr[5],
-							Long.parseLong(arr[1].trim()) * 1024,
-							Long.parseLong(arr[2].trim()) * 1024,
-							Long.parseLong(arr[3].trim()) * 1024,
+					PartitionEntry ent = new PartitionEntry(arr[0], arr[5], Long.parseLong(arr[1].trim()) * 1024,
+							Long.parseLong(arr[2].trim()) * 1024, Long.parseLong(arr[3].trim()) * 1024,
 							Double.parseDouble(arr[4].replace("%", "").trim()));
 					list.add(ent);
 				}
@@ -270,8 +265,7 @@ public class DiskspaceAnalyzer extends Page {
 			SwingUtilities.invokeLater(() -> {
 				if (res != null) {
 					System.out.println("Result found");
-					DefaultMutableTreeNode root = new DefaultMutableTreeNode(
-							res, true);
+					DefaultMutableTreeNode root = new DefaultMutableTreeNode(res, true);
 					root.setAllowsChildren(true);
 					createTree(root, res);
 					treeModel.setRoot(root);
@@ -284,16 +278,13 @@ public class DiskspaceAnalyzer extends Page {
 		holder.EXECUTOR.submit(task);
 	}
 
-	private void createTree(DefaultMutableTreeNode treeNode,
-			DiskUsageEntry entry) {
+	private void createTree(DefaultMutableTreeNode treeNode, DiskUsageEntry entry) {
 //        DefaultMutableTreeNode node = new DefaultMutableTreeNode(entry);
 		Collections.sort(entry.getChildren(), (a, b) -> {
-			return a.getSize() < b.getSize() ? 1
-					: (a.getSize() > b.getSize() ? -1 : 0);
+			return a.getSize() < b.getSize() ? 1 : (a.getSize() > b.getSize() ? -1 : 0);
 		});
 		for (DiskUsageEntry ent : entry.getChildren()) {
-			DefaultMutableTreeNode child = new DefaultMutableTreeNode(ent,
-					true);
+			DefaultMutableTreeNode child = new DefaultMutableTreeNode(ent, true);
 			child.setAllowsChildren(true);
 			treeNode.add(child);
 			createTree(child, ent);

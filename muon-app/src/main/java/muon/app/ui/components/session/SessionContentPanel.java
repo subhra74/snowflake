@@ -246,7 +246,9 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 			e.printStackTrace();
 		}
 		App.removePendingTransfers(this.getActiveSessionId());
-		this.backgroundTransferPool.shutdownNow();
+		if (this.backgroundTransferPool != null) {
+			this.backgroundTransferPool.shutdownNow();
+		}
 
 		EXECUTOR.submit(() -> {
 			try {
