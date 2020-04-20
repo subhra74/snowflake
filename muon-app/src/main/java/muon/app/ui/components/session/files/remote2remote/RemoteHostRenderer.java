@@ -71,7 +71,7 @@ public class RemoteHostRenderer implements ListCellRenderer<RemoteServerEntry> {
 			lblHost.setForeground(App.SKIN.getDefaultSelectionForeground());
 			lblIcon.setForeground(App.SKIN.getDefaultSelectionForeground());
 		} else {
-			panel.setBackground(App.SKIN.getDefaultBackground());
+			panel.setBackground(list.getBackground());
 			lblText.setForeground(App.SKIN.getDefaultForeground());
 			lblHost.setForeground(App.SKIN.getInfoTextForeground());
 			lblIcon.setForeground(App.SKIN.getDefaultForeground());

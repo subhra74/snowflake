@@ -11,12 +11,18 @@ import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.MatteBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -30,6 +36,7 @@ import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.session.NewSessionDlg;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
+import util.FontAwesomeContants;
 
 public class Remote2RemoteTransferDialog extends JDialog {
 	private DefaultListModel<RemoteServerEntry> remoteHostModel;
@@ -37,10 +44,12 @@ public class Remote2RemoteTransferDialog extends JDialog {
 	private SessionContentPanel session;
 	private FileInfo[] selectedFiles;
 	private String currentDirectory;
+	private List<RemoteServerEntry> list = new ArrayList<>();
 
 	public Remote2RemoteTransferDialog(JFrame frame, SessionContentPanel session, FileInfo[] selectedFiles,
 			String currentDirectory) {
 		super(frame);
+		setTitle("Server to server SFTP");
 		this.session = session;
 		this.selectedFiles = selectedFiles;
 		this.currentDirectory = currentDirectory;
@@ -48,17 +57,28 @@ public class Remote2RemoteTransferDialog extends JDialog {
 		setModal(true);
 
 		remoteHostModel = new DefaultListModel<RemoteServerEntry>();
-		remoteHostModel.addAll(load());
+		this.list.clear();
+		this.list.addAll(load());
+		remoteHostModel.addAll(this.list);
 		remoteHostList = new JList<RemoteServerEntry>(remoteHostModel);
 		remoteHostList.setCellRenderer(new RemoteHostRenderer());
-		this.add(new SkinnedScrollPane(remoteHostList));
+
+		remoteHostList.setBackground(App.SKIN.getTextFieldBackground());
+
+		SkinnedScrollPane scrollPane = new SkinnedScrollPane(remoteHostList);
+		scrollPane.setBorder(new MatteBorder(0, 0, 1, 0, App.SKIN.getDefaultBorderColor()));
+
+		this.add(scrollPane);
+		if (remoteHostModel.size() > 0) {
+			remoteHostList.setSelectedIndex(0);
+		}
 
 		Box bottom = Box.createHorizontalBox();
 		JButton btnAddKnown = new JButton("Add from session manager");
 		JButton btnAdd = new JButton("Add");
 		JButton btnRemove = new JButton("Delete");
 		JButton btnEdit = new JButton("Edit");
-		JButton btnSend = new JButton("Send");
+		JButton btnSend = new JButton("Send Files");
 
 		btnAddKnown.addActionListener(e -> {
 			SessionInfo info = new NewSessionDlg(this).newSession();
@@ -67,9 +87,41 @@ public class Remote2RemoteTransferDialog extends JDialog {
 						info.getPort());
 				if (ent != null) {
 					remoteHostModel.insertElementAt(ent, 0);
-					save();
 					remoteHostList.setSelectedIndex(0);
+					save();
 				}
+			}
+		});
+
+		btnAdd.addActionListener(e -> {
+			RemoteServerEntry ent = getEntryDetails(null, null, null, 22);
+			if (ent != null) {
+				remoteHostModel.insertElementAt(ent, 0);
+				remoteHostList.setSelectedIndex(0);
+				save();
+			}
+		});
+
+		btnEdit.addActionListener(e -> {
+			int index = remoteHostList.getSelectedIndex();
+			if (index != -1) {
+				RemoteServerEntry ent = remoteHostModel.get(index);
+				RemoteServerEntry ent2 = getEntryDetails(ent.getHost(), ent.getUser(), ent.getPath(), ent.getPort());
+				if (ent2 != null) {
+					ent.setHost(ent2.getHost());
+					ent.setUser(ent2.getUser());
+					ent.setPath(ent2.getPath());
+					ent.setPort(ent2.getPort());
+					save();
+				}
+			}
+		});
+
+		btnRemove.addActionListener(e -> {
+			int index = remoteHostList.getSelectedIndex();
+			if (index != -1) {
+				remoteHostModel.remove(index);
+				save();
 			}
 		});
 
@@ -82,18 +134,57 @@ public class Remote2RemoteTransferDialog extends JDialog {
 			}
 		});
 
-		bottom.add(btnRemove);
-		bottom.add(Box.createHorizontalStrut(5));
-		bottom.add(btnEdit);
+		bottom.add(btnAddKnown);
 		bottom.add(Box.createHorizontalStrut(5));
 		bottom.add(btnAdd);
 		bottom.add(Box.createHorizontalStrut(5));
-		bottom.add(btnAddKnown);
+		bottom.add(btnEdit);
+		bottom.add(Box.createHorizontalStrut(5));
+		bottom.add(btnRemove);
 		bottom.add(Box.createHorizontalGlue());
 		bottom.add(btnSend);
 		bottom.setBorder(new EmptyBorder(10, 10, 10, 10));
-
 		this.add(bottom, BorderLayout.SOUTH);
+
+		Box top = Box.createHorizontalBox();
+		JLabel lblSearch = new JLabel(FontAwesomeContants.FA_SEARCH);
+		lblSearch.setFont(App.SKIN.getIconFont());
+		JTextField txtSearch = new SkinnedTextField(30);
+		txtSearch.setBackground(App.SKIN.getDefaultBackground());
+		txtSearch.setBorder(new EmptyBorder(10, 10, 10, 10));
+		top.add(lblSearch);
+		top.add(txtSearch);
+		top.setBorder(new CompoundBorder(new EmptyBorder(0, 10, 10, 10),
+				new MatteBorder(0, 0, 1, 0, App.SKIN.getDefaultSelectionBackground())));
+
+		this.add(top, BorderLayout.NORTH);
+
+		txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				filterItems(txtSearch.getText());
+			}
+
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				filterItems(txtSearch.getText());
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				filterItems(txtSearch.getText());
+			}
+		});
+	}
+
+	private void filterItems(String filter) {
+		this.remoteHostModel.removeAllElements();
+		for (RemoteServerEntry ent : this.list) {
+			if (ent.getHost().contains(filter) || ent.getPath().contains(filter)) {
+				this.remoteHostModel.addElement(ent);
+			}
+		}
 	}
 
 	private RemoteServerEntry getEntryDetails(String host, String user, String path, int port) {
@@ -166,7 +257,7 @@ public class Remote2RemoteTransferDialog extends JDialog {
 
 	private void save() {
 		List<RemoteServerEntry> list = new ArrayList<>();
-		for (int i = 0; i < list.size(); i++) {
+		for (int i = 0; i < remoteHostModel.size(); i++) {
 			list.add(remoteHostModel.get(i));
 		}
 		File file = new File(App.CONFIG_DIR, App.TRANSFER_HOSTS);
@@ -176,6 +267,8 @@ public class Remote2RemoteTransferDialog extends JDialog {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		this.list.clear();
+		this.list.addAll(load());
 	}
 
 	private List<RemoteServerEntry> load() {
