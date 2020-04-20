@@ -30,6 +30,7 @@ import javax.swing.border.MatteBorder;
 import muon.app.App;
 import muon.app.ui.components.session.NewSessionDlg;
 import muon.app.ui.components.session.SessionContentPanel;
+import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.SessionListPanel;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.session.files.transfer.BackgroundTransferPanel;
@@ -112,7 +113,7 @@ public class AppWindow extends JFrame {
 		JButton btnNew = new JButton("+ New");
 		btnNew.setFont(App.SKIN.getDefaultFont().deriveFont(12.0f));
 		btnNew.addActionListener(e -> {
-			muon.app.ui.components.session.SessionInfo info = new NewSessionDlg(this).newSession();
+			SessionInfo info = new NewSessionDlg(this).newSession();
 			if (info != null) {
 				sessionListPanel.createSession(info);
 			}

@@ -51,6 +51,7 @@ public class App {
 	public static final String CONFIG_DB_FILE = "settings.json";
 	public static final String SNIPPETS_FILE = "snippets.json";
 	public static final String PINNED_LOGS = "pinned-logs.json";
+	public static final String TRANSFER_HOSTS = "transfer-hosts.json";
 	private static Settings settings;
 	public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 	public static final SnippetManager SNIPPET_MANAGER = new SnippetManager();
@@ -206,5 +207,9 @@ public class App {
 
 	public static synchronized void openSettings(SettingsPageName page) {
 		mw.openSettings(page);
+	}
+
+	public static synchronized AppWindow getAppWindow() {
+		return mw;
 	}
 }

@@ -18,7 +18,6 @@ import muon.app.common.FileType;
 import muon.app.common.InputTransferChannel;
 import muon.app.common.OutputTransferChannel;
 import muon.app.ssh.SshFileSystem;
-import muon.app.ui.components.session.SessionContentPanel;
 import util.PathUtils;
 
 public class FileTransfer implements Runnable, AutoCloseable {

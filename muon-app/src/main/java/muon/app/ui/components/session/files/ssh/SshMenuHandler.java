@@ -33,6 +33,8 @@ import muon.app.common.FileInfo;
 import muon.app.common.FileType;
 import muon.app.common.local.LocalFileSystem;
 import muon.app.ui.components.session.files.FileBrowser;
+import muon.app.ui.components.session.files.remote2remote.LocalPipeTransfer;
+import muon.app.ui.components.session.files.remote2remote.Remote2RemoteTransferDialog;
 import muon.app.ui.components.session.files.view.DndTransferData;
 import muon.app.ui.components.session.files.view.DndTransferHandler;
 import muon.app.ui.components.session.files.view.FolderView;
@@ -52,7 +54,7 @@ public class SshMenuHandler {
 			mDownload, mCreateLink, mCopyPath, mOpenFolderInTerminal, mOpenTerminalHere, mRunScriptInTerminal,
 			mRunScriptInBackground, mExtractHere, mExtractTo, mCreateArchive, mOpenWithMenu;
 
-	private JMenu mEditWith;
+	private JMenu mEditWith, mSendTo;
 	private Map<String, String> extractCommands;
 	private FileBrowser fileBrowser;
 	private FolderView folderView;
@@ -144,6 +146,21 @@ public class SshMenuHandler {
 			mEditWith.add(mEditorItem);
 		}
 		mEditWith.add(mEditorConfig);
+
+		mSendTo = new JMenu("Send to another server");
+
+		JMenuItem mSendViaSSH = new JMenuItem("Send over SFTP (Direct)");
+		mSendViaSSH.addActionListener(e -> {
+			this.sendFilesViaSSH();
+		});
+		JMenuItem mSendViaLocal = new JMenuItem("Send via this computer");
+		mSendViaLocal.addActionListener(e -> {
+			this.sendFilesViaLocal();
+		});
+
+		mSendTo.add(mSendViaSSH);
+		mSendTo.add(mSendViaLocal);
+
 //		mEditWith.add(mOpenWithDefApp);
 //		mEditWith.add(mOpenWithCustom);
 //		mEditWith.add(mOpenWthInternalEdit);
@@ -485,16 +502,10 @@ public class SshMenuHandler {
 		int count = 0;
 		if (selectionCount > 0) {
 			popup.add(mDelete);
-			// popup.add(mSendFiles);
-			// count += 2;
-			count++;
-		}
-
-		if (selectionCount > 0) {
 			popup.add(mCreateArchive);
+			popup.add(mSendTo);
 			// popup.add(mSendFiles);
-			// count += 2;
-			count++;
+			count += 3;
 		}
 
 		if (selectionCount == 1) {
@@ -918,4 +929,17 @@ public class SshMenuHandler {
 	public void openEditorConfig() {
 		App.openSettings(SettingsPageName.Editor);
 	}
+
+	private void sendFilesViaLocal() {
+		LocalPipeTransfer pipTransfer = new LocalPipeTransfer();
+		pipTransfer.transferFiles(fileBrowser, fileBrowserView.getCurrentDirectory(), folderView.getSelectedFiles());
+	}
+
+	private void sendFilesViaSSH() {
+		Remote2RemoteTransferDialog r2rt = new Remote2RemoteTransferDialog(App.getAppWindow(),
+				this.fileBrowser.getHolder(), folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
+		r2rt.setLocationRelativeTo(App.getAppWindow());
+		r2rt.setVisible(true);
+	}
+
 }

@@ -271,7 +271,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 		return tabTitle;
 	}
 
-	protected boolean selectTransferModeAndConflictAction() {
+	public boolean selectTransferModeAndConflictAction() {
 		transferMode = App.getGlobalSettings().getFileTransferMode();
 		conflictAction = App.getGlobalSettings().getConflictAction();
 
