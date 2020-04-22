@@ -179,6 +179,7 @@ public class TerminalHolder extends Page implements AutoCloseable {
 		if (comp != null) {
 			comp.requestFocusInWindow();
 			comp.getTerm().requestFocusInWindow();
+			comp.getTerm().requestFocus();
 		}
 	}
 

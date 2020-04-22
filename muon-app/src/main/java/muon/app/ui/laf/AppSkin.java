@@ -630,7 +630,7 @@ public abstract class AppSkin {
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 				g.setColor(c1);
-				g.drawOval(0, 0, width, height);
+				g.drawOval(1, 1, width-2, height-2);
 			}
 		};
 
@@ -639,7 +639,7 @@ public abstract class AppSkin {
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
-				g.drawOval(0, 0, width, height);
+				g.drawOval(1, 1, width-2, height-2);
 				g.fillOval(4, 4, width - 8, height - 8);
 			}
 		};

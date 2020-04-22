@@ -3,7 +3,6 @@ package muon.app.ui.components.session.terminal;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
@@ -16,13 +15,9 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import com.jediterm.terminal.RequestOrigin;
-import com.jediterm.terminal.TerminalColor;
-import com.jediterm.terminal.TextStyle;
-import com.jediterm.terminal.emulator.ColorPalette;
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.TerminalPanelListener;
 import com.jediterm.terminal.ui.TerminalSession;
-import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 
 import muon.app.App;
 import muon.app.ui.components.ClosableTabContent;
@@ -31,7 +26,6 @@ import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.terminal.ssh.DisposableTtyConnector;
 import muon.app.ui.components.session.terminal.ssh.SshTtyConnector;
-import util.FontUtils;
 
 public class TerminalComponent extends JPanel implements ClosableTabContent {
 	private JRootPane rootPane;
@@ -41,11 +35,11 @@ public class TerminalComponent extends JPanel implements ClosableTabContent {
 	private String name;
 	private Box reconnectionBox;
 	private TabTitle tabTitle;
-	private SessionContentPanel sessionContentPanel;
+	//private SessionContentPanel sessionContentPanel;
 
 	public TerminalComponent(SessionInfo info, String name, String command, SessionContentPanel sessionContentPanel) {
 		setLayout(new BorderLayout());
-		this.sessionContentPanel = sessionContentPanel;
+		//this.sessionContentPanel = sessionContentPanel;
 		System.out.println("Current terminal font: " + App.getGlobalSettings().getTerminalFontName());
 		this.name = name;
 		this.tabTitle = new TabTitle();

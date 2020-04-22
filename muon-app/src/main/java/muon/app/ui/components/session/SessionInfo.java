@@ -1,9 +1,9 @@
 package muon.app.ui.components.session;
 
 import java.io.Serializable;
-import java.util.*;
-
-import util.CollectionHelper;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class SessionInfo extends NamedItem implements Serializable {
 	private String host, user, password, localFolder, remoteFolder;
@@ -14,6 +14,13 @@ public class SessionInfo extends NamedItem implements Serializable {
 	private int proxyPort = 8080;
 	private String proxyHost, proxyUser, proxyPassword;
 	private int proxyType = 0;
+	private boolean useJumpHosts = false;
+	private JumpType jumpType = JumpType.TcpForwarding;
+	private List<HopEntry> jumpHosts = new ArrayList<>();;
+
+	public enum JumpType {
+		TcpForwarding, PortForwarding
+	}
 
 	@Override
 	public String toString() {
@@ -258,5 +265,29 @@ public class SessionInfo extends NamedItem implements Serializable {
 	 */
 	public void setProxyType(int proxyType) {
 		this.proxyType = proxyType;
+	}
+
+	public boolean isUseJumpHosts() {
+		return useJumpHosts;
+	}
+
+	public void setUseJumpHosts(boolean useJumpHosts) {
+		this.useJumpHosts = useJumpHosts;
+	}
+
+	public JumpType getJumpType() {
+		return jumpType;
+	}
+
+	public void setJumpType(JumpType jumpType) {
+		this.jumpType = jumpType;
+	}
+
+	public List<HopEntry> getJumpHosts() {
+		return jumpHosts;
+	}
+
+	public void setJumpHosts(List<HopEntry> jumpHosts) {
+		this.jumpHosts = jumpHosts;
 	}
 }

@@ -7,8 +7,11 @@ import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.net.Proxy;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JCheckBox;
@@ -18,8 +21,10 @@ import javax.swing.JTextField;
 
 import muon.app.App;
 import muon.app.ui.components.SkinnedTextField;
+import muon.app.ui.components.session.HopEntry;
 import muon.app.ui.components.session.SessionInfo;
 import net.schmizz.sshj.SSHClient;
+import net.schmizz.sshj.connection.channel.direct.DirectConnection;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
@@ -37,6 +42,7 @@ public class SshClient2 implements Closeable {
 	private PasswordFinderDialog passwordFinder;
 	private InputBlocker inputBlocker;
 	private CachedCredentialProvider cachedCredentialProvider;
+	private SshClient2 previousHop;
 
 	/**
 	 * O
@@ -68,7 +74,7 @@ public class SshClient2 implements Closeable {
 		sshj.setSocketFactory(new CustomSocketFactory(proxyHost, proxyPort, proxyUser, proxyPass, proxyType1));
 	}
 
-	private void setupKnowHostVerifier() throws IOException {
+	private GraphicalHostKeyVerifier setupKnowHostVerifier() throws IOException {
 		File knownHostFile = new File(System.getProperty("user.home"), ".ssh" + File.separator + "known_hosts");
 		final File sshDir = new File(System.getProperty("user.home"), ".ssh");
 		if (!sshDir.exists()) {
@@ -76,10 +82,10 @@ public class SshClient2 implements Closeable {
 				knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
 			}
 		}
-		sshj.loadKnownHosts(knownHostFile);
+		// sshj.loadKnownHosts(knownHostFile);
 		// File knownHostFile = new File(System.getProperty("user.home"), ".ssh" +
 		// File.separator + "known_hosts");
-		sshj.addHostKeyVerifier(new GraphicalHostKeyVerifier(knownHostFile));
+		return new GraphicalHostKeyVerifier(knownHostFile);
 	}
 
 	private void getAuthMethods(AtomicBoolean authenticated, List<String> allowedMethods)
@@ -167,16 +173,37 @@ public class SshClient2 implements Closeable {
 	}
 
 	public void connect() throws IOException, OperationCancelledException {
+		Deque<HopEntry> hopStack = new ArrayDeque<HopEntry>();
+		for (HopEntry e : this.info.getJumpHosts()) {
+			hopStack.add(e);
+		}
+		this.connect(hopStack, this.setupKnowHostVerifier());
+	}
+
+	private void connect(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier)
+			throws IOException, OperationCancelledException {
 		this.inputBlocker.blockInput();
 		try {
 			sshj = new SSHClient();
 
-			this.setupProxyAndSocketFactory();
-
-			this.setupKnowHostVerifier();
+			if (hopStack.isEmpty()) {
+				this.setupProxyAndSocketFactory();
+				this.sshj.addHostKeyVerifier(hostKeyVerifier);
+				sshj.connect(info.getHost(), info.getPort());
+			} else {
+				try {
+					tunnelThrough(hopStack, hostKeyVerifier);
+					this.sshj.addHostKeyVerifier(hostKeyVerifier);
+					sshj.connectVia(this.previousHop.newDirectConnection(info.getHost(), info.getPort()),
+							info.getHost(), info.getPort());
+				} catch (Exception e) {
+					e.printStackTrace();
+					disconnect();
+					throw new IOException(e);
+				}
+			}
 
 			// sshj.setRemoteCharset(remoteCharset);
-			sshj.connect(info.getHost(), info.getPort());
 
 			if (closed.get()) {
 				disconnect();
@@ -445,7 +472,14 @@ public class SshClient2 implements Closeable {
 		}
 		closed.set(true);
 		try {
-			sshj.disconnect();
+			if (sshj != null)
+				sshj.disconnect();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		try {
+			if (previousHop != null)
+				previousHop.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -514,4 +548,21 @@ public class SshClient2 implements Closeable {
 //			}
 //		}
 //	}
+
+	// recursively
+	private void tunnelThrough(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier) throws Exception {
+		HopEntry ent = hopStack.poll();
+		SessionInfo hopInfo = new SessionInfo();
+		hopInfo.setHost(ent.getHost());
+		hopInfo.setPort(ent.getPort());
+		hopInfo.setUser(ent.getUser());
+		hopInfo.setPassword(ent.getPassword());
+		hopInfo.setPrivateKeyFile(ent.getKeypath());
+		previousHop = new SshClient2(hopInfo, inputBlocker, cachedCredentialProvider);
+		previousHop.connect(hopStack, hostKeyVerifier);
+	}
+
+	private DirectConnection newDirectConnection(String host, int port) throws Exception {
+		return sshj.newDirectConnection(host, port);
+	}
 }

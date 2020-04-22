@@ -3,6 +3,8 @@ package muon.app.ui.components.session.terminal;
 import java.awt.*;
 
 import javax.swing.JScrollBar;
+import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 
 import com.jediterm.terminal.ui.JediTermWidget;
 import com.jediterm.terminal.ui.settings.SettingsProvider;
@@ -15,6 +17,24 @@ public class CustomJediterm extends JediTermWidget {
 		setFont(settingsProvider.getTerminalFont());
 		getTerminal().setAutoNewLine(false);
 		getTerminalPanel().setFont(settingsProvider.getTerminalFont());
+		getTerminalPanel().setFocusable(true);
+		setFocusable(true);
+
+		addAncestorListener(new AncestorListener() {
+
+			@Override
+			public void ancestorRemoved(AncestorEvent event) {
+			}
+
+			@Override
+			public void ancestorMoved(AncestorEvent event) {
+			}
+
+			@Override
+			public void ancestorAdded(AncestorEvent event) {
+				getTerminalPanel().requestFocusInWindow();
+			}
+		});
 	}
 
 	@Override

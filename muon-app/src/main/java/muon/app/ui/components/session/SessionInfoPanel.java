@@ -6,14 +6,18 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.io.File;
 import java.nio.file.Files;
+import java.util.List;
 
+import javax.swing.ButtonGroup;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JRadioButton;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -24,6 +28,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import muon.app.ui.components.SkinnedTextField;
+import muon.app.ui.components.session.SessionInfo.JumpType;
 
 public class SessionInfoPanel extends JPanel {
 
@@ -38,15 +43,17 @@ public class SessionInfoPanel extends JPanel {
 	private JTextField inpKeyFile;
 	private JButton inpLocalBrowse;
 	private JButton inpKeyBrowse;
-	private JLabel lblHost, lblPort, lblUser, lblPass, lblLocalFolder,
-			lblRemoteFolder, lblKeyFile, lblProxyType, lblProxyHost,
-			lblProxyPort, lblProxyUser, lblProxyPass;
+	private JLabel lblHost, lblPort, lblUser, lblPass, lblLocalFolder, lblRemoteFolder, lblKeyFile, lblProxyType,
+			lblProxyHost, lblProxyPort, lblProxyUser, lblProxyPass;
 	private SpinnerNumberModel portModel, proxyPortModel;
 	private JComboBox<String> cmbProxy;
 	private JTextField inpProxyHostName;
 	private JSpinner inpProxyPort;
 	private JTextField inpProxyUserName;
 	private JPasswordField inpProxyPassword;
+	private JCheckBox chkUseJumpHosts;
+	private JRadioButton radMultiHopTunnel, radMultiHopPortForwarding;
+	private JumpHostPanel panJumpHost;
 
 	public static final int DEFAULT_MAX_PORT = 65535;
 
@@ -87,16 +94,16 @@ public class SessionInfoPanel extends JPanel {
 		setLocalFolder(info.getLocalFolder());
 		setRemoteFolder(info.getRemoteFolder());
 		setUser(info.getUser());
-		setPassword(info.getPassword() == null ? new char[0]
-				: info.getPassword().toCharArray());
+		setPassword(info.getPassword() == null ? new char[0] : info.getPassword().toCharArray());
 		setKeyFile(info.getPrivateKeyFile());
 		setProxyType(info.getProxyType());
 		setProxyHost(info.getProxyHost());
 		setProxyPort(info.getProxyPort());
 		setProxyUser(info.getProxyUser());
 
-		setProxyPassword(info.getProxyPassword() == null ? new char[0]
-				: info.getProxyPassword().toCharArray());
+		setProxyPassword(info.getProxyPassword() == null ? new char[0] : info.getProxyPassword().toCharArray());
+
+		setJumpHostDetails(info.isUseJumpHosts(), info.getJumpType(), info.getJumpHosts());
 	}
 
 	private void setHost(String host) {
@@ -148,8 +155,17 @@ public class SessionInfoPanel extends JPanel {
 	}
 
 	private void showError(String msg) {
-		JOptionPane.showMessageDialog(this, msg, "Error",
-				JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(this, msg, "Error", JOptionPane.ERROR_MESSAGE);
+	}
+
+	private void setJumpHostDetails(boolean useJumpHosts, JumpType jumpType, List<HopEntry> jumpHosts) {
+		this.chkUseJumpHosts.setSelected(useJumpHosts);
+		if (jumpType == JumpType.TcpForwarding) {
+			radMultiHopTunnel.setSelected(true);
+		} else {
+			radMultiHopPortForwarding.setSelected(true);
+		}
+		panJumpHost.setInfo(info);
 	}
 
 	private void createUI() {
@@ -158,8 +174,7 @@ public class SessionInfoPanel extends JPanel {
 		lblHost.setHorizontalAlignment(JLabel.LEADING);
 		lblPort = new JLabel("Port");
 		lblUser = new JLabel("User");
-		lblPass = new JLabel(
-				"Password" + " ( Warning: it will be saved in plain text! )");
+		lblPass = new JLabel("Password" + " ( Warning: it will be saved in plain text! )");
 		lblLocalFolder = new JLabel("Local folder");
 		lblRemoteFolder = new JLabel("Remote folder");
 		lblKeyFile = new JLabel("Private key file");
@@ -243,53 +258,51 @@ public class SessionInfoPanel extends JPanel {
 
 		inpLocalFolder = new SkinnedTextField(10);// new
 													// JTextField(30);
-		inpLocalFolder.getDocument()
-				.addDocumentListener(new DocumentListener() {
+		inpLocalFolder.getDocument().addDocumentListener(new DocumentListener() {
 
-					@Override
-					public void removeUpdate(DocumentEvent arg0) {
-						updateFolder();
-					}
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				updateFolder();
+			}
 
-					@Override
-					public void insertUpdate(DocumentEvent arg0) {
-						updateFolder();
-					}
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				updateFolder();
+			}
 
-					@Override
-					public void changedUpdate(DocumentEvent arg0) {
-						updateFolder();
-					}
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				updateFolder();
+			}
 
-					private void updateFolder() {
-						info.setLocalFolder(inpLocalFolder.getText());
-					}
-				});
+			private void updateFolder() {
+				info.setLocalFolder(inpLocalFolder.getText());
+			}
+		});
 
 		inpRemoteFolder = new SkinnedTextField(10);// new
 													// JTextField(30);
-		inpRemoteFolder.getDocument()
-				.addDocumentListener(new DocumentListener() {
+		inpRemoteFolder.getDocument().addDocumentListener(new DocumentListener() {
 
-					@Override
-					public void removeUpdate(DocumentEvent arg0) {
-						updateFolder();
-					}
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				updateFolder();
+			}
 
-					@Override
-					public void insertUpdate(DocumentEvent arg0) {
-						updateFolder();
-					}
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				updateFolder();
+			}
 
-					@Override
-					public void changedUpdate(DocumentEvent arg0) {
-						updateFolder();
-					}
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				updateFolder();
+			}
 
-					private void updateFolder() {
-						info.setRemoteFolder(inpRemoteFolder.getText());
-					}
-				});
+			private void updateFolder() {
+				info.setRemoteFolder(inpRemoteFolder.getText());
+			}
+		});
 
 		inpLocalBrowse = new JButton("Browse");
 		inpLocalBrowse.addActionListener(e -> {
@@ -330,8 +343,7 @@ public class SessionInfoPanel extends JPanel {
 			JFileChooser jfc = new JFileChooser();
 			jfc.setFileHidingEnabled(false);
 
-			jfc.addChoosableFileFilter(new FileNameExtensionFilter(
-					"Putty key files (*.ppk)", "ppk"));
+			jfc.addChoosableFileFilter(new FileNameExtensionFilter("Putty key files (*.ppk)", "ppk"));
 
 			jfc.setFileSelectionMode(JFileChooser.FILES_ONLY);
 			if (jfc.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
@@ -353,8 +365,7 @@ public class SessionInfoPanel extends JPanel {
 		lblProxyHost.setHorizontalAlignment(JLabel.LEADING);
 		lblProxyPort = new JLabel("Proxy port");
 		lblProxyUser = new JLabel("Proxy user");
-		lblProxyPass = new JLabel("Proxy password"
-				+ " ( Warning: it will be saved in plain text! )");
+		lblProxyPass = new JLabel("Proxy password" + " ( Warning: it will be saved in plain text! )");
 
 		cmbProxy = new JComboBox<>(new String[] { "NONE", "HTTP", "SOCKS" });
 		cmbProxy.addActionListener(e -> {
@@ -363,28 +374,27 @@ public class SessionInfoPanel extends JPanel {
 
 		inpProxyHostName = new SkinnedTextField(10);// new
 													// JTextField(30);
-		inpProxyHostName.getDocument()
-				.addDocumentListener(new DocumentListener() {
+		inpProxyHostName.getDocument().addDocumentListener(new DocumentListener() {
 
-					@Override
-					public void removeUpdate(DocumentEvent arg0) {
-						updateHost();
-					}
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				updateHost();
+			}
 
-					@Override
-					public void insertUpdate(DocumentEvent arg0) {
-						updateHost();
-					}
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				updateHost();
+			}
 
-					@Override
-					public void changedUpdate(DocumentEvent arg0) {
-						updateHost();
-					}
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				updateHost();
+			}
 
-					private void updateHost() {
-						info.setProxyHost(inpProxyHostName.getText());
-					}
-				});
+			private void updateHost() {
+				info.setProxyHost(inpProxyHostName.getText());
+			}
+		});
 		proxyPortModel = new SpinnerNumberModel(8080, 1, DEFAULT_MAX_PORT, 1);
 		proxyPortModel.addChangeListener(new ChangeListener() {
 			@Override
@@ -395,60 +405,74 @@ public class SessionInfoPanel extends JPanel {
 		inpProxyPort = new JSpinner(proxyPortModel);
 		inpProxyUserName = new SkinnedTextField(10);// new
 													// JTextField(30);
-		inpProxyUserName.getDocument()
-				.addDocumentListener(new DocumentListener() {
+		inpProxyUserName.getDocument().addDocumentListener(new DocumentListener() {
 
-					@Override
-					public void removeUpdate(DocumentEvent arg0) {
-						updateUser();
-					}
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				updateUser();
+			}
 
-					@Override
-					public void insertUpdate(DocumentEvent arg0) {
-						updateUser();
-					}
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				updateUser();
+			}
 
-					@Override
-					public void changedUpdate(DocumentEvent arg0) {
-						updateUser();
-					}
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				updateUser();
+			}
 
-					private void updateUser() {
-						info.setProxyUser(inpProxyUserName.getText());
-					}
-				});
+			private void updateUser() {
+				info.setProxyUser(inpProxyUserName.getText());
+			}
+		});
 
 		inpProxyPassword = new JPasswordField(10);
-		inpProxyPassword.getDocument()
-				.addDocumentListener(new DocumentListener() {
+		inpProxyPassword.getDocument().addDocumentListener(new DocumentListener() {
 
-					@Override
-					public void removeUpdate(DocumentEvent arg0) {
-						updatePassword();
-					}
+			@Override
+			public void removeUpdate(DocumentEvent arg0) {
+				updatePassword();
+			}
 
-					@Override
-					public void insertUpdate(DocumentEvent arg0) {
-						updatePassword();
-					}
+			@Override
+			public void insertUpdate(DocumentEvent arg0) {
+				updatePassword();
+			}
 
-					@Override
-					public void changedUpdate(DocumentEvent arg0) {
-						updatePassword();
-					}
+			@Override
+			public void changedUpdate(DocumentEvent arg0) {
+				updatePassword();
+			}
 
-					private void updatePassword() {
-						info.setProxyPassword(
-								new String(inpProxyPassword.getPassword()));
-					}
-				});
+			private void updatePassword() {
+				info.setProxyPassword(new String(inpProxyPassword.getPassword()));
+			}
+		});
 		// -----------
 
-		Insets topInset = new Insets(10, 10, 0, 10);
+		chkUseJumpHosts = new JCheckBox("Jump Hosts / Multi hop port forwarding");
+		radMultiHopTunnel = new JRadioButton("Use multihop SSH tunnel");
+		radMultiHopPortForwarding = new JRadioButton("Use multihop port forwarding");
+
+		chkUseJumpHosts.addActionListener(e -> {
+			info.setUseJumpHosts(chkUseJumpHosts.isSelected());
+		});
+
+		radMultiHopPortForwarding.addActionListener(e -> updateHopMode());
+		radMultiHopTunnel.addActionListener(e -> updateHopMode());
+
+		ButtonGroup bg = new ButtonGroup();
+		bg.add(radMultiHopPortForwarding);
+		bg.add(radMultiHopTunnel);
+
+		panJumpHost = new JumpHostPanel();
+
+		Insets topInset = new Insets(20, 10, 0, 10);
 		Insets noInset = new Insets(5, 10, 0, 10);
-		Insets noInsetLeft = new Insets(0, 5, 0, 10);
-		Insets noInsetRight = new Insets(0, 10, 0, 0);
-		Insets bottomInset = new Insets(10, 10, 5, 10);
+//		Insets noInsetLeft = new Insets(0, 5, 0, 10);
+//		Insets noInsetRight = new Insets(0, 10, 0, 0);
+//		Insets bottomInset = new Insets(10, 10, 5, 10);
 
 		GridBagLayout gbl = new GridBagLayout();
 
@@ -513,13 +537,13 @@ public class SessionInfoPanel extends JPanel {
 		c.gridx = 0;
 		c.gridy = 12;
 		c.gridwidth = 2;
-		c.insets = new Insets(10, 10, 3, 10);
+		c.insets = topInset;
 		add(lblLocalFolder, c);
 
 		c.gridx = 0;
 		c.gridy = 13;
 		c.gridwidth = 1;
-		c.insets = noInsetRight;
+		c.insets = noInset;
 		c.weightx = 1;
 		add(inpLocalFolder, c);
 
@@ -528,7 +552,6 @@ public class SessionInfoPanel extends JPanel {
 		c.gridwidth = 1;
 		c.insets = noInset;
 		c.weightx = 1;
-		c.insets = noInsetLeft;
 		add(inpLocalBrowse, c);
 
 		c.gridx = 0;
@@ -544,24 +567,23 @@ public class SessionInfoPanel extends JPanel {
 		c.weightx = 1;
 		add(inpRemoteFolder, c);
 
-		c.gridx = 1;
-		c.gridy = 16;
-		c.gridwidth = 1;
-		c.weightx = 1;
-		c.insets = new Insets(10, 10, 3, 10);
-		c.insets = noInsetLeft;
+//		c.gridx = 1;
+//		c.gridy = 16;
+//		c.gridwidth = 1;
+//		c.weightx = 1;
+//		c.insets = new Insets(10, 10, 3, 10);
+//		c.insets = noInsetLeft;
 
 		c.gridx = 0;
 		c.gridy = 17;
 		c.gridwidth = 2;
-		c.insets = bottomInset;
-		c.insets = new Insets(10, 10, 3, 10);
+		c.insets = topInset;
 		add(lblKeyFile, c);
 
 		c.gridx = 0;
 		c.gridy = 18;
 		c.gridwidth = 1;
-		c.insets = noInsetRight;
+		c.insets = noInset;
 		c.weightx = 1;
 		add(inpKeyFile, c);
 
@@ -569,7 +591,7 @@ public class SessionInfoPanel extends JPanel {
 		c.gridy = 18;
 		c.gridwidth = 1;
 		c.weightx = 1;
-		c.insets = noInsetLeft;
+		c.insets = noInset;
 		add(inpKeyBrowse, c);
 
 		c.gridx = 0;
@@ -652,6 +674,38 @@ public class SessionInfoPanel extends JPanel {
 		c.fill = GridBagConstraints.HORIZONTAL;
 		add(inpProxyPassword, c);
 
+		c.gridx = 0;
+		c.gridy = 29;
+		c.gridwidth = 1;
+		c.weightx = 5;
+		c.weighty = 20;
+		c.insets = topInset;
+		add(chkUseJumpHosts, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 30;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(radMultiHopPortForwarding, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 31;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(radMultiHopTunnel, c);
+
+		c.gridx = 0;
+		c.weightx = 1;
+		c.gridwidth = 2;
+		c.gridy = 32;
+		c.insets = noInset;
+		c.fill = GridBagConstraints.HORIZONTAL;
+		add(panJumpHost, c);
+
 //		System.out.println("min size: " + inpHostName.getMinimumSize());
 
 //		c.gridx = 0;
@@ -683,6 +737,14 @@ public class SessionInfoPanel extends JPanel {
 //		add(inpProxyHostName, c);
 	}
 
+	private void updateHopMode() {
+		if (radMultiHopPortForwarding.isSelected()) {
+			info.setJumpType(JumpType.PortForwarding);
+		} else {
+			info.setJumpType(JumpType.TcpForwarding);
+		}
+	}
+
 	private boolean isSupportedPuttyKeyFile(File file) {
 		try {
 			String content = Files.readString(file.toPath());
@@ -690,8 +752,7 @@ public class SessionInfoPanel extends JPanel {
 				return false;
 			}
 			if (content.contains("Encryption:")
-					&& (content.contains("Encryption: aes256-cbc")
-							|| content.contains("Encryption: none"))) {
+					&& (content.contains("Encryption: aes256-cbc") || content.contains("Encryption: none"))) {
 				return true;
 			}
 		} catch (Exception e) {
