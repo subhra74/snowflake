@@ -234,5 +234,10 @@
 			<name>jcenter</name>
 			<url>https://jcenter.bintray.com</url>
 		</repository>
+		<repository>
+			<id>personal</id>
+			<name>extra</name>
+			<url>https://subhra74.github.io/extra-jars/</url>
+		</repository>
 	</repositories>
 </project>
