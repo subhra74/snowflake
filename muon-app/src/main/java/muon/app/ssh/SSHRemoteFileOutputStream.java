@@ -14,14 +14,15 @@ import net.schmizz.sshj.sftp.RemoteFile;
  *
  */
 public class SSHRemoteFileOutputStream extends OutputStream {
+	private int bufferCapacity;
 
 	/**
 	 * @param remoteFile
 	 */
 	public SSHRemoteFileOutputStream(RemoteFile remoteFile, int remoteMaxPacketSize) {
 		this.remoteFile = remoteFile;
-		this.remoteFileOutputStream = new BufferedOutputStream(this.remoteFile.new RemoteFileOutputStream(0, 0),
-				remoteMaxPacketSize - this.remoteFile.getOutgoingPacketOverhead());
+		this.bufferCapacity = remoteMaxPacketSize - this.remoteFile.getOutgoingPacketOverhead();
+		this.remoteFileOutputStream = this.remoteFile.new RemoteFileOutputStream(0, 16);
 	}
 
 	private RemoteFile remoteFile;
@@ -51,11 +52,19 @@ public class SSHRemoteFileOutputStream extends OutputStream {
 			// e.printStackTrace();
 		}
 	}
-	
+
 	@Override
 	public void flush() throws IOException {
 		System.out.println(this.getClass().getName() + " flushing");
 		this.remoteFileOutputStream.flush();
+	}
+
+	public int getBufferCapacity() {
+		return bufferCapacity;
+	}
+
+	public void setBufferCapacity(int bufferCapacity) {
+		this.bufferCapacity = bufferCapacity;
 	}
 
 }

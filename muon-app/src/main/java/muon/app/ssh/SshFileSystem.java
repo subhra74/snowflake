@@ -59,6 +59,7 @@ public class SshFileSystem implements FileSystem {
 		}
 		if (sftp == null) {
 			this.sftp = ssh.createSftpClient();
+			this.sftp.getSFTPEngine().getSubsystem().setAutoExpand(true);
 		}
 	}
 

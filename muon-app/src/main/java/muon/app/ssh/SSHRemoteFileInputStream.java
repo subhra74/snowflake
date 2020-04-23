@@ -20,13 +20,15 @@ public class SSHRemoteFileInputStream extends InputStream {
 
 	private RemoteFile remoteFile;
 	private InputStream in;
+	private int bufferCapacity;
 
 	/**
 	 * @param remoteFile
 	 */
 	public SSHRemoteFileInputStream(RemoteFile remoteFile, int localMaxPacketSize) {
 		this.remoteFile = remoteFile;
-		this.in = new BufferedInputStream(this.remoteFile.new ReadAheadRemoteFileInputStream(0), localMaxPacketSize);
+		this.bufferCapacity = localMaxPacketSize;
+		this.in = this.remoteFile.new ReadAheadRemoteFileInputStream(16);
 	}
 
 	@Override
@@ -52,6 +54,14 @@ public class SSHRemoteFileInputStream extends InputStream {
 			// TODO: handle exception
 		}
 
+	}
+
+	public int getBufferCapacity() {
+		return bufferCapacity;
+	}
+
+	public void setBufferCapacity(int bufferCapacity) {
+		this.bufferCapacity = bufferCapacity;
 	}
 
 }

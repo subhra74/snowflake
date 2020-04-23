@@ -17,6 +17,8 @@ import muon.app.common.FileSystem;
 import muon.app.common.FileType;
 import muon.app.common.InputTransferChannel;
 import muon.app.common.OutputTransferChannel;
+import muon.app.ssh.SSHRemoteFileInputStream;
+import muon.app.ssh.SSHRemoteFileOutputStream;
 import muon.app.ssh.SshFileSystem;
 import util.PathUtils;
 
@@ -176,7 +178,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 	private synchronized void copyFile(FileInfo file, String targetDirectory, String proposedName,
 			InputTransferChannel inc, OutputTransferChannel outc) throws Exception {
-		byte buf[] = new byte[BUF_SIZE];
+
 		String outPath = PathUtils.combine(targetDirectory, proposedName == null ? file.getName() : proposedName,
 				outc.getSeparator());
 		String inPath = file.getPath();
@@ -184,6 +186,19 @@ public class FileTransfer implements Runnable, AutoCloseable {
 		try (InputStream in = inc.getInputStream(inPath); OutputStream out = outc.getOutputStream(outPath)) {
 			long len = inc.getSize(inPath);
 			System.out.println("Initiate write");
+
+			int bufferCapacity = BUF_SIZE;
+			if (in instanceof SSHRemoteFileInputStream && out instanceof SSHRemoteFileOutputStream) {
+				bufferCapacity = Math.min(((SSHRemoteFileInputStream) in).getBufferCapacity(),
+						((SSHRemoteFileOutputStream) out).getBufferCapacity());
+			} else if (in instanceof SSHRemoteFileInputStream) {
+				bufferCapacity = ((SSHRemoteFileInputStream) in).getBufferCapacity();
+			} else if (out instanceof SSHRemoteFileOutputStream) {
+				bufferCapacity = ((SSHRemoteFileOutputStream) out).getBufferCapacity();
+			}
+
+			byte buf[] = new byte[bufferCapacity];
+
 			while (len > 0 && !stopFlag.get()) {
 				int x = in.read(buf);
 				if (x == -1)

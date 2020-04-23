@@ -31,6 +31,8 @@ import muon.app.common.FileInfo;
 import muon.app.common.FileSystem;
 import muon.app.common.InputTransferChannel;
 import muon.app.common.local.LocalFileSystem;
+import muon.app.ssh.SSHRemoteFileInputStream;
+import muon.app.ssh.SSHRemoteFileOutputStream;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.session.FileChangeWatcher.FileModificationInfo;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
@@ -139,7 +141,11 @@ public class ExternalEditorHandler extends JDialog {
 		System.out.println("Init transfer...2");
 		try (OutputStream out = scp.getRemoteSessionInstance().getSshFs().outputTransferChannel()
 				.getOutputStream(info.remoteFile.getPath()); InputStream in = new FileInputStream(info.localFile)) {
-			byte[] b = new byte[8 * 8192];
+			int cap = 8192;
+			if (out instanceof SSHRemoteFileOutputStream) {
+				cap = ((SSHRemoteFileOutputStream) out).getBufferCapacity();
+			}
+			byte[] b = new byte[cap];
 			System.out.println("Init transfer...");
 			while (!this.stopFlag.get()) {
 				int x = in.read(b);
@@ -185,7 +191,11 @@ public class ExternalEditorHandler extends JDialog {
 		App.EXECUTOR.submit(() -> {
 			try (InputStream in = remoteFs.inputTransferChannel().getInputStream(remoteFile.getPath());
 					OutputStream out = new FileOutputStream(localFile.toFile())) {
-				byte[] b = new byte[8 * 8192];
+				int cap = 8192;
+				if (in instanceof SSHRemoteFileInputStream) {
+					cap = ((SSHRemoteFileInputStream) in).getBufferCapacity();
+				}
+				byte[] b = new byte[cap];
 				long totalBytes = 0L;
 				while (!this.stopFlag.get()) {
 					int x = in.read(b);
