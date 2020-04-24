@@ -126,10 +126,12 @@ public class PortForwardingPanel extends JPanel {
 			case 0:
 				return pf.getType();
 			case 1:
-				return pf.getSourcePort();
+				return pf.getHost();
 			case 2:
-				return pf.getTargetPort();
+				return pf.getSourcePort();
 			case 3:
+				return pf.getTargetPort();
+			case 4:
 				return pf.getBindHost();
 			}
 			return "";
