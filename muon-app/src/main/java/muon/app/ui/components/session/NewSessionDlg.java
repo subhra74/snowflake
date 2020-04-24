@@ -219,7 +219,7 @@ public class NewSessionDlg extends JDialog
 		BoxLayout boxLayout = new BoxLayout(namePanel, BoxLayout.PAGE_AXIS);
 		namePanel.setLayout(boxLayout);
 
-		namePanel.setBorder(new EmptyBorder(10, 10, 0, 10));
+		namePanel.setBorder(new EmptyBorder(10, 0, 0, 10));
 
 		lblName = new JLabel("Name");
 		lblName.setAlignmentX(Component.LEFT_ALIGNMENT);

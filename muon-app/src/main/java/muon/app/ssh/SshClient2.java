@@ -6,12 +6,13 @@ package muon.app.ssh;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.net.ServerSocket;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
-import java.util.Stack;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.JCheckBox;
@@ -23,8 +24,11 @@ import muon.app.App;
 import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.session.HopEntry;
 import muon.app.ui.components.session.SessionInfo;
+import muon.app.ui.components.session.SessionInfo.JumpType;
 import net.schmizz.sshj.SSHClient;
 import net.schmizz.sshj.connection.channel.direct.DirectConnection;
+import net.schmizz.sshj.connection.channel.direct.LocalPortForwarder;
+import net.schmizz.sshj.connection.channel.direct.Parameters;
 import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.sftp.SFTPClient;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
@@ -43,6 +47,7 @@ public class SshClient2 implements Closeable {
 	private InputBlocker inputBlocker;
 	private CachedCredentialProvider cachedCredentialProvider;
 	private SshClient2 previousHop;
+	private ServerSocket ss;
 
 	/**
 	 * O
@@ -75,13 +80,16 @@ public class SshClient2 implements Closeable {
 	}
 
 	private GraphicalHostKeyVerifier setupKnowHostVerifier() throws IOException {
-		File knownHostFile = new File(System.getProperty("user.home"), ".ssh" + File.separator + "known_hosts");
-		final File sshDir = new File(System.getProperty("user.home"), ".ssh");
-		if (!sshDir.exists()) {
-			if (!sshDir.mkdir()) {
-				knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
-			}
-		}
+		File knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
+		
+		
+//		File knownHostFile = new File(System.getProperty("user.home"), ".ssh" + File.separator + "known_hosts");
+//		final File sshDir = new File(System.getProperty("user.home"), ".ssh");
+//		if (!sshDir.exists()) {
+//			if (!sshDir.mkdir()) {
+//				knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
+//			}
+//		}
 		// sshj.loadKnownHosts(knownHostFile);
 		// File knownHostFile = new File(System.getProperty("user.home"), ".ssh" +
 		// File.separator + "known_hosts");
@@ -192,10 +200,18 @@ public class SshClient2 implements Closeable {
 				sshj.connect(info.getHost(), info.getPort());
 			} else {
 				try {
+					System.out.println("Tunneling through...");
 					tunnelThrough(hopStack, hostKeyVerifier);
+					System.out.println("adding host key verifier");
 					this.sshj.addHostKeyVerifier(hostKeyVerifier);
-					sshj.connectVia(this.previousHop.newDirectConnection(info.getHost(), info.getPort()),
-							info.getHost(), info.getPort());
+					System.out.println("Host key verifier added");
+					if (this.info.getJumpType() == JumpType.TcpForwarding) {
+						System.out.println("tcp forwarding...");
+						this.connectViaTcpForwarding();
+					} else {
+						System.out.println("port forwarding...");
+						this.connectViaPortForwarding();
+					}
 				} catch (Exception e) {
 					e.printStackTrace();
 					disconnect();
@@ -483,6 +499,13 @@ public class SshClient2 implements Closeable {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		try {
+			if (this.ss != null) {
+				this.ss.close();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		// ResourceManager.unregister(info.getContainterId(), this);
 	}
 
@@ -550,7 +573,7 @@ public class SshClient2 implements Closeable {
 //	}
 
 	// recursively
-	private void tunnelThrough(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier) throws Exception {
+	private void tunnelThrough(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier) throws Exception { 
 		HopEntry ent = hopStack.poll();
 		SessionInfo hopInfo = new SessionInfo();
 		hopInfo.setHost(ent.getHost());
@@ -564,5 +587,38 @@ public class SshClient2 implements Closeable {
 
 	private DirectConnection newDirectConnection(String host, int port) throws Exception {
 		return sshj.newDirectConnection(host, port);
+	}
+
+	private void connectViaTcpForwarding() throws Exception {
+		this.sshj.connectVia(this.previousHop.newDirectConnection(info.getHost(), info.getPort()), info.getHost(),
+				info.getPort());
+	}
+
+	private void connectViaPortForwarding() throws Exception {
+		ss = new ServerSocket();
+		ss.setReuseAddress(true);
+		ss.bind(new InetSocketAddress("127.0.0.1", 0));
+		int port = ss.getLocalPort();
+		new Thread(() -> {
+			try {
+				this.previousHop
+						.newLocalPortForwarder(
+								new Parameters("127.0.0.1", port, this.info.getHost(), this.info.getPort()), ss)
+						.listen();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}).start();
+		while (true) {
+			if (ss.isBound()) {
+				break;
+			}
+			Thread.sleep(100);
+		}
+		this.sshj.connect("127.0.0.1", port);
+	}
+
+	private LocalPortForwarder newLocalPortForwarder(Parameters parameters, ServerSocket serverSocket) {
+		return this.sshj.newLocalPortForwarder(parameters, serverSocket);
 	}
 }

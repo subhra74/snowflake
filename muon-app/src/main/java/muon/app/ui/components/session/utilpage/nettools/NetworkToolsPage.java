@@ -4,11 +4,8 @@
 package muon.app.ui.components.session.utilpage.nettools;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.io.ByteArrayOutputStream;
-import java.util.List;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.DefaultComboBoxModel;
@@ -16,23 +13,17 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JRootPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
-import javax.swing.event.AncestorEvent;
-import javax.swing.event.AncestorListener;
 
 import muon.app.App;
 import muon.app.ui.components.SkinnedScrollPane;
 import muon.app.ui.components.SkinnedTextArea;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.utilpage.UtilPageItemView;
-import muon.app.ui.components.session.utilpage.portview.PortViewer;
-import muon.app.ui.components.session.utilpage.portview.SocketEntry;
-import util.ScriptLoader;
 
 /**
  * @author subhro

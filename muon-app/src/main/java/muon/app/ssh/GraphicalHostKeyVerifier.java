@@ -38,10 +38,11 @@ public class GraphicalHostKeyVerifier extends OpenSSHKnownHosts {
 
 		if (resp == JOptionPane.YES_OPTION) {
 			try {
-				entries().add(new HostEntry(null, hostname, KeyType.fromKey(key), key));
+				this.entries.add(new HostEntry(null, hostname, KeyType.fromKey(key), key));
 				write();
-			} catch (IOException e) {
-				throw new RuntimeException(e);
+			} catch (Exception e) {
+				//e.printStackTrace();
+				//throw new RuntimeException(e);
 			}
 			return true;
 		}
@@ -66,9 +67,14 @@ public class GraphicalHostKeyVerifier extends OpenSSHKnownHosts {
 
 	@Override
 	public boolean verify(String hostname, int port, PublicKey key) {
-		if (!super.verify(hostname, port, key)) {
+		try {
+			if (!super.verify(hostname, port, key)) {
+				return this.hostKeyUnverifiableAction(hostname, key);
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
 			return this.hostKeyUnverifiableAction(hostname, key);
 		}
-		return true;
 	}
 }

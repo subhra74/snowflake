@@ -33,6 +33,7 @@ public class JumpHostPanel extends JPanel {
 	public JumpHostPanel() {
 		super(new BorderLayout(5, 5));
 		JLabel lblTitle = new JLabel("Intermediate hops");
+		hopList.setBackground(App.SKIN.getTableBackgroundColor());
 
 		JScrollPane scrollPane = new SkinnedScrollPane(hopList);
 
