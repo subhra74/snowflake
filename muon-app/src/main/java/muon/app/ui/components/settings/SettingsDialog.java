@@ -48,6 +48,7 @@ import muon.app.ui.components.SkinnedScrollPane;
 import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
 import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
+import util.CollectionHelper;
 import util.FontUtils;
 import util.LayoutUtilities;
 import util.OptionPaneUtils;
@@ -204,7 +205,7 @@ public class SettingsDialog extends JDialog {
 
 		chkAudibleBell = new JCheckBox("Terminal bell");
 
-		cmbFonts = new JComboBox<>(getTerminalFonts());
+		cmbFonts = new JComboBox<>(FontUtils.TERMINAL_FONTS.keySet().toArray(new String[0]));
 		cmbFonts.setRenderer(new FontItemRenderer());
 		Dimension d = new Dimension(cmbFonts.getPreferredSize().width * 2, cmbFonts.getPreferredSize().height);// cmbFonts.getPreferredSize();
 		cmbFonts.setPreferredSize(d);
@@ -692,16 +693,15 @@ public class SettingsDialog extends JDialog {
 
 	}
 
-	private String[] getTerminalFonts() {
-		String fonts[] = { "DejaVuSansMono", "FiraCode-Regular", "Inconsolata-Regular", "NotoMono-Regular" };
-		String fontNames[] = new String[fonts.length];
-		int c = 0;
-		for (String font : fonts) {
-			Font ttf = FontUtils.loadFont(String.format("/fonts/terminal/%s.ttf", font));
-			fontNames[c++] = ttf.getFontName();
-		}
-		return fontNames;
-	}
+//	private String[] getTerminalFonts() {
+//		String fontNames[] = new String[FontUtils.TERMINAL_FONTS.size()];
+//		int c = 0;
+//		for (String font : FontUtils.TERMINAL_FONTS.keySet()) {
+//			Font ttf = FontUtils.loadFont(String.format("/fonts/terminal/%s.ttf", font));
+//			fontNames[c++] = ttf.getFontName();
+//		}
+//		return fontNames;
+//	}
 
 	public JPanel createEditorPanel() {
 		JPanel panel = new JPanel(new BorderLayout(10, 10));

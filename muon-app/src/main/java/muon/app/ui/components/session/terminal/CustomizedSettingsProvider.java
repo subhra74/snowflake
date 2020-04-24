@@ -18,6 +18,7 @@ import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 
 import muon.app.App;
 import muon.app.Settings;
+import util.FontUtils;
 
 /**
  * @author subhro
@@ -124,8 +125,11 @@ public class CustomizedSettingsProvider extends DefaultSettingsProvider {
 	@Override
 	public Font getTerminalFont() {
 		System.out.println("Called terminal font: " + App.getGlobalSettings().getTerminalFontName());
-		return new Font(App.getGlobalSettings().getTerminalFontName(), Font.PLAIN,
+		return FontUtils.loadTerminalFont(App.getGlobalSettings().getTerminalFontName()).deriveFont(Font.PLAIN,
 				App.getGlobalSettings().getTerminalFontSize());
+//		
+//		return new Font(App.getGlobalSettings().getTerminalFontName(), Font.PLAIN,
+//				App.getGlobalSettings().getTerminalFontSize());
 	}
 
 	@Override

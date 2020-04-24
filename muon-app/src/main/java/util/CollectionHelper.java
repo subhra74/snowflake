@@ -4,6 +4,7 @@
 package util;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -52,5 +53,10 @@ public final class CollectionHelper {
 			list.add(arg);
 		}
 		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static final <T> T[] toArray(Collection<T> collection) {
+		return collection.toArray((T[]) new Object[0]);
 	}
 }
