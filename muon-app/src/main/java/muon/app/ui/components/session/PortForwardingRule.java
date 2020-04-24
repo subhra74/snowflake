@@ -1,6 +1,22 @@
 package muon.app.ui.components.session;
 
+/*
+ * Port forwarding rule, meaning of host, sourcePort and targetPort changes depending on the type of port forwarding
+ */
 public class PortForwardingRule {
+
+	/**
+	 * @param type       Local or remote
+	 * @param host       In case of local port forwarding, the destination host,
+	 *                   which is accessible from remote server, in case of remote
+	 *                   port forwarding this will be the network interface address
+	 *                   of the service running on local system
+	 * @param sourcePort Local port to bind for local port forwarding, for remote
+	 *                   this is the port bind on remote server
+	 * @param targetPort For local port forwarding this is the target port, for
+	 *                   remote this will be the local port of that local service
+	 * @param bindHost
+	 */
 	public PortForwardingRule(PortForwardingType type, String host, int sourcePort, int targetPort, String bindHost) {
 		super();
 		this.type = type;

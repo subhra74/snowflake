@@ -27,6 +27,7 @@ import muon.app.common.FileInfo;
 import muon.app.common.FileSystem;
 import muon.app.common.local.LocalFileSystem;
 import muon.app.ssh.CachedCredentialProvider;
+import muon.app.ssh.PortForwardingSession;
 import muon.app.ssh.RemoteSessionInstance;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.DisabledPanel;
@@ -71,6 +72,7 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 	private char[] cachedPassword;
 	private char[] cachedPassPhrase;
 	private String cachedUser;
+	private PortForwardingSession pfSession;
 
 	/**
 	 * 
@@ -135,6 +137,11 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 		this.add(this.rootPane);
 
 		showPage(this.pages[0].getId());
+
+		if (info.getPortForwardingRules() != null && info.getPortForwardingRules().size() > 0) {
+			this.pfSession = new PortForwardingSession(info, App.getInputBlocker(), this);
+			this.pfSession.start();
+		}
 	}
 
 	@Override
@@ -273,6 +280,10 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 			}
 		});
 		EXECUTOR.shutdown();
+		
+		if (this.pfSession != null) {
+			this.pfSession.close();
+		}
 	}
 
 	public void uploadInBackground(FileInfo[] localFiles, String targetRemoteDirectory, ConflictAction confiAction) {

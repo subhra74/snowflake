@@ -30,7 +30,9 @@ import net.schmizz.sshj.connection.channel.direct.DirectConnection;
 import net.schmizz.sshj.connection.channel.direct.LocalPortForwarder;
 import net.schmizz.sshj.connection.channel.direct.Parameters;
 import net.schmizz.sshj.connection.channel.direct.Session;
+import net.schmizz.sshj.connection.channel.forwarded.RemotePortForwarder;
 import net.schmizz.sshj.sftp.SFTPClient;
+import net.schmizz.sshj.transport.Transport;
 import net.schmizz.sshj.userauth.keyprovider.KeyProvider;
 import net.schmizz.sshj.userauth.method.AuthKeyboardInteractive;
 import net.schmizz.sshj.userauth.method.AuthNone;
@@ -81,8 +83,7 @@ public class SshClient2 implements Closeable {
 
 	private GraphicalHostKeyVerifier setupKnowHostVerifier() throws IOException {
 		File knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
-		
-		
+
 //		File knownHostFile = new File(System.getProperty("user.home"), ".ssh" + File.separator + "known_hosts");
 //		final File sshDir = new File(System.getProperty("user.home"), ".ssh");
 //		if (!sshDir.exists()) {
@@ -573,7 +574,7 @@ public class SshClient2 implements Closeable {
 //	}
 
 	// recursively
-	private void tunnelThrough(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier) throws Exception { 
+	private void tunnelThrough(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier) throws Exception {
 		HopEntry ent = hopStack.poll();
 		SessionInfo hopInfo = new SessionInfo();
 		hopInfo.setHost(ent.getHost());
@@ -618,7 +619,17 @@ public class SshClient2 implements Closeable {
 		this.sshj.connect("127.0.0.1", port);
 	}
 
-	private LocalPortForwarder newLocalPortForwarder(Parameters parameters, ServerSocket serverSocket) {
+	public LocalPortForwarder newLocalPortForwarder(Parameters parameters, ServerSocket serverSocket) {
 		return this.sshj.newLocalPortForwarder(parameters, serverSocket);
+	}
+
+	@SuppressWarnings("deprecation")
+	public RemotePortForwarder getRemotePortForwarder() {
+		this.sshj.getTransport().setHeartbeatInterval(30);
+		return this.sshj.getRemotePortForwarder();
+	}
+
+	public Transport getTransport() {
+		return this.sshj.getTransport();
 	}
 }
