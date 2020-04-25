@@ -5,8 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 public class SessionInfo extends NamedItem implements Serializable {
-	private String host, user, password, localFolder, remoteFolder;
+	private String host, user, localFolder, remoteFolder;
 	private int port = 22;
 	private List<String> favouriteRemoteFolders = new ArrayList<>();
 	private List<String> favouriteLocalFolders = new ArrayList<>();
@@ -18,6 +20,8 @@ public class SessionInfo extends NamedItem implements Serializable {
 	private JumpType jumpType = JumpType.TcpForwarding;
 	private List<HopEntry> jumpHosts = new ArrayList<>();
 	private List<PortForwardingRule> portForwardingRules = new ArrayList<>();
+	@JsonIgnore
+	private String password;
 
 	public enum JumpType {
 		TcpForwarding, PortForwarding

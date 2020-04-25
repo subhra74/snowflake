@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.*;
 import com.fasterxml.jackson.databind.*;
 
 import muon.app.App;
+import muon.app.PasswordStore;
 
 import javax.swing.tree.*;
 import java.util.*;
@@ -20,12 +21,17 @@ public class SessionStore {
 	public synchronized static SavedSessionTree load(File file) {
 
 		ObjectMapper objectMapper = new ObjectMapper();
-		objectMapper.configure(
-				DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
-			return objectMapper.readValue(file,
-					new TypeReference<SavedSessionTree>() {
-					});
+			SavedSessionTree savedSessionTree = objectMapper.readValue(file, new TypeReference<SavedSessionTree>() {
+			});
+			try {
+				PasswordStore.getSharedInstance().populatePassword(savedSessionTree);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return savedSessionTree;
 		} catch (IOException e) {
 			e.printStackTrace();
 			SessionFolder rootFolder = new SessionFolder();
@@ -36,41 +42,35 @@ public class SessionStore {
 		}
 	}
 
-	public synchronized static void save(SessionFolder folder,
-			String lastSelectionPath) {
+	public synchronized static void save(SessionFolder folder, String lastSelectionPath) {
 		File file = Paths.get(App.CONFIG_DIR, App.SESSION_DB_FILE).toFile();
+		save(folder, lastSelectionPath, file);
+	}
+
+	public synchronized static void save(SessionFolder folder, String lastSelectionPath, File file) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			SavedSessionTree tree = new SavedSessionTree();
 			tree.setFolder(folder);
 			tree.setLastSelection(lastSelectionPath);
 			objectMapper.writeValue(file, tree);
+			try {
+				PasswordStore.getSharedInstance().savePasswords(tree);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public synchronized static void save(SessionFolder folder,
-			String lastSelectionPath, File file) {
-		ObjectMapper objectMapper = new ObjectMapper();
-		try {
-			SavedSessionTree tree = new SavedSessionTree();
-			tree.setFolder(folder);
-			tree.setLastSelection(lastSelectionPath);
-			objectMapper.writeValue(file, tree);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static synchronized SessionFolder convertModelFromTree(
-			DefaultMutableTreeNode node) {
+	public static synchronized SessionFolder convertModelFromTree(DefaultMutableTreeNode node) {
 		SessionFolder folder = new SessionFolder();
 		folder.setName(node.getUserObject() + "");
 		Enumeration<TreeNode> childrens = node.children();
 		while (childrens.hasMoreElements()) {
-			DefaultMutableTreeNode c = (DefaultMutableTreeNode) childrens
-					.nextElement();
+			DefaultMutableTreeNode c = (DefaultMutableTreeNode) childrens.nextElement();
 			if (c.getUserObject() instanceof SessionInfo) {
 				folder.getItems().add((SessionInfo) c.getUserObject());
 			} else {
@@ -80,8 +80,7 @@ public class SessionStore {
 		return folder;
 	}
 
-	public synchronized static DefaultMutableTreeNode getNode(
-			SessionFolder folder) {
+	public synchronized static DefaultMutableTreeNode getNode(SessionFolder folder) {
 		NamedItem item = new NamedItem();
 		item.setName(folder.getName());
 		DefaultMutableTreeNode node = new DefaultMutableTreeNode(item);
@@ -97,18 +96,17 @@ public class SessionStore {
 		return node;
 	}
 
-	public synchronized static void store(SessionFolder folder) {
-		File file = new File(App.CONFIG_DIR, App.SESSION_DB_FILE);
-		ObjectMapper objectMapper = new ObjectMapper();
-		try {
-			objectMapper.writeValue(file, folder);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+//	public synchronized static void store(SessionFolder folder) {
+//		File file = new File(App.CONFIG_DIR, App.SESSION_DB_FILE);
+//		ObjectMapper objectMapper = new ObjectMapper();
+//		try {
+//			objectMapper.writeValue(file, folder);
+//		} catch (IOException e) {
+//			e.printStackTrace();
+//		}
+//	}
 
-	public synchronized static void updateFavourites(String id,
-			List<String> localFolders, List<String> remoteFolders) {
+	public synchronized static void updateFavourites(String id, List<String> localFolders, List<String> remoteFolders) {
 		SavedSessionTree tree = load();
 		SessionFolder folder = tree.getFolder();
 
@@ -116,13 +114,12 @@ public class SessionStore {
 		save(folder, tree.getLastSelection());
 	}
 
-	private static boolean updateFavourites(SessionFolder folder, String id,
-			List<String> localFolders, List<String> remoteFolders) {
+	private static boolean updateFavourites(SessionFolder folder, String id, List<String> localFolders,
+			List<String> remoteFolders) {
 		for (SessionInfo info : folder.getItems()) {
 			if (info.id.equals(id)) {
 				if (remoteFolders != null) {
-					System.out
-							.println("Remote folders saving: " + remoteFolders);
+					System.out.println("Remote folders saving: " + remoteFolders);
 					info.setFavouriteRemoteFolders(remoteFolders);
 				}
 				if (localFolders != null) {
@@ -133,8 +130,7 @@ public class SessionStore {
 			}
 		}
 		for (SessionFolder childFolder : folder.getFolders()) {
-			if (updateFavourites(childFolder, id, localFolders,
-					remoteFolders)) {
+			if (updateFavourites(childFolder, id, localFolders, remoteFolders)) {
 				return true;
 			}
 		}

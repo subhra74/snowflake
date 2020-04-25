@@ -1,22 +1,22 @@
 package muon.app;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.http.HttpClient;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.OutputStream;
+import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -33,12 +33,10 @@ import muon.app.ui.AppWindow;
 import muon.app.ui.components.session.ExternalEditorHandler;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
-import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.settings.SettingsPageName;
 import muon.app.ui.laf.AppSkin;
 import muon.app.ui.laf.AppSkinDark;
 import muon.app.ui.laf.AppSkinLight;
-import util.CollectionHelper;
 import util.PlatformUtils;
 
 /**
@@ -68,11 +66,15 @@ public class App {
 		Security.setProperty("networkaddress.cache.ttl", "0");
 		Security.setProperty("networkaddress.cache.negative.ttl", "0");
 
+		Security.setProperty("crypto.policy", "unlimited");
+
 		Security.addProvider(new BouncyCastleProvider());
+
 		File appDir = new File(CONFIG_DIR);
 		if (!appDir.exists()) {
 			appDir.mkdirs();
 		}
+
 		loadSettings();
 
 		if (settings.isManualScaling()) {
@@ -90,6 +92,16 @@ public class App {
 		SKIN = settings.isUseGlobalDarkTheme() ? new AppSkinDark() : new AppSkinLight();
 
 		UIManager.setLookAndFeel(SKIN.getLaf());
+
+		try {
+			int maxKeySize = javax.crypto.Cipher.getMaxAllowedKeyLength("AES");
+			System.out.println("maxKeySize: " + maxKeySize);
+			if (maxKeySize < Integer.MAX_VALUE) {
+				JOptionPane.showMessageDialog(null, "Unlimited cryptography is not enabled in JVM");
+			}
+		} catch (NoSuchAlgorithmException e1) {
+			e1.printStackTrace();
+		}
 
 		// JediTerm seems to take a long time to load, this might make UI more
 		// responsive
@@ -211,5 +223,39 @@ public class App {
 
 	public static synchronized AppWindow getAppWindow() {
 		return mw;
+	}
+
+	private static final SecretKey generateKeys() {
+		/*
+		 * 
+		 * SecretKeyFactory factory =
+		 * SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256"); KeySpec spec = new
+		 * PBEKeySpec(password, salt, 65536, 256); SecretKey tmp =
+		 * factory.generateSecret(spec); SecretKey secret = new
+		 * SecretKeySpec(tmp.getEncoded(), "AES");
+		 * 
+		 */
+
+		KeyGenerator kgen;
+		try {
+			kgen = KeyGenerator.getInstance("AES");
+			SecretKey skey = kgen.generateKey();
+			try (OutputStream out = new FileOutputStream(new File(App.CONFIG_DIR, "key.dat"))) {
+				byte[] keyb = skey.getEncoded();
+				out.write(keyb);
+				return skey;
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
 	}
 }

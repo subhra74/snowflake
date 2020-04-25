@@ -13,6 +13,7 @@ import muon.app.ui.components.settings.EditorEntry;
 import util.CollectionHelper;
 
 public class Settings {
+	private boolean usingMasterPassword = false;
 	private TransferMode fileTransferMode = TransferMode.Prompt;
 	private ConflictAction conflictAction = ConflictAction.AutoRename;
 	private boolean confirmBeforeDelete = true;
@@ -563,6 +564,14 @@ public class Settings {
 
 	public void setManualScaling(boolean manualScaling) {
 		this.manualScaling = manualScaling;
+	}
+
+	public boolean isUsingMasterPassword() {
+		return usingMasterPassword;
+	}
+
+	public void setUsingMasterPassword(boolean usingMasterPassword) {
+		this.usingMasterPassword = usingMasterPassword;
 	}
 
 }
