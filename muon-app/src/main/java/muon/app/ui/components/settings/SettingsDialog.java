@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTable;
@@ -42,6 +43,7 @@ import javax.swing.border.MatteBorder;
 import com.jediterm.terminal.emulator.ColorPalette;
 
 import muon.app.App;
+import muon.app.PasswordStore;
 import muon.app.Settings;
 import muon.app.ui.components.KeyShortcutComponent;
 import muon.app.ui.components.SkinnedScrollPane;
@@ -91,6 +93,9 @@ public class SettingsDialog extends JDialog {
 	private JCheckBox chkUseManualScaling;
 	private JSpinner spScaleValue;
 
+	private JCheckBox chkUseMasterPassword;
+	private JButton btnChangeMasterPassword;
+
 	/**
 	 * 
 	 */
@@ -123,7 +128,8 @@ public class SettingsDialog extends JDialog {
 		panelMap.put(SettingsPageName.General.toString(), createGeneralPanel());
 		panelMap.put(SettingsPageName.Terminal.toString(), createTerminalPanel());
 		panelMap.put(SettingsPageName.Editor.toString(), createEditorPanel());
-		panelMap.put(SettingsPageName.Misc.toString(), createMiscPanel());
+		panelMap.put(SettingsPageName.Display.toString(), createMiscPanel());
+		panelMap.put(SettingsPageName.Security.toString(), createSecurityPanel());
 
 		for (String key : panelMap.keySet()) {
 			navModel.addElement(key);
@@ -584,6 +590,8 @@ public class SettingsDialog extends JDialog {
 		settings.setManualScaling(chkUseManualScaling.isSelected());
 		settings.setUiScaling((double) spScaleValue.getValue());
 
+		//settings.setUsingMasterPassword(chkUseMasterPassword.isSelected());
+
 		App.saveSettings();
 		super.setVisible(false);
 	}
@@ -691,6 +699,9 @@ public class SettingsDialog extends JDialog {
 		this.chkUseManualScaling.setSelected(settings.isManualScaling());
 		this.spScaleValue.setValue(settings.getUiScaling());
 
+		this.chkUseMasterPassword.setSelected(settings.isUsingMasterPassword());
+		this.btnChangeMasterPassword.setEnabled(settings.isUsingMasterPassword());
+
 	}
 
 //	private String[] getTerminalFonts() {
@@ -742,7 +753,7 @@ public class SettingsDialog extends JDialog {
 	private Component createMiscPanel() {
 		JPanel panel = new JPanel(new BorderLayout());
 
-		chkUseManualScaling = new JCheckBox("Zoom application view (Needs restart)");
+		chkUseManualScaling = new JCheckBox("Zoom (Make application look small or big on screen)");
 		spScaleValue = new JSpinner(new SpinnerNumberModel(1.0, 0.5, 100.0, 0.01));
 		resizeNumericSpinner(spScaleValue);
 
@@ -762,6 +773,95 @@ public class SettingsDialog extends JDialog {
 		panel.add(vbox);
 
 		return panel;
+	}
+
+	private Component createSecurityPanel() {
+		JPanel panel = new JPanel(new BorderLayout());
+
+		chkUseMasterPassword = new JCheckBox("Use master password");
+		btnChangeMasterPassword = new JButton("Change master password");
+
+		chkUseMasterPassword.addActionListener(e -> {
+			if (chkUseMasterPassword.isSelected()) {
+				char[] password = promptPassword();
+				if (password == null) {
+					chkUseMasterPassword.setSelected(false);
+					btnChangeMasterPassword.setEnabled(false);
+					return;
+				}
+				try {
+					if(!PasswordStore.getSharedInstance().changeStorePassword(password)) {
+						throw new Exception("Password change failed!");
+					}
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(this, "Error encountered during operation");
+				}
+				App.getGlobalSettings().setUsingMasterPassword(true);
+				App.saveSettings();
+				JOptionPane.showMessageDialog(this, "Your save passwords are protected by AES encryption");
+			} else {
+				try {
+					PasswordStore.getSharedInstance().changeStorePassword(new char[0]);
+				} catch (Exception e1) {
+					e1.printStackTrace();
+					JOptionPane.showMessageDialog(this, "Error encountered during operation");
+				}
+				App.getGlobalSettings().setUsingMasterPassword(false);
+				App.saveSettings();
+				JOptionPane.showMessageDialog(this, "Your save passwords are unprotected now");
+			}
+		});
+
+		chkUseMasterPassword.setAlignmentX(Box.LEFT_ALIGNMENT);
+		btnChangeMasterPassword.setAlignmentX(Box.LEFT_ALIGNMENT);
+
+		Box vbox = Box.createVerticalBox();
+		vbox.add(chkUseMasterPassword);
+		vbox.add(Box.createRigidArea(new Dimension(10, 10)));
+		vbox.add(btnChangeMasterPassword);
+		vbox.setBorder(new EmptyBorder(30, 10, 10, 10));
+		panel.add(vbox);
+
+		return panel;
+	}
+
+	private char[] promptPassword() {
+		JPasswordField pass1 = new JPasswordField(30);
+		JPasswordField pass2 = new JPasswordField(30);
+		while (JOptionPane.showOptionDialog(this,
+				new Object[] { "New master password", pass1, "Re-enter master password", pass2 }, "Master password",
+				JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null) == JOptionPane.OK_OPTION) {
+			char[] password1 = pass1.getPassword();
+			char[] password2 = pass2.getPassword();
+
+			String reason = "";
+
+			boolean passwordOK = false;
+			if (password1.length == password2.length && password1.length > 0) {
+				passwordOK = true;
+				for (int i = 0; i < password1.length; i++) {
+					if (password1[i] != password2[i]) {
+						passwordOK = false;
+						reason = "Passwords do not match";
+						break;
+					}
+				}
+			} else {
+				reason = "Passwords do not match";
+			}
+
+			if (!passwordOK) {
+				JOptionPane.showMessageDialog(this, reason);
+			} else {
+				return password1;
+			}
+
+			pass1.setText(new String(""));
+			pass2.setText(new String(""));
+		}
+
+		return null;
 	}
 
 //	private void resizeTextField(JTextField txt) {

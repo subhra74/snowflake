@@ -12,11 +12,13 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
-import javax.crypto.interfaces.PBEKey;
 import javax.crypto.spec.PBEKeySpec;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -91,22 +93,36 @@ public final class PasswordStore {
 		}
 	}
 
-	public final synchronized void populatePassword(SavedSessionTree savedSessionTree) {
-		if (!this.isUnlocked()) {
-			if (App.getGlobalSettings().isUsingMasterPassword()) {
-				if (!unlockUsingMasterPassword()) {
-					return;
-				}
-			} else {
-				try {
-					unlockStore(new char[0]);
-				} catch (Exception e) {
-					e.printStackTrace();
-					return;
-				}
+	private final boolean unlockStore() {
+		if (this.isUnlocked()) {
+			return true;
+		}
+
+		if (App.getGlobalSettings().isUsingMasterPassword()) {
+			if (!unlockUsingMasterPassword()) {
+				return false;
+			}
+			return true;
+		} else {
+			try {
+				unlockStore(new char[0]);
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return false;
 			}
 		}
-		populatePassword(savedSessionTree.getFolder());
+
+	}
+
+	public final synchronized void populatePassword(SavedSessionTree savedSessionTree) {
+		if (!unlockStore()) {
+			return;
+		}
+		if (savedSessionTree != null) {
+			populatePassword(savedSessionTree.getFolder());
+		}
+
 	}
 
 	private void populatePassword(SessionFolder folder) {
@@ -115,7 +131,7 @@ public final class PasswordStore {
 				char[] password = this.getSavedPassword(info.getId());
 				info.setPassword(new String(password));
 			} catch (Exception e) {
-				e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 		for (SessionFolder f : folder.getFolders()) {
@@ -167,8 +183,8 @@ public final class PasswordStore {
 		while (true) {
 			try {
 				JPasswordField txtPass = new JPasswordField(30);
-				if (JOptionPane.showOptionDialog(App.getAppWindow(), new Object[] {}, "Master password",
-						JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
+				if (JOptionPane.showOptionDialog(App.getAppWindow(), new Object[] { "Master password", txtPass },
+						"Master password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
 						null) == JOptionPane.OK_OPTION) {
 					this.unlockStore(txtPass.getPassword());
 					return true;
@@ -190,5 +206,27 @@ public final class PasswordStore {
 			}
 		}
 		return false;
+	}
+
+	public boolean changeStorePassword(char[] newPassword) throws Exception {
+		if (!unlockStore()) {
+			return false;
+		}
+
+		Enumeration<String> aliases = KEY_STORE.aliases();
+		Map<String, char[]> passMap = new HashMap<String, char[]>();
+
+		while (aliases.hasMoreElements()) {
+			String alias = aliases.nextElement();
+			passMap.put(alias, getSavedPassword(alias));
+			KEY_STORE.deleteEntry(alias);
+		}
+
+		protParam = new KeyStore.PasswordProtection(newPassword);
+		for (String alias : passMap.keySet()) {
+			savePassword(alias, passMap.get(alias));
+		}
+		saveKeyStore();
+		return true;
 	}
 }

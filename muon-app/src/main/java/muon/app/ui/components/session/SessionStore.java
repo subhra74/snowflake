@@ -57,7 +57,6 @@ public class SessionStore {
 			try {
 				PasswordStore.getSharedInstance().savePasswords(tree);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} catch (IOException e) {
