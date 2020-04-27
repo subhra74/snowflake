@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class SessionInfo extends NamedItem implements Serializable {
 	private String host, user, localFolder, remoteFolder;
@@ -20,7 +21,7 @@ public class SessionInfo extends NamedItem implements Serializable {
 	private JumpType jumpType = JumpType.TcpForwarding;
 	private List<HopEntry> jumpHosts = new ArrayList<>();
 	private List<PortForwardingRule> portForwardingRules = new ArrayList<>();
-	@JsonIgnore
+
 	private String password;
 
 	public enum JumpType {
@@ -91,6 +92,7 @@ public class SessionInfo extends NamedItem implements Serializable {
 	/**
 	 * @return the password
 	 */
+	@JsonIgnore
 	public String getPassword() {
 		return password;
 	}
@@ -98,6 +100,7 @@ public class SessionInfo extends NamedItem implements Serializable {
 	/**
 	 * @param password the password to set
 	 */
+	@JsonProperty
 	public void setPassword(String password) {
 		this.password = password;
 	}

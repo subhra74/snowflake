@@ -32,6 +32,7 @@ import muon.app.ssh.InputBlocker;
 import muon.app.ui.AppWindow;
 import muon.app.ui.components.session.ExternalEditorHandler;
 import muon.app.ui.components.session.SessionContentPanel;
+import muon.app.ui.components.session.SessionExportImport;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.settings.SettingsPageName;
 import muon.app.ui.laf.AppSkin;
@@ -69,10 +70,13 @@ public class App {
 		Security.setProperty("crypto.policy", "unlimited");
 
 		Security.addProvider(new BouncyCastleProvider());
+		
+		boolean firstRun=false;
 
 		File appDir = new File(CONFIG_DIR);
 		if (!appDir.exists()) {
 			appDir.mkdirs();
+			firstRun=true;
 		}
 
 		loadSettings();
@@ -80,6 +84,10 @@ public class App {
 		if (settings.isManualScaling()) {
 			System.setProperty("sun.java2d.uiScale.enabled", "true");
 			System.setProperty("sun.java2d.uiScale", String.format("%.2f", settings.getUiScaling()));
+		}
+		
+		if(firstRun) {
+			SessionExportImport.importOnFirstRun();
 		}
 
 		if (settings.getEditors().size() == 0) {

@@ -483,34 +483,39 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 					new ImportDlg(this, cmbImports.getSelectedIndex(), parentNode).setVisible(true);
 					treeModel.nodeStructureChanged(parentNode);
 				} else {
-					JFileChooser jfc = new JFileChooser();
-					if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-						File f = jfc.getSelectedFile();
-						SavedSessionTree stree = SessionStore.load(f);
-						loadTree(stree);
-//						this.lastSelected = stree.getLastSelection();
-//						rootNode = SessionStore.getNode(stree.getFolder());// new
-//						// DefaultMutableTreeNode(rootFolder);
-//						rootNode.setAllowsChildren(true);
-//						treeModel.setRoot(rootNode);++
-//						treeModel.nodeStructureChanged(rootNode);
+					if (SessionExportImport.importSessions()) {
+						loadTree(SessionStore.load());
 					}
+
+//					JFileChooser jfc = new JFileChooser();
+//					if (jfc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+//						File f = jfc.getSelectedFile();
+//						SavedSessionTree stree = SessionStore.load(f);
+//						loadTree(stree);
+////						this.lastSelected = stree.getLastSelection();
+////						rootNode = SessionStore.getNode(stree.getFolder());// new
+////						// DefaultMutableTreeNode(rootFolder);
+////						rootNode.setAllowsChildren(true);
+////						treeModel.setRoot(rootNode);++
+////						treeModel.nodeStructureChanged(rootNode);
+//					}
 				}
 			}
 
 			break;
 		case "btnExport":
-			JFileChooser jfc = new JFileChooser();
-			if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
-				String id = null;
-				TreePath path3 = tree.getSelectionPath();
-				if (path3 != null) {
-					DefaultMutableTreeNode node3 = (DefaultMutableTreeNode) path3.getLastPathComponent();
-					NamedItem item = (NamedItem) node3.getUserObject();
-					id = item.getId();
-				}
-				SessionStore.save(SessionStore.convertModelFromTree(rootNode), id, jfc.getSelectedFile());
-			}
+			SessionExportImport.exportSessions();
+//			JFileChooser jfc = new JFileChooser();
+//			if (jfc.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+//				String id = null;
+//				TreePath path3 = tree.getSelectionPath();
+//				if (path3 != null) {
+//					DefaultMutableTreeNode node3 = (DefaultMutableTreeNode) path3.getLastPathComponent();
+//					NamedItem item = (NamedItem) node3.getUserObject();
+//					id = item.getId();
+//				}
+//				SessionStore.save(SessionStore.convertModelFromTree(rootNode), id, jfc.getSelectedFile());
+//			}
 			break;
 		default:
 			break;

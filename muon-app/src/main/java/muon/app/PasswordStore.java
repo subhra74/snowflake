@@ -1,5 +1,7 @@
 package muon.app;
 
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -9,9 +11,8 @@ import java.io.OutputStream;
 import java.security.KeyStore;
 import java.security.KeyStore.SecretKeyEntry;
 import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
-import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,6 +24,10 @@ import javax.crypto.spec.PBEKeySpec;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import muon.app.ui.components.session.SavedSessionTree;
 import muon.app.ui.components.session.SessionFolder;
 import muon.app.ui.components.session.SessionInfo;
@@ -33,6 +38,8 @@ public final class PasswordStore {
 
 	private final AtomicBoolean unlocked = new AtomicBoolean(false);
 	private KeyStore.PasswordProtection protParam;
+
+	private Map<String, char[]> passwordMap = new HashMap<>();
 
 	private PasswordStore() throws KeyStoreException {
 		KEY_STORE = KeyStore.getInstance("PKCS12");
@@ -50,7 +57,7 @@ public final class PasswordStore {
 	}
 
 	public final synchronized void unlockStore(char[] password) throws Exception {
-		protParam = new KeyStore.PasswordProtection(password);
+		protParam = new KeyStore.PasswordProtection(password, "PBEWithHmacSHA256AndAES_256", null);
 		File filePasswordStore = new File(App.CONFIG_DIR, "passwords.pfx");
 		if (!filePasswordStore.exists()) {
 			KEY_STORE.load(null, protParam.getPassword());
@@ -59,35 +66,71 @@ public final class PasswordStore {
 		}
 		try (InputStream in = new FileInputStream(filePasswordStore)) {
 			KEY_STORE.load(in, protParam.getPassword());
+			loadPasswords();
 			unlocked.set(true);
 		}
 	}
 
-	public final synchronized char[] getSavedPassword(String alias) throws Exception {
-		if (!unlocked.get()) {
-			throw new IllegalAccessException("Password store is locked");
-		}
+	private final synchronized void loadPasswords() throws Exception {
 
 		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBE");
-		KeyStore.SecretKeyEntry ske = (KeyStore.SecretKeyEntry) KEY_STORE.getEntry(alias, protParam);
+		KeyStore.SecretKeyEntry ske = (KeyStore.SecretKeyEntry) KEY_STORE.getEntry("passwords", protParam);
 
 		PBEKeySpec keySpec = (PBEKeySpec) factory.getKeySpec(ske.getSecretKey(), PBEKeySpec.class);
 
-		return keySpec.getPassword();
+		char[] chars = keySpec.getPassword();
+
+		this.passwordMap = deserializePasswordMap(chars);
+	}
+
+	private Map<String, char[]> deserializePasswordMap(char[] chars) throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		return objectMapper.readValue(new CharArrayReader(chars), new TypeReference<Map<String, char[]>>() {
+		});
+	}
+
+	private char[] serializePasswordMap(Map<String, char[]> map) throws Exception {
+		CharArrayWriter writer = new CharArrayWriter();
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.writeValue(writer, map);
+		return writer.toCharArray();
+	}
+
+	public final synchronized char[] getSavedPassword(String alias) throws Exception {
+		return this.passwordMap.get(alias);
+//		if (!unlocked.get()) {
+//			throw new IllegalAccessException("Password store is locked");
+//		}
+//
+//		SecretKeyFactory factory = SecretKeyFactory.getInstance("PBE");
+//		KeyStore.SecretKeyEntry ske = (KeyStore.SecretKeyEntry) KEY_STORE.getEntry(alias, protParam);
+//
+//		PBEKeySpec keySpec = (PBEKeySpec) factory.getKeySpec(ske.getSecretKey(), PBEKeySpec.class);
+//
+//		return keySpec.getPassword();
 	}
 
 	public final synchronized void savePassword(String alias, char[] password) throws Exception {
-		if (!unlocked.get()) {
-			throw new IllegalAccessException("Password store is locked");
-		}
-
-		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBE");
-		SecretKey generatedSecret = secretKeyFactory.generateSecret(new PBEKeySpec(password));
-		KEY_STORE.setEntry(alias, new SecretKeyEntry(generatedSecret), protParam);
+		this.passwordMap.put(alias, password);
+//		if (!unlocked.get()) {
+//			throw new IllegalAccessException("Password store is locked");
+//		}
+//
+//		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBE");
+//		SecretKey generatedSecret = secretKeyFactory.generateSecret(new PBEKeySpec(password));
+//		KEY_STORE.setEntry(alias, new SecretKeyEntry(generatedSecret), protParam);
 	}
 
-	public final synchronized void saveKeyStore()
-			throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+	public final synchronized void saveKeyStore() throws InvalidKeySpecException, Exception {
+
+		SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBE");
+		SecretKey generatedSecret = secretKeyFactory
+				.generateSecret(new PBEKeySpec(serializePasswordMap(this.passwordMap)));
+		KEY_STORE.setEntry("passwords", new SecretKeyEntry(generatedSecret), protParam);
+
+		System.out.println("Password protection: " + protParam.getProtectionAlgorithm());
+
 		try (OutputStream out = new FileOutputStream(new File(App.CONFIG_DIR, "passwords.pfx"))) {
 			KEY_STORE.store(out, protParam.getPassword());
 		}
@@ -157,8 +200,7 @@ public final class PasswordStore {
 		savePassword(savedSessionTree.getFolder());
 		try {
 			saveKeyStore();
-		} catch (KeyStoreException | NoSuchAlgorithmException | CertificateException | IOException e) {
-			// TODO Auto-generated catch block
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
@@ -222,7 +264,7 @@ public final class PasswordStore {
 			KEY_STORE.deleteEntry(alias);
 		}
 
-		protParam = new KeyStore.PasswordProtection(newPassword);
+		protParam = new KeyStore.PasswordProtection(newPassword, "PBEWithHmacSHA256AndAES_256", null);
 		for (String alias : passMap.keySet()) {
 			savePassword(alias, passMap.get(alias));
 		}

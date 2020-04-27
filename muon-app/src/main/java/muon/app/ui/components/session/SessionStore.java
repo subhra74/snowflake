@@ -26,7 +26,9 @@ public class SessionStore {
 			SavedSessionTree savedSessionTree = objectMapper.readValue(file, new TypeReference<SavedSessionTree>() {
 			});
 			try {
+				System.out.println("Loading passwords...");
 				PasswordStore.getSharedInstance().populatePassword(savedSessionTree);
+				System.out.println("Loading passwords... done");
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
