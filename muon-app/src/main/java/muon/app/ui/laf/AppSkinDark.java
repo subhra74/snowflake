@@ -36,6 +36,7 @@ public class AppSkinDark extends AppSkin {
 		this.defaults.put("textBackground", selectionColor);
 		this.defaults.put("textHighlight", selectionColor);
 		this.defaults.put("desktop", selectionColor);
+		this.defaults.put("nimbusFocus", selectionColor);
 		
 		this.defaults.put("ArrowButton.foreground", textColor);
 
@@ -91,6 +92,7 @@ public class AppSkinDark extends AppSkin {
 		createCheckboxSkin(this.defaults);
 		createRadioButtonSkin(this.defaults);
 		createTooltipSkin(this.defaults);
+		createSkinnedToggleButton(this.defaults);
 
 		this.defaults.put("ScrollBarUI", CustomScrollBarUI.class.getName());
 	}

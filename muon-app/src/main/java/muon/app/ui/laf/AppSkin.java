@@ -630,7 +630,7 @@ public abstract class AppSkin {
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 				g.setColor(c1);
-				g.drawOval(1, 1, width-2, height-2);
+				g.drawOval(1, 1, width - 2, height - 2);
 			}
 		};
 
@@ -639,7 +639,7 @@ public abstract class AppSkin {
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
-				g.drawOval(1, 1, width-2, height-2);
+				g.drawOval(1, 1, width - 2, height - 2);
 				g.fillOval(4, 4, width - 8, height - 8);
 			}
 		};
@@ -673,6 +673,86 @@ public abstract class AppSkin {
 		uiDefaults.put("ToolTip[Enabled].backgroundPainter", painter2);
 		uiDefaults.put("ToolTip.background", defaults.getColor("control"));
 		uiDefaults.put("ToolTip.foreground", defaults.getColor("text"));
+	}
+
+//	public void createToggleButtonSkin(UIDefaults uiDefaults) {
+//		Color c1 = defaults.getColor("text");
+//		Color c2 = defaults.getColor("text");
+//
+//		Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
+//			@Override
+//			public void paint(Graphics2D g, JComponent object, int width, int height) {
+//				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//
+//				g.setColor(c1);
+//				g.drawOval(1, 1, width-2, height-2);
+//			}
+//		};
+//
+//		Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
+//			@Override
+//			public void paint(Graphics2D g, JComponent object, int width, int height) {
+//				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//				g.setColor(c2);
+//				g.drawOval(1, 1, width-2, height-2);
+//				g.fillOval(4, 4, width - 8, height - 8);
+//			}
+//		};
+//
+//		uiDefaults.put("RadioButton[Disabled].iconPainter", painter1);
+//		uiDefaults.put("RadioButton[Enabled].iconPainter", painter1);
+//		uiDefaults.put("RadioButton[Focused+MouseOver+Selected].iconPainter", painter2);
+//		uiDefaults.put("RadioButton[Focused+Pressed+Selected].iconPainter", painter2);
+//		uiDefaults.put("RadioButton[Focused+Selected].iconPainter", painter2);
+//		uiDefaults.put("RadioButton[MouseOver+Selected].iconPainter", painter2);
+//		uiDefaults.put("RadioButton[Pressed+Selected].iconPainter", painter2);
+//
+//		uiDefaults.put("RadioButton[Focused+MouseOver].iconPainter", painter1);
+//		uiDefaults.put("RadioButton[Focused+Pressed].iconPainter", painter1);
+//		uiDefaults.put("RadioButton[Pressed].iconPainter", painter1);
+//		uiDefaults.put("RadioButton[Selected].iconPainter", painter2);
+//		uiDefaults.put("RadioButton[Focused].iconPainter", painter1);
+//		uiDefaults.put("RadioButton[MouseOver].iconPainter", painter1);
+//		
+//		uiDefaults.put("ToggleButton.background", defaults.getColor("control"));
+//		uiDefaults.put("ToggleButton.disabled", defaults.getColor("button.pressedGradient2"));
+//		uiDefaults.put("ToggleButton.foreground", defaults.getColor("text"));
+//		
+//		uiDefaults.put("button.normalGradient1", buttonGradient1);
+//		uiDefaults.put("button.normalGradient2", buttonGradient2);
+//		uiDefaults.put("button.hotGradient1", buttonGradient3);
+//		uiDefaults.put("button.hotGradient2", buttonGradient4);
+//		uiDefaults.put("button.pressedGradient1", buttonGradient5);
+//		uiDefaults.put("button.pressedGradient2", buttonGradient6);
+//
+//		
+//		
+//		uiDefaults.put("ToggleButton.background", defaults.getColor("control"));
+//		uiDefaults.put("ToggleButton.background", defaults.getColor("control"));
+//		uiDefaults.put("ToggleButton.background", defaults.getColor("control"));
+//		ToggleButton.disabled
+//	}
+
+	public void createSkinnedToggleButton(UIDefaults btnSkin) {
+		RoundedButtonPainter cs = new RoundedButtonPainter(btnSkin);
+		btnSkin.put("ToggleButton.contentMargins", new Insets(8, 15, 8, 15));
+		btnSkin.put("ToggleButton[Default+Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+		btnSkin.put("ToggleButton[Default+Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+		btnSkin.put("ToggleButton[Default+Focused].backgroundPainter", cs.getNormalPainter());
+		btnSkin.put("ToggleButton[Default+MouseOver].backgroundPainter", cs.getHotPainter());
+		btnSkin.put("ToggleButton[Default+Pressed].backgroundPainter", cs.getPressedPainter());
+		btnSkin.put("ToggleButton[Default].backgroundPainter", cs.getNormalPainter());
+		btnSkin.put("ToggleButton[Enabled].backgroundPainter", cs.getNormalPainter());
+		btnSkin.put("ToggleButton[Focused+MouseOver].backgroundPainter", cs.getHotPainter());
+		btnSkin.put("ToggleButton[Focused+Pressed].backgroundPainter", cs.getPressedPainter());
+		btnSkin.put("ToggleButton[Focused].backgroundPainter", cs.getNormalPainter());
+		btnSkin.put("ToggleButton[MouseOver].backgroundPainter", cs.getHotPainter());
+		btnSkin.put("ToggleButton[Pressed].backgroundPainter", cs.getPressedPainter());
+		btnSkin.put("ToggleButton[Default+Pressed].textForeground", defaults.getColor("control"));
+		btnSkin.put("ToggleButton.foreground", defaults.getColor("control"));
+		btnSkin.put("ToggleButton[Disabled].textForeground", Color.GRAY);
+		btnSkin.put("ToggleButton[Disabled].backgroundPainter", cs.getNormalPainter());
+		btnSkin.put("ToggleButton.background", defaults.get("button.normalGradient1"));
 	}
 
 }

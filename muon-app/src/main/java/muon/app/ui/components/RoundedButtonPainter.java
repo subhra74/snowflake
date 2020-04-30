@@ -5,12 +5,13 @@ import java.awt.GradientPaint;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
 
+import javax.swing.AbstractButton;
 import javax.swing.JButton;
 import javax.swing.Painter;
 import javax.swing.UIDefaults;
 
 public class RoundedButtonPainter {
-	private Painter<JButton> normalPainter, hotPainter, pressedPainter;
+	private Painter<AbstractButton> normalPainter, hotPainter, pressedPainter;
 	private GradientPaint normalGradient, hotGradient, pressedGradient;
 	private Color borderColor;
 
@@ -26,7 +27,7 @@ public class RoundedButtonPainter {
 				defaults.getColor("button.pressedGradient2"));
 		this.borderColor = defaults.getColor("nimbusBorder");
 
-		normalPainter = (Graphics2D g, JButton object, int width,
+		normalPainter = (Graphics2D g, AbstractButton object, int width,
 				int height) -> {
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
@@ -40,7 +41,7 @@ public class RoundedButtonPainter {
 			g.drawRoundRect(1, 1, width - 2, height - 2, 7, 7);
 		};
 
-		hotPainter = (Graphics2D g, JButton object, int width, int height) -> {
+		hotPainter = (Graphics2D g, AbstractButton object, int width, int height) -> {
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
 			g.setPaint(hotGradient);
@@ -49,7 +50,7 @@ public class RoundedButtonPainter {
 			g.drawRoundRect(1, 1, width - 2, height - 2, 7, 7);
 		};
 
-		pressedPainter = (Graphics2D g, JButton object, int width,
+		pressedPainter = (Graphics2D g, AbstractButton object, int width,
 				int height) -> {
 			g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 					RenderingHints.VALUE_ANTIALIAS_ON);
@@ -60,15 +61,15 @@ public class RoundedButtonPainter {
 		};
 	}
 
-	public Painter<JButton> getNormalPainter() {
+	public Painter<AbstractButton> getNormalPainter() {
 		return normalPainter;
 	}
 
-	public Painter<JButton> getHotPainter() {
+	public Painter<AbstractButton> getHotPainter() {
 		return hotPainter;
 	}
 
-	public Painter<JButton> getPressedPainter() {
+	public Painter<AbstractButton> getPressedPainter() {
 		return pressedPainter;
 	}
 }
