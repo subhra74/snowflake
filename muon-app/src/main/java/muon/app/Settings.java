@@ -38,7 +38,7 @@ public class Settings {
 	private int termWidth = 80;
 	private int termHeight = 24;
 	private boolean terminalBell = false;
-	private String terminalFontName = "Noto Mono";
+	private String terminalFontName = "NotoMono-Regular";
 	private int terminalFontSize = 14;
 	private String terminalTheme = "Dark";
 	private String terminalPalette = "xterm";

@@ -33,6 +33,7 @@ public class FontUtils {
 	}
 
 	public static Font loadTerminalFont(String name) {
+		System.out.println("Loading font: "+name);
 		try (InputStream is = AppSkin.class.getResourceAsStream(String.format("/fonts/terminal/%s.ttf", name))) {
 			Font font = Font.createFont(Font.TRUETYPE_FONT, is);
 			GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
