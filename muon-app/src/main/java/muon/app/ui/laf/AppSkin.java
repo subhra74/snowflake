@@ -5,6 +5,7 @@ package muon.app.ui.laf;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.GraphicsEnvironment;
@@ -618,6 +619,14 @@ public abstract class AppSkin {
 		uiDefaults.put("CheckBox[Selected].iconPainter", painter2);
 		uiDefaults.put("CheckBox[Focused].iconPainter", painter1);
 		uiDefaults.put("CheckBox[MouseOver].iconPainter", painter1);
+
+		// This is for checkbox menu item
+		uiDefaults.put("CheckBoxMenuItem[Enabled+Selected].checkIconPainter", painter2);
+		uiDefaults.put("CheckBoxMenuItem[Disabled+Selected].checkIconPainter", painter2);
+		uiDefaults.put("CheckBoxMenuItem[MouseOver+Selected].checkIconPainter", painter2);
+		uiDefaults.put("CheckBoxMenuItem.foreground", c1);
+		uiDefaults.put("CheckBoxMenuItem[Enabled].textForeground", c1);
+		uiDefaults.put("CheckBoxMenuItem.contentMargins", new Insets(5, 10, 5, 10));
 	}
 
 	public void createRadioButtonSkin(UIDefaults uiDefaults) {
@@ -753,6 +762,40 @@ public abstract class AppSkin {
 		btnSkin.put("ToggleButton[Disabled].textForeground", Color.GRAY);
 		btnSkin.put("ToggleButton[Disabled].backgroundPainter", cs.getNormalPainter());
 		btnSkin.put("ToggleButton.background", defaults.get("button.normalGradient1"));
+	}
+
+	public void createProgressBarSkin(UIDefaults uiDefaults) {
+		Color c1 = this.defaults.getColor("nimbusSelection");
+		Color c2 = this.defaults.getColor("TextField.background");
+
+		Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
+			@Override
+			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g.setColor(c2);
+				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);
+			}
+		};
+
+		Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
+			@Override
+			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+				g.setColor(c1);
+				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);
+			}
+		};
+
+		uiDefaults.put("ProgressBar.horizontalSize", new Dimension(150, 10));
+		uiDefaults.put("ProgressBar.vertictalSize", new Dimension(10, 150));
+
+		uiDefaults.put("ProgressBar[Disabled+Finished].foregroundPainter", painter2);
+		uiDefaults.put("ProgressBar[Disabled].foregroundPainter", painter2);
+		uiDefaults.put("ProgressBar[Enabled+Finished].foregroundPainter", painter2);
+		uiDefaults.put("ProgressBar[Enabled].foregroundPainter", painter2);
+
+		uiDefaults.put("ProgressBar[Enabled].backgroundPainter", painter1);
+		uiDefaults.put("ProgressBar[Disabled].backgroundPainter", painter1);
 	}
 
 }

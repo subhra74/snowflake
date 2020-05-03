@@ -38,6 +38,7 @@ import muon.app.ui.components.settings.SettingsPageName;
 import muon.app.ui.laf.AppSkin;
 import muon.app.ui.laf.AppSkinDark;
 import muon.app.ui.laf.AppSkinLight;
+import muon.app.updater.VersionEntry;
 import util.PlatformUtils;
 
 /**
@@ -45,6 +46,14 @@ import util.PlatformUtils;
  *
  */
 public class App {
+	static {
+		System.setProperty("java.net.useSystemProxies", "true");
+	}
+
+	public static final VersionEntry VERSION = new VersionEntry("v1.0.5");
+	public static final String UPDATE_URL = "https://subhra74.github.io/snowflake/check-update.html?v="
+			+ VERSION.getNumericValue();
+
 	public static final String CONFIG_DIR = System.getProperty("user.home") + File.separatorChar + "muon-ssh";
 	public static final String SESSION_DB_FILE = "session-store.json";
 	public static final String CONFIG_DB_FILE = "settings.json";
@@ -70,13 +79,13 @@ public class App {
 		Security.setProperty("crypto.policy", "unlimited");
 
 		Security.addProvider(new BouncyCastleProvider());
-		
-		boolean firstRun=false;
+
+		boolean firstRun = false;
 
 		File appDir = new File(CONFIG_DIR);
 		if (!appDir.exists()) {
 			appDir.mkdirs();
-			firstRun=true;
+			firstRun = true;
 		}
 
 		loadSettings();
@@ -85,8 +94,8 @@ public class App {
 			System.setProperty("sun.java2d.uiScale.enabled", "true");
 			System.setProperty("sun.java2d.uiScale", String.format("%.2f", settings.getUiScaling()));
 		}
-		
-		if(firstRun) {
+
+		if (firstRun) {
 			SessionExportImport.importOnFirstRun();
 		}
 

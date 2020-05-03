@@ -59,13 +59,13 @@ public class FileBrowser extends Page {
 			if (leftPopup) {
 				openLocalFileBrowserView(null, PanelOrientation.Left);
 			} else {
-				openSshFileBrowserView(null, PanelOrientation.Right);
+				openLocalFileBrowserView(null, PanelOrientation.Right);
 			}
 		});
 
 		remoteMenuItem.addActionListener(e -> {
 			if (leftPopup) {
-				openLocalFileBrowserView(null, PanelOrientation.Left);
+				openSshFileBrowserView(null, PanelOrientation.Left);
 			} else {
 				openSshFileBrowserView(null, PanelOrientation.Right);
 			}

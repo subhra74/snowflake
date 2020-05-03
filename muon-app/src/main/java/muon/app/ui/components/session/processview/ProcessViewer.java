@@ -18,6 +18,7 @@ import muon.app.ui.components.session.Page;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.processview.ProcessListPanel.CommandMode;
 import util.FontAwesomeContants;
+import util.ScriptLoader;
 import util.SudoUtils;
 
 /**
@@ -73,8 +74,7 @@ public class ProcessViewer extends Page {
 
 	private void updateProcessList(AtomicBoolean stopFlag) {
 		try {
-			List<ProcessTableEntry> list = getProcessList(
-					holder.getRemoteSessionInstance(), stopFlag);
+			List<ProcessTableEntry> list = getProcessList(holder.getRemoteSessionInstance(), stopFlag);
 			SwingUtilities.invokeLater(() -> {
 				// update ui ps
 				processListPanel.setProcessList(list);
@@ -92,11 +92,10 @@ public class ProcessViewer extends Page {
 		case KILL_AS_USER:
 			holder.EXECUTOR.execute(() -> {
 				try {
-					if (holder.getRemoteSessionInstance().exec(cmd, stopFlag,
-							new StringBuilder(), new StringBuilder()) != 0) {
+					if (holder.getRemoteSessionInstance().exec(cmd, stopFlag, new StringBuilder(),
+							new StringBuilder()) != 0) {
 						if (!holder.isSessionClosed()) {
-							JOptionPane.showMessageDialog(null,
-									"Operation failed");
+							JOptionPane.showMessageDialog(null, "Operation failed");
 						}
 						// JOptionPane.showMessageDialog(this, "Operation
 						// failed");
@@ -113,8 +112,7 @@ public class ProcessViewer extends Page {
 			break;
 		case KILL_AS_ROOT:
 			holder.EXECUTOR.execute(() -> {
-				if (SudoUtils.runSudo(cmd,
-						holder.getRemoteSessionInstance()) != 0) {
+				if (SudoUtils.runSudo(cmd, holder.getRemoteSessionInstance()) != 0) {
 					if (!holder.isSessionClosed()) {
 						JOptionPane.showMessageDialog(null, "Operation failed");
 					}
@@ -134,12 +132,12 @@ public class ProcessViewer extends Page {
 		}
 	}
 
-	public List<ProcessTableEntry> getProcessList(
-			RemoteSessionInstance instance, AtomicBoolean stopFlag)
+	public List<ProcessTableEntry> getProcessList(RemoteSessionInstance instance, AtomicBoolean stopFlag)
 			throws Exception {
 		StringBuilder out = new StringBuilder(), err = new StringBuilder();
-		int ret = instance.exec(
-				"ps -e -o pid=pid -o pcpu -o rss -o etime -o ppid -o user -o nice -o args -ww --sort pid",
+		int ret = instance.exec(ScriptLoader.loadShellScript("/scripts/ps.sh"),
+				// "ps -e -o pid=pid -o pcpu -o rss -o etime -o ppid -o user -o nice -o args -ww
+				// --sort pid",
 				stopFlag, out, err);
 		if (ret != 0)
 			throw new Exception("Error while getting metrics");

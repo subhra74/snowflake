@@ -22,5 +22,6 @@ public interface FontAwesomeContants {
 			FA_PENCIL = "\uf040", FA_ARROW_UP = "\uf062", FA_ARROW_DOWN = "\uf063", FA_FILE = "\uf15b",
 			FA_FILE_WORD_O = "\uf1c2", FA_FILE_POWERPOINT_O = "\uf1c4", FA_FILE_PDF_O = "\uf1c1",
 			FA_FILE_ARCHIVE_O = "\uf1c6", FA_FILE_CODE_O = "\uf1c9", FA_FILE_EXCEL_O = "\uf1c3",
-			FA_FILE_IMAGE_O = "\uf1c5",FA_FILE_VIDEO_O = "\uf1c8",FA_FILE_AUDIO_O = "\uf1c7";
+			FA_FILE_IMAGE_O = "\uf1c5", FA_FILE_VIDEO_O = "\uf1c8", FA_FILE_AUDIO_O = "\uf1c7", FA_DOWNLOAD = "\uf019",
+			FA_TRASH = "\uf1f8";
 }

@@ -6,12 +6,17 @@ package muon.app.ui;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.GraphicsEnvironment;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import javax.imageio.ImageIO;
 import javax.swing.Box;
@@ -37,6 +42,7 @@ import muon.app.ui.components.session.files.transfer.BackgroundTransferPanel;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.settings.SettingsDialog;
 import muon.app.ui.components.settings.SettingsPageName;
+import muon.app.updater.UpdateChecker;
 import util.FontAwesomeContants;
 
 /**
@@ -51,6 +57,9 @@ public class AppWindow extends JFrame {
 	private JLabel lblUploadCount, lblDownloadCount;
 	private JPopupMenu popup;
 	private Component bottomPanel;
+	private JLabel lblUpdate, lblUpdateText;
+
+	public static final String HELP_URL = "https://github.com/subhra74/snowflake/wiki";
 
 	/**
 	 * 
@@ -105,6 +114,13 @@ public class AppWindow extends JFrame {
 				lblDownloadCount.setText(count + "");
 			});
 		});
+
+		new Thread(() -> {
+			if (UpdateChecker.isNewUpdateAvailable()) {
+				lblUpdate.setText(FontAwesomeContants.FA_DOWNLOAD);
+				lblUpdateText.setText("Update available");
+			}
+		}).start();
 	}
 
 	private JPanel createSessionPanel() {
@@ -175,7 +191,7 @@ public class AppWindow extends JFrame {
 	private Component createBottomPanel() {
 		popup = new JPopupMenu();
 		popup.setBorder(new LineBorder(App.SKIN.getDefaultBorderColor(), 1));
-		popup.setPreferredSize(new Dimension(250, 300));
+		popup.setPreferredSize(new Dimension(400, 500));
 
 		Box b1 = Box.createHorizontalBox();
 		b1.setOpaque(true);
@@ -270,20 +286,71 @@ public class AppWindow extends JFrame {
 
 		JLabel lblHelp = new JLabel();
 		lblHelp.setFont(App.SKIN.getIconFont().deriveFont(16.0f));
+
+		lblHelp.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop.getDesktop().browse(new URI(HELP_URL));
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					} catch (URISyntaxException ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		});
+
 		// lblHelp.setForeground(Color.WHITE);
 		lblHelp.setText(FontAwesomeContants.FA_QUESTION_CIRCLE);
+		lblHelp.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		b1.add(lblHelp);
 		b1.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		JLabel lblUpdate = new JLabel();
+		lblUpdate = new JLabel();
+		lblUpdate.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		lblUpdate.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				openUpdateURL();
+			}
+		});
+
 		lblUpdate.setFont(App.SKIN.getIconFont().deriveFont(16.0f));
 		// lblUpdate.setForeground(Color.WHITE);
 		lblUpdate.setText(FontAwesomeContants.FA_REFRESH);
 		b1.add(lblUpdate);
+
+		b1.add(Box.createRigidArea(new Dimension(5, 10)));
+
+		lblUpdateText = new JLabel("Check for update");
+		lblUpdateText.setCursor(new Cursor(Cursor.HAND_CURSOR));
+		lblUpdateText.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				openUpdateURL();
+			}
+		});
+
+		b1.add(lblUpdateText);
+
 		b1.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		return b1;
 		// this.setVisible(true);
+	}
+
+	protected void openUpdateURL() {
+		if (Desktop.isDesktopSupported()) {
+			try {
+				Desktop.getDesktop().browse(new URI(App.UPDATE_URL));
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			} catch (URISyntaxException ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 
 	public void addUpload(BackgroundFileTransfer transfer) {

@@ -312,7 +312,9 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 
 	private boolean selectNode(String id, DefaultMutableTreeNode node) {
 		if (id.equals((((NamedItem) node.getUserObject()).getId()))) {
-			tree.setSelectionPath(new TreePath(node.getPath()));
+			TreePath path = new TreePath(node.getPath());
+			tree.setSelectionPath(path);
+			tree.scrollPathToVisible(path);
 			return true;
 		}
 		for (int i = 0; i < node.getChildCount(); i++) {

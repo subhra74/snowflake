@@ -221,6 +221,7 @@ public class FileTransfer implements Runnable, AutoCloseable {
 
 	@Override
 	public void close() {
+		stopFlag.set(true);
 //		try {
 //			this.sourceFs.close();
 //		} catch (Exception e) {

@@ -3,6 +3,7 @@ package muon.app.ui.components.session.files.ssh;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -203,8 +204,17 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
 	@Override
 	public void openApp(FileInfo file) {
-		System.out.println("Open app");
-		throw new RuntimeException("Not implemented");
+		
+		FileInfo fileInfo = folderView.getSelectedFiles()[0];
+		try {
+			App.getExternalEditorHandler().openRemoteFile(fileInfo, fileBrowser.getSSHFileSystem(),
+					fileBrowser.getActiveSessionId(), false, null);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		
 		// holder.openWithDefaultApp(file);
 	}
 

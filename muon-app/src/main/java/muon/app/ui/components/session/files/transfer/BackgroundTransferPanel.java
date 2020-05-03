@@ -19,6 +19,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 
 import muon.app.App;
+import util.FontAwesomeContants;
 
 public class BackgroundTransferPanel extends JPanel {
 	private Box verticalBox;
@@ -112,9 +113,10 @@ public class BackgroundTransferPanel extends JPanel {
 			transfer.getFileTransfer().setCallback(this);
 			progressBar = new JProgressBar();
 			progressLabel = new JLabel("Waiting...");
+			progressLabel.setBorder(new EmptyBorder(5, 0, 5, 5));
 			JLabel removeLabel = new JLabel();
 			removeLabel.setFont(App.SKIN.getIconFont());
-			removeLabel.setText("\uf00d");
+			removeLabel.setText(FontAwesomeContants.FA_TRASH);
 
 			removeLabel.addMouseListener(new MouseAdapter() {
 				@Override

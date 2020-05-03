@@ -11,10 +11,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.swing.Box;
 import javax.swing.JButton;
@@ -37,6 +40,7 @@ import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.session.FileChangeWatcher.FileModificationInfo;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.session.files.transfer.FileTransferProgress;
+import util.OptionPaneUtils;
 import util.PathUtils;
 import util.PlatformUtils;
 
@@ -84,7 +88,12 @@ public class ExternalEditorHandler extends JDialog {
 
 		this.add(box);
 		this.fileWatcher = new FileChangeWatcher(files -> {
-			if (JOptionPane.showConfirmDialog(this.frame, files + "") == JOptionPane.YES_OPTION) {
+			List<String> messages = new ArrayList<>();
+			messages.add("Some file(s) have been modified, upload changes to server?\n");
+			messages.add("Changed file(s):");
+			messages.addAll(files.stream().map(e -> e.toString()).collect(Collectors.toList()));
+			if (OptionPaneUtils.showOptionDialog(this.frame, messages.toArray(new String[0]),
+					"File changed") == JOptionPane.OK_OPTION) {
 				this.fileWatcher.stopWatching();
 				App.EXECUTOR.submit(() -> {
 					try {
