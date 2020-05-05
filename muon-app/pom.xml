@@ -161,10 +161,18 @@
 			<version>0.1.54</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.github.markusbernhardt/proxy-vole -->
+		<dependency>
+			<groupId>com.github.markusbernhardt</groupId>
+			<artifactId>proxy-vole</artifactId>
+			<version>1.0.1</version>
+		</dependency>
+
+
 	</dependencies>
 
 	<build>
-		<finalName>snowflake-${project.version}</finalName>
+		<finalName>muon-${project.version}</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
