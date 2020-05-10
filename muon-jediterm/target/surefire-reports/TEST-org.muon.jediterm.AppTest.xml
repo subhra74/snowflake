@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuite tests="1" failures="0" name="org.muon.jediterm.AppTest" time="0.004" errors="0" skipped="0">
+  <properties>
+    <property name="java.vendor" value="AdoptOpenJDK"/>
+    <property name="sun.java.launcher" value="SUN_STANDARD"/>
+    <property name="os.name" value="Windows 10"/>
+    <property name="sun.desktop" value="windows"/>
+    <property name="java.vm.specification.vendor" value="Oracle Corporation"/>
+    <property name="java.runtime.version" value="13.0.2+8"/>
+    <property name="user.name" value="subhro"/>
+    <property name="java.compiler" value="j9jit29"/>
+    <property name="os.encoding" value="UTF8"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
+    <property name="com.ibm.util.extralibs.properties" value=""/>
+    <property name="com.ibm.jcl.checkClassPath" value=""/>
+    <property name="user.language" value="en"/>
+    <property name="com.ibm.oti.vm.bootstrap.library.path" value="C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin\compressedrefs;C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin"/>
+    <property name="sun.boot.library.path" value="C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin\compressedrefs;C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin"/>
+    <property name="classworlds.conf" value="C:\Users\subhro\github-workspace\.metadata\.plugins\org.eclipse.m2e.launching\launches\m2conf15718805607702829883.tmp"/>
+    <property name="jdk.extensions.version" value="13.0.2.0"/>
+    <property name="java.version" value="13.0.2"/>
+    <property name="user.timezone" value="Europe/Berlin"/>
+    <property name="com.ibm.system.agent.path" value="C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin"/>
+    <property name="sun.arch.data.model" value="64"/>
+    <property name="com.ibm.oti.vm.library.version" value="29"/>
+    <property name="sun.jnu.encoding" value="Cp1252"/>
+    <property name="file.encoding.pkg" value="sun.io"/>
+    <property name="file.separator" value="\"/>
+    <property name="java.specification.name" value="Java Platform API Specification"/>
+    <property name="java.class.version" value="57.0"/>
+    <property name="user.country" value="US"/>
+    <property name="java.home" value="C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9"/>
+    <property name="java.vm.info" value="JRE 13 Windows 10 amd64-64-Bit Compressed References 20200117_154 (JIT enabled, AOT enabled)
+OpenJ9   - 6968c18d7
+OMR      - 7a1b0239a
+JCL      - 9c5a41bd5f based on jdk-13.0.2+8"/>
+    <property name="os.version" value="10.0"/>
+    <property name="jdk.boot.class.path.append" value=""/>
+    <property name="sun.nio.MaxDirectMemorySize" value="1842864128"/>
+    <property name="java.awt.fonts" value=""/>
+    <property name="path.separator" value=";"/>
+    <property name="java.vm.version" value="openj9-0.18.0"/>
+    <property name="user.variant" value=""/>
+    <property name="java.awt.printerjob" value="sun.awt.windows.WPrinterJob"/>
+    <property name="jdk.extensions.name" value="Extensions for OpenJDK for Eclipse OpenJ9"/>
+    <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
+    <property name="sun.nio.PageAlignDirectMemory" value="false"/>
+    <property name="awt.toolkit" value="sun.awt.windows.WToolkit"/>
+    <property name="ibm.signalhandling.sigint" value="true"/>
+    <property name="user.home" value="C:\Users\subhro"/>
+    <property name="com.ibm.cpu.endian" value="little"/>
+    <property name="java.version.date" value="2020-01-14"/>
+    <property name="java.specification.vendor" value="Oracle Corporation"/>
+    <property name="ibm.signalhandling.sigchain" value="true"/>
+    <property name="java.library.path" value="C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin\compressedrefs;C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin;C:\WINDOWS\system32;C:\WINDOWS;C:/Program Files/AdoptOpenJDK/jdk-13.0.2.8-openj9/bin/j9vm;C:/Program Files/AdoptOpenJDK/jdk-13.0.2.8-openj9/bin;C:\Program Files\Vala for Windows\bin;C:\Program Files\AdoptOpenJDK\jdk-13.0.2.8-openj9\bin;C:\Qt\Qt5.12.5\5.12.5\mingw73_64\bin;C:\Qt\Qt5.12.5\Tools\mingw730_64\bin;C:\Users\subhro\AppData\Local\Programs\Python\Python38;C:\msys64\mingw64\lib\pkgconfig;C:\msys64\usr\bin;C:\msys64\mingw64\bin;C:\Program Files\Java\jdk-11.0.1\bin;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\iCLS\;C:\Program Files\Intel\Intel(R) Management Engine Components\iCLS\;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files\Intel\Intel(R) Management Engine Components\DAL;C:\Program Files (x86)\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files\Intel\Intel(R) Management Engine Components\IPT;C:\Program Files (x86)\NVIDIA Corporation\PhysX\Common;C:\Program Files\Intel\WiFi\bin\;C:\Program Files\Common Files\Intel\WirelessCommon\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;D:\BIN\maven\bin;C:\Program Files\nodejs\;C:\Program Files (x86)\PuTTY\;D:\BIN\apps\wix;C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin;C:\Users\subhro\AppData\Roaming\Python\Python38\Scripts;C:\Program Files\NVIDIA Corporation\NVIDIA NvDLISR;C:\Program Files\NVIDIA Corporation\Nsight Compute 2019.4.0\;C:\Program Files (x86)\GtkSharp\2.12\bin;C:\Program Files\GTK3-Runtime Win64\bin;C:\Users\subhro\Downloads\Compressed\GTK_x86_64_VS2017\installed\x64-windows\lib;C:\Users\subhro\Downloads\Compressed\GTK_x86_64_VS2017\installed\x64-windows\lib\pkgconfig;C:\Users\subhro\Downloads\Compressed\GTK_x86_64_VS2017\installed\x64-windows\bin;C:\Users\subhro\Downloads\Compressed\GTK_x86_64_VS2017\installed\vcpkg\info;C:\Go\bin;C:\Program Files\Git\cmd;C:\Program Files\dotnet\;C:\Program Files (x86)\Bitvise SSH Client;C:\Users\subhro\AppData\Local\Programs\Python\Python38\Scripts\;C:\Users\subhro\AppData\Local\Programs\Python\Python38\;C:\Users\subhro\AppData\Local\Microsoft\WindowsApps;C:\Users\subhro\AppData\Local\Programs\Fiddler;C:\Users\subhro\AppData\Roaming\npm;C:\Users\subhro\AppData\Local\Programs\Microsoft VS Code\bin;D:\BIN\apps\IntelliJ IDEA Community Edition 2019.1\bin;C:\Program Files\Docker Toolbox;C:\Users\subhro\AppData\Local\atom\bin;C:\Users\subhro\AppData\Local\GitHubDesktop\bin;C:\Program Files\JetBrains\IntelliJ IDEA Community Edition 2019.2\bin;;C:\Users\subhro\AppData\Local\Microsoft\WindowsApps;D:\apps\wix;C:\Users\subhro\go\bin;C:\Users\subhro\eclipse\java-2020-03\eclipse;;."/>
+    <property name="java.vendor.url" value="https://adoptopenjdk.net/"/>
+    <property name="java.vm.vendor" value="Eclipse OpenJ9"/>
+    <property name="java.fullversion" value="13.0.2+8
+JRE 13 Windows 10 amd64-64-Bit Compressed References 20200117_154 (JIT enabled, AOT enabled)
+OpenJ9   - 6968c18d7
+OMR      - 7a1b0239a
+JCL      - 9c5a41bd5f based on jdk-13.0.2+8"/>
+    <property name="maven.home" value="C:\Users\subhro\Documents\GitHub\snowflake\EMBEDDED"/>
+    <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher -B install"/>
+    <property name="java.class.path" value="C:\Users\subhro\eclipse\java-2020-03\eclipse\plugins\org.eclipse.m2e.maven.runtime_1.15.0.20200310-1832\jars\plexus-classworlds-2.6.0.jar"/>
+    <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
+    <property name="java.vm.specification.version" value="13"/>
+    <property name="sun.cpu.endian" value="little"/>
+    <property name="java.io.tmpdir" value="C:\Users\subhro\AppData\Local\Temp\"/>
+    <property name="java.vendor.url.bug" value="https://github.com/AdoptOpenJDK/openjdk-support/issues"/>
+    <property name="maven.multiModuleProjectDirectory" value="C:\Users\subhro\Documents\GitHub\snowflake"/>
+    <property name="ibm.system.encoding" value="Cp1252"/>
+    <property name="os.arch" value="amd64"/>
+    <property name="java.awt.graphicsenv" value="sun.awt.Win32GraphicsEnvironment"/>
+    <property name="ibm.signalhandling.rs" value="false"/>
+    <property name="user.dir" value="C:\Users\subhro\Documents\GitHub\snowflake"/>
+    <property name="line.separator" value="
+"/>
+    <property name="java.vm.name" value="Eclipse OpenJ9 VM"/>
+    <property name="com.ibm.oti.shared.enabled" value="false"/>
+    <property name="com.ibm.vm.bitmode" value="64"/>
+    <property name="file.encoding" value="Cp1252"/>
+    <property name="java.specification.version" value="13"/>
+    <property name="com.ibm.oti.configuration" value="scar"/>
+    <property name="java.vendor.version" value="AdoptOpenJDK"/>
+  </properties>
+  <testcase classname="org.muon.jediterm.AppTest" name="testApp" time="0.004"/>
+</testsuite>

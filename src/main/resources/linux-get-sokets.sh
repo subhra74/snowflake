@@ -1,1 +1,0 @@
-lsof -b -n -i tcp -P -s tcp:LISTEN

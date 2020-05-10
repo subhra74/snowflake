@@ -1,11 +1,11 @@
-# Snowflake ![Java CI](https://github.com/subhra74/snowflake/workflows/Java%20CI/badge.svg?branch=master) [![Github All Releases](https://img.shields.io/github/downloads/subhra74/snowflake/total.svg)]()
+# Muon SSH Terminal/SFTP client ( Formerly Snowflake ) ![Java CI](https://github.com/subhra74/snowflake/workflows/Java%20CI/badge.svg?branch=master) [![Github All Releases](https://img.shields.io/github/downloads/subhra74/snowflake/total.svg)]()
 Easy and fun way to work with remote servers over SSH.
 
 
 
 
-Snowflake is a graphical SSH client. It has a enhanced SFTP file browser, SSH terminal emulator, remote resource/process manager, server disk space analyzer, remote text editor, huge remote log viewer and lots of other helpful tools, which makes it easy to work with remote servers. Snowflake provides functionality similar to web based control panels but, it works over SSH from local computer, hence no installation required on server. It runs on Linux and Windows.
-Snowflake has been tested with serveral Linux and UNIX servers, like Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX.
+Muon is a graphical SSH client. It has a enhanced SFTP file browser, SSH terminal emulator, remote resource/process manager, server disk space analyzer, remote text editor, huge remote log viewer and lots of other helpful tools, which makes it easy to work with remote servers. Muon provides functionality similar to web based control panels but, it works over SSH from local computer, hence no installation required on server. It runs on Linux and Windows.
+Muon has been tested with serveral Linux and UNIX servers, like Ubuntu server, CentOS, RHEL, OpenSUSE, FreeBSD, OpenBSD, NetBSD and HP-UX.
 
 
 
