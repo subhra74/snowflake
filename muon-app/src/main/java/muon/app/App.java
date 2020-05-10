@@ -79,6 +79,8 @@ public class App {
 		Security.setProperty("crypto.policy", "unlimited");
 
 		Security.addProvider(new BouncyCastleProvider());
+		
+		System.out.println(System.getProperty("java.version"));
 
 		boolean firstRun = false;
 
