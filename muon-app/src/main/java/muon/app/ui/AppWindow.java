@@ -14,6 +14,7 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -60,6 +61,7 @@ public class AppWindow extends JFrame {
 	private JLabel lblUpdate, lblUpdateText;
 
 	public static final String HELP_URL = "https://github.com/subhra74/snowflake/wiki";
+	public static final String GITHUB_URL = "https://github.com/subhra74/snowflake";
 
 	/**
 	 * 
@@ -200,9 +202,27 @@ public class AppWindow extends JFrame {
 		b1.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()),
 				new EmptyBorder(5, 5, 5, 5)));
 		b1.add(Box.createRigidArea(new Dimension(10, 10)));
+
+		MouseListener ml = new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (Desktop.isDesktopSupported()) {
+					try {
+						Desktop.getDesktop().browse(new URI(GITHUB_URL));
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					} catch (URISyntaxException ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		};
+
 		// b1.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		JLabel lblBrand = new JLabel("Muon SSH 1.0.4");
+		lblBrand.addMouseListener(ml);
+		lblBrand.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		// lblBrand.setFont(App.SKIN.getDefaultFont().deriveFont(Font.PLAIN,
 		// 14));
 		// lblBrand.setForeground(Color.WHITE);
@@ -211,6 +231,8 @@ public class AppWindow extends JFrame {
 		b1.add(Box.createRigidArea(new Dimension(10, 10)));
 
 		JLabel lblUrl = new JLabel("https://github.com/subhra74/snowflake");
+		lblUrl.addMouseListener(ml);
+		lblUrl.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		// lblUrl.setFont(App.SKIN.getDefaultFont().deriveFont(Font.PLAIN, 14));
 		// lblUrl.setForeground(Color.WHITE);
 		// lblUrl.setForeground(App.SKIN.getDefaultSelectionForeground());
