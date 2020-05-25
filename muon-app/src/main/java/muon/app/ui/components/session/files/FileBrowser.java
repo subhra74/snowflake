@@ -1,23 +1,31 @@
 package muon.app.ui.components.session.files;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import javax.swing.Box;
+import javax.swing.JCheckBox;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 
+import muon.app.App;
 import muon.app.common.FileInfo;
 import muon.app.common.FileSystem;
 import muon.app.ssh.RemoteSessionInstance;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.ClosableTabbedPanel;
+import muon.app.ui.components.FontAwesomeIcon;
 import muon.app.ui.components.SkinnedSplitPane;
 import muon.app.ui.components.session.Page;
 import muon.app.ui.components.session.SessionContentPanel;
@@ -118,6 +126,26 @@ public class FileBrowser extends Page {
 		horizontalSplitter.setDividerSize(5);
 
 		this.add(horizontalSplitter);
+
+		Box box = Box.createHorizontalBox();
+		box.setOpaque(true);
+
+		JCheckBox chk1 = new JCheckBox();
+		chk1.setText("Dual pane view");
+		chk1.setRolloverEnabled(false);
+		chk1.setSelected(true);
+		chk1.setSelectedIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_ON, 16, 16));
+		chk1.setIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_OFF, 16, 16));
+		chk1.setIconTextGap(10);
+		
+		// box.setBackground(App.SKIN.getTableBackgroundColor());
+		// box.setBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()));
+		box.setBorder(new EmptyBorder(5, 10, 5, 5));
+		//box.add(Box.createRigidArea(new Dimension(10, 24)));
+		
+		box.add(chk1);
+
+		this.add(box, BorderLayout.SOUTH);
 
 //		leftDropdown.addActionListener(e -> {
 //			System.out.println("Left drop down changed");

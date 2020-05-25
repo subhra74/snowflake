@@ -7,6 +7,7 @@ import javax.swing.plaf.basic.BasicComboBoxEditor;
 
 import muon.app.App;
 import muon.app.ui.components.SkinnedTextField;
+import muon.app.ui.components.session.files.AddressBarComboBoxEditor;
 import util.LayoutUtilities;
 
 import java.awt.*;
@@ -45,6 +46,8 @@ public class AddressBar extends JPanel {
 
 		DefaultComboBoxModel<String> model1 = new DefaultComboBoxModel<>();
 		txtAddressBar = new JComboBox<>(model1);
+		txtAddressBar.setEditor(new AddressBarComboBoxEditor());
+		txtAddressBar.putClientProperty("paintNoBorder", "True");
 
 		txtAddressBar.addActionListener(e -> {
 			if (updating) {
@@ -82,13 +85,11 @@ public class AddressBar extends JPanel {
 		};
 		txtAddressBar.setEditor(cmdEdit);
 		System.out.println("Editor: " + txtAddressBar.getEditor());
-		addressBar = new AddressBarBreadCrumbs(separator == '/',
-				popupTriggeredListener);
+		addressBar = new AddressBarBreadCrumbs(separator == '/', popupTriggeredListener);
 		addressBar.addActionListener(e -> {
 			if (a != null) {
 				System.out.println("Performing action");
-				a.actionPerformed(
-						new ActionEvent(this, 0, e.getActionCommand()));
+				a.actionPerformed(new ActionEvent(this, 0, e.getActionCommand()));
 			}
 		});
 
@@ -185,8 +186,7 @@ public class AddressBar extends JPanel {
 	}
 
 	public String getText() {
-		return isSelected() ? (String) txtAddressBar.getSelectedItem()
-				: addressBar.getSelectedText();
+		return isSelected() ? (String) txtAddressBar.getSelectedItem() : addressBar.getSelectedText();
 	}
 
 	public void setText(String text) {
@@ -217,8 +217,7 @@ public class AddressBar extends JPanel {
 			JMenuItem item = new JMenuItem("ROOT");
 			item.putClientProperty("item.path", "/");
 			item.addActionListener(e -> {
-				String selectedText = (String) item
-						.getClientProperty("item.path");
+				String selectedText = (String) item.getClientProperty("item.path");
 				if (a != null) {
 					a.actionPerformed(new ActionEvent(this, 0, selectedText));
 				}
@@ -230,11 +229,9 @@ public class AddressBar extends JPanel {
 				JMenuItem item = new JMenuItem(f.getAbsolutePath());
 				item.putClientProperty("item.path", f.getAbsolutePath());
 				item.addActionListener(e -> {
-					String selectedText = (String) item
-							.getClientProperty("item.path");
+					String selectedText = (String) item.getClientProperty("item.path");
 					if (a != null) {
-						a.actionPerformed(
-								new ActionEvent(this, 0, selectedText));
+						a.actionPerformed(new ActionEvent(this, 0, selectedText));
 					}
 				});
 				popup.add(item);

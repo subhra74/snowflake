@@ -5,6 +5,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import javax.swing.ActionMap;
 import javax.swing.InputMap;
@@ -17,7 +19,7 @@ import muon.app.App;
 import muon.app.common.FileInfo;
 import muon.app.common.FileType;
 import muon.app.common.local.LocalFileSystem;
-import muon.app.ui.components.session.files.BookmarkManager;
+import muon.app.ui.components.session.BookmarkManager;
 import muon.app.ui.components.session.files.FileBrowser;
 import muon.app.ui.components.session.files.view.FolderView;
 import util.PathUtils;
@@ -31,7 +33,6 @@ public class LocalMenuHandler {
 	private FolderView folderView;
 	private LocalFileOperations fileOperations;
 	private LocalFileBrowserView fileBrowserView;
-	private BookmarkManager bookmarkManager;
 
 	public LocalMenuHandler(FileBrowser fileBrowser, LocalFileBrowserView fileBrowserView) {
 		this.fileBrowser = fileBrowser;
@@ -267,14 +268,27 @@ public class LocalMenuHandler {
 
 	private void addToFavourites() {
 		FileInfo arr[] = folderView.getSelectedFiles();
-		if (arr.length == 1) {
-			// holder.addFavouriteLocation(fileBrowserView, arr[0].getPath());
-			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+
+		if (arr.length > 0) {
+			BookmarkManager.addEntry(null,
+					Arrays.asList(arr).stream()
+							.filter(a -> a.getType() == FileType.DirLink || a.getType() == FileType.Directory)
+							.map(a -> a.getPath()).collect(Collectors.toList()));
 		} else if (arr.length == 0) {
-//			holder.addFavouriteLocation(fileBrowserView,
-//					fileBrowserView.getCurrentDirectory());
-			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+			BookmarkManager.addEntry(null, fileBrowserView.getCurrentDirectory());
 		}
+		
+		this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+
+//		FileInfo arr[] = folderView.getSelectedFiles();
+//		if (arr.length == 1) {
+//			// holder.addFavouriteLocation(fileBrowserView, arr[0].getPath());
+//			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+//		} else if (arr.length == 0) {
+////			holder.addFavouriteLocation(fileBrowserView,
+////					fileBrowserView.getCurrentDirectory());
+//			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+//		}
 	}
 
 	public JPopupMenu createAddressPopup() {
@@ -305,8 +319,7 @@ public class LocalMenuHandler {
 
 		mBookmark.addActionListener(e -> {
 			String path = popupMenu.getName();
-			BookmarkManager.addFavouriteLocation(null, path);
-			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+			BookmarkManager.addEntry(null, path);
 		});
 		return popupMenu;
 	}

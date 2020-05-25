@@ -6,6 +6,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.jediterm.terminal.Questioner;
@@ -20,6 +22,7 @@ import net.schmizz.sshj.connection.channel.direct.Session;
 import net.schmizz.sshj.connection.channel.direct.Session.Shell;
 import net.schmizz.sshj.connection.channel.direct.SessionChannel;
 import net.schmizz.sshj.transport.TransportException;
+import util.CollectionHelper;
 
 public class SshTtyConnector implements DisposableTtyConnector {
 	private InputStreamReader myInputStreamReader;
@@ -54,8 +57,12 @@ public class SshTtyConnector implements DisposableTtyConnector {
 			this.wr.connect();
 			this.channel = wr.openSession();
 			this.channel.setAutoExpand(true);
+			
+			//Map<PTYMode, Integer>ptyMode=new CollectionHelper.Dict<PTYMode, Integer>().putItem(PTYMode., v)
+			
 			this.channel.allocatePTY(App.getGlobalSettings().getTerminalType(), App.getGlobalSettings().getTermWidth(),
-					App.getGlobalSettings().getTermHeight(), 0, 0, Collections.<PTYMode, Integer>emptyMap());
+					App.getGlobalSettings().getTermHeight(), 0, 0,   Collections.<PTYMode, Integer>emptyMap());
+			this.channel.setEnvVar("LANG", "en_US.UTF-8");
 			this.shell = (SessionChannel) this.channel.startShell();
 
 			// String lang = System.getenv().get("LANG");

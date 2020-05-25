@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -43,6 +44,7 @@ import muon.app.ui.components.session.files.transfer.FileTransferProgress;
 import util.OptionPaneUtils;
 import util.PathUtils;
 import util.PlatformUtils;
+import util.TimeUtils;
 
 /**
  * @author subhro
@@ -193,13 +195,14 @@ public class ExternalEditorHandler extends JDialog {
 			String app) throws IOException {
 		this.fileWatcher.stopWatching();
 		Path tempFolderPath = Files.createTempDirectory(UUID.randomUUID().toString());
-		Path localFile = tempFolderPath.resolve(remoteFile.getName());
+		Path localFilePath = tempFolderPath.resolve(remoteFile.getName());
 		this.stopFlag.set(false);
 		this.progressLabel.setText(remoteFile.getName());
+		File localFile = localFilePath.toFile();
 
 		App.EXECUTOR.submit(() -> {
 			try (InputStream in = remoteFs.inputTransferChannel().getInputStream(remoteFile.getPath());
-					OutputStream out = new FileOutputStream(localFile.toFile())) {
+					OutputStream out = new FileOutputStream(localFile)) {
 				int cap = 8192;
 				if (in instanceof SSHRemoteFileInputStream) {
 					cap = ((SSHRemoteFileInputStream) in).getBufferCapacity();
@@ -218,7 +221,8 @@ public class ExternalEditorHandler extends JDialog {
 						progressBar.setValue(progress);
 					});
 				}
-				fileWatcher.addForMonitoring(remoteFile, localFile.toAbsolutePath().toString(), activeSessionId);
+				localFile.setLastModified(TimeUtils.toEpochMilli(remoteFile.getLastModified()));
+				fileWatcher.addForMonitoring(remoteFile, localFilePath.toAbsolutePath().toString(), activeSessionId);
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally {
@@ -226,9 +230,9 @@ public class ExternalEditorHandler extends JDialog {
 				SwingUtilities.invokeLater(() -> {
 					try {
 						if (app == null) {
-							PlatformUtils.openWithDefaultApp(localFile.toFile(), openWith);
+							PlatformUtils.openWithDefaultApp(localFilePath.toFile(), openWith);
 						} else {
-							PlatformUtils.openWithApp(localFile.toFile(), app);
+							PlatformUtils.openWithApp(localFilePath.toFile(), app);
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

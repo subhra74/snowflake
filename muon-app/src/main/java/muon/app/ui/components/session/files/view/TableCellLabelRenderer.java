@@ -71,8 +71,10 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus,
 			int row, int column) {
 		FolderViewTableModel folderViewModel = (FolderViewTableModel) table.getModel();
+
 		int r = table.convertRowIndexToModel(row);
 		int c = table.convertColumnIndexToModel(column);
+
 		FileInfo ent = folderViewModel.getItemAt(r);
 
 		panel.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
@@ -90,17 +92,17 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 			label.setText("");
 			break;
 		case 1:
+			label.setText(FormatUtils.formatDate(ent.getLastModified()));
+			break;
+		case 2:
 			if (ent.getType() == FileType.Directory || ent.getType() == FileType.DirLink) {
 				label.setText("");
 			} else {
 				label.setText(FormatUtils.humanReadableByteCount(ent.getSize(), true));
 			}
 			break;
-		case 2:
-			label.setText(ent.getType() + "");
-			break;
 		case 3:
-			label.setText(FormatUtils.formatDate(ent.getLastModified()));
+			label.setText(ent.getType() + "");
 			break;
 		case 4:
 			label.setText(ent.getPermissionString());
@@ -112,7 +114,7 @@ public class TableCellLabelRenderer implements TableCellRenderer {
 			break;
 		}
 
-		if (column == 0) {
+		if (c == 0) {
 			return panel;
 		} else {
 			return label;

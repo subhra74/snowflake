@@ -149,6 +149,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 		btnMore.setText("\uf142");
 		btnMore.addActionListener(e -> {
 			JPopupMenu popupMenu = overflowMenuHandler.getOverflowMenu();
+			overflowMenuHandler.loadFavourites();
 			popupMenu.pack();
 			Dimension d = popupMenu.getPreferredSize();
 			int x = btnMore.getWidth() - d.width;

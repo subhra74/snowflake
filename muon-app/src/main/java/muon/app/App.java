@@ -1,10 +1,10 @@
 package muon.app;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
+//import java.io.FileNotFoundException;
+//import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+//import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.HashMap;
@@ -14,8 +14,8 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.crypto.KeyGenerator;
-import javax.crypto.SecretKey;
+//import javax.crypto.KeyGenerator;
+//import javax.crypto.SecretKey;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
@@ -60,6 +60,7 @@ public class App {
 	public static final String SNIPPETS_FILE = "snippets.json";
 	public static final String PINNED_LOGS = "pinned-logs.json";
 	public static final String TRANSFER_HOSTS = "transfer-hosts.json";
+	public static final String BOOKMARKS_FILE = "bookmarks.json";
 	private static Settings settings;
 	public static final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
 	public static final SnippetManager SNIPPET_MANAGER = new SnippetManager();
@@ -244,37 +245,37 @@ public class App {
 		return mw;
 	}
 
-	private static final SecretKey generateKeys() {
-		/*
-		 * 
-		 * SecretKeyFactory factory =
-		 * SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256"); KeySpec spec = new
-		 * PBEKeySpec(password, salt, 65536, 256); SecretKey tmp =
-		 * factory.generateSecret(spec); SecretKey secret = new
-		 * SecretKeySpec(tmp.getEncoded(), "AES");
-		 * 
-		 */
-
-		KeyGenerator kgen;
-		try {
-			kgen = KeyGenerator.getInstance("AES");
-			SecretKey skey = kgen.generateKey();
-			try (OutputStream out = new FileOutputStream(new File(App.CONFIG_DIR, "key.dat"))) {
-				byte[] keyb = skey.getEncoded();
-				out.write(keyb);
-				return skey;
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-
-		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return null;
-	}
+//	private static final SecretKey generateKeys() {
+//		/*
+//		 * 
+//		 * SecretKeyFactory factory =
+//		 * SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256"); KeySpec spec = new
+//		 * PBEKeySpec(password, salt, 65536, 256); SecretKey tmp =
+//		 * factory.generateSecret(spec); SecretKey secret = new
+//		 * SecretKeySpec(tmp.getEncoded(), "AES");
+//		 * 
+//		 */
+//
+//		KeyGenerator kgen;
+//		try {
+//			kgen = KeyGenerator.getInstance("AES");
+//			SecretKey skey = kgen.generateKey();
+//			try (OutputStream out = new FileOutputStream(new File(App.CONFIG_DIR, "key.dat"))) {
+//				byte[] keyb = skey.getEncoded();
+//				out.write(keyb);
+//				return skey;
+//			} catch (FileNotFoundException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			} catch (IOException e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
+//
+//		} catch (NoSuchAlgorithmException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+//		return null;
+//	}
 }

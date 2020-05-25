@@ -204,6 +204,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> focusedBorder = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(focusedColor);
 				g.drawRoundRect(1, 1, width - 2, height - 2, 5, 5);
@@ -213,6 +216,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> normalBorder = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(borderColor);
 				g.setStroke(new BasicStroke(1.0f, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
@@ -302,6 +308,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> painter1 = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
 				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);
@@ -313,6 +322,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> painter2 = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
 				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);
@@ -324,6 +336,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> painter3 = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
 				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);
@@ -335,6 +350,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> painter4 = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
 				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);
@@ -346,6 +364,9 @@ public abstract class AppSkin {
 		Painter<? extends JComponent> painter5 = new Painter<JComponent>() {
 			@Override
 			public void paint(Graphics2D g, JComponent object, int width, int height) {
+				if (object.getClientProperty("paintNoBorder") != null) {
+					return;
+				}
 				g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 				g.setColor(c2);
 				g.fillRoundRect(1, 1, width - 2, height - 2, 5, 5);

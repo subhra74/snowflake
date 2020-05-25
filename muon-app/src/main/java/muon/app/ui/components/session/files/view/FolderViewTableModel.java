@@ -12,29 +12,44 @@ public class FolderViewTableModel extends AbstractTableModel {
 	private static final long serialVersionUID = 7212506492710233442L;
 	private List<FileInfo> files = new ArrayList<>();
 
-	private String[] columns = { "Name", "Size", "Type", "Modified",
-			"Permission", "Owner" };
+//	private String[] columns = { "Name", "Size", "Type", "Modified",
+//			"Permission", "Owner" };
+	private String[] columns = { "Name", "Modified", "Size", "Type", "Permission", "Owner" };
 
 	private boolean local = false;
 
 	public FolderViewTableModel(boolean local) {
 		this.local = local;
 	}
-
+	
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		switch (columnIndex) {
-		case 0:
-		case 3:
-			return FileInfo.class;
-		case 1:
-			return Long.class;
-		case 4:
-		case 2:
-		default:
-			return Object.class;
-		}
+		return FileInfo.class;
+//		switch (columnIndex) {
+//		case 0:
+//		case 1:
+//			return FileInfo.class;
+//		case 2:
+//			return Long.class;
+//		default:
+//			return Object.class;
+//		}
 	}
+
+//	@Override
+//	public Class<?> getColumnClass(int columnIndex) {
+//		switch (columnIndex) {
+//		case 0:
+//		case 3:
+//			return FileInfo.class;
+//		case 1:
+//			return Long.class;
+//		case 4:
+//		case 2:
+//		default:
+//			return Object.class;
+//		}
+//	}
 
 	public void clear() {
 //        int rows = files.size();
@@ -94,23 +109,24 @@ public class FolderViewTableModel extends AbstractTableModel {
 		return local ? 4 : columns.length;
 	}
 
+	//private String[] columns = { "Name", "Modified", "Size", "Type", "Permission", "Owner" };
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		FileInfo ent = files.get(rowIndex);
-		switch (columnIndex) {
-		case 0:
-		case 3:
-			return ent;
-		case 1:
-			return ent.getSize();
-		case 2:
-			return ent.getType().toString();
-		case 4:
-			// System.out.println(ent.getPermission() + "");
-			return ent.getPermission() + "";
-		case 5:
-			return ent.getExtra();
-		}
-		return "";
+		return ent;
+//		switch (columnIndex) {
+//		case 0:
+//		case 1:
+//			return ent;
+//		case 2:
+//			return ent.getSize();
+//		case 3:
+//			return ent.getType().toString();
+//		case 4:
+//			return ent.getPermission() + "";
+//		case 5:
+//			return ent.getExtra();
+//		}
+//		return "";
 	}
 
 }

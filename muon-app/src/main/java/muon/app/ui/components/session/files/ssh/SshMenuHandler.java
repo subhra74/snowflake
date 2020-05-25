@@ -11,10 +11,11 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -32,6 +33,7 @@ import muon.app.App;
 import muon.app.common.FileInfo;
 import muon.app.common.FileType;
 import muon.app.common.local.LocalFileSystem;
+import muon.app.ui.components.session.BookmarkManager;
 import muon.app.ui.components.session.files.FileBrowser;
 import muon.app.ui.components.session.files.remote2remote.LocalPipeTransfer;
 import muon.app.ui.components.session.files.remote2remote.Remote2RemoteTransferDialog;
@@ -140,12 +142,12 @@ public class SshMenuHandler {
 		mOpenWithLogView.addActionListener(e -> openLogViewer());
 
 		mEditWith = new JMenu("Edit with");
-		for (EditorEntry ent : App.getGlobalSettings().getEditors()) {
-			JMenuItem mEditorItem = new JMenuItem(ent.getName());
-			mEditorItem.addActionListener(e -> openWithEditor(ent.getPath()));
-			mEditWith.add(mEditorItem);
-		}
-		mEditWith.add(mEditorConfig);
+//		for (EditorEntry ent : App.getGlobalSettings().getEditors()) {
+//			JMenuItem mEditorItem = new JMenuItem(ent.getName());
+//			mEditorItem.addActionListener(e -> openWithEditor(ent.getPath()));
+//			mEditWith.add(mEditorItem);
+//		}
+//		mEditWith.add(mEditorConfig);
 
 		mSendTo = new JMenu("Send to another server");
 
@@ -463,7 +465,8 @@ public class SshMenuHandler {
 					popup.add(mOpenWithMenu);
 					count++;
 				}
-
+				
+				loadEditors();
 				popup.add(mEditWith);
 				count++;
 
@@ -540,10 +543,8 @@ public class SshMenuHandler {
 			}
 		}
 
-		if (selectionCount >= 1 && allFolder) {
-			popup.add(mAddToFav);
-			count++;
-		}
+		popup.add(mAddToFav);
+		count++;
 
 //        if (selectionCount == 0) {
 //            popup.add(mUpload);
@@ -749,16 +750,18 @@ public class SshMenuHandler {
 	}
 
 	private void addToFavourites() {
-		throw new RuntimeException("Not implemented");
-//		FileInfo arr[] = folderView.getSelectedFiles();
-//		if (arr.length == 1) {
-//			holder.addFavouriteLocation(fileBrowserView, arr[0].getPath());
-//			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
-//		} else if (arr.length == 0) {
-//			holder.addFavouriteLocation(fileBrowserView,
-//					fileBrowserView.getCurrentDirectory());
-//			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
-//		}
+		FileInfo arr[] = folderView.getSelectedFiles();
+
+		if (arr.length > 0) {
+			BookmarkManager.addEntry(fileBrowser.getInfo().getId(),
+					Arrays.asList(arr).stream()
+							.filter(a -> a.getType() == FileType.DirLink || a.getType() == FileType.Directory)
+							.map(a -> a.getPath()).collect(Collectors.toList()));
+		} else if (arr.length == 0) {
+			BookmarkManager.addEntry(fileBrowser.getInfo().getId(), fileBrowserView.getCurrentDirectory());
+		}
+
+		this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
 	}
 
 	public JPopupMenu createAddressPopup() {
@@ -788,10 +791,7 @@ public class SshMenuHandler {
 		});
 
 		mBookmark.addActionListener(e -> {
-			throw new RuntimeException("Not implemented");
-//			String path = popupMenu.getName();
-//			holder.addFavouriteLocation(fileBrowserView, path);
-//			this.fileBrowserView.getOverflowMenuHandler().loadFavourites();
+			addToFavourites();
 		});
 		return popupMenu;
 	}
@@ -940,6 +940,16 @@ public class SshMenuHandler {
 				this.fileBrowser.getHolder(), folderView.getSelectedFiles(), fileBrowserView.getCurrentDirectory());
 		r2rt.setLocationRelativeTo(App.getAppWindow());
 		r2rt.setVisible(true);
+	}
+
+	private void loadEditors() {
+		mEditWith.removeAll();
+		for (EditorEntry ent : App.getGlobalSettings().getEditors()) {
+			JMenuItem mEditorItem = new JMenuItem(ent.getName());
+			mEditorItem.addActionListener(e -> openWithEditor(ent.getPath()));
+			mEditWith.add(mEditorItem);
+		}
+		mEditWith.add(mEditorConfig);
 	}
 
 }
