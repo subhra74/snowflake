@@ -3,19 +3,24 @@ package muon.app.ui.components.session.files;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.Box;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.JRootPane;
 import javax.swing.JSplitPane;
 import javax.swing.SwingUtilities;
+import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 
@@ -36,6 +41,8 @@ import muon.app.ui.components.session.files.ssh.SshFileBrowserView;
 import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.session.files.transfer.FileTransferProgress;
 import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction;
+import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
+import muon.app.ui.components.session.files.view.DndTransferData;
 import util.FontAwesomeContants;
 
 public class FileBrowser extends Page {
@@ -125,7 +132,13 @@ public class FileBrowser extends Page {
 		horizontalSplitter.setRightComponent(this.rightTabs);
 		horizontalSplitter.setDividerSize(5);
 
-		this.add(horizontalSplitter);
+		// this.add(horizontalSplitter);
+
+		if (App.getGlobalSettings().isDualPaneMode()) {
+			switchToDualPaneMode();
+		} else {
+			switchToSinglePanelMode();
+		}
 
 		Box box = Box.createHorizontalBox();
 		box.setOpaque(true);
@@ -133,16 +146,30 @@ public class FileBrowser extends Page {
 		JCheckBox chk1 = new JCheckBox();
 		chk1.setText("Dual pane view");
 		chk1.setRolloverEnabled(false);
-		chk1.setSelected(true);
+		chk1.setSelected(App.getGlobalSettings().isDualPaneMode());
 		chk1.setSelectedIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_ON, 16, 16));
 		chk1.setIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_OFF, 16, 16));
 		chk1.setIconTextGap(10);
-		
-		// box.setBackground(App.SKIN.getTableBackgroundColor());
-		// box.setBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()));
-		box.setBorder(new EmptyBorder(5, 10, 5, 5));
-		//box.add(Box.createRigidArea(new Dimension(10, 24)));
-		
+
+		chk1.addActionListener(e -> {
+			if (chk1.isSelected()) {
+				System.out.println("going dual panel mode");
+				switchToDualPaneMode();
+				App.getGlobalSettings().setDualPaneMode(true);
+			} else {
+				System.out.println("going single panel mode");
+				switchToSinglePanelMode();
+				App.getGlobalSettings().setDualPaneMode(false);
+			}
+			App.saveSettings();
+		});
+
+		box.setBackground(App.SKIN.getTableBackgroundColor());
+		box.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()),
+				new EmptyBorder(5, 10, 5, 5)));
+		// box.setBorder(new EmptyBorder(5, 10, 5, 5));
+		// box.add(Box.createRigidArea(new Dimension(10, 24)));
+
 		box.add(chk1);
 
 		this.add(box, BorderLayout.SOUTH);
@@ -253,6 +280,22 @@ public class FileBrowser extends Page {
 //		return closeRequested.get();
 //	}
 //
+
+	private void switchToDualPaneMode() {
+		horizontalSplitter.setRightComponent(this.rightTabs);
+		horizontalSplitter.setLeftComponent(this.leftTabs);
+		this.add(horizontalSplitter);
+		this.revalidate();
+		this.repaint();
+	}
+
+	private void switchToSinglePanelMode() {
+		this.remove(horizontalSplitter);
+		this.add(this.leftTabs);
+		this.revalidate();
+		this.repaint();
+	}
+
 	public void disableUi() {
 		holder.disableUi();
 	}
@@ -513,5 +556,117 @@ public class FileBrowser extends Page {
 
 	public boolean isSessionClosed() {
 		return this.holder.isSessionClosed();
+	}
+
+	public static class ResponseHolder {
+		public TransferMode transferMode;
+		public ConflictAction conflictAction;
+	}
+
+	public boolean selectTransferModeAndConflictAction(ResponseHolder holder) throws Exception {
+		holder.transferMode = App.getGlobalSettings().getFileTransferMode();
+		holder.conflictAction = App.getGlobalSettings().getConflictAction();
+
+		if (holder.transferMode == TransferMode.Prompt) {
+			DefaultComboBoxModel<String> conflictOptions = new DefaultComboBoxModel<>();
+			JComboBox<String> cmbConflictOptions = new JComboBox<>(conflictOptions);
+
+			List<String> conflictOption1 = Arrays.asList("Overwrite", "Auto rename", "Skip", "Prompt");
+			List<String> conflictOption2 = Arrays.asList("Overwrite", "Auto rename", "Skip");
+
+			JComboBox<String> cmbOptions = new JComboBox<>(
+					new String[] { "Transfer normally", "Transfer in background" });
+
+			cmbOptions.addActionListener(e -> {
+				if (cmbOptions.getSelectedIndex() == 0) {
+					conflictOptions.removeAllElements();
+					conflictOptions.addAll(conflictOption1);
+					cmbConflictOptions.setSelectedIndex(3);
+				} else {
+					conflictOptions.removeAllElements();
+					conflictOptions.addAll(conflictOption2);
+					cmbConflictOptions.setSelectedIndex(0);
+				}
+			});
+
+			cmbOptions.setSelectedIndex(0);
+			// set initial values
+			conflictOptions.addAll(conflictOption1);
+
+			JCheckBox chkRememberOptions = new JCheckBox("Remember this options and don't ask again");
+
+			if (JOptionPane.showOptionDialog(this,
+					new Object[] { "Please select a transfer mode", cmbOptions, "\n",
+							"If a file/folder with same name exists", cmbConflictOptions, "\n", chkRememberOptions },
+					"Transfer options", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
+					null) != JOptionPane.OK_OPTION) {
+				return false;
+			}
+			holder.transferMode = cmbOptions.getSelectedIndex() == 0 ? TransferMode.Normal : TransferMode.Background;
+			switch (cmbConflictOptions.getSelectedIndex()) {
+			case 0:
+				holder.conflictAction = ConflictAction.OverWrite;
+				break;
+			case 1:
+				holder.conflictAction = ConflictAction.AutoRename;
+				break;
+			case 2:
+				holder.conflictAction = ConflictAction.Skip;
+				break;
+			case 3:// this is allowed in normal transfer mode
+				holder.conflictAction = ConflictAction.Prompt;
+				break;
+			}
+			if (chkRememberOptions.isSelected()) {
+				App.getGlobalSettings().setFileTransferMode(holder.transferMode);
+				App.getGlobalSettings().setConflictAction(holder.conflictAction);
+				App.saveSettings();
+			}
+		}
+		return true;
+	}
+
+	public boolean handleLocalDrop(DndTransferData transferData, SessionInfo info, FileSystem currentFileSystem,
+			String currentPath) {
+//		System.out.println("### " + transferData.getSource() + " " + this.hashCode());
+//		if (transferData.getSource() == this.hashCode()) {
+//			return false;
+//		}
+		if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
+				&& JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
+			return false;
+		}
+
+		try {
+
+			ResponseHolder holder = new ResponseHolder();
+
+			if (!selectTransferModeAndConflictAction(holder)) {
+				return false;
+			}
+
+			System.out.println("Dropped: " + transferData);
+			int sessionHashCode = transferData.getInfo();
+			if (sessionHashCode == 0)
+				return true;
+			if (info != null && info.hashCode() == sessionHashCode) {
+				if (holder.transferMode == TransferMode.Background) {
+					this.getHolder().downloadInBackground(transferData.getFiles(), currentPath, holder.conflictAction);
+					return true;
+				}
+				FileSystem sourceFs = this.getSSHFileSystem();
+				if (sourceFs == null) {
+					return false;
+				}
+				FileSystem targetFs = currentFileSystem;
+				this.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), currentPath, this.hashCode(),
+						holder.conflictAction);
+			}
+			return true;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+
 	}
 }

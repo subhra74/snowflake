@@ -39,7 +39,8 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 		super(orientation, fileBrowser);
 		this.menuHandler = new LocalMenuHandler(fileBrowser, this);
 		this.menuHandler.initMenuHandler(this.folderView);
-		this.transferHandler = new DndTransferHandler(this.folderView, null, this, DndTransferData.DndSourceType.LOCAL);
+		this.transferHandler = new DndTransferHandler(this.folderView, null, this, DndTransferData.DndSourceType.LOCAL,
+				this.fileBrowser);
 		this.folderView.setTransferHandler(transferHandler);
 		this.folderView.setFolderViewTransferHandler(transferHandler);
 		this.addressPopup = menuHandler.createAddressPopup();
@@ -156,39 +157,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 		if (transferData.getSource() == this.hashCode()) {
 			return false;
 		}
-		if (App.getGlobalSettings().isConfirmBeforeMoveOrCopy()
-				&& JOptionPane.showConfirmDialog(null, "Move/copy files?") != JOptionPane.YES_OPTION) {
-			return false;
-		}
-
-		try {
-			if (!super.selectTransferModeAndConflictAction()) {
-				return false;
-			}
-
-			System.out.println("Dropped: " + transferData);
-			int sessionHashCode = transferData.getInfo();
-			if (sessionHashCode == 0)
-				return true;
-			SessionInfo info = fileBrowser.getInfo();
-			if (info != null && info.hashCode() == sessionHashCode) {
-				if (transferMode == TransferMode.Background) {
-					fileBrowser.getHolder().downloadInBackground(transferData.getFiles(), this.path, conflictAction);
-					return true;
-				}
-				FileSystem sourceFs = fileBrowser.getSSHFileSystem();
-				if (sourceFs == null) {
-					return false;
-				}
-				FileSystem targetFs = this.fs;
-				fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), this.path, this.hashCode(),
-						conflictAction);
-			}
-			return true;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return false;
-		}
+		return this.fileBrowser.handleLocalDrop(transferData, null, this.fs, this.path);
 	}
 
 	public FileSystem getFileSystem() throws Exception {

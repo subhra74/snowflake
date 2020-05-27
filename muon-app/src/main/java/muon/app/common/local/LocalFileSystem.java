@@ -13,7 +13,7 @@ import muon.app.common.*;
 import util.PathUtils;
 
 public class LocalFileSystem implements FileSystem {
-	private static final String PROTO_LOCAL_FILE = "local";
+	public static final String PROTO_LOCAL_FILE = "local";
 
 	public void chmod(int perm, String path) throws Exception {
 	}

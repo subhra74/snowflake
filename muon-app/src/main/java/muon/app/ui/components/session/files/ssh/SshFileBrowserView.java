@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
@@ -23,6 +22,7 @@ import muon.app.ssh.RemoteSessionInstance;
 import muon.app.ssh.SshFileSystem;
 import muon.app.ui.components.session.files.AbstractFileBrowserView;
 import muon.app.ui.components.session.files.FileBrowser;
+import muon.app.ui.components.session.files.FileBrowser.ResponseHolder;
 import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.session.files.view.AddressBar;
 import muon.app.ui.components.session.files.view.DndTransferData;
@@ -33,15 +33,15 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 	private SshMenuHandler menuHandler;
 	private JPopupMenu addressPopup;
 	private DndTransferHandler transferHandler;
-	private JComboBox<String> cmbOptions = new JComboBox<>(
-			new String[] { "Transfer normally", "Transfer in background" });
+//	private JComboBox<String> cmbOptions = new JComboBox<>(
+//			new String[] { "Transfer normally", "Transfer in background" });
 
 	public SshFileBrowserView(FileBrowser fileBrowser, String initialPath, PanelOrientation orientation) {
 		super(orientation, fileBrowser);
 		this.menuHandler = new SshMenuHandler(fileBrowser, this);
 		this.menuHandler.initMenuHandler(this.folderView);
 		this.transferHandler = new DndTransferHandler(this.folderView, this.fileBrowser.getInfo(), this,
-				DndTransferData.DndSourceType.SSH);
+				DndTransferData.DndSourceType.SSH, this.fileBrowser);
 		this.folderView.setTransferHandler(transferHandler);
 		this.folderView.setFolderViewTransferHandler(transferHandler);
 		this.addressPopup = menuHandler.createAddressPopup();
@@ -171,14 +171,14 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 						break;
 					} catch (OperationCancelledException e) {
 						e.printStackTrace();
-						
+
 						break;
 					} catch (Exception e) {
 						e.printStackTrace();
 						if (this.fileBrowser.isSessionClosed()) {
 							return;
 						}
-						System.out.println("Exception caught in sftp file browser: "+e.getMessage());
+						System.out.println("Exception caught in sftp file browser: " + e.getMessage());
 
 						e.printStackTrace();
 						if (JOptionPane.showConfirmDialog(null,
@@ -204,7 +204,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
 	@Override
 	public void openApp(FileInfo file) {
-		
+
 		FileInfo fileInfo = folderView.getSelectedFiles()[0];
 		try {
 			App.getExternalEditorHandler().openRemoteFile(fileInfo, fileBrowser.getSSHFileSystem(),
@@ -213,8 +213,7 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		
-		
+
 		// holder.openWithDefaultApp(file);
 	}
 
@@ -270,17 +269,18 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 
 			if (sourceFs instanceof LocalFileSystem) {
 				System.out.println("Dropped: " + transferData);
-				if (!super.selectTransferModeAndConflictAction()) {
+				ResponseHolder holder = new ResponseHolder();
+				if (!this.fileBrowser.selectTransferModeAndConflictAction(holder)) {
 					return false;
 				}
-				if (transferMode == TransferMode.Background) {
+				if (holder.transferMode == TransferMode.Background) {
 					this.fileBrowser.getHolder().uploadInBackground(transferData.getFiles(), this.path,
-							this.conflictAction);
+							holder.conflictAction);
 					return true;
 				}
 				FileSystem targetFs = this.fileBrowser.getSSHFileSystem();
 				this.fileBrowser.newFileTransfer(sourceFs, targetFs, transferData.getFiles(), this.path,
-						this.hashCode(), this.conflictAction);
+						this.hashCode(), holder.conflictAction);
 			} else if (sourceFs instanceof SshFileSystem && (sourceFs == this.fileBrowser.getSSHFileSystem())) {
 				System.out.println("SshFs is of same instance: " + (sourceFs == this.fileBrowser.getSSHFileSystem()));
 				if (transferData.getFiles().length > 0) {

@@ -34,8 +34,8 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 	private OverflowMenuHandler overflowMenuHandler;
 	protected TabTitle tabTitle;
 
-	protected TransferMode transferMode;
-	protected ConflictAction conflictAction;
+//	protected TransferMode transferMode;
+//	protected ConflictAction conflictAction;
 	protected FileBrowser fileBrowser;
 
 	public AbstractFileBrowserView(PanelOrientation orientation, FileBrowser fileBrowser) {
@@ -272,66 +272,4 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 		return tabTitle;
 	}
 
-	public boolean selectTransferModeAndConflictAction() {
-		transferMode = App.getGlobalSettings().getFileTransferMode();
-		conflictAction = App.getGlobalSettings().getConflictAction();
-
-		if (transferMode == TransferMode.Prompt) {
-			DefaultComboBoxModel<String> conflictOptions = new DefaultComboBoxModel<>();
-			JComboBox<String> cmbConflictOptions = new JComboBox<>(conflictOptions);
-
-			List<String> conflictOption1 = Arrays.asList("Overwrite", "Auto rename", "Skip", "Prompt");
-			List<String> conflictOption2 = Arrays.asList("Overwrite", "Auto rename", "Skip");
-
-			JComboBox<String> cmbOptions = new JComboBox<>(
-					new String[] { "Transfer normally", "Transfer in background" });
-
-			cmbOptions.addActionListener(e -> {
-				if (cmbOptions.getSelectedIndex() == 0) {
-					conflictOptions.removeAllElements();
-					conflictOptions.addAll(conflictOption1);
-					cmbConflictOptions.setSelectedIndex(3);
-				} else {
-					conflictOptions.removeAllElements();
-					conflictOptions.addAll(conflictOption2);
-					cmbConflictOptions.setSelectedIndex(0);
-				}
-			});
-
-			cmbOptions.setSelectedIndex(0);
-			// set initial values
-			conflictOptions.addAll(conflictOption1);
-
-			JCheckBox chkRememberOptions = new JCheckBox("Remember this options and don't ask again");
-
-			if (JOptionPane.showOptionDialog(this.fileBrowser,
-					new Object[] { "Please select a transfer mode", cmbOptions, "\n",
-							"If a file/folder with same name exists", cmbConflictOptions, "\n", chkRememberOptions },
-					"Transfer options", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
-					null) != JOptionPane.OK_OPTION) {
-				return false;
-			}
-			transferMode = cmbOptions.getSelectedIndex() == 0 ? TransferMode.Normal : TransferMode.Background;
-			switch (cmbConflictOptions.getSelectedIndex()) {
-			case 0:
-				conflictAction = ConflictAction.OverWrite;
-				break;
-			case 1:
-				conflictAction = ConflictAction.AutoRename;
-				break;
-			case 2:
-				conflictAction = ConflictAction.Skip;
-				break;
-			case 3:// this is allowed in normal transfer mode
-				conflictAction = ConflictAction.Prompt;
-				break;
-			}
-			if (chkRememberOptions.isSelected()) {
-				App.getGlobalSettings().setFileTransferMode(transferMode);
-				App.getGlobalSettings().setConflictAction(conflictAction);
-				App.saveSettings();
-			}
-		}
-		return true;
-	}
 }

@@ -401,12 +401,12 @@ public class SshMenuHandler {
 		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new Transferable() {
 			@Override
 			public DataFlavor[] getTransferDataFlavors() {
-				return new DataFlavor[] { DndTransferHandler.DATA_FLAVOR };
+				return new DataFlavor[] { DndTransferHandler.DATA_FLAVOR_DATA_FILE };
 			}
 
 			@Override
 			public boolean isDataFlavorSupported(DataFlavor flavor) {
-				return flavor.equals(DndTransferHandler.DATA_FLAVOR);
+				return flavor.equals(DndTransferHandler.DATA_FLAVOR_DATA_FILE);
 			}
 
 			@Override
@@ -681,10 +681,10 @@ public class SshMenuHandler {
 	}
 
 	private void handlePaste() {
-		if (Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DndTransferHandler.DATA_FLAVOR)) {
+		if (Toolkit.getDefaultToolkit().getSystemClipboard().isDataFlavorAvailable(DndTransferHandler.DATA_FLAVOR_DATA_FILE)) {
 			try {
 				DndTransferData transferData = (DndTransferData) Toolkit.getDefaultToolkit().getSystemClipboard()
-						.getData(DndTransferHandler.DATA_FLAVOR);
+						.getData(DndTransferHandler.DATA_FLAVOR_DATA_FILE);
 //                for(DataFlavor df:Toolkit.getDefaultToolkit().getSystemClipboard().getAvailableDataFlavors()){
 //                    Object obj=Toolkit.getDefaultToolkit().getSystemClipboard().getData(df);
 //                    System.out.println(obj);
@@ -709,7 +709,7 @@ public class SshMenuHandler {
 
 	private boolean hasSupportedContentOnClipboard() {
 		boolean ret = (Toolkit.getDefaultToolkit().getSystemClipboard()
-				.isDataFlavorAvailable(DndTransferHandler.DATA_FLAVOR)
+				.isDataFlavorAvailable(DndTransferHandler.DATA_FLAVOR_DATA_FILE)
 				|| Toolkit.getDefaultToolkit().getSystemClipboard()
 						.isDataFlavorAvailable(DataFlavor.javaFileListFlavor));
 		if (!ret)

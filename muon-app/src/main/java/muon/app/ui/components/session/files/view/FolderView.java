@@ -1,6 +1,7 @@
 package muon.app.ui.components.session.files.view;
 
 import javax.swing.*;
+import javax.swing.RowSorter.SortKey;
 import javax.swing.border.LineBorder;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -19,6 +20,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 
@@ -34,6 +36,7 @@ public class FolderView extends JPanel {
 	// private int sortIndex = 2;
 //    private boolean sortAsc = false;
 	private List<FileInfo> files;
+	private TableRowSorter<? extends Object> sorter;
 
 	public FolderView(FolderViewEventListener listener) {
 		super(new BorderLayout());
@@ -70,7 +73,7 @@ public class FolderView extends JPanel {
 		// table.setRowHeight(r.getPreferredHeight());
 		table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-		TableRowSorter<? extends Object> sorter = new TableRowSorter<>(table.getModel());
+		sorter = new TableRowSorter<>(table.getModel());
 
 		// compare name
 		sorter.setComparator(0, new Comparator<>() {
@@ -147,14 +150,16 @@ public class FolderView extends JPanel {
 
 		table.setRowSorter(sorter);
 
+		this.sort(1, SortOrder.DESCENDING);
+
 		//
 		//
 		// table.setAutoCreateRowSorter(true);
 
-		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
-		sortKeys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
-		sorter.setSortKeys(sortKeys);
-		sorter.sort();
+//		List<RowSorter.SortKey> sortKeys = new ArrayList<>();
+//		sortKeys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
+//		sorter.setSortKeys(sortKeys);
+//		sorter.sort();
 
 		// sorter=new TableRowSorter<>(folderViewModel);
 
@@ -658,4 +663,23 @@ public class FolderView extends JPanel {
 //    public boolean isSortAsc() {
 //        return sortAsc;
 //    }
+
+	public void sort(int index, SortOrder sortOrder) {
+		sorter.setSortKeys(Arrays.asList(new RowSorter.SortKey(index, sortOrder)));
+		sorter.sort();
+	}
+
+	public int getSortIndex() {
+		for (SortKey sortKey : sorter.getSortKeys()) {
+			return sortKey.getColumn();
+		}
+		return -1;
+	}
+
+	public boolean isSortAsc() {
+		for (SortKey sortKey : sorter.getSortKeys()) {
+			return sortKey.getSortOrder() == SortOrder.ASCENDING;
+		}
+		return false;
+	}
 }

@@ -1,5 +1,9 @@
 package muon.app.ui.components.session.files.view;
 
+import javax.swing.AbstractListModel;
+import javax.swing.ListModel;
+import javax.swing.event.EventListenerList;
+import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
 
 import muon.app.common.FileInfo;
@@ -7,10 +11,12 @@ import muon.app.common.FileInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FolderViewTableModel extends AbstractTableModel {
+public class FolderViewTableModel extends AbstractTableModel implements ListModel<FileInfo> {
 
 	private static final long serialVersionUID = 7212506492710233442L;
 	private List<FileInfo> files = new ArrayList<>();
+
+	protected EventListenerList listenerList = new EventListenerList();
 
 //	private String[] columns = { "Name", "Size", "Type", "Modified",
 //			"Permission", "Owner" };
@@ -21,7 +27,7 @@ public class FolderViewTableModel extends AbstractTableModel {
 	public FolderViewTableModel(boolean local) {
 		this.local = local;
 	}
-	
+
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
 		return FileInfo.class;
@@ -109,7 +115,8 @@ public class FolderViewTableModel extends AbstractTableModel {
 		return local ? 4 : columns.length;
 	}
 
-	//private String[] columns = { "Name", "Modified", "Size", "Type", "Permission", "Owner" };
+	// private String[] columns = { "Name", "Modified", "Size", "Type",
+	// "Permission", "Owner" };
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		FileInfo ent = files.get(rowIndex);
 		return ent;
@@ -127,6 +134,30 @@ public class FolderViewTableModel extends AbstractTableModel {
 //			return ent.getExtra();
 //		}
 //		return "";
+	}
+
+	@Override
+	public int getSize() {
+		return files.size();
+	}
+
+	@Override
+	public FileInfo getElementAt(int index) {
+		return files.get(index);
+	}
+
+	@Override
+	public void addListDataListener(ListDataListener l) {
+		listenerList.add(ListDataListener.class, l);
+	}
+
+	@Override
+	public void removeListDataListener(ListDataListener l) {
+		listenerList.remove(ListDataListener.class, l);
+	}
+
+	public ListDataListener[] getListDataListeners() {
+		return listenerList.getListeners(ListDataListener.class);
 	}
 
 }

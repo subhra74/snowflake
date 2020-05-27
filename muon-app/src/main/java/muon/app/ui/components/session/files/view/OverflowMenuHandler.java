@@ -16,6 +16,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.KeyStroke;
+import javax.swing.SortOrder;
 
 import muon.app.App;
 import muon.app.ui.components.session.BookmarkManager;
@@ -37,7 +38,7 @@ public class OverflowMenuHandler {
 	// private FileComponentHolder holder;
 	private AbstractFileBrowserView fileBrowserView;
 	private JMenu favouriteLocations;
-	private JPopupMenu mSortMenu;
+	private JMenu mSortMenu;
 	private FileBrowser fileBrowser;
 
 	public OverflowMenuHandler(AbstractFileBrowserView fileBrowserView, FileBrowser fileBrowser) {
@@ -66,9 +67,9 @@ public class OverflowMenuHandler {
 
 		mSortName = createSortMenuItem("Name", 0, bg1);
 
-		mSortSize = createSortMenuItem("Size", 1, bg1);
+		mSortSize = createSortMenuItem("Size", 2, bg1);
 
-		mSortModified = createSortMenuItem("Modification date", 2, bg1);
+		mSortModified = createSortMenuItem("Modification date", 3, bg1);
 
 		ButtonGroup bg2 = new ButtonGroup();
 
@@ -79,7 +80,7 @@ public class OverflowMenuHandler {
 		this.favouriteLocations = new JMenu("Bookmarks");
 
 		popup = new JPopupMenu();
-		mSortMenu = new JPopupMenu();
+		mSortMenu = new JMenu("Sort");
 
 		mSortMenu.add(mSortName);
 		mSortMenu.add(mSortSize);
@@ -90,21 +91,22 @@ public class OverflowMenuHandler {
 
 		popup.add(mShowHiddenFiles);
 		popup.add(favouriteLocations);
+		// popup.add(mSortMenu);
 
 		loadFavourites();
 	}
 
 	public void loadFavourites() {
-    	this.favouriteLocations.removeAll();
-    	String id=fileBrowserView instanceof LocalFileBrowserView?null: fileBrowser.getInfo().getId();
-    	for(String path:BookmarkManager.getBookmarks(id)) {
-          JMenuItem item = new JMenuItem(PathUtils.getFileName(path));
-          item.setName(path);
-          this.favouriteLocations.add(item);
-          item.addActionListener(e -> {
-              fileBrowserView.render(item.getName());
-          });
-    	}
+		this.favouriteLocations.removeAll();
+		String id = fileBrowserView instanceof LocalFileBrowserView ? null : fileBrowser.getInfo().getId();
+		for (String path : BookmarkManager.getBookmarks(id)) {
+			JMenuItem item = new JMenuItem(PathUtils.getFileName(path));
+			item.setName(path);
+			this.favouriteLocations.add(item);
+			item.addActionListener(e -> {
+				fileBrowserView.render(item.getName());
+			});
+		}
 //    	throw new Exception("should not call this");
 //        this.favouriteLocations.removeAll();
 //        for (String fav : holder.getFavouriteLocations(fileBrowserView)) {
@@ -115,7 +117,7 @@ public class OverflowMenuHandler {
 //                fileBrowserView.render(item.getName());
 //            });
 //        }
-    }
+	}
 
 	private void hideOptAction() {
 		folderView.setShowHiddenFiles(mShowHiddenFiles.isSelected());
@@ -132,17 +134,33 @@ public class OverflowMenuHandler {
 	}
 
 	private void sortMenuClicked(JRadioButtonMenuItem mSortItem) {
-//        if (mSortItem == mSortAsc) {
-//            folderView.sortView(folderView.getSortIndex(), true);
-//        } else if (mSortItem == mSortDesc) {
-//            folderView.sortView(folderView.getSortIndex(), false);
-//        } else {
-//            int index = (int) mSortItem.getClientProperty("sort.index");
-//            folderView.sortView(index, folderView.isSortAsc());
-//        }
+		if (mSortItem == mSortAsc) {
+			folderView.sort(folderView.getSortIndex(), SortOrder.ASCENDING);
+		} else if (mSortItem == mSortDesc) {
+			folderView.sort(folderView.getSortIndex(), SortOrder.DESCENDING);
+		} else {
+			int index = (int) mSortItem.getClientProperty("sort.index");
+			folderView.sort(index, folderView.isSortAsc() ? SortOrder.ASCENDING : SortOrder.DESCENDING);
+		}
 	}
 
 	public JPopupMenu getOverflowMenu() {
+		// check mode and if in list view then add sort menu
+		// popup.add(mSortMenu);
+//		mSortAsc.setSelected(folderView.isSortAsc());
+//		mSortDesc.setSelected(!folderView.isSortAsc());
+//		int sortIndex = folderView.getSortIndex();
+//		switch (sortIndex) {
+//		case 0:
+//			mSortName.setSelected(true);
+//			break;
+//		case 1:
+//			mSortSize.setSelected(true);
+//			break;
+//		case 2:
+//			mSortModified.setSelected(true);
+//			break;
+//		}
 		return popup;
 	}
 
@@ -168,8 +186,8 @@ public class OverflowMenuHandler {
 		act.put("ksHideShow", aHideShow);
 	}
 
-	public JPopupMenu getSortMenu() {
-		return this.mSortMenu;
-	}
+//	public JPopupMenu getSortMenu() {
+//		return this.mSortMenu;
+//	}
 
 }

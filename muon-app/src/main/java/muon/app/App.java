@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -40,6 +41,7 @@ import muon.app.ui.laf.AppSkinDark;
 import muon.app.ui.laf.AppSkinLight;
 import muon.app.updater.VersionEntry;
 import util.PlatformUtils;
+import util.Win32DragHandler;
 
 /**
  * Hello world!
@@ -73,6 +75,8 @@ public class App {
 			.contains("windows");
 	private static Map<String, List<String>> pinnedLogs = new HashMap<>();
 
+	public static final String APP_INSTANCE_ID = UUID.randomUUID().toString();
+
 	public static void main(String[] args) throws UnsupportedLookAndFeelException {
 		Security.setProperty("networkaddress.cache.ttl", "0");
 		Security.setProperty("networkaddress.cache.negative.ttl", "0");
@@ -80,7 +84,7 @@ public class App {
 		Security.setProperty("crypto.policy", "unlimited");
 
 		Security.addProvider(new BouncyCastleProvider());
-		
+
 		System.out.println(System.getProperty("java.version"));
 
 		boolean firstRun = false;

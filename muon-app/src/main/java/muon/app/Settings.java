@@ -64,6 +64,8 @@ public class Settings {
 			.putItem(CLEAR_BUFFER, App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK)
 			.putItem(FIND_KEY, App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK);
 
+	private boolean dualPaneMode = true;
+
 	private int defaultOpenAction = 0
 	// 0 Open with default application
 	// 1 Open with default editor
@@ -572,6 +574,14 @@ public class Settings {
 
 	public void setUsingMasterPassword(boolean usingMasterPassword) {
 		this.usingMasterPassword = usingMasterPassword;
+	}
+
+	public boolean isDualPaneMode() {
+		return dualPaneMode;
+	}
+
+	public void setDualPaneMode(boolean dualPaneMode) {
+		this.dualPaneMode = dualPaneMode;
 	}
 
 }
