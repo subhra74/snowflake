@@ -62,6 +62,9 @@ public class AppSkinDark extends AppSkin {
 
 		this.defaults.put("List.foreground", textColor);
 		this.defaults.put("List.background", controlColor);
+		this.defaults.put("List[Disabled].textForeground", selectedTextColor);
+		this.defaults.put("List[Selected].textBackground", selectionColor);
+		
 
 		this.defaults.put("Label.foreground", textColor);
 

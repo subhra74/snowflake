@@ -28,6 +28,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import muon.app.ssh.GraphicalHostKeyVerifier;
 import muon.app.ssh.GraphicalInputBlocker;
 import muon.app.ssh.InputBlocker;
 import muon.app.ui.AppWindow;
@@ -76,6 +77,8 @@ public class App {
 	private static Map<String, List<String>> pinnedLogs = new HashMap<>();
 
 	public static final String APP_INSTANCE_ID = UUID.randomUUID().toString();
+
+	public static GraphicalHostKeyVerifier HOST_KEY_VERIFIER;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException {
 		Security.setProperty("networkaddress.cache.ttl", "0");
@@ -143,6 +146,15 @@ public class App {
 		SwingUtilities.invokeLater(() -> {
 			mw.setVisible(true);
 		});
+		
+		try {
+			File knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
+			HOST_KEY_VERIFIER = new GraphicalHostKeyVerifier(knownHostFile);
+		} catch (Exception e2) {
+			// TODO: handle exception
+			e2.printStackTrace();
+		}
+
 	}
 
 	public synchronized static void loadSettings() {

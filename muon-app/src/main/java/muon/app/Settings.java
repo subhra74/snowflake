@@ -65,6 +65,7 @@ public class Settings {
 			.putItem(FIND_KEY, App.IS_MAC ? KeyEvent.META_DOWN_MASK : InputEvent.CTRL_DOWN_MASK);
 
 	private boolean dualPaneMode = true;
+	private boolean listViewEnabled = false;
 
 	private int defaultOpenAction = 0
 	// 0 Open with default application
@@ -582,6 +583,14 @@ public class Settings {
 
 	public void setDualPaneMode(boolean dualPaneMode) {
 		this.dualPaneMode = dualPaneMode;
+	}
+
+	public boolean isListViewEnabled() {
+		return listViewEnabled;
+	}
+
+	public void setListViewEnabled(boolean listViewEnabled) {
+		this.listViewEnabled = listViewEnabled;
 	}
 
 }

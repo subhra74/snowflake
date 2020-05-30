@@ -29,6 +29,8 @@ public class FolderView extends JPanel {
 //    private ListView list;
 	private FolderViewTableModel folderViewModel;
 	private JTable table;
+	private JScrollPane tableScroller, listScroller;
+	private JList<FileInfo> fileList;
 	// private TableRowSorter<FolderViewTableModel> sorter;
 	private FolderViewEventListener listener;
 	private JPopupMenu popup;
@@ -428,7 +430,7 @@ public class FolderView extends JPanel {
 		resizeColumnWidth(table);
 
 		// table.setBorder(null);
-		JScrollPane scrollPane = new SkinnedScrollPane(table);
+		tableScroller = new SkinnedScrollPane(table);
 
 //        JScrollBar verticalScroller = new JScrollBar(JScrollBar.VERTICAL);
 //        verticalScroller.setUI(new CustomScrollBarUI());
@@ -442,13 +444,56 @@ public class FolderView extends JPanel {
 
 //		scrollPane
 //				.setBorder(new LineBorder(App.SKIN.getDefaultBorderColor(), 1));
-		add(scrollPane);
 
 		table.setRowHeight(r1.getHeight());
 
 		resizeColumnWidth(table);
 
 		System.out.println("Row height: " + r1.getHeight());
+
+		fileList = new JList<>(folderViewModel);
+		fileList.setBackground(App.SKIN.getTableBackgroundColor());
+		fileList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+		fileList.setVisibleRowCount(-1);
+		fileList.setCellRenderer(new FolderViewListCellRenderer());
+		listScroller = new SkinnedScrollPane(fileList);
+
+		fileList.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mousePressed(MouseEvent e) {
+				System.out.println("Mouse click on table");
+				if (fileList.getSelectionModel().getValueIsAdjusting()) {
+					System.out.println("Value adjusting");
+					selectListRow(e);
+					return;
+				}
+				if (e.getClickCount() == 2) {
+					Point p = e.getPoint();
+					int r = fileList.locationToIndex(p);// table.rowAtPoint(p);
+					int x = fileList.getSelectedIndex();// table.getSelectedRow();
+					if (x == -1) {
+						return;
+					}
+					if (r == x) {
+						FileInfo fileInfo = folderViewModel.getItemAt(getRow(r));
+						if (fileInfo.getType() == FileType.Directory || fileInfo.getType() == FileType.DirLink) {
+							listener.addBack(fileInfo.getPath());
+							listener.render(fileInfo.getPath(), App.getGlobalSettings().isDirectoryCache());
+						} else {
+							listener.openApp(fileInfo);
+						}
+					}
+				} else if (e.isPopupTrigger() || e.getButton() == MouseEvent.BUTTON3) {
+					selectRow(e);
+					System.out.println("called");
+					listener.createMenu(popup, getSelectedFiles());
+					popup.pack();
+					popup.show(table, e.getX(), e.getY());
+				}
+			}
+		});
+
+		refreshViewMode();
 	}
 
 	private void selectRow(MouseEvent e) {
@@ -466,6 +511,24 @@ public class FolderView extends JPanel {
 				}
 			}
 			table.setRowSelectionInterval(r, r);
+		}
+	}
+
+	private void selectListRow(MouseEvent e) {
+		int r = fileList.locationToIndex(e.getPoint());// table.rowAtPoint(e.getPoint());
+		System.out.println("Row at point: " + r);
+		if (r == -1) {
+			fileList.clearSelection();
+		} else {
+			if (fileList.getSelectedIndices().length > 0) {
+				int[] rows = fileList.getSelectedIndices();
+				for (int row : rows) {
+					if (r == row) {
+						return;
+					}
+				}
+			}
+			fileList.setSelectedIndex(r);
 		}
 	}
 
@@ -509,7 +572,7 @@ public class FolderView extends JPanel {
 
 	public void setItems(List<FileInfo> list) {
 		this.files = list;
-		applyHiddenFilter();
+		applyFilter();
 		// this.resizeColumnWidth(table);
 //        if (showHiddenFiles) {
 //            sortAndAddItems(list);
@@ -623,11 +686,11 @@ public class FolderView extends JPanel {
 
 	public void setShowHiddenFiles(boolean showHiddenFiles) {
 		this.showHiddenFiles = showHiddenFiles;
-		applyHiddenFilter();
+		applyFilter();
 		// this.resizeColumnWidth(table);
 	}
 
-	private void applyHiddenFilter() {
+	private void applyFilter() {
 //        int arr[] = new int[table.getColumnCount()];
 //        final TableColumnModel columnModel = table.getColumnModel();
 //        for (int column = 0; column < table.getColumnCount(); column++) {
@@ -681,5 +744,25 @@ public class FolderView extends JPanel {
 			return sortKey.getSortOrder() == SortOrder.ASCENDING;
 		}
 		return false;
+	}
+
+	/**
+	 * 
+	 * Sets view mode: list or details view
+	 * 
+	 * Note: caller must call revalidate and repaint after calling this method
+	 *
+	 */
+	public void refreshViewMode() {
+		if (App.getGlobalSettings().isListViewEnabled()) {
+			this.remove(tableScroller);
+			this.add(listScroller);
+		} else {
+			this.remove(listScroller);
+			this.add(tableScroller);
+		}
+
+		this.revalidate();
+		this.repaint(0);
 	}
 }

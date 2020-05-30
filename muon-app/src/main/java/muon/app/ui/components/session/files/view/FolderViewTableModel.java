@@ -3,6 +3,7 @@ package muon.app.ui.components.session.files.view;
 import javax.swing.AbstractListModel;
 import javax.swing.ListModel;
 import javax.swing.event.EventListenerList;
+import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import javax.swing.table.AbstractTableModel;
 
@@ -58,12 +59,13 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
 //	}
 
 	public void clear() {
-//        int rows = files.size();
+		int rows = files.size();
 		files.clear();
 //        if (rows > 0) {
 //            fireTableRowsDeleted(0, rows-1);
 //        }
 		fireTableDataChanged();
+		fireContentsChanged(this, 0, rows - 1);
 	}
 
 	public void addAll(List<FileInfo> list) {
@@ -76,7 +78,9 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
 //			}
 			// fireTableRowsInserted(sz - 1, sz + list.size() - 1);
 			fireTableDataChanged();
+			fireContentsChanged(this, 0, sz - 1);
 		}
+
 	}
 
 	public FileInfo getItemAt(int index) {
@@ -87,6 +91,7 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
 		int sz = files.size();
 		files.add(ent);
 		fireTableRowsInserted(sz, sz);
+		fireContentsChanged(this, 0, sz - 1);
 	}
 
 	@Override
@@ -148,6 +153,7 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
 
 	@Override
 	public void addListDataListener(ListDataListener l) {
+		System.out.println("addListDataListener");
 		listenerList.add(ListDataListener.class, l);
 	}
 
@@ -158,6 +164,48 @@ public class FolderViewTableModel extends AbstractTableModel implements ListMode
 
 	public ListDataListener[] getListDataListeners() {
 		return listenerList.getListeners(ListDataListener.class);
+	}
+
+	protected void fireContentsChanged(Object source, int index0, int index1) {
+		Object[] listeners = listenerList.getListenerList();
+		ListDataEvent e = null;
+
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == ListDataListener.class) {
+				if (e == null) {
+					e = new ListDataEvent(source, ListDataEvent.CONTENTS_CHANGED, index0, index1);
+				}
+				((ListDataListener) listeners[i + 1]).contentsChanged(e);
+			}
+		}
+	}
+
+	protected void fireIntervalAdded(Object source, int index0, int index1) {
+		Object[] listeners = listenerList.getListenerList();
+		ListDataEvent e = null;
+
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == ListDataListener.class) {
+				if (e == null) {
+					e = new ListDataEvent(source, ListDataEvent.INTERVAL_ADDED, index0, index1);
+				}
+				((ListDataListener) listeners[i + 1]).intervalAdded(e);
+			}
+		}
+	}
+
+	protected void fireIntervalRemoved(Object source, int index0, int index1) {
+		Object[] listeners = listenerList.getListenerList();
+		ListDataEvent e = null;
+
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == ListDataListener.class) {
+				if (e == null) {
+					e = new ListDataEvent(source, ListDataEvent.INTERVAL_REMOVED, index0, index1);
+				}
+				((ListDataListener) listeners[i + 1]).intervalRemoved(e);
+			}
+		}
 	}
 
 }

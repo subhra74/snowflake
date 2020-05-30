@@ -81,22 +81,6 @@ public class SshClient2 implements Closeable {
 		sshj.setSocketFactory(new CustomSocketFactory(proxyHost, proxyPort, proxyUser, proxyPass, proxyType1));
 	}
 
-	private GraphicalHostKeyVerifier setupKnowHostVerifier() throws IOException {
-		File knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
-
-//		File knownHostFile = new File(System.getProperty("user.home"), ".ssh" + File.separator + "known_hosts");
-//		final File sshDir = new File(System.getProperty("user.home"), ".ssh");
-//		if (!sshDir.exists()) {
-//			if (!sshDir.mkdir()) {
-//				knownHostFile = new File(App.CONFIG_DIR, "known_hosts");
-//			}
-//		}
-		// sshj.loadKnownHosts(knownHostFile);
-		// File knownHostFile = new File(System.getProperty("user.home"), ".ssh" +
-		// File.separator + "known_hosts");
-		return new GraphicalHostKeyVerifier(knownHostFile);
-	}
-
 	private void getAuthMethods(AtomicBoolean authenticated, List<String> allowedMethods)
 			throws OperationCancelledException {
 		System.out.println("Trying to get allowed authentication methods...");
@@ -186,25 +170,24 @@ public class SshClient2 implements Closeable {
 		for (HopEntry e : this.info.getJumpHosts()) {
 			hopStack.add(e);
 		}
-		this.connect(hopStack, this.setupKnowHostVerifier());
+		this.connect(hopStack);
 	}
 
-	private void connect(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier)
-			throws IOException, OperationCancelledException {
+	private void connect(Deque<HopEntry> hopStack) throws IOException, OperationCancelledException {
 		this.inputBlocker.blockInput();
 		try {
 			sshj = new SSHClient();
 
 			if (hopStack.isEmpty()) {
 				this.setupProxyAndSocketFactory();
-				this.sshj.addHostKeyVerifier(hostKeyVerifier);
+				this.sshj.addHostKeyVerifier(App.HOST_KEY_VERIFIER);
 				sshj.connect(info.getHost(), info.getPort());
 			} else {
 				try {
 					System.out.println("Tunneling through...");
-					tunnelThrough(hopStack, hostKeyVerifier);
+					tunnelThrough(hopStack);
 					System.out.println("adding host key verifier");
-					this.sshj.addHostKeyVerifier(hostKeyVerifier);
+					this.sshj.addHostKeyVerifier(App.HOST_KEY_VERIFIER);
 					System.out.println("Host key verifier added");
 					if (this.info.getJumpType() == JumpType.TcpForwarding) {
 						System.out.println("tcp forwarding...");
@@ -574,7 +557,7 @@ public class SshClient2 implements Closeable {
 //	}
 
 	// recursively
-	private void tunnelThrough(Deque<HopEntry> hopStack, GraphicalHostKeyVerifier hostKeyVerifier) throws Exception {
+	private void tunnelThrough(Deque<HopEntry> hopStack) throws Exception {
 		HopEntry ent = hopStack.poll();
 		SessionInfo hopInfo = new SessionInfo();
 		hopInfo.setHost(ent.getHost());
@@ -583,7 +566,7 @@ public class SshClient2 implements Closeable {
 		hopInfo.setPassword(ent.getPassword());
 		hopInfo.setPrivateKeyFile(ent.getKeypath());
 		previousHop = new SshClient2(hopInfo, inputBlocker, cachedCredentialProvider);
-		previousHop.connect(hopStack, hostKeyVerifier);
+		previousHop.connect(hopStack);
 	}
 
 	private DirectConnection newDirectConnection(String host, int port) throws Exception {

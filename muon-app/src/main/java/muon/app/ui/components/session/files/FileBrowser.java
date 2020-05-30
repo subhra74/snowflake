@@ -3,6 +3,7 @@ package muon.app.ui.components.session.files;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -56,6 +57,7 @@ public class FileBrowser extends Page {
 	private AtomicBoolean init = new AtomicBoolean(false);
 	private JPopupMenu popup;
 	private boolean leftPopup = false;
+	private List<AbstractFileBrowserView> viewList = new ArrayList<>();
 
 	public FileBrowser(SessionInfo info, SessionContentPanel holder, JRootPane rootPane, int activeSessionId) {
 		this.activeSessionId = activeSessionId;
@@ -164,6 +166,27 @@ public class FileBrowser extends Page {
 			App.saveSettings();
 		});
 
+//		JCheckBox chk2 = new JCheckBox();
+//		chk2.setText("List view");
+//		chk2.setRolloverEnabled(false);
+//		chk2.setSelected(App.getGlobalSettings().isListViewEnabled());
+//		chk2.setSelectedIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_ON, 16, 16));
+//		chk2.setIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_OFF, 16, 16));
+//		chk2.setIconTextGap(10);
+//
+//		chk2.addActionListener(e -> {
+//			if (chk2.isSelected()) {
+//				System.out.println("going to list view mode");
+//				App.getGlobalSettings().setListViewEnabled(true);
+//				this.refreshViewMode();
+//			} else {
+//				System.out.println("going details view mode");
+//				App.getGlobalSettings().setListViewEnabled(false);
+//				this.refreshViewMode();
+//			}
+//			App.saveSettings();
+//		});
+
 		box.setBackground(App.SKIN.getTableBackgroundColor());
 		box.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()),
 				new EmptyBorder(5, 10, 5, 5)));
@@ -171,6 +194,7 @@ public class FileBrowser extends Page {
 		// box.add(Box.createRigidArea(new Dimension(10, 24)));
 
 		box.add(chk1);
+		//box.add(chk2);
 
 		this.add(box, BorderLayout.SOUTH);
 
@@ -647,8 +671,11 @@ public class FileBrowser extends Page {
 
 			System.out.println("Dropped: " + transferData);
 			int sessionHashCode = transferData.getInfo();
-			if (sessionHashCode == 0)
+			if (sessionHashCode == 0) {
+				System.out.println("Session hash code: "+sessionHashCode);
 				return true;
+			}
+				
 			if (info != null && info.hashCode() == sessionHashCode) {
 				if (holder.transferMode == TransferMode.Background) {
 					this.getHolder().downloadInBackground(transferData.getFiles(), currentPath, holder.conflictAction);
@@ -667,6 +694,21 @@ public class FileBrowser extends Page {
 			e.printStackTrace();
 			return false;
 		}
+	}
 
+	public void refreshViewMode() {
+		for (AbstractFileBrowserView view : this.viewList) {
+			view.refreshViewMode();
+		}
+		this.revalidate();
+		this.repaint(0);
+	}
+
+	public void registerForViewNotification(AbstractFileBrowserView view) {
+		this.viewList.add(view);
+	}
+
+	public void unRegisterForViewNotification(AbstractFileBrowserView view) {
+		this.viewList.remove(view);
 	}
 }

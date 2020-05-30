@@ -190,6 +190,8 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
 		updateNavButtons();
 
+		this.fileBrowser.registerForViewNotification(this);
+		
 //		setBorder(new LineBorder(App.SKIN.getDefaultBorderColor(), 1));
 
 	}
@@ -203,6 +205,8 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 	public abstract String toString();
 
 	public boolean close() {
+		System.out.println("Unregistering for view mode notification");
+		this.fileBrowser.unRegisterForViewNotification(this);
 		return true;
 //        if (fs != null) {
 //            synchronized (fileViewMap) {
@@ -270,6 +274,12 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 	 */
 	public TabTitle getTabTitle() {
 		return tabTitle;
+	}
+
+	public void refreshViewMode() {
+		this.folderView.refreshViewMode();
+		this.revalidate();
+		this.repaint();
 	}
 
 }

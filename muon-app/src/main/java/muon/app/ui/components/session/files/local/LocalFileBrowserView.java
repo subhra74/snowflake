@@ -157,7 +157,7 @@ public class LocalFileBrowserView extends AbstractFileBrowserView {
 		if (transferData.getSource() == this.hashCode()) {
 			return false;
 		}
-		return this.fileBrowser.handleLocalDrop(transferData, null, this.fs, this.path);
+		return this.fileBrowser.handleLocalDrop(transferData, fileBrowser.getInfo(), this.fs, this.path);
 	}
 
 	public FileSystem getFileSystem() throws Exception {
