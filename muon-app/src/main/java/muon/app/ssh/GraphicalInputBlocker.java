@@ -21,6 +21,7 @@ public class GraphicalInputBlocker extends JDialog implements InputBlocker {
 		super(window);
 		this.window = window;
 		setModal(true);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		setSize(400, 300);
 	}
 

@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class FolderView extends JPanel {
 	// private DefaultListModel<FileInfo> listModel;
@@ -40,7 +41,7 @@ public class FolderView extends JPanel {
 	private List<FileInfo> files;
 	private TableRowSorter<? extends Object> sorter;
 
-	public FolderView(FolderViewEventListener listener) {
+	public FolderView(FolderViewEventListener listener, Consumer<String> statusCallback) {
 		super(new BorderLayout());
 		this.listener = listener;
 		this.popup = new JPopupMenu();
@@ -333,6 +334,17 @@ public class FolderView extends JPanel {
 			}
 		});
 
+		table.getSelectionModel().addListSelectionListener(e -> {
+			if (e.getValueIsAdjusting()) {
+				return;
+			}
+			int rc = table.getSelectedRowCount();
+			int tc = table.getRowCount();
+			
+			String text = String.format("%d of %d selected", rc, tc);
+			statusCallback.accept(text);
+		});
+
 		table.addKeyListener(new FolderViewKeyHandler(table, folderViewModel));
 
 		table.addMouseListener(new MouseAdapter() {
@@ -494,6 +506,13 @@ public class FolderView extends JPanel {
 		});
 
 		refreshViewMode();
+
+//		table.getModel().addTableModelListener(e -> {
+//			int rc = table.getSelectedRowCount();
+//			int tc = table.getRowCount();
+//			String text = String.format("Total %d file(s)", tc);
+//			statusCallback.accept(text);
+//		});
 	}
 
 	private void selectRow(MouseEvent e) {

@@ -58,6 +58,8 @@ public class FileBrowser extends Page {
 	private JPopupMenu popup;
 	private boolean leftPopup = false;
 	private List<AbstractFileBrowserView> viewList = new ArrayList<>();
+	private JLabel lblStat1;
+	private Box statusBox;
 
 	public FileBrowser(SessionInfo info, SessionContentPanel holder, JRootPane rootPane, int activeSessionId) {
 		this.activeSessionId = activeSessionId;
@@ -142,29 +144,29 @@ public class FileBrowser extends Page {
 			switchToSinglePanelMode();
 		}
 
-		Box box = Box.createHorizontalBox();
-		box.setOpaque(true);
-
-		JCheckBox chk1 = new JCheckBox();
-		chk1.setText("Dual pane view");
-		chk1.setRolloverEnabled(false);
-		chk1.setSelected(App.getGlobalSettings().isDualPaneMode());
-		chk1.setSelectedIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_ON, 16, 16));
-		chk1.setIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_OFF, 16, 16));
-		chk1.setIconTextGap(10);
-
-		chk1.addActionListener(e -> {
-			if (chk1.isSelected()) {
-				System.out.println("going dual panel mode");
-				switchToDualPaneMode();
-				App.getGlobalSettings().setDualPaneMode(true);
-			} else {
-				System.out.println("going single panel mode");
-				switchToSinglePanelMode();
-				App.getGlobalSettings().setDualPaneMode(false);
-			}
-			App.saveSettings();
-		});
+//		statusBox = Box.createHorizontalBox();
+//		statusBox.setOpaque(true);
+//
+//		JCheckBox chk1 = new JCheckBox();
+//		chk1.setText("Dual pane view");
+//		chk1.setRolloverEnabled(false);
+//		chk1.setSelected(App.getGlobalSettings().isDualPaneMode());
+//		chk1.setSelectedIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_ON, 16, 16));
+//		chk1.setIcon(new FontAwesomeIcon(FontAwesomeContants.FA_TOGGLE_OFF, 16, 16));
+//		chk1.setIconTextGap(10);
+//
+//		chk1.addActionListener(e -> {
+//			if (chk1.isSelected()) {
+//				System.out.println("going dual panel mode");
+//				switchToDualPaneMode();
+//				App.getGlobalSettings().setDualPaneMode(true);
+//			} else {
+//				System.out.println("going single panel mode");
+//				switchToSinglePanelMode();
+//				App.getGlobalSettings().setDualPaneMode(false);
+//			}
+//			App.saveSettings();
+//		});
 
 //		JCheckBox chk2 = new JCheckBox();
 //		chk2.setText("List view");
@@ -187,16 +189,19 @@ public class FileBrowser extends Page {
 //			App.saveSettings();
 //		});
 
-		box.setBackground(App.SKIN.getTableBackgroundColor());
-		box.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()),
-				new EmptyBorder(5, 10, 5, 5)));
-		// box.setBorder(new EmptyBorder(5, 10, 5, 5));
-		// box.add(Box.createRigidArea(new Dimension(10, 24)));
-
-		box.add(chk1);
-		//box.add(chk2);
-
-		this.add(box, BorderLayout.SOUTH);
+//		statusBox.setBackground(App.SKIN.getTableBackgroundColor());
+//		statusBox.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, App.SKIN.getDefaultBorderColor()),
+//				new EmptyBorder(5, 10, 5, 5)));
+//		// box.setBorder(new EmptyBorder(5, 10, 5, 5));
+//		// box.add(Box.createRigidArea(new Dimension(10, 24)));
+//
+//		statusBox.add(chk1);
+//		statusBox.add(Box.createHorizontalGlue());
+//		this.lblStat1 = new JLabel();
+//		// box.add(chk2);
+//		statusBox.add(lblStat1);
+//		statusBox.add(Box.createRigidArea(new Dimension(10, 5)));
+//		this.add(statusBox, BorderLayout.SOUTH);
 
 //		leftDropdown.addActionListener(e -> {
 //			System.out.println("Left drop down changed");
@@ -672,10 +677,10 @@ public class FileBrowser extends Page {
 			System.out.println("Dropped: " + transferData);
 			int sessionHashCode = transferData.getInfo();
 			if (sessionHashCode == 0) {
-				System.out.println("Session hash code: "+sessionHashCode);
+				System.out.println("Session hash code: " + sessionHashCode);
 				return true;
 			}
-				
+
 			if (info != null && info.hashCode() == sessionHashCode) {
 				if (holder.transferMode == TransferMode.Background) {
 					this.getHolder().downloadInBackground(transferData.getFiles(), currentPath, holder.conflictAction);
@@ -710,5 +715,17 @@ public class FileBrowser extends Page {
 
 	public void unRegisterForViewNotification(AbstractFileBrowserView view) {
 		this.viewList.remove(view);
+	}
+
+	public void updateLocalStatus(String text) {
+//		this.lblStat1.setText(text);
+//		this.statusBox.revalidate();
+//		this.statusBox.repaint(0);
+	}
+
+	public void updateRemoteStatus(String text) {
+//		this.lblStat1.setText(text);
+//		this.statusBox.revalidate();
+//		this.statusBox.repaint(0);
 	}
 }

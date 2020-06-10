@@ -148,6 +148,9 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 				addressBar.setText(path);
 				folderView.setItems(list2);
 				tabTitle.getCallback().accept(PathUtils.getFileName(path));
+				int tc = list2.size();
+				String text = String.format("Total %d remote file(s)", tc);
+				fileBrowser.updateRemoteStatus(text);
 			});
 		}
 	}
@@ -179,6 +182,8 @@ public class SshFileBrowserView extends AbstractFileBrowserView {
 							return;
 						}
 						System.out.println("Exception caught in sftp file browser: " + e.getMessage());
+						
+						this.fileBrowser.getHolder().reconnect();
 
 						e.printStackTrace();
 						if (JOptionPane.showConfirmDialog(null,

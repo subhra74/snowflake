@@ -143,6 +143,11 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 			this.pfSession.start();
 		}
 	}
+	
+	public void reconnect() {
+		this.remoteSessionInstance.close();
+		this.remoteSessionInstance = new RemoteSessionInstance(info, App.getInputBlocker(), this);
+	}
 
 	@Override
 	public void showPage(String pageId) {

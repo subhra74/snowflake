@@ -81,12 +81,13 @@ public class App {
 	public static GraphicalHostKeyVerifier HOST_KEY_VERIFIER;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException {
-		Security.setProperty("networkaddress.cache.ttl", "0");
-		Security.setProperty("networkaddress.cache.negative.ttl", "0");
-
-		Security.setProperty("crypto.policy", "unlimited");
+		
 
 		Security.addProvider(new BouncyCastleProvider());
+		
+		Security.setProperty("networkaddress.cache.ttl", "1");
+		Security.setProperty("networkaddress.cache.negative.ttl", "1");
+		Security.setProperty("crypto.policy", "unlimited");
 
 		System.out.println(System.getProperty("java.version"));
 

@@ -52,6 +52,7 @@ public class SshFileSystem implements FileSystem {
 
 	private void ensureConnected() throws Exception {
 		if (closed.get()) {
+			this.ssh.close();
 			throw new OperationCancelledException();
 		}
 		if (!ssh.isConnected()) {

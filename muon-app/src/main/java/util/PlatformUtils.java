@@ -206,6 +206,29 @@ public class PlatformUtils {
 				}
 			}
 
+		} else if (App.IS_MAC) {
+			Map<String, String> knownEditorMap = new CollectionHelper.Dict<String, String>().putItem(
+					"Visual Studio Code", "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code");
+			for (String key : knownEditorMap.keySet()) {
+				File file = new File(knownEditorMap.get(key));
+				if (file.exists()) {
+					EditorEntry ent = new EditorEntry(key, file.getAbsolutePath());
+					list.add(ent);
+				}
+			}
+
+		} else {
+			Map<String, String> knownEditorMap = new CollectionHelper.Dict<String, String>()
+					.putItem("Visual Studio Code", "/usr/bin/code").putItem("Atom", "/usr/bin/atom")
+					.putItem("Sublime Text", "/usr/bin/subl").putItem("Gedit", "/usr/bin/gedit")
+					.putItem("Kate", "/usr/bin/kate");
+			for (String key : knownEditorMap.keySet()) {
+				File file = new File(knownEditorMap.get(key));
+				if (file.exists()) {
+					EditorEntry ent = new EditorEntry(key, file.getAbsolutePath());
+					list.add(ent);
+				}
+			}
 		}
 		return list;
 	}

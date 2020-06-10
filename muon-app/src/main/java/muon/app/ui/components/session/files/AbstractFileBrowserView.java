@@ -178,7 +178,9 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 
 		add(toolBar, BorderLayout.NORTH);
 
-		folderView = new FolderView(this);
+		folderView = new FolderView(this, text -> {
+			this.fileBrowser.updateRemoteStatus(text);
+		});
 
 		this.overflowMenuHandler.setFolderView(folderView);
 
@@ -191,7 +193,7 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 		updateNavButtons();
 
 		this.fileBrowser.registerForViewNotification(this);
-		
+
 //		setBorder(new LineBorder(App.SKIN.getDefaultBorderColor(), 1));
 
 	}
@@ -280,6 +282,10 @@ public abstract class AbstractFileBrowserView extends JPanel implements FolderVi
 		this.folderView.refreshViewMode();
 		this.revalidate();
 		this.repaint();
+	}
+
+	public FileBrowser getFileBrowser() {
+		return this.fileBrowser;
 	}
 
 }

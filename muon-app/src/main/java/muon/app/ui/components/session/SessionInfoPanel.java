@@ -600,7 +600,7 @@ public class SessionInfoPanel extends JPanel {
 		lblHost.setHorizontalAlignment(JLabel.LEADING);
 		lblPort = new JLabel("Port");
 		lblUser = new JLabel("User");
-		lblPass = new JLabel("Password" + " ( Warning: it will be saved in plain text! )");
+		lblPass = new JLabel("Password");
 		lblLocalFolder = new JLabel("Local folder");
 		lblRemoteFolder = new JLabel("Remote folder");
 		lblKeyFile = new JLabel("Private key file");
