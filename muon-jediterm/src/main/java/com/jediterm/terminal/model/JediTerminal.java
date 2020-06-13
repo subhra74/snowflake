@@ -308,7 +308,12 @@ public class JediTerminal implements Terminal, TerminalMouseListener, TerminalCo
           myTerminalTextBuffer.eraseCharacters(0, myCursorX + 1, myCursorY - 1);
 
           beginY = 0;
-          endY = myCursorY - 1;
+          if(myCursorY-1>=1) {
+        	  endY = myCursorY - 2;
+          }else {
+        	  endY = myCursorY - 1;
+          }
+          
           break;
         case 2:
           beginY = 0;

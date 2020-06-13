@@ -4,6 +4,7 @@ package com.jediterm.terminal.emulator;
 import com.jediterm.terminal.*;
 import com.jediterm.terminal.emulator.mouse.MouseFormat;
 import com.jediterm.terminal.emulator.mouse.MouseMode;
+import com.jediterm.terminal.model.JediTerminal;
 import com.jediterm.terminal.util.CharUtils;
 
 import muon.terminal.Ascii;
@@ -769,13 +770,28 @@ public class JediEmulator extends DataStreamIteratingEmulator {
     return true;
   }
 
+//  private boolean setScrollingRegion(ControlSequence args) {
+//    final int top = args.getArg(0, 1);
+//    final int bottom = args.getArg(1, myTerminal.getTerminalHeight());
+//
+//    myTerminal.setScrollingRegion(top, bottom);
+//
+//    return true;
+//  }
+  
   private boolean setScrollingRegion(ControlSequence args) {
-    final int top = args.getArg(0, 1);
-    final int bottom = args.getArg(1, myTerminal.getTerminalHeight());
+	final int top = args.getArg(0, 1);
+	int bottom;
+	if (args.getCount() > 1) {
+		bottom = args.getArg(1, myTerminal.getTerminalHeight()) + 1;
+	} else {
+		bottom = myTerminal.getTerminalHeight();
+	}
+	// int bottom = args.getArg(1, myTerminal.getTerminalHeight());
 
-    myTerminal.setScrollingRegion(top, bottom);
+	myTerminal.setScrollingRegion(top, bottom);
 
-    return true;
+	return true;
   }
 
   private boolean scrollUp(ControlSequence args) {
