@@ -179,6 +179,7 @@ public class SshClient2 implements Closeable {
 		this.inputBlocker.blockInput();
 		try {
 			sshj = new SSHClient();
+			sshj.setConnectTimeout(CONNECTION_TIMEOUT);
 			sshj.setTimeout(CONNECTION_TIMEOUT);
 			if (hopStack.isEmpty()) {
 				this.setupProxyAndSocketFactory();
