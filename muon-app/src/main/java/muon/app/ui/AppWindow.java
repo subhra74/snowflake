@@ -224,7 +224,7 @@ public class AppWindow extends JFrame {
 
 		// b1.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		JLabel lblBrand = new JLabel("Muon SSH 1.0.4");
+		JLabel lblBrand = new JLabel("Muon SSH 1.1.0");
 		lblBrand.addMouseListener(ml);
 		lblBrand.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		// lblBrand.setFont(App.SKIN.getDefaultFont().deriveFont(Font.PLAIN,
@@ -234,7 +234,7 @@ public class AppWindow extends JFrame {
 		b1.add(lblBrand);
 		b1.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		JLabel lblUrl = new JLabel("https://github.com/subhra74/snowflake");
+		JLabel lblUrl = new JLabel("https://github.com/devlinx9/muon-ssh");
 		lblUrl.addMouseListener(ml);
 		lblUrl.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		// lblUrl.setFont(App.SKIN.getDefaultFont().deriveFont(Font.PLAIN, 14));
