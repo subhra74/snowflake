@@ -21,15 +21,17 @@ import util.FontAwesomeContants;
 import util.ScriptLoader;
 import util.SudoUtils;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class ProcessViewer extends Page {
-	private SessionContentPanel holder;
-	private AtomicBoolean init = new AtomicBoolean(false);
+	private final SessionContentPanel holder;
+	private final AtomicBoolean init = new AtomicBoolean(false);
 	private ProcessListPanel processListPanel;
-	private AtomicBoolean processListLoaded = new AtomicBoolean(false);
+	private final AtomicBoolean processListLoaded = new AtomicBoolean(false);
 
 	/**
 	 * 
@@ -69,7 +71,7 @@ public class ProcessViewer extends Page {
 
 	@Override
 	public String getText() {
-		return "Processes";
+		return bundle.getString("processes");
 	}
 
 	private void updateProcessList(AtomicBoolean stopFlag) {
@@ -147,14 +149,14 @@ public class ProcessViewer extends Page {
 
 	private List<ProcessTableEntry> parseProcessList(String text) {
 		List<ProcessTableEntry> list = new ArrayList<>();
-		String lines[] = text.split("\n");
+		String[] lines = text.split("\n");
 		boolean first = true;
 		for (String line : lines) {
 			if (first) {
 				first = false;
 				continue;
 			}
-			String p[] = line.trim().split("\\s+");
+			String[] p = line.trim().split("\\s+");
 			if (p.length < 8) {
 				continue;
 			}

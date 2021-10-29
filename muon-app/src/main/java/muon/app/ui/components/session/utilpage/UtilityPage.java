@@ -26,6 +26,8 @@ import muon.app.ui.components.session.utilpage.sysload.SysLoadPage;
 import util.FontAwesomeContants;
 import util.LayoutUtilities;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
@@ -33,8 +35,8 @@ import util.LayoutUtilities;
 public class UtilityPage extends Page {
 	private CardLayout cardLayout;
 	private JPanel cardPanel;
-	private AtomicBoolean init = new AtomicBoolean(false);
-	private SessionContentPanel holder;
+	private final AtomicBoolean init = new AtomicBoolean(false);
+	private final SessionContentPanel holder;
 
 	/**
 	 * 
@@ -60,7 +62,7 @@ public class UtilityPage extends Page {
 
 	@Override
 	public String getText() {
-		return "Toolbox";
+		return bundle.getString("toolbox");
 	}
 
 	/**
@@ -69,22 +71,22 @@ public class UtilityPage extends Page {
 	private void createUI() {
 		ButtonGroup bg = new ButtonGroup();
 		Box vbox = Box.createVerticalBox();
-		UtilityPageButton b1 = new UtilityPageButton("System info",
+		UtilityPageButton b1 = new UtilityPageButton(bundle.getString("system_info"),
 				FontAwesomeContants.FA_LINUX);
 
-		UtilityPageButton b2 = new UtilityPageButton("System load",
+		UtilityPageButton b2 = new UtilityPageButton(bundle.getString("system_load"),
 				FontAwesomeContants.FA_AREA_CHART);
 
-		UtilityPageButton b3 = new UtilityPageButton("Services - systemd",
+		UtilityPageButton b3 = new UtilityPageButton(bundle.getString("services_systemd"),
 				FontAwesomeContants.FA_SERVER);
 
-		UtilityPageButton b4 = new UtilityPageButton("Process and ports",
+		UtilityPageButton b4 = new UtilityPageButton(bundle.getString("process_ports"),
 				FontAwesomeContants.FA_DATABASE);
 
-		UtilityPageButton b5 = new UtilityPageButton("SSH keys",
+		UtilityPageButton b5 = new UtilityPageButton(bundle.getString("ssh_keys"),
 				FontAwesomeContants.FA_KEY);
 
-		UtilityPageButton b6 = new UtilityPageButton("Network tools",
+		UtilityPageButton b6 = new UtilityPageButton(bundle.getString("network_tools"),
 				FontAwesomeContants.FA_WRENCH);
 
 		LayoutUtilities.equalizeSize(b1, b2, b3, b4, b5, b6);

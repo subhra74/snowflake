@@ -28,28 +28,43 @@ import muon.app.common.FileType;
 import muon.app.ui.components.session.files.FileBrowser;
 import util.FormatUtils;
 
+import static muon.app.App.bundle;
+
 public class PropertiesDialog extends JDialog {
 	private int permissions;
-	private JCheckBox chkPermissons[];
-	private JLabel lblOwner, lblGroup, lblOther;
-	private String[] labels = new String[] { "read", "write", "execute" };
+	private final JCheckBox[] chkPermissons;
+	private final JLabel lblOwner;
+	private final JLabel lblGroup;
+	private final JLabel lblOther;
+	private final String[] labels = new String[] { "read", "write", "execute" };
 	private int dialogResult = JOptionPane.CANCEL_OPTION;
 	private FileInfo[] details;
-	private JTextField txtName, txtSize, txtType, txtOwner, txtGroup,
-			txtModified, txtCreated, txtPath, txtFileCount, txtFreeSpace;
-	private JButton btnCalculate1, btnCalculate2, btnGetDiskSpaceUsed;
+	private JTextField txtName;
+	private final JTextField txtSize;
+	private JTextField txtType;
+	private JTextField txtOwner;
+	private JTextField txtGroup;
+	private JTextField txtModified;
+	private JTextField txtCreated;
+	private JTextField txtPath;
+	private JTextField txtFileCount;
+	private final JTextField txtFreeSpace;
+	private JButton btnCalculate1;
+	private JButton btnCalculate2;
+	private final JButton btnGetDiskSpaceUsed;
 
 	private static final String userGroupRegex = "^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)";
 	private Pattern pattern;
-	private FileBrowser fileBrowser;
+	private final FileBrowser fileBrowser;
 
 	private static final Pattern duPattern = Pattern
 			.compile("([\\d]+)\\s+(.+)");
 	private static final Pattern dfPattern = Pattern.compile(
 			"[^\\s]+\\s+(\\d+)\\s+(\\d+)\\s+(\\d+)\\s+(\\d+%)\\s+[^\\s]+");
 
-	private AtomicBoolean modified = new AtomicBoolean(false);
-	private JButton btnOK, btnCancel;
+	private final AtomicBoolean modified = new AtomicBoolean(false);
+	private final JButton btnOK;
+	private final JButton btnCancel;
 
 	public PropertiesDialog(FileBrowser holder, Window window,
 			boolean multimode) {
@@ -184,7 +199,7 @@ public class PropertiesDialog extends JDialog {
 			chmodAsync(getPermissions(), details);
 			dispose();
 		});
-		btnCancel = new JButton("Cancel");
+		btnCancel = new JButton(bundle.getString("cancel"));
 		btnCancel.addActionListener(e -> {
 			dialogResult = JOptionPane.CANCEL_OPTION;
 			dispose();
@@ -409,8 +424,8 @@ public class PropertiesDialog extends JDialog {
 		}
 	}
 
-	public void calcSize(FileInfo files[], BiConsumer<Long, Boolean> biConsumer,
-			AtomicBoolean stopFlag) {
+	public void calcSize(FileInfo[] files, BiConsumer<Long, Boolean> biConsumer,
+						 AtomicBoolean stopFlag) {
 		StringBuilder command = new StringBuilder();
 		command.append(
 				"export POSIXLY_CORRECT=1; export BLOCKSIZE=512; du -s ");
@@ -450,8 +465,8 @@ public class PropertiesDialog extends JDialog {
 		});
 	}
 
-	public void calcFreeSpace(FileInfo files[],
-			BiConsumer<String, Boolean> biConsumer, AtomicBoolean stopFlag) {
+	public void calcFreeSpace(FileInfo[] files,
+							  BiConsumer<String, Boolean> biConsumer, AtomicBoolean stopFlag) {
 		StringBuilder command = new StringBuilder();
 		command.append(
 				"export POSIXLY_CORRECT=1; export BLOCKSIZE=1024; df -P -k \""
@@ -478,7 +493,7 @@ public class PropertiesDialog extends JDialog {
 					}
 
 				}
-				String lines[] = output.toString().split("\n");
+				String[] lines = output.toString().split("\n");
 				if (lines.length >= 2) {
 					Matcher matcher = dfPattern.matcher(lines[1]);
 					if (matcher.find()) {
@@ -506,7 +521,7 @@ public class PropertiesDialog extends JDialog {
 		});
 	}
 
-	private void chmodAsync(int perm, FileInfo paths[]) {
+	private void chmodAsync(int perm, FileInfo[] paths) {
 		AtomicBoolean stopFlag = new AtomicBoolean(false);
 		JDialog dlg = new JDialog(this);
 		dlg.setModal(true);

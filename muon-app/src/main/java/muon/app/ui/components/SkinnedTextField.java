@@ -10,6 +10,8 @@ import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
@@ -48,10 +50,10 @@ public class SkinnedTextField extends JTextField {
 
 	private JPopupMenu createPopup() {
 		JPopupMenu popup = new JPopupMenu();
-		JMenuItem mCut = new JMenuItem("Cut");
-		JMenuItem mCopy = new JMenuItem("Copy");
-		JMenuItem mPaste = new JMenuItem("Paste");
-		JMenuItem mSelect = new JMenuItem("Select all");
+		JMenuItem mCut = new JMenuItem(bundle.getString("cut"));
+		JMenuItem mCopy = new JMenuItem(bundle.getString("copy"));
+		JMenuItem mPaste = new JMenuItem(bundle.getString("paste"));
+		JMenuItem mSelect = new JMenuItem(bundle.getString("select_all"));
 
 		popup.add(mCut);
 		popup.add(mCopy);

@@ -25,10 +25,12 @@ import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.session.PortForwardingRule.PortForwardingType;
 import util.FontAwesomeContants;
 
+import static muon.app.App.bundle;
+
 public class PortForwardingPanel extends JPanel {
 	private SessionInfo info;
-	private PFTableModel model;
-	private JTable table;
+	private final PFTableModel model;
+	private final JTable table;
 
 	public PortForwardingPanel() {
 		super(new BorderLayout(10, 10));
@@ -101,8 +103,8 @@ public class PortForwardingPanel extends JPanel {
 
 	private static class PFTableModel extends AbstractTableModel {
 
-		private String[] columns = { "Type", "Host", "Source Port", "Target Port", "Bind Host" };
-		private List<PortForwardingRule> list = new ArrayList<>();
+		private final String[] columns = { bundle.getString("type"), bundle.getString("host"), bundle.getString("source_port"), bundle.getString("target_port"), bundle.getString("bind_host") };
+		private final List<PortForwardingRule> list = new ArrayList<>();
 
 		@Override
 		public int getRowCount() {
@@ -171,7 +173,7 @@ public class PortForwardingPanel extends JPanel {
 	}
 
 	private PortForwardingRule addOrEditEntry(PortForwardingRule r) {
-		JComboBox<String> cmbPFType = new JComboBox<String>(new String[] { "Local", "Remote" });
+		JComboBox<String> cmbPFType = new JComboBox<String>(new String[] { bundle.getString("local"), bundle.getString("remote") });
 
 		JTextField txtHost = new SkinnedTextField(30);
 
@@ -183,8 +185,8 @@ public class PortForwardingPanel extends JPanel {
 
 		if (r != null) {
 			txtHost.setText(r.getHost());
-			spSourcePort.setValue((Integer) r.getSourcePort());
-			spTargetPort.setValue((Integer) r.getTargetPort());
+			spSourcePort.setValue(r.getSourcePort());
+			spTargetPort.setValue(r.getTargetPort());
 			txtBindAddress.setText(r.getBindHost());
 			cmbPFType.setSelectedIndex(r.getType() == PortForwardingType.Local ? 0 : 1);
 		}
@@ -201,7 +203,7 @@ public class PortForwardingPanel extends JPanel {
 			String bindAddress = txtBindAddress.getText();
 
 			if (host.length() < 1 || bindAddress.length() < 1 || port1 <= 0 || port2 <= 0) {
-				JOptionPane.showMessageDialog(this, "Invalid input: all fields mandatory");
+				JOptionPane.showMessageDialog(this, bundle.getString("invalid_input"));
 				continue;
 			}
 

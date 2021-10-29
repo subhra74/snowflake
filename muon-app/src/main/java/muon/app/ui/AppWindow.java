@@ -46,22 +46,26 @@ import muon.app.ui.components.settings.SettingsPageName;
 import muon.app.updater.UpdateChecker;
 import util.FontAwesomeContants;
 
+
+import static muon.app.App.bundle;
 /**
  * @author subhro
  *
  */
 public class AppWindow extends JFrame {
-	private CardLayout sessionCard;
-	private JPanel cardPanel;
+	private final CardLayout sessionCard;
+	private final JPanel cardPanel;
 	private SessionListPanel sessionListPanel;
-	private BackgroundTransferPanel uploadPanel, downloadPanel;
+	private final BackgroundTransferPanel uploadPanel;
+	private final BackgroundTransferPanel downloadPanel;
 	private JLabel lblUploadCount, lblDownloadCount;
 	private JPopupMenu popup;
-	private Component bottomPanel;
+	private final Component bottomPanel;
 	private JLabel lblUpdate, lblUpdateText;
 
 	public static final String HELP_URL = "https://github.com/subhra74/snowflake/wiki";
 	public static final String GITHUB_URL = "https://github.com/subhra74/snowflake";
+
 
 	/**
 	 * 
@@ -126,9 +130,9 @@ public class AppWindow extends JFrame {
 	}
 
 	private JPanel createSessionPanel() {
-		JLabel lblSession = new JLabel("Sessions");
+		JLabel lblSession = new JLabel(bundle.getString("sessions"));
 		lblSession.setFont(App.SKIN.getDefaultFont().deriveFont(14.0f));
-		JButton btnNew = new JButton("+ New");
+		JButton btnNew = new JButton(bundle.getString("add"));
 		btnNew.setFont(App.SKIN.getDefaultFont().deriveFont(12.0f));
 		btnNew.addActionListener(e -> {
 			SessionInfo info = new NewSessionDlg(this).newSession();
@@ -346,7 +350,7 @@ public class AppWindow extends JFrame {
 
 		b1.add(Box.createRigidArea(new Dimension(5, 10)));
 
-		lblUpdateText = new JLabel("Check for update");
+		lblUpdateText = new JLabel(bundle.getString("chk_update"));
 		lblUpdateText.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		lblUpdateText.addMouseListener(new MouseAdapter() {
 			@Override

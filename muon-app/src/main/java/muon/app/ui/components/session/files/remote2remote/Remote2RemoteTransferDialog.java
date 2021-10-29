@@ -37,13 +37,15 @@ import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
 import util.FontAwesomeContants;
 
+import static muon.app.App.bundle;
+
 public class Remote2RemoteTransferDialog extends JDialog {
-	private DefaultListModel<RemoteServerEntry> remoteHostModel;
-	private JList<RemoteServerEntry> remoteHostList;
-	private SessionContentPanel session;
-	private FileInfo[] selectedFiles;
-	private String currentDirectory;
-	private List<RemoteServerEntry> list = new ArrayList<>();
+	private final DefaultListModel<RemoteServerEntry> remoteHostModel;
+	private final JList<RemoteServerEntry> remoteHostList;
+	private final SessionContentPanel session;
+	private final FileInfo[] selectedFiles;
+	private final String currentDirectory;
+	private final List<RemoteServerEntry> list = new ArrayList<>();
 
 	public Remote2RemoteTransferDialog(JFrame frame, SessionContentPanel session, FileInfo[] selectedFiles,
 			String currentDirectory) {
@@ -73,11 +75,11 @@ public class Remote2RemoteTransferDialog extends JDialog {
 		}
 
 		Box bottom = Box.createHorizontalBox();
-		JButton btnAddKnown = new JButton("Add from session manager");
-		JButton btnAdd = new JButton("Add");
-		JButton btnRemove = new JButton("Delete");
-		JButton btnEdit = new JButton("Edit");
-		JButton btnSend = new JButton("Send Files");
+		JButton btnAddKnown = new JButton(bundle.getString("add_from_manager"));
+		JButton btnAdd = new JButton(bundle.getString("add"));
+		JButton btnRemove = new JButton(bundle.getString("delete"));
+		JButton btnEdit = new JButton(bundle.getString("edit"));
+		JButton btnSend = new JButton(bundle.getString("send_files"));
 
 		btnAddKnown.addActionListener(e -> {
 			SessionInfo info = new NewSessionDlg(this).newSession();

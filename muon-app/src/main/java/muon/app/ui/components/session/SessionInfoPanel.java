@@ -33,6 +33,8 @@ import muon.app.ui.components.SkinnedTextField;
 import muon.app.ui.components.TabbedPanel;
 import muon.app.ui.components.session.SessionInfo.JumpType;
 
+import static muon.app.App.bundle;
+
 public class SessionInfoPanel extends JPanel {
 
 	private static final long serialVersionUID = 6679029920589652547L;
@@ -178,11 +180,11 @@ public class SessionInfoPanel extends JPanel {
 		setLayout(new BorderLayout());
 		setBorder(new EmptyBorder(10, 0, 10, 0));
 		tabs = new TabbedPanel();
-		tabs.addTab("Connection", createConnectionPanel());
-		tabs.addTab("Directories", createDirectoryPanel());
-		tabs.addTab("Proxy", createProxyPanel());
-		tabs.addTab("Jump Hosts", createJumpPanel());
-		tabs.addTab("Port Forwarding", createPortForwardingPanel());
+		tabs.addTab(bundle.getString("connection"), createConnectionPanel());
+		tabs.addTab(bundle.getString("directories"), createDirectoryPanel());
+		tabs.addTab(bundle.getString("proxy"), createProxyPanel());
+		tabs.addTab(bundle.getString("jump_hosts"), createJumpPanel());
+		tabs.addTab(bundle.getString("port_forwarding"), createPortForwardingPanel());
 		this.add(tabs);
 		tabs.setSelectedIndex(0);
 	}
@@ -282,12 +284,12 @@ public class SessionInfoPanel extends JPanel {
 		Insets noInset = new Insets(5, 10, 0, 10);
 
 		// -----------
-		lblProxyType = new JLabel("Proxy type");
-		lblProxyHost = new JLabel("Proxy host");
+		lblProxyType = new JLabel(bundle.getString("proxy_type"));
+		lblProxyHost = new JLabel(bundle.getString("proxy_host"));
 		lblProxyHost.setHorizontalAlignment(JLabel.LEADING);
-		lblProxyPort = new JLabel("Proxy port");
-		lblProxyUser = new JLabel("Proxy user");
-		lblProxyPass = new JLabel("Proxy password" + " ( Warning: it will be saved in plain text! )");
+		lblProxyPort = new JLabel(bundle.getString("proxy_port"));
+		lblProxyUser = new JLabel(bundle.getString("proxy_user"));
+		lblProxyPass = new JLabel(bundle.getString("proxy_password") + bundle.getString("warning_plain_text"));
 
 		cmbProxy = new JComboBox<>(new String[] { "NONE", "HTTP", "SOCKS" });
 		cmbProxy.addActionListener(e -> {
@@ -524,7 +526,7 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 
-		inpLocalBrowse = new JButton("Browse");
+		inpLocalBrowse = new JButton(bundle.getString("browse"));
 		inpLocalBrowse.addActionListener(e -> {
 			JFileChooser jfc = new JFileChooser();
 			jfc.setFileHidingEnabled(false);
@@ -596,14 +598,14 @@ public class SessionInfoPanel extends JPanel {
 		Insets noInset = new Insets(5, 10, 0, 10);
 
 		// setBackground(new Color(245,245,245));
-		lblHost = new JLabel("Host");
+		lblHost = new JLabel(bundle.getString("host"));
 		lblHost.setHorizontalAlignment(JLabel.LEADING);
-		lblPort = new JLabel("Port");
-		lblUser = new JLabel("User");
-		lblPass = new JLabel("Password");
-		lblLocalFolder = new JLabel("Local folder");
-		lblRemoteFolder = new JLabel("Remote folder");
-		lblKeyFile = new JLabel("Private key file");
+		lblPort = new JLabel(bundle.getString("port"));
+		lblUser = new JLabel(bundle.getString("user"));
+		lblPass = new JLabel(bundle.getString("password"));
+		lblLocalFolder = new JLabel(bundle.getString("local_folder") );
+		lblRemoteFolder = new JLabel(bundle.getString("remote_folder"));
+		lblKeyFile = new JLabel(bundle.getString("private_key_file"));
 
 		inpHostName = new SkinnedTextField(10);// new JTextField(30);
 		inpHostName.getDocument().addDocumentListener(new DocumentListener() {
@@ -705,7 +707,7 @@ public class SessionInfoPanel extends JPanel {
 			}
 		});
 
-		inpKeyBrowse = new JButton("Browse");// new
+		inpKeyBrowse = new JButton(bundle.getString("browse"));// new
 												// JButton(TextHolder.getString("host.browse"));
 		inpKeyBrowse.addActionListener(e -> {
 			JFileChooser jfc = new JFileChooser();
@@ -718,8 +720,8 @@ public class SessionInfoPanel extends JPanel {
 				String selectedFile = jfc.getSelectedFile().getAbsolutePath();
 				if (selectedFile.endsWith(".ppk")) {
 					if (!isSupportedPuttyKeyFile(jfc.getSelectedFile())) {
-						JOptionPane.showMessageDialog(this,
-								"This key format is not supported, please convert it to OpenSSH format");
+						JOptionPane.showMessageDialog(this,bundle.getString("unsupported_key")
+								);
 						return;
 					}
 				}

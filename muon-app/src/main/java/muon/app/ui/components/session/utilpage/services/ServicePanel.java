@@ -33,12 +33,14 @@ import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.utilpage.UtilPageItemView;
 import util.SudoUtils;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class ServicePanel extends UtilPageItemView {
-	private ServiceTableModel model = new ServiceTableModel();
+	private final ServiceTableModel model = new ServiceTableModel();
 	private JTable table;
 	private static final Pattern SERVICE_PATTERN = Pattern
 			.compile("(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+(\\S+)\\s+([\\S]+.*)");
@@ -261,12 +263,12 @@ public class ServicePanel extends UtilPageItemView {
 		table.setIntercellSpacing(new Dimension(0, 0));
 		table.setFillsViewportHeight(true);
 
-		JLabel lbl1 = new JLabel("Search");
+		JLabel lbl1 = new JLabel(bundle.getString("search"));
 		txtFilter = new SkinnedTextField(30);// new JTextField(30);
 		txtFilter.addActionListener(e -> {
 			filter();
 		});
-		btnFilter = new JButton("Search");
+		btnFilter = new JButton(bundle.getString("search"));
 
 		Box b1 = Box.createHorizontalBox();
 		b1.add(lbl1);
@@ -285,16 +287,16 @@ public class ServicePanel extends UtilPageItemView {
 
 		Box box = Box.createHorizontalBox();
 
-		btnStart = new JButton("Start");
-		btnStop = new JButton("Stop");
-		btnRestart = new JButton("Restart");
-		btnReload = new JButton("Reload");
-		btnEnable = new JButton("Enable");
-		btnDisable = new JButton("Disable");
-		btnRefresh = new JButton("Refresh");
+		btnStart = new JButton(bundle.getString("start"));
+		btnStop = new JButton(bundle.getString("stop"));
+		btnRestart = new JButton(bundle.getString("restart"));
+		btnReload = new JButton(bundle.getString("reload"));
+		btnEnable = new JButton(bundle.getString("enable"));
+		btnDisable = new JButton(bundle.getString("disable"));
+		btnRefresh = new JButton(bundle.getString("refresh"));
 
 		chkRunAsSuperUser = new JCheckBox(
-				"Perform actions as super user (sudo)");
+				bundle.getString("actions_sudo"));
 		box.add(chkRunAsSuperUser);
 
 		box.add(Box.createHorizontalGlue());
@@ -410,7 +412,7 @@ public class ServicePanel extends UtilPageItemView {
 						}
 						if (!holder.isSessionClosed()) {
 							JOptionPane.showMessageDialog(null,
-									"Operation failed");
+									bundle.getString("operation_failed"));
 						}
 						// JOptionPane.showMessageDialog(null, "Operation
 						// failed");
@@ -427,7 +429,7 @@ public class ServicePanel extends UtilPageItemView {
 						}
 						if (!holder.isSessionClosed()) {
 							JOptionPane.showMessageDialog(null,
-									"Operation failed");
+									bundle.getString("operation_failed"));
 						} // JOptionPane.showMessageDialog(null, "Operation
 							// failed");
 					}

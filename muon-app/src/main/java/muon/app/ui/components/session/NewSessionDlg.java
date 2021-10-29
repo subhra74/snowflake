@@ -45,6 +45,8 @@ import muon.app.App;
 import muon.app.ui.components.SkinnedSplitPane;
 import muon.app.ui.components.SkinnedTextField;
 
+import static muon.app.App.bundle;
+
 public class NewSessionDlg extends JDialog implements ActionListener, TreeSelectionListener, TreeModelListener {
 
 	private static final long serialVersionUID = -1182844921331289546L;
@@ -89,7 +91,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 			}
 		});
 
-		setTitle("Session manager");
+		setTitle(bundle.getString("session_manager"));
 
 //		List<SessionFolder> folders = SessionStore.getSharedInstance()
 //				.getFolders();
@@ -118,43 +120,43 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 		jsp.setBorder(new LineBorder(App.SKIN.getDefaultBorderColor(), 1));
 
 		// btnNewHost = new JButton(TextHolder.getString("session.newHost"));
-		btnNewHost = new JButton("New site");
+		btnNewHost = new JButton(bundle.getString("new_site"));
 		btnNewHost.addActionListener(this);
 		btnNewHost.putClientProperty("button.name", "btnNewHost");
 		// btnNewHost.setFont(Utility.getFont(Constants.SMALL));
-		btnNewFolder = new JButton("New folder");// new
+		btnNewFolder = new JButton(bundle.getString("new_folder"));// new
 													// JButton(TextHolder.getString("session.newFolder"));
 		btnNewFolder.addActionListener(this);
 		btnNewFolder.putClientProperty("button.name", "btnNewFolder");
 		// btnNewFolder.setFont(Utility.getFont(Constants.SMALL));
-		btnDel = new JButton("Remove");// new
+		btnDel = new JButton(bundle.getString("remove"));// new
 										// JButton(TextHolder.getString("session.remove"));
 		btnDel.addActionListener(this);
 		btnDel.putClientProperty("button.name", "btnDel");
 		// btnDel.setFont(Utility.getFont(Constants.SMALL));
-		btnDup = new JButton("Duplicate");// new
+		btnDup = new JButton(bundle.getString("duplicate"));// new
 											// JButton(TextHolder.getString("session.duplicate"));
 		btnDup.addActionListener(this);
 		btnDup.putClientProperty("button.name", "btnDup");
 		// btnDup.setFont(Utility.getFont(Constants.SMALL));
 
-		btnConnect = new JButton("Connect");// new
+		btnConnect = new JButton(bundle.getString("connect"));// new
 											// JButton(TextHolder.getString("session.connect"));
 		btnConnect.addActionListener(this);
 		btnConnect.putClientProperty("button.name", "btnConnect");
 		// btnConnect.setFont(Utility.getFont(Constants.SMALL));
 
-		btnCancel = new JButton("Cancel");// new
+		btnCancel = new JButton(bundle.getString("cancel"));// new
 											// JButton(TextHolder.getString("session.cancel"));
 		btnCancel.addActionListener(this);
 		btnCancel.putClientProperty("button.name", "btnCancel");
 
-		btnExport = new JButton("Export");// new
+		btnExport = new JButton(bundle.getString("export"));// new
 		// JButton(TextHolder.getString("session.cancel"));
 		btnExport.addActionListener(this);
 		btnExport.putClientProperty("button.name", "btnExport");
 
-		btnImport = new JButton("Import");// new
+		btnImport = new JButton(bundle.getString("import"));// new
 		// JButton(TextHolder.getString("session.cancel"));
 		btnImport.addActionListener(this);
 		btnImport.putClientProperty("button.name", "btnImport");
@@ -217,7 +219,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 
 		namePanel.setBorder(new EmptyBorder(10, 0, 0, 10));
 
-		lblName = new JLabel("Name");
+		lblName = new JLabel(bundle.getString("name"));
 		lblName.setAlignmentX(Component.LEFT_ALIGNMENT);
 		lblName.setHorizontalAlignment(JLabel.LEADING);
 		lblName.setBorder(new EmptyBorder(0, 0, 5, 0));
@@ -263,7 +265,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 
 		prgPanel = new JPanel();
 
-		JLabel lbl = new JLabel("Connecting...");
+		JLabel lbl = new JLabel(bundle.getString("connecting"));
 		prgPanel.add(lbl);
 
 		splitPane.setLeftComponent(treePane);
@@ -292,7 +294,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 				n = findFirstInfoNode(rootNode);
 				if (n == null) {
 					SessionInfo sessionInfo = new SessionInfo();
-					sessionInfo.setName("New site");
+					sessionInfo.setName(bundle.getString("new_site"));
 					sessionInfo.setId(UUID.randomUUID().toString());
 					DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(sessionInfo);
 					childNode.setUserObject(sessionInfo);
@@ -407,7 +409,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 				obj = parentNode.getUserObject();
 			}
 			SessionInfo sessionInfo = new SessionInfo();
-			sessionInfo.setName("New site");
+			sessionInfo.setName(bundle.getString("new_site"));
 			sessionInfo.setId(UUID.randomUUID().toString());
 			// sessionInfo.setParentId(((SessionFolder) obj).getId());
 			DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(sessionInfo);
@@ -429,7 +431,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 				objFolder = parentNode.getUserObject();
 			}
 			SessionFolder folder = new SessionFolder();
-			folder.setName("New folder");
+			folder.setName(bundle.getString("new_folder"));
 			DefaultMutableTreeNode childNode1 = new DefaultMutableTreeNode(folder);
 			treeModel.insertNodeInto(childNode1, parentNode, parentNode.getChildCount());
 			tree.scrollPathToVisible(new TreePath(childNode1.getPath()));
@@ -478,7 +480,7 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 			JComboBox<String> cmbImports = new JComboBox<>(
 					new String[] { "Putty", "WinSCP", "Snowflake session store" });
 
-			if (JOptionPane.showOptionDialog(this, new Object[] { "Import from", cmbImports }, "Import sessions",
+			if (JOptionPane.showOptionDialog(this, new Object[] { bundle.getString("import_from"), cmbImports }, bundle.getString("import_sessions"),
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
 					null) == JOptionPane.OK_OPTION) {
 				if (cmbImports.getSelectedIndex() < 2) {

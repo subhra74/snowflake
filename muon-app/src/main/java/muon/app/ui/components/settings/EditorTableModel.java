@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
-
+import static muon.app.App.bundle;
 public class EditorTableModel extends AbstractTableModel {
-	private List<EditorEntry> list = new ArrayList<>();
-	private String cols[] = { "Editor name", "Path to executable" };
+	private final List<EditorEntry> list = new ArrayList<>();
+	private final String[] cols = { bundle.getString("editor_name"), bundle.getString("path_executable")};
 
 	@Override
 	public int getRowCount() {

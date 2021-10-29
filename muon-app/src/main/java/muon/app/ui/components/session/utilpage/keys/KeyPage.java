@@ -17,6 +17,8 @@ import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.utilpage.UtilPageItemView;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
@@ -121,8 +123,8 @@ public class KeyPage extends UtilPageItemView {
 				}
 			});
 		});
-		tabs.addTab("Server", remoteKeyPanel);
-		tabs.addTab("Local computer", localKeyPanel);
+		tabs.addTab(bundle.getString("server"), remoteKeyPanel);
+		tabs.addTab(bundle.getString("local_computer"), localKeyPanel);
 		this.add(tabs);
 
 		holder.EXECUTOR.submit(() -> {

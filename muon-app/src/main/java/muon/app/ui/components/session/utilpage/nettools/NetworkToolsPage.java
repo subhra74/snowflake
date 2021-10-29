@@ -6,6 +6,7 @@ package muon.app.ui.components.session.utilpage.nettools;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.io.ByteArrayOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.swing.DefaultComboBoxModel;
@@ -24,6 +25,8 @@ import muon.app.ui.components.SkinnedScrollPane;
 import muon.app.ui.components.SkinnedTextArea;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.utilpage.UtilPageItemView;
+
+import static muon.app.App.bundle;
 
 /**
  * @author subhro
@@ -65,7 +68,7 @@ public class NetworkToolsPage extends UtilPageItemView {
 
 		btn1.addActionListener(e -> {
 			if (JOptionPane.showOptionDialog(this,
-					new Object[] { "Host to ping", cmbHost }, "Ping",
+					new Object[] { bundle.getString("host_ping"), cmbHost }, "Ping",
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
 					null, null, null) == JOptionPane.OK_OPTION) {
 				executeAsync("ping -c 4 " + cmbHost.getSelectedItem());
@@ -74,7 +77,7 @@ public class NetworkToolsPage extends UtilPageItemView {
 
 		btn2.addActionListener(e -> {
 			if (JOptionPane.showOptionDialog(this,
-					new Object[] { "Host name", cmbHost, "Port number",
+					new Object[] { bundle.getString("host_name"), cmbHost, bundle.getString("port_number"),
 							cmbPort },
 					"Port check", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE, null, null,
@@ -88,7 +91,7 @@ public class NetworkToolsPage extends UtilPageItemView {
 
 		btn3.addActionListener(e -> {
 			if (JOptionPane.showOptionDialog(this,
-					new Object[] { "Host name", cmbHost }, "Traceroute",
+					new Object[] { bundle.getString("host_name"), cmbHost }, "Traceroute",
 					JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,
 					null, null, null) == JOptionPane.OK_OPTION) {
 				executeAsync("traceroute " + cmbHost.getSelectedItem());
@@ -97,7 +100,7 @@ public class NetworkToolsPage extends UtilPageItemView {
 
 		btn4.addActionListener(e -> {
 			if (JOptionPane.showOptionDialog(this,
-					new Object[] { "Host name", cmbHost, "Tool to use",
+					new Object[] { bundle.getString("host_name"), cmbHost, bundle.getString("tool_use"),
 							cmbDNSTool },
 					"DNS lookup", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.PLAIN_MESSAGE, null, null,
@@ -135,11 +138,11 @@ public class NetworkToolsPage extends UtilPageItemView {
 				if (holder.getRemoteSessionInstance().execBin(cmd, stopFlag,
 						bout, null) == 0) {
 					outText.append(
-							new String(bout.toByteArray(), "utf-8") + "\n");
+							bout.toString(StandardCharsets.UTF_8) + "\n");
 					System.out.println("Command stdout: " + outText);
 				} else {
 					JOptionPane.showMessageDialog(this,
-							"Error executed with errors");
+							bundle.getString("executed_errors"));
 				}
 			} catch (Exception e) {
 				e.printStackTrace();
