@@ -16,3 +16,4 @@ muon-jediterm/target/*
 muon-app/target/maven-archiver/pom.properties
 muon-jediterm/target/*
 muon-jediterm\target\*
+/muon-app/target/
