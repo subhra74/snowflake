@@ -8,13 +8,15 @@ import java.util.List;
 
 import javax.swing.table.AbstractTableModel;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class ServiceTableModel extends AbstractTableModel {
-	private String columns[] = { "Name", "Status", "State", "Description" };
-	private List<ServiceEntry> list = new ArrayList<>();
+	private final String[] columns = { bundle.getString("name"), bundle.getString("status"), bundle.getString("state"), bundle.getString("description") };
+	private final List<ServiceEntry> list = new ArrayList<>();
 
 	public void addEntry(ServiceEntry e) {
 		list.add(e);

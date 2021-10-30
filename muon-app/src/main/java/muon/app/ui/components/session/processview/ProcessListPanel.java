@@ -28,17 +28,20 @@ import javax.swing.table.TableRowSorter;
 import muon.app.ui.components.SkinnedScrollPane;
 import muon.app.ui.components.SkinnedTextField;
 
-public class ProcessListPanel extends JPanel {
-	private ProcessTableModel model;
-	private JTable table;
-	private JTextField txtFilter;
-	private JButton btnKill, btnCopyArgs;// , btnStop;
-	private RowFilter<ProcessTableModel, Integer> rowFilter;
-	private String filterText = "";
-	private JPopupMenu killPopup, prioPopup;
-	private BiConsumer<String, CommandMode> consumer;
+import static muon.app.App.bundle;
 
-	private JLabel lblProcessCount;
+public class ProcessListPanel extends JPanel {
+	private final ProcessTableModel model;
+	private final JTable table;
+	private final JTextField txtFilter;
+	private JButton btnKill, btnCopyArgs;// , btnStop;
+	private final RowFilter<ProcessTableModel, Integer> rowFilter;
+	private String filterText = "";
+	private final JPopupMenu killPopup;
+	private final JPopupMenu prioPopup;
+	private final BiConsumer<String, CommandMode> consumer;
+
+	private final JLabel lblProcessCount;
 
 	public enum CommandMode {
 		KILL_AS_ROOT, KILL_AS_USER, LIST_PROCESS
@@ -66,7 +69,7 @@ public class ProcessListPanel extends JPanel {
 		table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		table.getColumnModel().getColumn(0).setPreferredWidth(200);
 
-		lblProcessCount = new JLabel("Total processes: 0");
+		lblProcessCount = new JLabel(bundle.getString("total_processes") +  " 0");
 
 		rowFilter = new RowFilter<ProcessTableModel, Integer>() {
 			@Override
@@ -98,7 +101,7 @@ public class ProcessListPanel extends JPanel {
 
 		Box b1 = Box.createHorizontalBox();
 //        b1.setBorder(new EmptyBorder(5, 5, 5, 5));
-		b1.add(new JLabel("Processes"));
+		b1.add(new JLabel(bundle.getString("processes")));
 		b1.add(Box.createHorizontalStrut(10));
 		txtFilter = new SkinnedTextField(30);// new JTextField(30);
 		txtFilter.addActionListener(e -> {
@@ -107,7 +110,7 @@ public class ProcessListPanel extends JPanel {
 		});
 		b1.add(txtFilter);
 		b1.add(Box.createHorizontalStrut(5));
-		JButton btnFilter = new JButton("Filter");
+		JButton btnFilter = new JButton(bundle.getString("filter"));
 		btnFilter.addActionListener(e -> {
 			this.filterText = getProcessFilterText();
 			model.fireTableDataChanged();
@@ -115,7 +118,7 @@ public class ProcessListPanel extends JPanel {
 		b1.add(btnFilter);
 		b1.add(Box.createHorizontalStrut(5));
 
-		JButton btnClearFilter = new JButton("Clear");
+		JButton btnClearFilter = new JButton(bundle.getString("clear"));
 		b1.add(btnClearFilter);
 		b1.add(Box.createHorizontalStrut(5));
 		btnClearFilter.addActionListener(e -> {
@@ -124,7 +127,7 @@ public class ProcessListPanel extends JPanel {
 			model.fireTableDataChanged();
 		});
 
-		JButton btnRefresh = new JButton("Refresh");
+		JButton btnRefresh = new JButton(bundle.getString("refresh"));
 		b1.add(btnRefresh);
 		btnRefresh.addActionListener(e -> {
 			this.consumer.accept(null, CommandMode.LIST_PROCESS);
@@ -132,8 +135,8 @@ public class ProcessListPanel extends JPanel {
 
 		killPopup = new JPopupMenu();
 
-		JMenuItem mKill = new JMenuItem("Kill");
-		JMenuItem mKillAsRoot = new JMenuItem("Kill using sudo");
+		JMenuItem mKill = new JMenuItem(bundle.getString("kill"));
+		JMenuItem mKillAsRoot = new JMenuItem(bundle.getString("kill_sudo"));
 
 		mKill.addActionListener(e -> {
 			int c = table.getSelectedRow();
@@ -165,8 +168,8 @@ public class ProcessListPanel extends JPanel {
 		killPopup.pack();
 
 		prioPopup = new JPopupMenu();
-		JMenuItem mPrio = new JMenuItem("Change priority");
-		JMenuItem mPrioAsRoot = new JMenuItem("Change priority using sudo");
+		JMenuItem mPrio = new JMenuItem(bundle.getString("change_priority"));
+		JMenuItem mPrioAsRoot = new JMenuItem(bundle.getString("change_priority_sudo"));
 		prioPopup.add(mPrio);
 		prioPopup.add(mPrioAsRoot);
 		prioPopup.pack();
@@ -178,7 +181,7 @@ public class ProcessListPanel extends JPanel {
 
 		Box b2 = Box.createHorizontalBox();
 		b2.add(lblProcessCount);
-		btnCopyArgs = new JButton("Copy command");
+		btnCopyArgs = new JButton(bundle.getString("copy_command"));
 		btnCopyArgs.addActionListener(e -> {
 			int c = table.getSelectedRow();
 			if (c != -1) {
@@ -189,7 +192,7 @@ public class ProcessListPanel extends JPanel {
 			}
 		});
 
-		btnKill = new JButton("Kill process");
+		btnKill = new JButton(bundle.getString("kill_process"));
 		btnKill.addActionListener(e -> {
 			Dimension d = killPopup.getPreferredSize();
 			killPopup.show(btnKill, 0, -d.height);
@@ -221,8 +224,8 @@ public class ProcessListPanel extends JPanel {
 	}
 
 	public void setProcessList(List<ProcessTableEntry> list) {
-		lblProcessCount.setText("Total processes: " + list.size()
-				+ ", last updated: " + LocalDateTime.now().format(
+		lblProcessCount.setText(bundle.getString("total_processes") + " " + list.size()
+				+ ", "+bundle.getString("last_updated")+" " + LocalDateTime.now().format(
 						DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM)));
 		int x = table.getSelectedRow();
 		int selectedPid = -1;

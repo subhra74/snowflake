@@ -12,16 +12,18 @@ import muon.app.common.FileInfo;
 import java.util.ArrayList;
 import java.util.List;
 
+import static muon.app.App.bundle;
+
 public class FolderViewTableModel extends AbstractTableModel implements ListModel<FileInfo> {
 
 	private static final long serialVersionUID = 7212506492710233442L;
-	private List<FileInfo> files = new ArrayList<>();
+	private final List<FileInfo> files = new ArrayList<>();
 
 	protected EventListenerList listenerList = new EventListenerList();
 
 //	private String[] columns = { "Name", "Size", "Type", "Modified",
 //			"Permission", "Owner" };
-	private String[] columns = { "Name", "Modified", "Size", "Type", "Permission", "Owner" };
+	private final String[] columns = { bundle.getString("name"), bundle.getString("modified"), bundle.getString("size"), bundle.getString("type"), bundle.getString("permission"), bundle.getString("owner") };
 
 	private boolean local = false;
 

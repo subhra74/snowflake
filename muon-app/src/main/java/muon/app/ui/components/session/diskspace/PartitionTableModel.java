@@ -4,10 +4,12 @@ import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PartitionTableModel extends AbstractTableModel {
-    private String columns[] = {"Filesystem", "Total size", "Used", "Available", "% used", "Mount point"};
+import static muon.app.App.bundle;
 
-    private List<PartitionEntry> list = new ArrayList<>();
+public class PartitionTableModel extends AbstractTableModel {
+    private final String[] columns = {bundle.getString("filesystem"), bundle.getString("total_size"), bundle.getString("used"), bundle.getString("available"), bundle.getString("percentage_use"), bundle.getString("mount_point")};
+
+    private final List<PartitionEntry> list = new ArrayList<>();
 
     public PartitionEntry get(int index) {
         return list.get(index);

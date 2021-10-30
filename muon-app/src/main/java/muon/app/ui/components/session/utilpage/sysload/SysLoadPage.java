@@ -19,6 +19,8 @@ import muon.app.App;
 import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.utilpage.UtilPageItemView;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
@@ -26,7 +28,7 @@ import muon.app.ui.components.session.utilpage.UtilPageItemView;
 public class SysLoadPage extends UtilPageItemView {
 	private SystemLoadPanel systemLoadPanel;
 	private JSpinner spInterval;
-	private AtomicInteger sleepInterval = new AtomicInteger(3);
+	private final AtomicInteger sleepInterval = new AtomicInteger(3);
 	private Timer timer;
 	private LinuxMetrics metrics;
 	private String OS;
@@ -139,7 +141,7 @@ public class SysLoadPage extends UtilPageItemView {
 
 		topPanel.add(titleLabel);
 		topPanel.add(Box.createHorizontalGlue());
-		topPanel.add(new JLabel("Refresh interval"));
+		topPanel.add(new JLabel(bundle.getString("refresh_interval")));
 		topPanel.add(Box.createHorizontalStrut(5));
 		topPanel.add(spInterval);
 		topPanel.add(Box.createHorizontalStrut(5));

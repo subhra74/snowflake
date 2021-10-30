@@ -11,6 +11,7 @@ import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.settings.DarkTerminalTheme;
 import muon.app.ui.components.settings.EditorEntry;
 import util.CollectionHelper;
+import util.Language;
 
 public class Settings {
 	private boolean usingMasterPassword = false;
@@ -40,6 +41,7 @@ public class Settings {
 	private boolean terminalBell = false;
 	private String terminalFontName = "NotoMono-Regular";
 	private int terminalFontSize = 14;
+	private Language language = Language.ENGLISH;
 	private String terminalTheme = "Dark";
 	private String terminalPalette = "xterm";
 	private int[] palleteColors = { 0x000000, 0xcd0000, 0x00cd00, 0xcdcd00, 0x1e90ff, 0xcd00cd, 0x00cdcd, 0xe5e5e5,
@@ -400,6 +402,22 @@ public class Settings {
 	 */
 	public void setTerminalTheme(String terminalTheme) {
 		this.terminalTheme = terminalTheme;
+	}
+
+	/**
+	 *
+	 * @return Language
+	 */
+	public Language getLanguage() {
+		return language;
+	}
+
+	/**
+	 *
+	 * @param language
+	 */
+	public void setLanguage(Language language) {
+		this.language = language;
 	}
 
 	/**

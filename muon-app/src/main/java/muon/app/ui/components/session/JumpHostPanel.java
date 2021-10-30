@@ -25,9 +25,11 @@ import muon.app.ui.components.SkinnedScrollPane;
 import muon.app.ui.components.SkinnedTextField;
 import util.FontAwesomeContants;
 
+import static muon.app.App.bundle;
+
 public class JumpHostPanel extends JPanel {
-	private DefaultListModel<HopEntry> hopModel = new DefaultListModel<HopEntry>();
-	private JList<HopEntry> hopList = new JList<HopEntry>(hopModel);
+	private final DefaultListModel<HopEntry> hopModel = new DefaultListModel<HopEntry>();
+	private final JList<HopEntry> hopList = new JList<HopEntry>(hopModel);
 	private SessionInfo info;
 
 	public JumpHostPanel() {
@@ -163,7 +165,7 @@ public class JumpHostPanel extends JPanel {
 				txtUser.setText(e.getUser());
 			if (e.getKeypath() != null)
 				txtKeyFile.setText(e.getKeypath());
-			spPort.setValue((Integer) e.getPort());
+			spPort.setValue(e.getPort());
 		}
 
 		btnBrowse.addActionListener(ev -> {
@@ -176,7 +178,7 @@ public class JumpHostPanel extends JPanel {
 		});
 
 		while (JOptionPane.showOptionDialog(this,
-				new Object[] { "Host", txtHost, "Port", spPort, "User", txtUser, "Password", txtPassword, "Private key",
+				new Object[] { bundle.getString("host"), txtHost,  bundle.getString("port"), spPort,  bundle.getString("user"), txtUser,  bundle.getString("password"), txtPassword,  bundle.getString("private_key_file"),
 						txtKeyFile },
 				"Hop entry", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null,
 				null) == JOptionPane.OK_OPTION) {

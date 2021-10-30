@@ -7,11 +7,7 @@ import java.io.IOException;
 //import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -41,6 +37,7 @@ import muon.app.ui.laf.AppSkin;
 import muon.app.ui.laf.AppSkinDark;
 import muon.app.ui.laf.AppSkinLight;
 import muon.app.updater.VersionEntry;
+import util.Language;
 import util.PlatformUtils;
 import util.Win32DragHandler;
 
@@ -79,9 +76,11 @@ public class App {
 	public static final String APP_INSTANCE_ID = UUID.randomUUID().toString();
 
 	public static GraphicalHostKeyVerifier HOST_KEY_VERIFIER;
+	public static ResourceBundle bundle;
 
 	public static void main(String[] args) throws UnsupportedLookAndFeelException {
-		
+
+
 
 		Security.addProvider(new BouncyCastleProvider());
 		
@@ -116,6 +115,16 @@ public class App {
 			saveSettings();
 			System.out.println("Searching for known editors...done");
 		}
+
+		Language language= null;
+		if (settings.getLanguage() == null){
+			language=Language.ENGLISH;
+		} else {
+			language=settings.getLanguage();
+		}
+		Locale locale = new Locale(language.getLangAbbr());
+
+		bundle = ResourceBundle.getBundle("muon.app.common.i18n.Messages", locale);
 
 		SKIN = settings.isUseGlobalDarkTheme() ? new AppSkinDark() : new AppSkinLight();
 
@@ -172,6 +181,23 @@ public class App {
 			}
 		}
 		settings = new Settings();
+	}
+
+	public synchronized static Settings loadSettings2() {
+		File file = new File(CONFIG_DIR, CONFIG_DB_FILE);
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+		if (file.exists()) {
+			try {
+				settings = objectMapper.readValue(file, new TypeReference<Settings>() {
+				});
+				return settings;
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		settings = new Settings();
+		return settings;
 	}
 
 	public synchronized static void saveSettings() {

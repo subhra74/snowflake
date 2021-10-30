@@ -7,14 +7,20 @@ import util.FormatUtils;
 
 import java.awt.*;
 
+import static muon.app.App.bundle;
+
 public class SystemLoadPanel extends JPanel {
-	private LineGraph cpuGraph, memGraph, swpGraph;
-	private double cpuStats[] = new double[10];
-	private double memStats[] = new double[10];
-	private double swpStats[] = new double[10];
+	private final LineGraph cpuGraph;
+    private final LineGraph memGraph;
+    private final LineGraph swpGraph;
+	private final double[] cpuStats = new double[10];
+	private final double[] memStats = new double[10];
+	private final double[] swpStats = new double[10];
 	private long totalMemory, usedMemory, totalSwap, usedSwap;
 	private double cpuUsage, memoryUsage, swapUsage;
-	private JLabel cpuLabel, memoryLabel, swapLabel;
+	private final JLabel cpuLabel;
+    private final JLabel memoryLabel;
+    private final JLabel swapLabel;
 
 	public SystemLoadPanel() {
 		super(new BorderLayout(5, 5));
@@ -23,7 +29,7 @@ public class SystemLoadPanel extends JPanel {
 		setPreferredSize(new Dimension(300, 400));
 		Box b1 = Box.createVerticalBox();
 
-		cpuLabel = new JLabel("Cpu usage");
+		cpuLabel = new JLabel(bundle.getString("cpu_usage"));
 		cpuLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
 		cpuLabel.setAlignmentX(Box.LEFT_ALIGNMENT);
 		b1.add(cpuLabel);
@@ -33,7 +39,7 @@ public class SystemLoadPanel extends JPanel {
 		cpuGraph.setAlignmentX(Box.LEFT_ALIGNMENT);
 		b1.add(cpuGraph);
 
-		memoryLabel = new JLabel("Memory usage");
+		memoryLabel = new JLabel(bundle.getString("memory_usage"));
 		memoryLabel.setBorder(new EmptyBorder(20, 0, 10, 0));
 		memoryLabel.setAlignmentX(Box.LEFT_ALIGNMENT);
 		b1.add(memoryLabel);
@@ -43,7 +49,7 @@ public class SystemLoadPanel extends JPanel {
 		memGraph.setAlignmentX(Box.LEFT_ALIGNMENT);
 		b1.add(memGraph);
 
-		swapLabel = new JLabel("Swap usage");
+		swapLabel = new JLabel(bundle.getString("swap_usage"));
 		swapLabel.setBorder(new EmptyBorder(20, 0, 10, 0));
 		swapLabel.setAlignmentX(Box.LEFT_ALIGNMENT);
 		b1.add(swapLabel);
@@ -99,25 +105,25 @@ public class SystemLoadPanel extends JPanel {
 
 	public void refreshUi() {
 		this.cpuLabel
-				.setText(String.format("Cpu usage: %.1f", cpuUsage) + "% ");
-		this.memoryLabel.setText(String.format("Memory usage: %.1f",
+				.setText(String.format(bundle.getString("cpu_usage") +": %.1f", cpuUsage) + "% ");
+		this.memoryLabel.setText(String.format(bundle.getString("memory_usage") +": %.1f",
 				memoryUsage)
 				+ "%"
 				+ (totalMemory != 0
 						? (", (Total: " + FormatUtils
 								.humanReadableByteCount(totalMemory, true)
-								+ ", Used: "
+								+ ", "+bundle.getString("used2") +": "
 								+ FormatUtils.humanReadableByteCount(usedMemory,
 										true)
 								+ ")")
 						: ""));
-		this.swapLabel.setText(String.format("Swap usage: %.1f", swapUsage)
+		this.swapLabel.setText(String.format(bundle.getString("swap_usage") +": %.1f", swapUsage)
 				+ "% "
 				+ (totalSwap != 0
 						? (", ( Total: "
 								+ FormatUtils.humanReadableByteCount(totalSwap,
 										true)
-								+ ", Used: " + FormatUtils
+								+ ", "+bundle.getString("used2") +": " + FormatUtils
 										.humanReadableByteCount(usedSwap, true)
 								+ ")")
 						: ""));

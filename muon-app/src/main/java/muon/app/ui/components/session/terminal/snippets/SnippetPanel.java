@@ -18,12 +18,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+import static muon.app.App.bundle;
+
 public class SnippetPanel extends JPanel {
-	private DefaultListModel<SnippetItem> listModel = new DefaultListModel<>();
-	private List<SnippetItem> snippetList = new ArrayList<>();
-	private JList<SnippetItem> listView = new JList<>(listModel);
-	private JTextField searchTextField;
-	private JButton btnCopy, btnInsert, btnAdd, btnEdit, btnDel;
+	private final DefaultListModel<SnippetItem> listModel = new DefaultListModel<>();
+	private final List<SnippetItem> snippetList = new ArrayList<>();
+	private final JList<SnippetItem> listView = new JList<>(listModel);
+	private final JTextField searchTextField;
+	private final JButton btnCopy;
+	private final JButton btnInsert;
+	private final JButton btnAdd;
+	private final JButton btnEdit;
+	private final JButton btnDel;
 
 	public SnippetPanel(Consumer<String> callback, Consumer<String> callback2) {
 		super(new BorderLayout());
@@ -62,11 +68,11 @@ public class SnippetPanel extends JPanel {
 		listView.setCellRenderer(new SnippetListRenderer());
 		listView.setBackground(App.SKIN.getTableBackgroundColor());
 
-		btnAdd = new JButton("Add");
-		btnEdit = new JButton("Edit");
-		btnDel = new JButton("Delete");
-		btnInsert = new JButton("Insert");
-		btnCopy = new JButton("Copy");
+		btnAdd = new JButton(bundle.getString("add"));
+		btnEdit = new JButton(bundle.getString("edit"));
+		btnDel = new JButton(bundle.getString("delete"));
+		btnInsert = new JButton(bundle.getString("insert"));
+		btnCopy = new JButton(bundle.getString("copy"));
 
 		btnAdd.addActionListener(e -> {
 			JTextField txtName = new SkinnedTextField(30);// new
