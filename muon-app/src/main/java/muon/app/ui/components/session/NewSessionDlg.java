@@ -6,10 +6,7 @@ import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.Window;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
+import java.awt.event.*;
 import java.io.File;
 import java.util.UUID;
 
@@ -114,6 +111,18 @@ public class NewSessionDlg extends JDialog implements ActionListener, TreeSelect
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.getSelectionModel().addTreeSelectionListener(this);
 		// tree.setDragEnabled(true);
+		tree.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2) {
+					DefaultMutableTreeNode node = (DefaultMutableTreeNode) tree.getLastSelectedPathComponent();
+					if (node == null || node.getAllowsChildren()) return;
+					connectClicked();
+				}
+			}
+		});
+
+
 
 		tree.setEditable(false);
 		jsp = new JScrollPane(tree);

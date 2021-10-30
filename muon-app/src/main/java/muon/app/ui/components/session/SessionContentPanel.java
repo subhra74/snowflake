@@ -49,25 +49,25 @@ import util.LayoutUtilities;
  *
  */
 public class SessionContentPanel extends JPanel implements PageHolder, CachedCredentialProvider {
-	private SessionInfo info;
-	private CardLayout cardLayout;
-	private JPanel cardPanel;
+	private final SessionInfo info;
+	private final CardLayout cardLayout;
+	private final JPanel cardPanel;
 	private RemoteSessionInstance remoteSessionInstance;
-	private JRootPane rootPane;
-	private JPanel contentPane;
-	private DisabledPanel disabledPanel;
-	private TransferProgressPanel progressPanel = new TransferProgressPanel();
+	private final JRootPane rootPane;
+	private final JPanel contentPane;
+	private final DisabledPanel disabledPanel;
+	private final TransferProgressPanel progressPanel = new TransferProgressPanel();
 	public final ExecutorService EXECUTOR = Executors.newSingleThreadExecutor();
-	private TabbedPage[] pages;
-	private FileBrowser fileBrowser;
-	private LogViewer logViewer;
-	private TerminalHolder terminalHolder;
-	private DiskspaceAnalyzer diskspaceAnalyzer;
-	private SearchPanel searchPanel;
-	private ProcessViewer processViewer;
-	private UtilityPage utilityPage;
-	private AtomicBoolean closed = new AtomicBoolean(false);
-	private Deque<RemoteSessionInstance> cachedSessions = new LinkedList<>();
+	private final TabbedPage[] pages;
+	private final FileBrowser fileBrowser;
+	private final LogViewer logViewer;
+	private final TerminalHolder terminalHolder;
+	private final DiskspaceAnalyzer diskspaceAnalyzer;
+	private final SearchPanel searchPanel;
+	private final ProcessViewer processViewer;
+	private final UtilityPage utilityPage;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
+	private final Deque<RemoteSessionInstance> cachedSessions = new LinkedList<>();
 	private ThreadPoolExecutor backgroundTransferPool;
 	private char[] cachedPassword;
 	private char[] cachedPassPhrase;
@@ -100,7 +100,7 @@ public class SessionContentPanel extends JPanel implements PageHolder, CachedCre
 		processViewer = new ProcessViewer(this);
 		utilityPage = new UtilityPage(this);
 
-		Page[] pageArr = new Page[] { fileBrowser, terminalHolder, logViewer, searchPanel, diskspaceAnalyzer,
+		Page[] pageArr = new Page[] { terminalHolder, fileBrowser , logViewer, searchPanel, diskspaceAnalyzer,
 				processViewer, utilityPage };
 
 //		JPanel[] panels = {

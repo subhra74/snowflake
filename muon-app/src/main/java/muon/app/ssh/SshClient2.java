@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package muon.app.ssh;
 
@@ -42,18 +42,19 @@ import net.schmizz.sshj.userauth.method.AuthNone;
  *
  */
 public class SshClient2 implements Closeable {
-	private AtomicBoolean closed = new AtomicBoolean(false);
-	private SessionInfo info;
+	//30000 ms
+	private static final int CONNECTION_TIMEOUT = 30000;
+	private final AtomicBoolean closed = new AtomicBoolean(false);
+	private final SessionInfo info;
 	private SSHClient sshj;
-	private PasswordFinderDialog passwordFinder;
-	private InputBlocker inputBlocker;
-	private CachedCredentialProvider cachedCredentialProvider;
+	private final PasswordFinderDialog passwordFinder;
+	private final InputBlocker inputBlocker;
+	private final CachedCredentialProvider cachedCredentialProvider;
 	private SshClient2 previousHop;
 	private ServerSocket ss;
-
 	/**
 	 * O
-	 * 
+	 *
 	 * @param info2
 	 */
 	public SshClient2(SessionInfo info, InputBlocker inputBlocker, CachedCredentialProvider cachedCredentialProvider) {
@@ -153,10 +154,10 @@ public class SshClient2 implements Closeable {
 			}
 			try {
 				sshj.authPassword(user, password); // provide
-													// password
-													// updater
-													// PasswordUpdateProvider
-													// net.schmizz.sshj.userauth.password.PasswordUpdateProvider
+				// password
+				// updater
+				// PasswordUpdateProvider
+				// net.schmizz.sshj.userauth.password.PasswordUpdateProvider
 				return;
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -177,7 +178,8 @@ public class SshClient2 implements Closeable {
 		this.inputBlocker.blockInput();
 		try {
 			sshj = new SSHClient();
-
+			sshj.setConnectTimeout(CONNECTION_TIMEOUT);
+			sshj.setTimeout(CONNECTION_TIMEOUT);
 			if (hopStack.isEmpty()) {
 				this.setupProxyAndSocketFactory();
 				this.sshj.addHostKeyVerifier(App.HOST_KEY_VERIFIER);
@@ -237,38 +239,38 @@ public class SshClient2 implements Closeable {
 				System.out.println("Trying auth method: " + authMethod);
 
 				switch (authMethod) {
-				case "publickey":
-					try {
-						this.authPublicKey();
-						authenticated.set(true);
-					} catch (OperationCancelledException e) {
-						disconnect();
-						throw e;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					break;
+					case "publickey":
+						try {
+							this.authPublicKey();
+							authenticated.set(true);
+						} catch (OperationCancelledException e) {
+							disconnect();
+							throw e;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
 
-				case "keyboard-interactive":
-					try {
-						sshj.auth(promptUser(), new AuthKeyboardInteractive(new InteractiveResponseProvider()));
-						authenticated.set(true);
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					break;
+					case "keyboard-interactive":
+						try {
+							sshj.auth(promptUser(), new AuthKeyboardInteractive(new InteractiveResponseProvider()));
+							authenticated.set(true);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
 
-				case "password":
-					try {
-						this.authPassoword();
-						authenticated.set(true);
-					} catch (OperationCancelledException e) {
-						disconnect();
-						throw e;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-					break;
+					case "password":
+						try {
+							this.authPassoword();
+							authenticated.set(true);
+						} catch (OperationCancelledException e) {
+							disconnect();
+							throw e;
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+						break;
 				}
 
 				if (authenticated.get()) {
