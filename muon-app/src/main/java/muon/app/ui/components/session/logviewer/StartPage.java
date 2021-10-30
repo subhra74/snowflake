@@ -31,19 +31,21 @@ import muon.app.ui.components.SkinnedScrollPane;
 import muon.app.ui.components.SkinnedTextField;
 import util.CollectionHelper;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class StartPage extends JPanel {
-	private DefaultListModel<String> pinnedLogsModel;
-	private JList<String> pinnedLogList;
+	private final DefaultListModel<String> pinnedLogsModel;
+	private final JList<String> pinnedLogList;
 	private boolean hover = false;
-	private List<String> finalPinnedLogs;
+	private final List<String> finalPinnedLogs;
 	private static final Cursor HAND_CURSOR = new Cursor(Cursor.HAND_CURSOR);
 	private static final Cursor DEFAULT_CURSOR = new Cursor(
 			Cursor.DEFAULT_CURSOR);
-	private String sessionId;
+	private final String sessionId;
 
 	/**
 	 * 
@@ -68,8 +70,8 @@ public class StartPage extends JPanel {
 		JScrollPane jsp = new SkinnedScrollPane(pinnedLogList);
 		jsp.setBorder(new EmptyBorder(0, 10, 0, 10));
 		this.add(jsp);
-		JButton btnAddLog = new JButton("Add log");
-		JButton btnDelLog = new JButton("Delete");
+		JButton btnAddLog = new JButton(bundle.getString("add_log"));
+		JButton btnDelLog = new JButton(bundle.getString("delete"));
 		btnAddLog.addActionListener(e -> {
 			String logPath = promptLogPath();
 			if (logPath != null) {

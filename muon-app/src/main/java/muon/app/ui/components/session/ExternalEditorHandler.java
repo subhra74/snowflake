@@ -46,17 +46,19 @@ import util.PathUtils;
 import util.PlatformUtils;
 import util.TimeUtils;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class ExternalEditorHandler extends JDialog {
-	private JProgressBar progressBar;
-	private JLabel progressLabel;
-	private JButton btnCanel;
-	private JFrame frame;
+	private final JProgressBar progressBar;
+	private final JLabel progressLabel;
+	private final JButton btnCanel;
+	private final JFrame frame;
 	private FileChangeWatcher fileWatcher;
-	private AtomicBoolean stopFlag = new AtomicBoolean(false);
+	private final AtomicBoolean stopFlag = new AtomicBoolean(false);
 
 	/**
 	 * 
@@ -71,7 +73,7 @@ public class ExternalEditorHandler extends JDialog {
 		progressLabel = new JLabel("Transferring...");
 		progressLabel.setBorder(new EmptyBorder(0, 0, 20, 0));
 		progressLabel.setFont(App.SKIN.getDefaultFont().deriveFont(18.0f));
-		btnCanel = new JButton("Cancel");
+		btnCanel = new JButton(bundle.getString("cancel"));
 		Box bottomBox = Box.createHorizontalBox();
 		bottomBox.add(Box.createHorizontalGlue());
 		bottomBox.add(btnCanel);

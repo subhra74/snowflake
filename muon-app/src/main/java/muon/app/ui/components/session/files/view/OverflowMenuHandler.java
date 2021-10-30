@@ -25,21 +25,27 @@ import muon.app.ui.components.session.files.FileBrowser;
 import muon.app.ui.components.session.files.local.LocalFileBrowserView;
 import util.PathUtils;
 
+import static muon.app.App.bundle;
+
 public class OverflowMenuHandler {
-	private JRadioButtonMenuItem mSortName, mSortSize, mSortModified, mSortAsc, mSortDesc;
+	private final JRadioButtonMenuItem mSortName;
+	private final JRadioButtonMenuItem mSortSize;
+	private final JRadioButtonMenuItem mSortModified;
+	private final JRadioButtonMenuItem mSortAsc;
+	private final JRadioButtonMenuItem mSortDesc;
 
 	private FolderView folderView;
-	private JCheckBoxMenuItem mShowHiddenFiles;
+	private final JCheckBoxMenuItem mShowHiddenFiles;
 
-	private AtomicBoolean sortingChanging = new AtomicBoolean(false);
-	private KeyStroke ksHideShow;
-	private AbstractAction aHideShow;
-	private JPopupMenu popup;
+	private final AtomicBoolean sortingChanging = new AtomicBoolean(false);
+	private final KeyStroke ksHideShow;
+	private final AbstractAction aHideShow;
+	private final JPopupMenu popup;
 	// private FileComponentHolder holder;
-	private AbstractFileBrowserView fileBrowserView;
-	private JMenu favouriteLocations;
-	private JMenu mSortMenu;
-	private FileBrowser fileBrowser;
+	private final AbstractFileBrowserView fileBrowserView;
+	private final JMenu favouriteLocations;
+	private final JMenu mSortMenu;
+	private final FileBrowser fileBrowser;
 
 	public OverflowMenuHandler(AbstractFileBrowserView fileBrowserView, FileBrowser fileBrowser) {
 		// this.holder = holder;
@@ -47,7 +53,7 @@ public class OverflowMenuHandler {
 		this.fileBrowser = fileBrowser;
 		ksHideShow = KeyStroke.getKeyStroke(KeyEvent.VK_H, InputEvent.CTRL_DOWN_MASK);
 
-		mShowHiddenFiles = new JCheckBoxMenuItem("Show hidden files");
+		mShowHiddenFiles = new JCheckBoxMenuItem(bundle.getString("show_hidden_files2"));
 		mShowHiddenFiles.setSelected(App.getGlobalSettings().isShowHiddenFilesByDefault());
 
 		aHideShow = new AbstractAction() {
@@ -77,7 +83,7 @@ public class OverflowMenuHandler {
 
 		mSortDesc = createSortMenuItem("Sort descending", 1, bg2);
 
-		this.favouriteLocations = new JMenu("Bookmarks");
+		this.favouriteLocations = new JMenu(bundle.getString("bookmarks"));
 
 		popup = new JPopupMenu();
 		mSortMenu = new JMenu("Sort");

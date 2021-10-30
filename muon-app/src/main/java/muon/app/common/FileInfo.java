@@ -7,10 +7,10 @@ import java.util.regex.Pattern;
 
 import util.TimeUtils;
 
-public class FileInfo implements Serializable, Comparable<FileInfo> {
+public class FileInfo implements Serializable {
 	private static final Pattern USER_REGEX = Pattern
 			.compile("^[^\\s]+\\s+[^\\s]+\\s+([^\\s]+)\\s+([^\\s]+)");
-	private String name;
+	private final String name;
 	private String path;
 	private long size;
 	private FileType type;
@@ -24,9 +24,9 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
 	private boolean hidden;
 
 	public FileInfo(String name, String path, long size, FileType type,
-			long lastModified, int permission, String protocol,
-			String permissionString, long created, String extra,
-			boolean hidden) {
+					long lastModified, int permission, String protocol,
+					String permissionString, long created, String extra,
+					boolean hidden) {
 		super();
 		this.name = name;
 		this.path = path;
@@ -172,26 +172,7 @@ public class FileInfo implements Serializable, Comparable<FileInfo> {
 		this.hidden = hidden;
 	}
 
-	@Override
-	public int compareTo(FileInfo o) {
-		if (getType() == FileType.Directory || getType() == FileType.DirLink) {
-			if (o.getType() == FileType.Directory
-					|| o.getType() == FileType.DirLink) {
-				return getName().compareToIgnoreCase(o.getName());
-			} else {
-				return 1;
-			}
-		} else {
-			if (o.getType() == FileType.Directory
-					|| o.getType() == FileType.DirLink) {
-				return -1;
-			} else {
-				return getName().compareToIgnoreCase(o.getName());
-			}
-		}
-//        if (o != null && o.getName() != null) {
-//            return getName().compareToIgnoreCase(o.getName());
-//        }
-//        return 1;
+	public boolean isDirectory() {
+		return getType() == FileType.Directory || getType() == FileType.DirLink;
 	}
 }

@@ -12,15 +12,22 @@ import muon.app.ui.components.session.SessionInfo;
 import java.awt.*;
 import java.util.function.Consumer;
 
+import static muon.app.App.bundle;
+
 public class RemoteKeyPanel extends JPanel {
 	private SessionInfo info;
-	private JTextField txtKeyFile;
-	private JButton btnGenNewKey, btnRefresh, btnAdd, btnRemove, btnEdit;
-	private JTextArea txtPubKey;
-	private Consumer<?> callback1, callback2;
+	private final JTextField txtKeyFile;
+	private final JButton btnGenNewKey;
+	private final JButton btnRefresh;
+	private final JButton btnAdd;
+	private final JButton btnRemove;
+	private final JButton btnEdit;
+	private final JTextArea txtPubKey;
+	private final Consumer<?> callback1;
+	private final Consumer<?> callback2;
 	private Consumer<String> callback3;
-	private DefaultListModel<String> model;
-	private JList<String> jList;
+	private final DefaultListModel<String> model;
+	private final JList<String> jList;
 
 	public RemoteKeyPanel(SessionInfo info, Consumer<?> callback1,
 			Consumer<?> callback2, Consumer<String> callback3) {
@@ -30,7 +37,7 @@ public class RemoteKeyPanel extends JPanel {
 		this.callback1 = callback1;
 		// this.callback2 = callback2;
 		this.callback2 = callback3;
-		JLabel lblTitle = new JLabel("Public key file:");
+		JLabel lblTitle = new JLabel(bundle.getString("public_key_file"));
 		txtKeyFile = new SkinnedTextField(20);// new JTextField(20);
 		txtKeyFile.setBorder(null);
 		txtKeyFile.setBackground(App.SKIN.getDefaultBackground());
@@ -46,8 +53,8 @@ public class RemoteKeyPanel extends JPanel {
 		txtPubKey.setLineWrap(true);
 		JScrollPane jScrollPane = new SkinnedScrollPane(txtPubKey);
 
-		btnGenNewKey = new JButton("Generate new key");
-		btnRefresh = new JButton("Refresh");
+		btnGenNewKey = new JButton(bundle.getString("generate_new_key"));
+		btnRefresh = new JButton(bundle.getString("generate"));
 
 		btnGenNewKey.addActionListener(e -> {
 			callback1.accept(null);
@@ -73,12 +80,12 @@ public class RemoteKeyPanel extends JPanel {
 		jList = new JList<>(model);
 		jList.setBackground(App.SKIN.getTextFieldBackground());
 
-		btnAdd = new JButton("Add");
-		btnEdit = new JButton("Edit");
-		btnRemove = new JButton("Remove");
+		btnAdd = new JButton(bundle.getString("add"));
+		btnEdit = new JButton(bundle.getString("edit"));
+		btnRemove = new JButton();
 
 		btnAdd.addActionListener(e -> {
-			String text = JOptionPane.showInputDialog(null, "New entry");
+			String text = JOptionPane.showInputDialog(null, bundle.getString("new_entry"));
 			if (text != null && text.length() > 0) {
 				model.addElement(text);
 				callback3.accept(getAuthorizedKeys());
@@ -88,11 +95,11 @@ public class RemoteKeyPanel extends JPanel {
 		btnEdit.addActionListener(e -> {
 			int index = jList.getSelectedIndex();
 			if (index < 0) {
-				JOptionPane.showMessageDialog(null, "No entry is selected");
+				JOptionPane.showMessageDialog(null, bundle.getString("no_entry_selected"));
 				return;
 			}
 			String str = model.get(index);
-			String text = JOptionPane.showInputDialog(null, "New entry", str);
+			String text = JOptionPane.showInputDialog(null, bundle.getString("new_entry"), str);
 			if (text != null && text.length() > 0) {
 				model.set(index, text);
 				callback3.accept(getAuthorizedKeys());
@@ -102,7 +109,7 @@ public class RemoteKeyPanel extends JPanel {
 		btnRemove.addActionListener(e -> {
 			int index = jList.getSelectedIndex();
 			if (index < 0) {
-				JOptionPane.showMessageDialog(null, "No entry is selected");
+				JOptionPane.showMessageDialog(null, bundle.getString("no_entry_selected"));
 				return;
 			}
 			model.remove(index);
@@ -120,7 +127,7 @@ public class RemoteKeyPanel extends JPanel {
 
 		Box hbox2 = Box.createHorizontalBox();
 		hbox2.setBorder(new EmptyBorder(10, 10, 10, 10));
-		hbox2.add(new JLabel("Authorized keys"));
+		hbox2.add(new JLabel(bundle.getString("authorized_keys")));
 		hbox2.add(Box.createHorizontalStrut(10));
 
 		JPanel authorizedKeysPanel = new JPanel(new BorderLayout());

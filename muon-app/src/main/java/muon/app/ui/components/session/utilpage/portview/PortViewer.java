@@ -29,13 +29,15 @@ import muon.app.ui.components.session.SessionContentPanel;
 import muon.app.ui.components.session.utilpage.UtilPageItemView;
 import util.SudoUtils;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class PortViewer extends UtilPageItemView {
 	private static final String SEPARATOR = UUID.randomUUID().toString();
-	private SocketTableModel model = new SocketTableModel();
+	private final SocketTableModel model = new SocketTableModel();
 	private JTable table;
 
 	private JButton btnRefresh;
@@ -144,9 +146,9 @@ public class PortViewer extends UtilPageItemView {
 		table.setIntercellSpacing(new Dimension(0, 0));
 		table.setFillsViewportHeight(true);
 
-		JLabel lbl1 = new JLabel("Search");
+		JLabel lbl1 = new JLabel(bundle.getString("search"));
 		txtFilter = new SkinnedTextField(30);// new JTextField(30);
-		btnFilter = new JButton("Search");
+		btnFilter = new JButton(bundle.getString("search"));
 
 		Box b1 = Box.createHorizontalBox();
 		b1.add(lbl1);
@@ -165,7 +167,7 @@ public class PortViewer extends UtilPageItemView {
 
 		Box box = Box.createHorizontalBox();
 		box.setBorder(new EmptyBorder(10, 0, 0, 0));
-		btnRefresh = new JButton("Refresh");
+		btnRefresh = new JButton(bundle.getString("refresh"));
 		btnRefresh.addActionListener(e -> {
 			getListingSockets();
 		});

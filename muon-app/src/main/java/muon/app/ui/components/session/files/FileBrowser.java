@@ -45,19 +45,21 @@ import muon.app.ui.components.session.files.transfer.FileTransfer.ConflictAction
 import muon.app.ui.components.session.files.transfer.FileTransfer.TransferMode;
 import muon.app.ui.components.session.files.view.DndTransferData;
 import util.FontAwesomeContants;
+import static muon.app.App.bundle;
 
 public class FileBrowser extends Page {
 	private FileTransfer ongoingFileTransfer;
-	private JSplitPane horizontalSplitter;
-	private ClosableTabbedPanel leftTabs, rightTabs;
-	private SessionContentPanel holder;
-	private SessionInfo info;
-	private Map<String, List<FileInfo>> sshDirCache = new HashMap<>();
-	private int activeSessionId;
-	private AtomicBoolean init = new AtomicBoolean(false);
-	private JPopupMenu popup;
+	private final JSplitPane horizontalSplitter;
+	private final ClosableTabbedPanel leftTabs;
+	private final ClosableTabbedPanel rightTabs;
+	private final SessionContentPanel holder;
+	private final SessionInfo info;
+	private final Map<String, List<FileInfo>> sshDirCache = new HashMap<>();
+	private final int activeSessionId;
+	private final AtomicBoolean init = new AtomicBoolean(false);
+	private final JPopupMenu popup;
 	private boolean leftPopup = false;
-	private List<AbstractFileBrowserView> viewList = new ArrayList<>();
+	private final List<AbstractFileBrowserView> viewList = new ArrayList<>();
 	private JLabel lblStat1;
 	private Box statusBox;
 
@@ -569,7 +571,7 @@ public class FileBrowser extends Page {
 
 	@Override
 	public String getText() {
-		return "File browser";
+		return bundle.getString("file_browser");
 	}
 
 	/**

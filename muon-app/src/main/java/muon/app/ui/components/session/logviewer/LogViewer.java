@@ -20,16 +20,18 @@ import muon.app.ui.components.session.SessionContentPanel;
 import util.FontAwesomeContants;
 import util.PathUtils;
 
+import static muon.app.App.bundle;
+
 /**
  * @author subhro
  *
  */
 public class LogViewer extends Page {
-	private ClosableTabbedPanel tabs;
-	private StartPage startPage;
-	private JPanel content;
-	private SessionContentPanel sessionContent;
-	private Set<String> openLogs = new LinkedHashSet<>();
+	private final ClosableTabbedPanel tabs;
+	private final StartPage startPage;
+	private final JPanel content;
+	private final SessionContentPanel sessionContent;
+	private final Set<String> openLogs = new LinkedHashSet<>();
 
 	/**
 	 * 
@@ -65,7 +67,7 @@ public class LogViewer extends Page {
 
 	@Override
 	public String getText() {
-		return "Server logs";
+		return bundle.getString("server_logs");
 	}
 
 	public void openLog(FileInfo remotePath) {
