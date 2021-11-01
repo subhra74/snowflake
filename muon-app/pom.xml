@@ -352,6 +352,7 @@
 					<jrePath>/Library/Java/JavaVirtualMachines/jdk-11.0.12.jdk</jrePath>
 					<iconFile>./src/dmg/muon-logo.icns</iconFile>
 					<bundleName>Muon</bundleName>
+					<generateDiskImageFile>true</generateDiskImageFile>
 				</configuration>
 				<executions>
 					<execution>
