@@ -1,10 +1,10 @@
 Package: muon
-Version: 1.2.0
+Version: [[version]]
 Section: base
 Priority: optional
 Architecture: all
 Depends: openjdk-11-jre
-Maintainer: Subhra Das Gupta <subhra74@github.com>
+Maintainer: Devlinx9 <devlinx9@github.com>
 Description: Muon is a modern graphical SSH client
  Muon is a modern graphical SSH client which provides
  simple easy to use GUI for common tasks

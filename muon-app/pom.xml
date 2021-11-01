@@ -305,8 +305,8 @@
 						<configuration>
 							<icon>src/exe/image.ico</icon>
 							<headerType>console</headerType>
-							<outfile>target/muon.exe</outfile>
-							<jar>target/muon_1.2.1.jar</jar>
+							<outfile>target/muon_${project.version}.exe</outfile>
+							<jar>target/muon_${project.version}.jar</jar>
 							<errTitle>muon</errTitle>
 							<classPath>
 								<mainClass>muon.app.App</mainClass>
@@ -321,8 +321,8 @@
 								<txtFileVersion>1.0.0.0</txtFileVersion>
 								<fileDescription>Executes muon ssh client</fileDescription>
 								<copyright>GPLv3.0</copyright>
-								<productVersion>1.2.0.0</productVersion>
-								<txtProductVersion>1.2.0.0</txtProductVersion>
+								<productVersion>${project.version}.0</productVersion>
+								<txtProductVersion>${project.version}.0</txtProductVersion>
 								<productName>MuonSSH</productName>
 								<internalName>muonssh</internalName>
 								<originalFilename>muon.exe</originalFilename>
