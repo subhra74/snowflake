@@ -10,8 +10,9 @@ import com.github.markusbernhardt.proxy.ProxySearch;
 
 import muon.app.App;
 
+import static util.Constants.API_UPDATE_URL;
+
 public class UpdateChecker {
-	public static final String UPDATE_URL = "https://api.github.com/repos/subhra74/snowflake/releases/latest";
 
 	static {
 		CertificateValidator.registerCertificateHook();
@@ -27,7 +28,7 @@ public class UpdateChecker {
 			System.out.println("Checking for url");
 			ObjectMapper objectMapper = new ObjectMapper();
 			objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-			VersionEntry latestRelease = objectMapper.readValue(new URL(UPDATE_URL).openStream(),
+			VersionEntry latestRelease = objectMapper.readValue(new URL(API_UPDATE_URL).openStream(),
 					new TypeReference<VersionEntry>() {
 					});
 			System.out.println("Latest release: " + latestRelease);

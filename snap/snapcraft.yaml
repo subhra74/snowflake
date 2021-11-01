@@ -1,21 +1,21 @@
-name: snowflake
-version: "1.0.4"
+name: muon
+version: "1.2.1"
 summary: Graphical SFTP client and terminal emulator with helpful utilities
 description: |
-  Snowflake is a graphical SSH client. It has a file browser,
+  Muon is a graphical SSH client. It has a file browser,
   terminal emulator, resource/process manager, disk space analyzer, 
   text editor, log viewer and lots of other helpful tools, 
   which makes it easy to work with remote servers.
 
-  More information is available on GitHub Repo: https://github.com/subhra74/snowflake
+  More information is available on GitHub Repo: https://github.com/devlinx9/muon-ssh
 grade: stable
 base: core18
-icon: snap/gui/snowflake.png
+icon: snap/gui/muon.png
 confinement: strict
 
 apps:
-  snowflake:
-    command: java -jar $SNAP/jar/snowflake-1.0.4-full.jar
+  muon:
+    command: java -jar $SNAP/jar/muon_1.2.1.jar
     environment:
       # Needed for fontconfig
       XDG_DATA_HOME: ${SNAP}/usr/share
@@ -24,9 +24,9 @@ apps:
     plugs: [x11, ssh-keys,network, desktop, home, network-bind]
 
 parts:
-  snowflake:
+  muon:
     plugin: maven
-    source: https://github.com/subhra74/snowflake.git
+    source: https://github.com/devlinx9/muon-ssh.git
     build-packages:
       - openjdk-11-jdk
     stage-packages:

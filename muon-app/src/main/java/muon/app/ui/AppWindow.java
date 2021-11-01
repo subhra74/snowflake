@@ -40,7 +40,6 @@ import muon.app.ui.components.session.SessionInfo;
 import muon.app.ui.components.session.SessionListPanel;
 import muon.app.ui.components.session.files.transfer.BackgroundFileTransfer;
 import muon.app.ui.components.session.files.transfer.BackgroundTransferPanel;
-import muon.app.ui.components.session.files.transfer.FileTransfer;
 import muon.app.ui.components.settings.SettingsDialog;
 import muon.app.ui.components.settings.SettingsPageName;
 import muon.app.updater.UpdateChecker;
@@ -48,6 +47,8 @@ import util.FontAwesomeContants;
 
 
 import static muon.app.App.bundle;
+import static util.Constants.*;
+
 /**
  * @author subhro
  *
@@ -63,15 +64,11 @@ public class AppWindow extends JFrame {
 	private final Component bottomPanel;
 	private JLabel lblUpdate, lblUpdateText;
 
-	public static final String HELP_URL = "https://github.com/subhra74/snowflake/wiki";
-	public static final String GITHUB_URL = "https://github.com/subhra74/snowflake";
-
-
 	/**
 	 * 
 	 */
 	public AppWindow() {
-		super("Muon SSH");
+		super(APPLICATION_NAME);
 		try {
 			this.setIconImage(ImageIO.read(AppWindow.class.getResource("/muon.png")));
 		} catch (Exception e) {
@@ -212,7 +209,7 @@ public class AppWindow extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (Desktop.isDesktopSupported()) {
 					try {
-						Desktop.getDesktop().browse(new URI(GITHUB_URL));
+						Desktop.getDesktop().browse(new URI(REPOSITORY_URL));
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					} catch (URISyntaxException ex) {
@@ -224,7 +221,7 @@ public class AppWindow extends JFrame {
 
 		// b1.setBorder(new EmptyBorder(5, 5, 5, 5));
 
-		JLabel lblBrand = new JLabel("Muon SSH 1.1.0");
+		JLabel lblBrand = new JLabel(APPLICATION_NAME+ " "+ APPLICATION_VERSION);
 		lblBrand.addMouseListener(ml);
 		lblBrand.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		// lblBrand.setFont(App.SKIN.getDefaultFont().deriveFont(Font.PLAIN,
@@ -234,7 +231,7 @@ public class AppWindow extends JFrame {
 		b1.add(lblBrand);
 		b1.add(Box.createRigidArea(new Dimension(10, 10)));
 
-		JLabel lblUrl = new JLabel("https://github.com/devlinx9/muon-ssh");
+		JLabel lblUrl = new JLabel(REPOSITORY_URL);
 		lblUrl.addMouseListener(ml);
 		lblUrl.setCursor(new Cursor(Cursor.HAND_CURSOR));
 		// lblUrl.setFont(App.SKIN.getDefaultFont().deriveFont(Font.PLAIN, 14));
@@ -370,7 +367,7 @@ public class AppWindow extends JFrame {
 	protected void openUpdateURL() {
 		if (Desktop.isDesktopSupported()) {
 			try {
-				Desktop.getDesktop().browse(new URI(App.UPDATE_URL));
+				Desktop.getDesktop().browse(new URI(App.UPDATE_URL2));
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			} catch (URISyntaxException ex) {

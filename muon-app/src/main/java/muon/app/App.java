@@ -41,6 +41,9 @@ import util.Language;
 import util.PlatformUtils;
 import util.Win32DragHandler;
 
+import static util.Constants.APPLICATION_VERSION;
+import static util.Constants.UPDATE_URL;
+
 /**
  * Hello world!
  *
@@ -50,8 +53,8 @@ public class App {
 		System.setProperty("java.net.useSystemProxies", "true");
 	}
 
-	public static final VersionEntry VERSION = new VersionEntry("v1.0.5");
-	public static final String UPDATE_URL = "https://subhra74.github.io/snowflake/check-update.html?v="
+	public static final VersionEntry VERSION = new VersionEntry("v"+APPLICATION_VERSION);
+	public static final String UPDATE_URL2 = UPDATE_URL + "/check-update.html?v="
 			+ VERSION.getNumericValue();
 
 	public static final String CONFIG_DIR = System.getProperty("user.home") + File.separatorChar + "muon-ssh";

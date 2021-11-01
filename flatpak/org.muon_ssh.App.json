@@ -1,10 +1,10 @@
 {
-    "app-id": "org.snowflake_ssh.App",
+    "app-id": "org.muon_ssh.App",
     "runtime": "org.freedesktop.Platform",
     "runtime-version": "19.08",
     "sdk": "org.freedesktop.Sdk",
     "sdk-extensions" : [ "org.freedesktop.Sdk.Extension.openjdk11" ],
-    "command": "snowflake",
+    "command": "muon",
     "modules": [
 	   {
 		    "name" : "openjdk",
@@ -12,35 +12,35 @@
 		    "build-commands" : [ "/usr/lib/sdk/openjdk11/install.sh" ]
 	   },
         {
-            "name": "snowflake",
+            "name": "muon",
             "buildsystem": "simple",
             "build-commands": [
-            	 "mkdir -p /app/snowflake",
+            	 "mkdir -p /app/muon",
             	 "mkdir -p /app/bin",
             	 "mkdir -p /app/share/icons/hicolor/128x128/apps",
             	 "mkdir -p /app/share/applications",
-            	  "cp snowflake.jar /app/snowflake",
-            	  "cp snowflake /app/bin",
-            	  "chmod 755 /app/bin/snowflake",
-            	  "cp org.snowflake_ssh.App.png /app/share/icons/hicolor/128x128/apps",
-            	  "cp org.snowflake_ssh.App.desktop /app/share/applications"
+            	  "cp muon.jar /app/muon",
+            	  "cp muon /app/bin",
+            	  "chmod 755 /app/bin/muon",
+            	  "cp org.muon_ssh.App.png /app/share/icons/hicolor/128x128/apps",
+            	  "cp org.muon_ssh.App.desktop /app/share/applications"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "path": "snowflake.jar"
+                    "path": "muon.jar"
                 },
                 {
                     "type": "file",
-                    "path": "snowflake"
+                    "path": "muon"
                 },
                 {
                     "type": "file",
-                    "path": "org.snowflake_ssh.App.png"
+                    "path": "org.muon_ssh.App.png"
                 },
                 {
                     "type": "file",
-                    "path": "org.snowflake_ssh.App.desktop"
+                    "path": "org.muon_ssh.App.desktop"
                 }
             ]
         }
