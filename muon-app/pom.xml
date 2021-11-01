@@ -24,7 +24,7 @@
 		<dependency>
 			<groupId>muon-jediterm</groupId>
 			<artifactId>muon-jediterm</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>1.2.1</version>
 		</dependency>
 
 		<dependency>
@@ -331,6 +331,39 @@
 					</execution>
 				</executions>
 			</plugin>
+			<plugin>
+				<groupId>sh.tak.appbundler</groupId>
+				<artifactId>appbundle-maven-plugin</artifactId>
+				<version>1.2.0</version>
+				<dependencies>
+					<dependency>
+						<groupId>org.codehaus.plexus</groupId>
+						<artifactId>plexus-archiver</artifactId>
+						<version>RELEASE</version>
+					</dependency>
+					<dependency>
+						<groupId>org.apache.velocity</groupId>
+						<artifactId>velocity-tools</artifactId>
+						<version>2.0</version>
+					</dependency>
+				</dependencies>
+				<configuration>
+					<mainClass>muon.app.App</mainClass>
+					<jrePath>/Library/Java/JavaVirtualMachines/jdk-11.0.12.jdk</jrePath>
+					<iconFile>./src/dmg/muon-logo.icns</iconFile>
+					<bundleName>Muon</bundleName>
+					<generateDiskImageFile>true</generateDiskImageFile>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>bundle</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
 		</plugins>
 	</build>
 	<repositories>
