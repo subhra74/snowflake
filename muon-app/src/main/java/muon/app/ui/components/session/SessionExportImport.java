@@ -77,12 +77,12 @@ public class SessionExportImport {
 		objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 		try {
 			SavedSessionTree savedSessionTree = objectMapper.readValue(new File(System.getProperty("user.home")
-					+ File.separator + "snowflake-ssh" + File.separator + "session-store.json"),
+					+ File.separator + "muon-ssh" + File.separator + "session-store.json"),
 					new TypeReference<SavedSessionTree>() {
 					});
 			SessionStore.save(savedSessionTree.getFolder(), savedSessionTree.getLastSelection(),
 					new File(App.CONFIG_DIR, App.SESSION_DB_FILE));
-			Files.copy(Paths.get(System.getProperty("user.home"), "snowflake-ssh", "snippets.json"),
+			Files.copy(Paths.get(System.getProperty("user.home"), "muon-ssh", "snippets.json"),
 					Paths.get(App.CONFIG_DIR, App.SNIPPETS_FILE));
 		} catch (IOException e) {
 			e.printStackTrace();
