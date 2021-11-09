@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<project
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>muonssh</groupId>
+		<artifactId>muonssh</artifactId>
+		<version>2.0.0</version>
+	</parent>
+	<groupId>muonssh-jediterm</groupId>
+	<artifactId>muonssh-jediterm</artifactId>
+	<name>muonssh-jediterm</name>
+	<url>http://maven.apache.org</url>
+	<properties>
+		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>11</maven.compiler.source>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>3.8.1</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-1.2-api -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-1.2-api</artifactId>
+			<version>2.13.0</version>
+		</dependency>
+
+	</dependencies>
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>central</name>
+			<url>https://repo.maven.apache.org/maven2</url>
+		</repository>
+		<repository>
+			<id>jcenter</id>
+			<name>jcenter</name>
+			<url>https://jcenter.bintray.com</url>
+		</repository>
+	</repositories>
+</project>

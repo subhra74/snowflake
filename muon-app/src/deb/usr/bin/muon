@@ -1,2 +1,0 @@
-#!/bin/sh
-java -jar /opt/muon/muon.jar

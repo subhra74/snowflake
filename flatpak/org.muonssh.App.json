@@ -1,0 +1,50 @@
+{
+    "app-id": "org.muonssh.App",
+    "runtime": "org.freedesktop.Platform",
+    "runtime-version": "19.08",
+    "sdk": "org.freedesktop.Sdk",
+    "sdk-extensions" : [ "org.freedesktop.Sdk.Extension.openjdk11" ],
+    "command": "muonssh",
+    "modules": [
+	   {
+		    "name" : "openjdk",
+		    "buildsystem" : "simple",
+		    "build-commands" : [ "/usr/lib/sdk/openjdk11/install.sh" ]
+	   },
+        {
+            "name": "muonssh",
+            "buildsystem": "simple",
+            "build-commands": [
+            	 "mkdir -p /app/muonssh",
+            	 "mkdir -p /app/bin",
+            	 "mkdir -p /app/share/icons/hicolor/128x128/apps",
+            	 "mkdir -p /app/share/applications",
+            	  "cp muonssh.jar /app/muonssh",
+            	  "cp muonssh /app/bin",
+            	  "chmod 755 /app/bin/muonssh",
+            	  "cp org.muonssh.App.png /app/share/icons/hicolor/128x128/apps",
+            	  "cp org.muonssh.App.desktop /app/share/applications"
+            ],
+            "sources": [
+                {
+                    "type": "file",
+                    "path": "muonssh.jar"
+                },
+                {
+                    "type": "file",
+                    "path": "muonssh"
+                },
+                {
+                    "type": "file",
+                    "path": "org.muonssh.App.png"
+                },
+                {
+                    "type": "file",
+                    "path": "org.muonssh.App.desktop"
+                }
+            ]
+        }
+    ],
+    "finish-args" : [ "--env=PATH=/app/jre/bin:/usr/bin:/app/bin","--share=ipc", "--socket=x11",
+        "--share=network","--filesystem=host" ]
+}

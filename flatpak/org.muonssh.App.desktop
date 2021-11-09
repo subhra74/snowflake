@@ -1,0 +1,5 @@
+[Desktop Entry]
+Name=Muon SSH client
+Exec=muonssh
+Icon=org.muonssh.App
+Type=Application
