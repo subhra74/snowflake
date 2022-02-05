@@ -553,13 +553,39 @@ public class FileBrowser extends Page {
 			return;
 		}
 		init.set(true);
-		SshFileBrowserView left = new SshFileBrowserView(this, null, PanelOrientation.Left);
+                //chck if remote folder setted and use it
+                String TargetSSHDir = null;
+                
+                if (info.getRemoteFolder() != null && !info.getRemoteFolder().isEmpty()){
+                    TargetSSHDir = info.getRemoteFolder();
+                }
+                        
+                
+                        
+                        
+		SshFileBrowserView left = new SshFileBrowserView(this, TargetSSHDir, PanelOrientation.Left);
 		this.leftTabs.addTab(left.getTabTitle(), left);
-
-		LocalFileBrowserView right = new LocalFileBrowserView(this, System.getProperty("user.home"),
+                
+                
+                
+                //Check if exist dir, if exist use it
+                String TargetDir = null;
+                if (info.getLocalFolder() != null && !info.getLocalFolder().isEmpty() && new File(info.getLocalFolder()).exists()){
+                        TargetDir = info.getLocalFolder();
+                }else{
+                    
+                    TargetDir = System.getProperty("user.home");
+                }
+		LocalFileBrowserView right = new LocalFileBrowserView(this,TargetDir,
 				PanelOrientation.Right);
+                
+                
+                
+                
+                
 		this.rightTabs.addTab(right.getTabTitle(), right);
 	}
+
 
 	@Override
 	public String getIcon() {
