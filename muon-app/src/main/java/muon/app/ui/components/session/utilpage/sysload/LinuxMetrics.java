@@ -20,7 +20,7 @@ public class LinuxMetrics {
 	public void updateMetrics(RemoteSessionInstance instance) throws Exception {
 		StringBuilder out = new StringBuilder(), err = new StringBuilder();
 		int ret = instance.exec(
-				"uname; head -1 /proc/stat;grep -E \"MemTotal|MemFree|Cached|SwapTotal|SwapFree\" /proc/meminfo",
+				"uname; head -n 1 /proc/stat;grep -E \"MemTotal|MemFree|Cached|SwapTotal|SwapFree\" /proc/meminfo",
 				new AtomicBoolean(), out, err);
 		if (ret != 0)
 			throw new Exception("Error while getting metrics");
