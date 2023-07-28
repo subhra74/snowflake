@@ -28,3 +28,4 @@ muon-jediterm/target/surefire-reports/org.muon.jediterm.AppTest.txt
 muon-jediterm/target/surefire-reports/TEST-org.muon.jediterm.AppTest.xml
 muon-main/target/maven-archiver/pom.properties
 muon-main/target/surefire-reports/muon.AppTest.txt
+muon-main/target/surefire-reports/TEST-muon.AppTest.xml
