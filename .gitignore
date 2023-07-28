@@ -16,3 +16,13 @@ muon-jediterm/target/*
 muon-app/target/maven-archiver/pom.properties
 muon-jediterm/target/*
 muon-jediterm\target\*
+.DS_Store
+muon-app/target/maven-archiver/pom.properties
+muon-app/target/surefire-reports/TEST-muon.app.AppTest.xml
+muon-jediterm/target/maven-archiver/pom.properties
+muon-jediterm/target/maven-status/maven-compiler-plugin/compile/default-compile/createdFiles.lst
+muon-jediterm/target/maven-status/maven-compiler-plugin/compile/default-compile/inputFiles.lst
+muon-jediterm/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/createdFiles.lst
+muon-jediterm/target/maven-status/maven-compiler-plugin/testCompile/default-testCompile/inputFiles.lst
+muon-jediterm/target/surefire-reports/org.muon.jediterm.AppTest.txt
+muon-jediterm/target/surefire-reports/TEST-org.muon.jediterm.AppTest.xml

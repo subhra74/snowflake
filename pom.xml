@@ -8,5 +8,6 @@
   <modules>
     <module>muon-app</module>
     <module>muon-jediterm</module>
+      <module>muon-main</module>
   </modules>
 </project>

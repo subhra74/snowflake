@@ -1,4 +1,4 @@
 -------------------------------------------------------------------------------
-Test set: org.muon.jediterm.AppTest
+Test set: muon.AppTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.006 sec
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.01 s - in muon.AppTest
