@@ -7,7 +7,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>muon-main</artifactId>
+    <artifactId>app</artifactId>
     <packaging>jar</packaging>
 
     <name>muon-main</name>

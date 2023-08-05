@@ -10,7 +10,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<groupId>muon-app</groupId>
-	<artifactId>muon-app</artifactId>
+	<artifactId>muon-app1</artifactId>
 
 	<name>muon-app</name>
 	<url>http://maven.apache.org</url>
