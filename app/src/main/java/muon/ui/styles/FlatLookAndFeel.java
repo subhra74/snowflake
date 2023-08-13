@@ -1,8 +1,31 @@
 package muon.ui.styles;
 
-import javax.swing.plaf.basic.BasicLookAndFeel;
+import javax.swing.*;
+import javax.swing.plaf.basic.*;
+import java.awt.*;
 
 public class FlatLookAndFeel extends BasicLookAndFeel {
+
+    @Override
+    public void initClassDefaults(UIDefaults table) {
+        super.initClassDefaults(table);
+        table.putDefaults(new Object[]{
+                "ButtonUI", FlatButtonUI.class.getName(),
+                "TextFieldUI", FlatTextFieldUI.class.getName(),
+                "PasswordFieldUI", FlatPasswordFieldUI.class.getName(),
+                "TreeUI", FlatTreeUI.class.getName(),
+                "SplitPaneUI", FlatSplitPaneUI.class.getName(),
+                "PanelUI", FlatPanelUI.class.getName(),
+                "ComboBoxUI", FlatComboBoxUI.class.getName(),
+                "LabelUI", FlatLabelUI.class.getName()
+        });
+    }
+
+    protected void initComponentDefaults(UIDefaults table) {
+        super.initComponentDefaults(table);
+        table.putDefaults(AppTheme.INSTANCE.getDefaultStyles());
+    }
+
     @Override
     public String getName() {
         return "FlatLookAndFeel";

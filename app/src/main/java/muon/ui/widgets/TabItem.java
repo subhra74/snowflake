@@ -1,6 +1,6 @@
 package muon.ui.widgets;
 
-import muon.util.FontIcon;
+import muon.util.IconCode;
 import muon.util.IconFont;
 
 import javax.swing.*;
@@ -23,10 +23,10 @@ public class TabItem extends JComponent {
     private boolean isStretchable, isCloseButtonHidden;
     private Color selectionColor, backgroundColor, iconColor, closeButtonColor, selectionBackground, titleColor, selectedTitleColor;
     private Border selectedBorder, unselectedBorder;
-    private FontIcon titleIcon, closeIcon;
+    private IconCode titleIcon, closeIcon;
     private ActionListener tabClicked, closeClicked;
 
-    public TabItem(FontIcon titleIcon, FontIcon closeIcon,
+    public TabItem(IconCode titleIcon, IconCode closeIcon,
                    Color selectionColor, boolean isSelected,
                    Color backgroundColor, boolean hideCloseButton,
                    Color iconColor, Color closeButtonColor,
@@ -54,8 +54,8 @@ public class TabItem extends JComponent {
             this.tabIconLabel.setFont(IconFont.getSharedInstance().getIconFont(18.0f));
         }
         this.tabTitle = new JLabel();
-        this.tabTitle.setMinimumSize(new Dimension(0, 0));
         this.tabTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+        this.tabTitle.setMinimumSize(new Dimension(0, 30));
         this.tabTitle.setBorder(new EmptyBorder(0, 10, 2, 10));
         if (Objects.nonNull(closeIcon)) {
             this.tabCloseButton = new JLabel();
@@ -75,14 +75,22 @@ public class TabItem extends JComponent {
         setOpaque(true);
         if (isStretchable) {
             setLayout(new BorderLayout(10, 10));
-            add(tabIconLabel, BorderLayout.WEST);
+            if(Objects.nonNull(tabIconLabel)){
+                add(tabIconLabel, BorderLayout.WEST);
+            }
             add(tabTitle);
-            add(tabCloseButton, BorderLayout.EAST);
+            if(Objects.nonNull(tabCloseButton)){
+                add(tabCloseButton, BorderLayout.EAST);
+            }
         } else {
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            add(tabIconLabel);
+            if(Objects.nonNull(tabIconLabel)){
+                add(tabIconLabel);
+            }
             add(tabTitle);
-            add(tabCloseButton);
+            if(Objects.nonNull(tabCloseButton)){
+                add(tabCloseButton);
+            }
         }
         setSelected(isSelected);
 

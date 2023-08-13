@@ -1,11 +1,10 @@
 package muon.ui.widgets;
 
-import muon.util.FontIcon;
+import muon.util.IconCode;
 
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,7 +15,7 @@ public class TabbedPanel extends JPanel {
     private Color selectionColor, backgroundColor, iconColor,
             closeButtonColor, selectionBackground, titleColor,
             selectedTitleColor;
-    private FontIcon titleIcon, closeIcon;
+    private IconCode closeIcon;
     private Box tabHolder;
     private CardLayout cardLayout;
     private JPanel cardPanel;
@@ -32,8 +31,7 @@ public class TabbedPanel extends JPanel {
                        Color selectionBackground,
                        Color titleColor,
                        Color selectedTitleColor,
-                       FontIcon titleIcon,
-                       FontIcon closeIcon,
+                       IconCode closeIcon,
                        Color tabBorderColor) {
         super(new BorderLayout(), true);
         this.isStretchable = isStretchable;
@@ -45,7 +43,6 @@ public class TabbedPanel extends JPanel {
         this.selectionBackground = selectionBackground;
         this.titleColor = titleColor;
         this.selectedTitleColor = selectedTitleColor;
-        this.titleIcon = titleIcon;
         this.closeIcon = closeIcon;
 
         this.tabListeners = Collections.synchronizedList(new ArrayList<>());
@@ -70,7 +67,7 @@ public class TabbedPanel extends JPanel {
     }
 
 
-    public void addTab(String tabTitle, FontIcon tabIcon, Component body) {
+    public void addTab(String tabTitle, IconCode tabIcon, Component body) {
         var tab = new TabItem(tabIcon, this.closeIcon,
                 selectionColor, true,
                 backgroundColor, isCloseButtonHidden,

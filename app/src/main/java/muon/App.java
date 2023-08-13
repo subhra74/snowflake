@@ -1,17 +1,18 @@
 package muon;
 
+import muon.ui.styles.AppTheme;
 import muon.ui.styles.FlatLookAndFeel;
 import muon.ui.widgets.HomePanel;
-import muon.ui.widgets.TabItem;
+import muon.ui.widgets.SessionManagerDialog;
 import muon.ui.widgets.TabbedPanel;
-import muon.util.FontIcon;
+import muon.util.AppUtils;
+import muon.util.IconCode;
 import muon.util.IconFont;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -38,12 +39,18 @@ public class App {
         //JFrame.setDefaultLookAndFeelDecorated(false);
         JFrame f = new JFrame();
         //f.setUndecorated(true);
-        f.setSize(800, 600);
+        f.setSize(AppUtils.calculateDefaultWindowSize());
         f.setLocationRelativeTo(null);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().setBackground(Color.BLACK);
-        f.setBackground(Color.BLACK);
-        f.add(new HomePanel());
+        f.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
+        f.setBackground(AppTheme.INSTANCE.getBackground());
+        final var hp = new HomePanel(null, e -> {
+            new SessionManagerDialog(f).setVisible(true);
+            f.getContentPane().removeAll();
+            f.getContentPane().add(createMainPanel());
+            f.getContentPane().validate();
+        });
+        f.add(hp);
         //var toolbar = createToolbar();
         //f.add(toolbar, BorderLayout.NORTH);
         //f.add(createMainPanel());
@@ -72,6 +79,7 @@ public class App {
 
         addressBar.add(addressIcon, BorderLayout.WEST);
         var txtAddress = new JTextField();
+        txtAddress.putClientProperty("textField.noBorder",Boolean.TRUE);
         txtAddress.setBackground(c1);
         txtAddress.setForeground(new Color(100, 100, 100));
         txtAddress.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -294,7 +302,7 @@ public class App {
         return panel;
     }
 
-    private static JPanel createContentPanel(){
+    private static JPanel createContentPanel() {
         var mainTop = new JPanel(new GridLayout(1, 2));
         mainTop.add(createFileBrowser(new MatteBorder(0, 0, 0, 1, new Color(15, 15, 15)), false));
         mainTop.add(createFileBrowser(border, true));
@@ -318,12 +326,11 @@ public class App {
                 new Color(31, 31, 31),
                 new Color(130, 130, 130),
                 new Color(180, 180, 180),
-                FontIcon.RI_INSTANCE_LINE,
-                FontIcon.RI_CLOSE_LINE,
+                IconCode.RI_CLOSE_LINE,
                 Color.BLACK
         );
-        tabbedPanel.addTab("tab1", FontIcon.RI_INSTANCE_LINE, createContentPanel());
-        tabbedPanel.addTab("tab2", FontIcon.RI_INSTANCE_LINE, createContentPanel());
+        tabbedPanel.addTab("tab1", IconCode.RI_INSTANCE_LINE, createContentPanel());
+        tabbedPanel.addTab("tab2", IconCode.RI_INSTANCE_LINE, createContentPanel());
 //
 //
 //
