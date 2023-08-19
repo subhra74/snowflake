@@ -2,6 +2,7 @@ package muon;
 
 import muon.ui.styles.AppTheme;
 import muon.ui.styles.FlatLookAndFeel;
+import muon.ui.widgets.CustomFrame;
 import muon.ui.widgets.HomePanel;
 import muon.ui.widgets.SessionManagerDialog;
 import muon.ui.widgets.TabbedPanel;
@@ -17,16 +18,13 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.geom.RoundRectangle2D;
 import java.lang.reflect.InvocationTargetException;
 
 /**
  * Hello world!
  */
 public class App {
-
-    static EmptyBorder border = new MatteBorder(0, 0, 0, 0, Color.BLACK);
-    static EmptyBorder border1 = new MatteBorder(0, 10, 0, 0, new Color(24, 24, 24));
-    static JPanel panelRight;
 
     public static void main(String[] args) throws InterruptedException, InvocationTargetException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 //        System.setProperty("awt.useSystemAAFontSettings", "lcd");
@@ -37,17 +35,32 @@ public class App {
         System.setProperty("apple.awt.application.appearance", "system");
         UIManager.setLookAndFeel(new FlatLookAndFeel());
         //JFrame.setDefaultLookAndFeelDecorated(false);
-        JFrame f = new JFrame();
+
+        var f=new CustomFrame("Muon");
+        //CustomFrame cf = new CustomFrame(f);//new JFrame();
+//        f.setUndecorated(true);
+
+//        f.setSize(1024,768);
+
+        //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+//height of the task bar
+//        Insets scnMax = Toolkit.getDefaultToolkit().getScreenInsets(f.getGraphicsConfiguration());
+//        f.setMaximizedBounds(new Rectangle(0,0,screenSize.width, screenSize.height-scnMax.bottom));
+//        int taskBarSize = scnMax.bottom;
+
+
+        //f.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         //f.setUndecorated(true);
+        //f.setExtendedState(JFrame.MAXIMIZED_BOTH);
         f.setSize(AppUtils.calculateDefaultWindowSize());
+        //f.setShape(null);
+        //f.setShape(new RoundRectangle2D.Double(0.0,0.0,(double)f.getWidth(),(double)f.getHeight(),15, 15));
         f.setLocationRelativeTo(null);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        f.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
-        f.setBackground(AppTheme.INSTANCE.getBackground());
         final var hp = new HomePanel(null, e -> {
             new SessionManagerDialog(f).setVisible(true);
-            f.getContentPane().removeAll();
-            f.getContentPane().add(createMainPanel());
+            f.add(createMainPanel());
             f.getContentPane().validate();
         });
         f.add(hp);
@@ -57,14 +70,10 @@ public class App {
         SwingUtilities.invokeAndWait(() -> f.setVisible(true));
     }
 
-    private static JPanel createFileBrowser(EmptyBorder border, boolean right) {
-        var c1 = new Color(31, 31, 31);
-        var c2 = new Color(24, 24, 24);
+    private static JPanel createFileBrowser() {
+        var c1 = AppTheme.INSTANCE.getBackground();
+        var c2 = AppTheme.INSTANCE.getDarkControlBackground();
         var panel = new JPanel(new BorderLayout());
-        if (right) {
-            panelRight = panel;
-        }
-        panel.setBorder(border);
         var toolbar = Box.createHorizontalBox();
         toolbar.setOpaque(true);
         toolbar.setBackground(c1);
@@ -81,11 +90,11 @@ public class App {
         var txtAddress = new JTextField();
         txtAddress.putClientProperty("textField.noBorder",Boolean.TRUE);
         txtAddress.setBackground(c1);
-        txtAddress.setForeground(new Color(100, 100, 100));
+        txtAddress.setForeground(AppTheme.INSTANCE.getForeground());
         txtAddress.setBorder(new EmptyBorder(0, 0, 0, 0));
         txtAddress.setText("/usr/home/user/documents");
         addressBar.add(txtAddress);
-        addressBar.add(createFontLabel("\uea6c"), BorderLayout.EAST);
+        //addressBar.add(createFontLabel("\uea6c"), BorderLayout.EAST);
         toolbar.add(addressBar);
         toolbar.add(createFontLabel("\uEF77"));
         toolbar.setBorder(new EmptyBorder(2, 5, 0, 0));
@@ -96,21 +105,8 @@ public class App {
                 {"Downloads", "32 K", "15/02/2002"}};
         String column[] = {"Name", "Size", "Date"};
         JTable jt = new JTable(data, column);
-        jt.addMouseMotionListener(new MouseAdapter() {
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
-                if (e.getX() < 20) {
-                    panelRight.setBorder(border1);
-                    System.out.println("Border set");
-                } else {
-                    panelRight.setBorder(border);
-                    System.out.println("Border unset");
-                }
-            }
-        });
         jt.setShowGrid(false);
-        jt.setBackground(c2);
+        jt.setBackground(c1);
         jt.setForeground(Color.GRAY);
         jt.setFillsViewportHeight(true);
         var header = jt.getTableHeader();
@@ -120,13 +116,14 @@ public class App {
         header.setDefaultRenderer((a, b, c, d, e, f) -> {
             var label = new JLabel(b.toString());
             label.setBorder(
+                    new CompoundBorder(new EmptyBorder(0,0,5,0),
                     new CompoundBorder(
-                            new MatteBorder(1, f == 0 ? 0 : 1, 1, 0, new Color(15, 15, 15)),
+                            new MatteBorder(1, f == 0 ? 0 : 1, 1, 0,AppTheme.INSTANCE.getButtonBorderColor()),
                             new EmptyBorder(5, 10, 5, 10)
-                    ));
+                    )));
             label.setOpaque(true);
             label.setBackground(c1);
-            label.setForeground(new Color(80, 80, 80));
+            //label.setForeground(new Color(80, 80, 80));
             label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
             return label;
         });
@@ -134,7 +131,7 @@ public class App {
 
         jt.setDefaultRenderer(Object.class, (a, b, c, d, e, f) -> {
             var p = new JPanel(new BorderLayout());
-            p.setBackground(c2);
+            p.setBackground(c1);
             if (f == 0) {
                 var folderIconLbl = new JLabel();
                 folderIconLbl.setVerticalAlignment(JLabel.CENTER);
@@ -156,7 +153,7 @@ public class App {
             return p;
         });
         JScrollPane sp = new JScrollPane(jt);
-        sp.setBackground(c2);
+        sp.setBackground(c1);
         sp.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
         sp.setBorder(new EmptyBorder(0, 0, 0, 0));
         panel.add(sp);
@@ -164,7 +161,7 @@ public class App {
         var tab = Box.createHorizontalBox();
         tab.setOpaque(true);
         //tab.setBackground(new Color(68, 69, 73));
-        tab.setBackground(c2);
+        tab.setBackground(c1);
         tab.setBorder(new CompoundBorder(
                 new MatteBorder(0, 0, 0, 0, new Color(0, 120, 212)),
                 new EmptyBorder(5, 0, 5, 0)
@@ -177,7 +174,7 @@ public class App {
 //        tab.add(iconLbl);
         var lblTitle = new JLabel("Documents");
         lblTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-        lblTitle.setForeground(new Color(80, 80, 80));
+        //lblTitle.setForeground(new Color(80, 80, 80));
         lblTitle.setBorder(new EmptyBorder(0, 10, 2, 10));
         tab.add(lblTitle);
         tab.add(Box.createHorizontalGlue());
@@ -193,13 +190,13 @@ public class App {
 //        ));
         mainTabHolder.setOpaque(true);
         //mainTabHolder.setBorder(new MatteBorder(1,0,0,0,new Color(15,15,15)));
-        mainTabHolder.setBackground(c2);
+        mainTabHolder.setBackground(c1);
         mainTabHolder.add(tab);
 
         var addTabLbl = new JLabel();
         addTabLbl.setOpaque(true);
-        addTabLbl.setBackground(c2);
-        addTabLbl.setForeground(new Color(100, 100, 100));
+        addTabLbl.setBackground(c1);
+        //addTabLbl.setForeground(new Color(100, 100, 100));
         addTabLbl.setFont(IconFont.getSharedInstance().getIconFont(18.0f));
         addTabLbl.setText("\uEA13");
         addTabLbl.setBorder(new EmptyBorder(0, 5, 0, 5));
@@ -212,7 +209,7 @@ public class App {
     }
 
     private static JPanel createBottomPanel() {
-        var c1 = new Color(24, 24, 24);
+        var c1 = AppTheme.INSTANCE.getBackground();
         var panel = new JPanel(new BorderLayout());
         panel.setBackground(c1);
 
@@ -297,22 +294,30 @@ public class App {
         addTopTabLbl.setBorder(new EmptyBorder(0, 5, 0, 5));
         mainTopTabHolder.add(addTopTabLbl);
         panel.add(mainTopTabHolder, BorderLayout.NORTH);
-        panel.setBorder(new MatteBorder(1, 0, 0, 0, new Color(15, 15, 15)));
+        panel.setBorder(new MatteBorder(1, 0, 0, 0, AppTheme.INSTANCE.getButtonBorderColor()));
 
         return panel;
     }
 
-    private static JPanel createContentPanel() {
-        var mainTop = new JPanel(new GridLayout(1, 2));
-        mainTop.add(createFileBrowser(new MatteBorder(0, 0, 0, 1, new Color(15, 15, 15)), false));
-        mainTop.add(createFileBrowser(border, true));
+    private static Component createContentPanel() {
+
+        var splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPaneH.setContinuousLayout(true);
+        splitPaneH.setDividerSize(1);
+        splitPaneH.setOneTouchExpandable(false);
+
+        splitPaneH.setLeftComponent(createFileBrowser());
+        splitPaneH.setRightComponent(createFileBrowser());
 
         var mainBottom = createBottomPanel();
 
-        var mainCenter = new JPanel(new GridLayout(2, 1));
-        mainCenter.add(mainTop);
-        mainCenter.add(mainBottom);
-        return mainCenter;
+        var splitPaneV = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+        splitPaneV.setContinuousLayout(true);
+        splitPaneV.setDividerSize(1);
+        splitPaneV.setOneTouchExpandable(false);
+        splitPaneV.setLeftComponent(splitPaneH);
+        splitPaneV.setRightComponent(mainBottom);
+        return splitPaneV;
     }
 
     private static JPanel createMainPanel() {
@@ -320,14 +325,14 @@ public class App {
                 false,
                 false,
                 new Color(52, 117, 233),
-                new Color(24, 24, 24),
+                AppTheme.INSTANCE.getDarkControlBackground(),
                 new Color(52, 117, 233),
-                new Color(100, 100, 100),
-                new Color(31, 31, 31),
-                new Color(130, 130, 130),
-                new Color(180, 180, 180),
+                AppTheme.INSTANCE.getDarkForeground(),
+                AppTheme.INSTANCE.getBackground(),
+                AppTheme.INSTANCE.getForeground(),
+                AppTheme.INSTANCE.getTitleForeground(),
                 IconCode.RI_CLOSE_LINE,
-                Color.BLACK
+                AppTheme.INSTANCE.getButtonBorderColor()
         );
         tabbedPanel.addTab("tab1", IconCode.RI_INSTANCE_LINE, createContentPanel());
         tabbedPanel.addTab("tab2", IconCode.RI_INSTANCE_LINE, createContentPanel());
@@ -413,9 +418,11 @@ public class App {
         return box;
     }
 
-    private static JLabel createFontLabel(String hex) {
-        var lbl = new JLabel();
-        lbl.setForeground(new Color(80, 80, 80));
+    private static JButton createFontLabel(String hex) {
+        var lbl = new JButton();
+        lbl.setBorderPainted(false);
+        lbl.setContentAreaFilled(false);
+        lbl.setForeground(AppTheme.INSTANCE.getForeground());
         lbl.setBorder(new EmptyBorder(5, 5, 5, 5));
         lbl.setFont(IconFont.getSharedInstance().getIconFont(18.0f));
         lbl.setText(hex);

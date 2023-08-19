@@ -9,15 +9,15 @@ public class AppTheme {
     public static Insets BUTTON_MARGIN = new Insets(150, 15, 5, 15);
 
     public Color getBackground() {
-        return new Color(31, 31, 31);
+        return new Color(40,42,45);
     }
 
     public Color getButtonBackground() {
-        return new Color(35, 35, 35);
+        return new Color(31, 31, 31);
     }
 
     public Color getButtonRollOverBackground() {
-        return new Color(40, 40, 40);
+        return new Color(45, 48, 52);
     }
 
     public Color getButtonPressedBackground() {
@@ -25,14 +25,18 @@ public class AppTheme {
     }
 
     public Color getDarkControlBackground() {
-        return new Color(24, 24, 24);
+        return new Color(35,37,39);
     }
 
     public Color getForeground() {
         return new Color(120, 120, 120);
     }
 
-    public Color getLightForeground() {
+    public Color getTitleForeground() {
+        return new Color(180,180,180);
+    }
+
+    public Color getDarkForeground() {
         return new Color(100, 100, 100);
     }
 
@@ -61,11 +65,11 @@ public class AppTheme {
     }
 
     public Color getSplitPaneBackground() {
-        return Color.BLACK;
+        return getButtonBorderColor();
     }
 
-    public Color getListSelectionColor(){
-        return new Color(46,67,110);
+    public Color getListSelectionColor() {
+        return new Color(46, 67, 110);
     }
 
     public Object[] getDefaultStyles() {
@@ -115,7 +119,7 @@ public class AppTheme {
                 //"Tree.rendererMargins", new Insets(25,25,5,5),
                 "Tree.selectionBorderColor", getListSelectionColor(),
 
-                "SplitPane.background", Color.BLACK,
+                "SplitPane.background", getButtonBorderColor(),
                 "SplitPane.border", new EmptyBorder(0, 0, 0, 0),
                 "SplitPaneDivider.border", new EmptyBorder(0, 0, 0, 0),
 
@@ -124,9 +128,8 @@ public class AppTheme {
                 "ComboBox.border", new EmptyBorder(0, 0, 0, 0),
                 "ComboBox.padding", new Insets(5, 5, 5, 5),
                 "ComboBox.squareButton", Boolean.FALSE,
-                "ComboBox.Border", new EmptyBorder(3,3,3,3),
+                "ComboBox.Border", new EmptyBorder(3, 3, 3, 3),
 
-                "Panel.background", getBackground(),
-        };
+                "Panel.background", getBackground(),};
     }
 }

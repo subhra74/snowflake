@@ -26,6 +26,8 @@ public enum IconCode {
     RI_TOGGLE_FILL("\uF218"),
     RI_FOLDER_2_LINE("\uED52"),
     RI_FOLDER_LINE("\uED6A"),
+    RI_CHECKBOX_BLANK_LINE("\uEB7F"),
+    RI_SUBTRACT_LINE("\uF1AF"),
     RI_SERVER_FILL("\uF0DF");
 
     public String getValue() {

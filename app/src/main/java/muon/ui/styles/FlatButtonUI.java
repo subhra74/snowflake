@@ -32,11 +32,19 @@ public class FlatButtonUI extends BasicButtonUI {
             Graphics2D g2 = (Graphics2D) g;
             g2.setColor(b.getBackground());
             Integer arc = (Integer) b.getClientProperty("button.arc");
-            g2.fillRoundRect(0, 0, b.getWidth(), b.getHeight(), arc, arc);
+            if (arc == 0) {
+                g2.fillRect(0, 0, b.getWidth(), b.getHeight());
+            } else {
+                g2.fillRoundRect(0, 0, b.getWidth(), b.getHeight(), arc, arc);
+            }
 
             if (b.isBorderPainted()) {
                 g2.setColor(AppTheme.INSTANCE.getButtonBorderColor());
-                g2.drawRoundRect(0, 0, b.getWidth() - 1, b.getHeight() - 1, arc, arc);
+                if (arc == 0) {
+                    g2.drawRect(0, 0, b.getWidth() - 1, b.getHeight() - 1);
+                } else {
+                    g2.drawRoundRect(0, 0, b.getWidth() - 1, b.getHeight() - 1, arc, arc);
+                }
             }
         }
     }
@@ -46,7 +54,11 @@ public class FlatButtonUI extends BasicButtonUI {
             Graphics2D g2 = (Graphics2D) g;
             g2.setColor(AppTheme.INSTANCE.getButtonPressedBackground());
             Integer arc = (Integer) b.getClientProperty("button.arc");
-            g2.fillRoundRect(0, 0, b.getWidth(), b.getHeight(), arc, arc);
+            if (arc == 0) {
+                g2.fillRect(0, 0, b.getWidth(), b.getHeight());
+            } else {
+                g2.fillRoundRect(0, 0, b.getWidth(), b.getHeight(), arc, arc);
+            }
         }
     }
 
@@ -55,7 +67,11 @@ public class FlatButtonUI extends BasicButtonUI {
             Graphics2D g2 = (Graphics2D) g;
             g2.setColor(AppTheme.INSTANCE.getButtonRollOverBackground());
             Integer arc = (Integer) b.getClientProperty("button.arc");
-            g2.fillRoundRect(0, 0, b.getWidth(), b.getHeight(), arc, arc);
+            if (arc == 0) {
+                g2.fillRect(0, 0, b.getWidth(), b.getHeight());
+            } else {
+                g2.fillRoundRect(0, 0, b.getWidth(), b.getHeight(), arc, arc);
+            }
         }
     }
 

@@ -14,11 +14,10 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class SessionEditorPanel extends JPanel {
-    private JSplitPane splitPane;
 
     public SessionEditorPanel() {
         super(new BorderLayout());
-        splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        var splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPane.setContinuousLayout(true);
         splitPane.setDividerSize(1);
         splitPane.setOneTouchExpandable(false);
@@ -54,7 +53,7 @@ public class SessionEditorPanel extends JPanel {
         hbox1.setBorder(
                 new EmptyBorder(10, 5, 10, 5)
         );
-        hbox1.add(Box.createRigidArea(new Dimension(5, 0)));
+        //hbox1.add(Box.createRigidArea(new Dimension(5, 0)));
         hbox1.add(createButton(IconCode.RI_ADD_LINE));
         hbox1.add(Box.createRigidArea(new Dimension(5, 0)));
         var txtSearch = new JTextField();

@@ -6,17 +6,22 @@ import javax.swing.*;
 import java.awt.*;
 
 public class SessionManagerDialog extends JDialog {
+    private final CustomFramePanel panel;
     public SessionManagerDialog(Window window) {
         super(window);
         setTitle("Session manager");
         setModal(true);
-        setSize(800, 600);
+        setSize(800,600);
+        panel = new CustomFramePanel(this);
+        super.getContentPane().add(panel);
+        panel.addContent(new SessionEditorPanel());
         setLocationRelativeTo(window);
-        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        panel.setMaximizable(false);
+        panel.setMinimizable(false);
+    }
 
-        getContentPane().setBackground(
-                AppTheme.INSTANCE.getDarkControlBackground());
-
-        add(new SessionEditorPanel());
+    @Override
+    public Component add(Component comp) {
+        return panel.addContent(comp);
     }
 }

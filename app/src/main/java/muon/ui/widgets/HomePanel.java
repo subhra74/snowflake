@@ -6,6 +6,7 @@ import muon.util.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -16,7 +17,7 @@ public class HomePanel extends JPanel {
     public HomePanel(List<ISessionListItem> sessions,
                      ActionListener onSessionManagerClicked) {
         super(null);
-        setBackground(AppTheme.INSTANCE.getDarkControlBackground());
+        setBackground(AppTheme.INSTANCE.getBackground());
         setLayout(new GridBagLayout());
 
         var constraint1 = new GridBagConstraints();
@@ -34,6 +35,7 @@ public class HomePanel extends JPanel {
 
         var leftPanel = createLeftPanel(onSessionManagerClicked);
         var p1 = new JPanel(new GridBagLayout());
+        //p1.setBorder(new MatteBorder(1,0,0,0, AppTheme.INSTANCE.getBackground()));
         p1.setBackground(AppTheme.INSTANCE.getDarkControlBackground());
         p1.add(leftPanel);
 
@@ -44,27 +46,6 @@ public class HomePanel extends JPanel {
 
         add(p1, constraint1);
         add(p2, constraint2);
-
-//        //setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-//
-//        var centerPanel = new JPanel(new GridLayout(0, 2, 20, 30));
-//        centerPanel.setBackground(AppTheme.INSTANCE.getDarkControlBackground());
-//
-////        centerPanel.add(Box.createHorizontalGlue());
-////        centerPanel.add(Box.createHorizontalGlue());
-//        centerPanel.add(createLeftPanel());
-//        centerPanel.add(createRightPanel());
-//        //centerPanel.add(Box.createHorizontalGlue());
-////        centerPanel.add(Box.createHorizontalGlue());
-////        centerPanel.add(Box.createHorizontalGlue());
-//
-//        var containerBox = Box.createHorizontalBox();
-//        containerBox.add(Box.createHorizontalGlue());
-//        containerBox.add(centerPanel);
-//        containerBox.add(Box.createHorizontalGlue());
-//        add(Box.createVerticalGlue());
-//        add(containerBox);
-//        add(Box.createVerticalGlue());
     }
 
 
@@ -192,7 +173,7 @@ public class HomePanel extends JPanel {
         titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         containerBox.add(titleLabel);
 
-        if (Objects.nonNull(sessions) && sessions.size() > 0) {
+        if (Objects.nonNull(sessions) && !sessions.isEmpty()) {
 
             var buttons = new JButton[sessions.size()];
             for (var i = 0; i < buttons.length; i++) {
@@ -227,11 +208,11 @@ public class HomePanel extends JPanel {
 
         } else {
             var iconLabel = createIconLabel(IconCode.RI_FOLDER_FORBID_FILL, 128f);
-            iconLabel.setForeground(new Color(45, 45, 45));
+            iconLabel.setForeground(AppTheme.INSTANCE.getButtonBorderColor());
             iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
             var infoLabel = new JLabel("No recent sessions found");
-            infoLabel.setForeground(AppTheme.INSTANCE.getLightForeground());
+            infoLabel.setForeground(AppTheme.INSTANCE.getDarkForeground());
             infoLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
             infoLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
             containerBox.add(Box.createRigidArea(new Dimension(30, 30)));
@@ -253,7 +234,7 @@ public class HomePanel extends JPanel {
         titleLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
 
         var versionLabel = new JLabel("v1.0.1");
-        versionLabel.setForeground(AppTheme.INSTANCE.getLightForeground());
+        versionLabel.setForeground(AppTheme.INSTANCE.getDarkForeground());
         versionLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
         versionLabel.setAlignmentX(Component.LEFT_ALIGNMENT);
         versionLabel.setAlignmentY(Component.BOTTOM_ALIGNMENT);
@@ -269,7 +250,7 @@ public class HomePanel extends JPanel {
         subTitleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
         subTitleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         subTitleLabel.setAlignmentY(Component.TOP_ALIGNMENT);
-        subTitleLabel.setForeground(AppTheme.INSTANCE.getLightForeground());
+        subTitleLabel.setForeground(AppTheme.INSTANCE.getDarkForeground());
 
 
         var containerBox = Box.createVerticalBox();
@@ -396,11 +377,10 @@ public class HomePanel extends JPanel {
 
         var titleLabel = new JLabel(title);
         titleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
-        //titleLabel.setForeground(Color.DARK_GRAY);
 
         var subtitleLabel = new JLabel(subtitle);
         subtitleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-        //subtitleLabel.setForeground(Color.DARK_GRAY);
+        subtitleLabel.setForeground(AppTheme.INSTANCE.getDarkForeground());
 
         var vbox = Box.createVerticalBox();
         vbox.add(Box.createRigidArea(new Dimension(10, 3)));
@@ -428,7 +408,7 @@ public class HomePanel extends JPanel {
     private JLabel createIconLabel(IconCode icon, Float size) {
         var iconLabel = new JLabel();
         iconLabel.setBorder(new EmptyBorder(5, 0, 0, 0));
-        iconLabel.setForeground(new Color(51, 51, 51));
+        iconLabel.setForeground(AppTheme.INSTANCE.getDarkForeground());
         iconLabel.setFont(IconFont.getSharedInstance().getIconFont(size));
         iconLabel.setText(icon.getValue());
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
