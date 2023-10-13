@@ -167,9 +167,15 @@
 			<artifactId>proxy-vole</artifactId>
 			<version>1.0.1</version>
 		</dependency>
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>2.10.0</version>
+            <scope>test</scope>
+        </dependency>
 
 
-	</dependencies>
+    </dependencies>
 
 	<build>
 		<finalName>muon-${project.version}</finalName>

@@ -1,14 +1,14 @@
 package muon;
 
-import muon.ui.styles.AppTheme;
-import muon.ui.styles.FlatLookAndFeel;
-import muon.ui.widgets.CustomFrame;
-import muon.ui.widgets.HomePanel;
-import muon.ui.widgets.SessionManagerDialog;
-import muon.ui.widgets.TabbedPanel;
+import muon.screens.appwin.MainContainer;
+import muon.screens.sessiontabs.InputBlockerDialog;
+import muon.styles.AppTheme;
+import muon.styles.FlatLookAndFeel;
 import muon.util.AppUtils;
 import muon.util.IconCode;
 import muon.util.IconFont;
+import muon.widgets.CustomFrame;
+import muon.widgets.TabbedPanel;
 
 import javax.swing.*;
 import javax.swing.border.CompoundBorder;
@@ -16,9 +16,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.geom.RoundRectangle2D;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -26,47 +23,26 @@ import java.lang.reflect.InvocationTargetException;
  */
 public class App {
 
+    private static InputBlockerDialog inputBlockerDialog;
+
+    public static InputBlockerDialog getInputBlockerDialog() {
+        return inputBlockerDialog;
+    }
+
     public static void main(String[] args) throws InterruptedException, InvocationTargetException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-//        System.setProperty("awt.useSystemAAFontSettings", "lcd");
-//        System.setProperty("swing.aatext", "true");
-//        System.setProperty("sun.java2d.uiScale.enabled", "false");
-//        System.setProperty("sun.java2d.uiScale", "2.0");
         System.setProperty("sun.java2d.metal", "false");
         System.setProperty("apple.awt.application.appearance", "system");
         UIManager.setLookAndFeel(new FlatLookAndFeel());
-        //JFrame.setDefaultLookAndFeelDecorated(false);
 
-        var f=new CustomFrame("Muon");
-        //CustomFrame cf = new CustomFrame(f);//new JFrame();
-//        f.setUndecorated(true);
+        var isWindows = "windows".equalsIgnoreCase(System.getProperty("os.name"));
 
-//        f.setSize(1024,768);
+        var f = isWindows ? new CustomFrame("Muon 1.0.23") : new JFrame("Muon 1.0.23");
+        inputBlockerDialog = new InputBlockerDialog(f);
 
-        //Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-
-//height of the task bar
-//        Insets scnMax = Toolkit.getDefaultToolkit().getScreenInsets(f.getGraphicsConfiguration());
-//        f.setMaximizedBounds(new Rectangle(0,0,screenSize.width, screenSize.height-scnMax.bottom));
-//        int taskBarSize = scnMax.bottom;
-
-
-        //f.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
-        //f.setUndecorated(true);
-        //f.setExtendedState(JFrame.MAXIMIZED_BOTH);
         f.setSize(AppUtils.calculateDefaultWindowSize());
-        //f.setShape(null);
-        //f.setShape(new RoundRectangle2D.Double(0.0,0.0,(double)f.getWidth(),(double)f.getHeight(),15, 15));
         f.setLocationRelativeTo(null);
         f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        final var hp = new HomePanel(null, e -> {
-            new SessionManagerDialog(f).setVisible(true);
-            f.add(createMainPanel());
-            f.getContentPane().validate();
-        });
-        f.add(hp);
-        //var toolbar = createToolbar();
-        //f.add(toolbar, BorderLayout.NORTH);
-        //f.add(createMainPanel());
+        f.getContentPane().add(new MainContainer());
         SwingUtilities.invokeAndWait(() -> f.setVisible(true));
     }
 
@@ -88,7 +64,7 @@ public class App {
 
         addressBar.add(addressIcon, BorderLayout.WEST);
         var txtAddress = new JTextField();
-        txtAddress.putClientProperty("textField.noBorder",Boolean.TRUE);
+        txtAddress.putClientProperty("textField.noBorder", Boolean.TRUE);
         txtAddress.setBackground(c1);
         txtAddress.setForeground(AppTheme.INSTANCE.getForeground());
         txtAddress.setBorder(new EmptyBorder(0, 0, 0, 0));
@@ -110,17 +86,15 @@ public class App {
         jt.setForeground(Color.GRAY);
         jt.setFillsViewportHeight(true);
         var header = jt.getTableHeader();
-        header.setBackground(Color.black);
-        header.setForeground(Color.yellow);
         header.setBorder(new EmptyBorder(0, 0, 0, 0));
         header.setDefaultRenderer((a, b, c, d, e, f) -> {
             var label = new JLabel(b.toString());
             label.setBorder(
-                    new CompoundBorder(new EmptyBorder(0,0,5,0),
-                    new CompoundBorder(
-                            new MatteBorder(1, f == 0 ? 0 : 1, 1, 0,AppTheme.INSTANCE.getButtonBorderColor()),
-                            new EmptyBorder(5, 10, 5, 10)
-                    )));
+                    new CompoundBorder(new EmptyBorder(0, 0, 5, 0),
+                            new CompoundBorder(
+                                    new MatteBorder(1, f == 0 ? 0 : 1, 1, 0, AppTheme.INSTANCE.getButtonBorderColor()),
+                                    new EmptyBorder(5, 10, 5, 10)
+                            )));
             label.setOpaque(true);
             label.setBackground(c1);
             //label.setForeground(new Color(80, 80, 80));
@@ -147,7 +121,6 @@ public class App {
                     new CompoundBorder(
                             new MatteBorder(0, 0, 0, 0, c1),
                             new EmptyBorder(5, 10, 5, 10)));
-            label.setForeground(Color.GRAY);
             label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
             p.add(label);
             return p;
@@ -300,7 +273,6 @@ public class App {
     }
 
     private static Component createContentPanel() {
-
         var splitPaneH = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
         splitPaneH.setContinuousLayout(true);
         splitPaneH.setDividerSize(1);
@@ -321,6 +293,11 @@ public class App {
     }
 
     private static JPanel createMainPanel() {
+        var btnAddTab = AppUtils.createIconButton(IconCode.RI_ADD_LINE);
+        var b1 = Box.createHorizontalBox();
+        b1.add(Box.createRigidArea(new Dimension(0, 30)));
+        b1.setBorder(new EmptyBorder(2, 5, 2, 5));
+        b1.add(btnAddTab);
         var tabbedPanel = new TabbedPanel(
                 false,
                 false,
@@ -331,11 +308,17 @@ public class App {
                 AppTheme.INSTANCE.getBackground(),
                 AppTheme.INSTANCE.getForeground(),
                 AppTheme.INSTANCE.getTitleForeground(),
+                AppTheme.INSTANCE.getTitleForeground(),
                 IconCode.RI_CLOSE_LINE,
-                AppTheme.INSTANCE.getButtonBorderColor()
+                AppTheme.INSTANCE.getButtonBorderColor(),
+                b1,
+                true,
+                true
         );
-        tabbedPanel.addTab("tab1", IconCode.RI_INSTANCE_LINE, createContentPanel());
-        tabbedPanel.addTab("tab2", IconCode.RI_INSTANCE_LINE, createContentPanel());
+        tabbedPanel.addTab("user@hostname", IconCode.RI_INSTANCE_LINE, createContentPanel());
+        btnAddTab.addActionListener(e -> {
+            tabbedPanel.addTab("user@hostname", IconCode.RI_INSTANCE_LINE, createContentPanel());
+        });
 //
 //
 //

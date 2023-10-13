@@ -10,9 +10,15 @@
     <artifactId>app</artifactId>
     <packaging>jar</packaging>
 
-    <name>muon-main</name>
-    <version>1.0.1</version>
+    <name>app</name>
     <url>http://maven.apache.org</url>
+
+    <repositories>
+        <repository>
+            <id>local-maven-repo</id>
+            <url>file:///${project.basedir}/../local-maven-repo</url>
+        </repository>
+    </repositories>
 
     <properties>
         <maven.compiler.target>17</maven.compiler.target>
@@ -21,11 +27,6 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>muon-jediterm</groupId>
-            <artifactId>muon-jediterm</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -38,6 +39,80 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.30</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.10.1</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.10.1</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-core -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-core</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-sftp -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-sftp</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-common -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-common</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-scp -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-scp</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-putty -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-putty</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-openpgp -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-openpgp</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <!-- Dependency from local maven repo -->
+        <dependency>
+            <groupId>org.jetbrains.jediterm</groupId>
+            <artifactId>jediterm-core</artifactId>
+            <version>3.26-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.jediterm</groupId>
+            <artifactId>jediterm-ui</artifactId>
+            <version>3.26-SNAPSHOT</version>
+        </dependency>
+
+        <!-- Dependencies for jediterm -->
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-api -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.32</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.jetbrains/annotations -->
+        <dependency>
+            <groupId>org.jetbrains</groupId>
+            <artifactId>annotations</artifactId>
+            <version>20.1.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

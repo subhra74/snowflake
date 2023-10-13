@@ -2,6 +2,7 @@ package muon.util;
 
 public enum IconCode {
     RI_ADD_LINE("\uea13"),
+    RI_SUBTRACT_LINE("\uF1AF"),
     RI_MENU_LINE("\uef3e"),
     RI_INSTANCE_LINE("\uf383"),
     RI_ARROW_LEFT_LINE("\uea60"),
@@ -27,7 +28,26 @@ public enum IconCode {
     RI_FOLDER_2_LINE("\uED52"),
     RI_FOLDER_LINE("\uED6A"),
     RI_CHECKBOX_BLANK_LINE("\uEB7F"),
-    RI_SUBTRACT_LINE("\uF1AF"),
+    RI_ARROW_LEFT_CIRCLE_LINE("\uEA5C"),
+    RI_ARROW_RIGHT_CIRCLE_LINE("\uEA68"),
+    RI_ARROW_UP_CIRCLE_LINE("\uEA72"),
+    RI_HOME_4_LINE("\uEE1D"),
+    RI_HARD_DRIVE_3_LINE("\uF395"),
+    RI_HARD_DRIVE_3_FILL("\uF394"),
+    RI_FILE_FILL("\uECE0"),
+    RI_SEARCH_LINE("\uF0D1"),
+    RI_USER_LINE("\uF264"),
+    RI_ACCOUNT_CIRCLE_LINE("\uEA09"),
+    RI_ACCOUNT_CIRCLE_FILL("\uEA08"),
+    RI_ACCOUNT_ALERT_FILL("\uEA20"),
+    RI_TERMINAL_BOX_FILL("\uF1F5"),
+    RI_SWAP_BOX_FILL("\uF1C8"),
+    RI_KEY_FILL("\uEE70"),
+    RI_CLOSE_CIRCLE_FILL("\uEB96"),
+    RI_LOCK_PASSWORD_LINE("\uEED0"),
+    RI_FLASH_LINE("\uF105"),
+    RI_LOOP_LEFT_FILL("\uF33C"),
+    RI_REFRESH_LINE("\uF064"),
     RI_SERVER_FILL("\uF0DF");
 
     public String getValue() {

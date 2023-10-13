@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata modelVersion="1.1.0">
+  <groupId>org.jetbrains.jediterm</groupId>
+  <artifactId>jediterm-core</artifactId>
+  <versioning>
+    <lastUpdated>20231008183933</lastUpdated>
+    <snapshot>
+      <localCopy>true</localCopy>
+    </snapshot>
+    <snapshotVersions>
+      <snapshotVersion>
+        <extension>jar</extension>
+        <value>3.26-SNAPSHOT</value>
+        <updated>20231008183933</updated>
+      </snapshotVersion>
+      <snapshotVersion>
+        <extension>pom</extension>
+        <value>3.26-SNAPSHOT</value>
+        <updated>20231008183933</updated>
+      </snapshotVersion>
+    </snapshotVersions>
+  </versioning>
+  <version>3.26-SNAPSHOT</version>
+</metadata>

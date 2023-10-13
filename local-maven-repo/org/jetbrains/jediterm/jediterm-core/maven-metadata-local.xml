@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>org.jetbrains.jediterm</groupId>
+  <artifactId>jediterm-core</artifactId>
+  <versioning>
+    <versions>
+      <version>3.26-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20231008183933</lastUpdated>
+  </versioning>
+</metadata>
