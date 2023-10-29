@@ -1,8 +1,7 @@
 package muon.screens.sessionmgr;
 
-import muon.io.SessionStore;
+import muon.AppContext;
 import muon.dto.session.NamedItem;
-import muon.dto.session.SavedSessionTree;
 import muon.dto.session.SessionFolder;
 import muon.dto.session.SessionInfo;
 import muon.styles.AppTheme;
@@ -19,29 +18,34 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Enumeration;
+import java.util.Objects;
 import java.util.UUID;
 
 public class SessionTreePanel extends JPanel {
     private DefaultTreeModel treeModel;
     private JTree tree;
     private DefaultMutableTreeNode rootNode;
-    private String lastSelected;
+
+    private String lastSelectedId;
 
     public SessionTreePanel(TreeSelectionListener selectionListener) {
         super(new BorderLayout());
         setBackground(AppTheme.INSTANCE.getBackground());
         createUI(selectionListener);
-        loadTree(SessionStore.load());
     }
 
-    private void loadTree(SavedSessionTree stree) {
-        this.lastSelected = stree.getLastSelection();
-        rootNode = getNode(stree.getFolder());
+    public DefaultTreeModel getTreeModel() {
+        return treeModel;
+    }
+
+    public void loadTree() {
+        this.lastSelectedId = AppContext.sessionTree.getLastSelectionId();
+        rootNode = getNode(AppContext.sessionTree.getFolder());
         rootNode.setAllowsChildren(true);
         treeModel.setRoot(rootNode);
         try {
-            if (this.lastSelected != null) {
-                selectNode(lastSelected, rootNode);
+            if (this.lastSelectedId != null) {
+                selectNode(lastSelectedId, rootNode);
             } else {
                 DefaultMutableTreeNode n = null;
                 n = findFirstInfoNode(rootNode);
@@ -55,9 +59,10 @@ public class SessionTreePanel extends JPanel {
                     treeModel.insertNodeInto(childNode, rootNode, rootNode.getChildCount());
                     n = childNode;
                     tree.scrollPathToVisible(new TreePath(n.getPath()));
-                    TreePath path = new TreePath(n.getPath());
-                    tree.setSelectionPath(path);
                 }
+
+                TreePath path = new TreePath(n.getPath());
+                tree.setSelectionPath(path);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -140,6 +145,17 @@ public class SessionTreePanel extends JPanel {
         tree.setTransferHandler(new TreeTransferHandler());
         tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         tree.getSelectionModel().addTreeSelectionListener(selectionListener);
+        tree.getSelectionModel().addTreeSelectionListener(e -> {
+            if (Objects.isNull(e.getNewLeadSelectionPath())) {
+                return;
+            }
+            var node = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
+            var nodeInfo = (NamedItem) node.getUserObject();
+            if (Objects.nonNull(nodeInfo)) {
+                this.lastSelectedId = nodeInfo.getId();
+                System.out.println("Tree selection: " + nodeInfo.getId() + " : " + nodeInfo.getName());
+            }
+        });
         return tree;
     }
 
@@ -170,25 +186,29 @@ public class SessionTreePanel extends JPanel {
         return button;
     }
 
-    public static synchronized SessionFolder convertModelFromTree(DefaultMutableTreeNode node) {
-        SessionFolder folder = new SessionFolder();
-        folder.setName(node.getUserObject() + "");
-        Enumeration<TreeNode> childrens = node.children();
-        while (childrens.hasMoreElements()) {
-            DefaultMutableTreeNode c = (DefaultMutableTreeNode) childrens.nextElement();
+    public SessionFolder getRootFolder() {
+        return convertModelFromTree(rootNode);
+    }
+
+    private SessionFolder convertModelFromTree(DefaultMutableTreeNode node) {
+        SessionFolder folder = (SessionFolder) node.getUserObject();
+        SessionFolder copy = new SessionFolder();
+        copy.setId(folder.getId());
+        copy.setName(folder.getName());
+        Enumeration<TreeNode> children = node.children();
+        while (children.hasMoreElements()) {
+            DefaultMutableTreeNode c = (DefaultMutableTreeNode) children.nextElement();
             if (c.getUserObject() instanceof SessionInfo) {
-                folder.getItems().add((SessionInfo) c.getUserObject());
+                copy.getItems().add((SessionInfo) c.getUserObject());
             } else {
-                folder.getFolders().add(convertModelFromTree(c));
+                copy.getFolders().add(convertModelFromTree(c));
             }
         }
-        return folder;
+        return copy;
     }
 
     public synchronized static DefaultMutableTreeNode getNode(SessionFolder folder) {
-        NamedItem item = new NamedItem();
-        item.setName(folder.getName());
-        DefaultMutableTreeNode node = new DefaultMutableTreeNode(item);
+        DefaultMutableTreeNode node = new DefaultMutableTreeNode(folder);
         for (SessionInfo info : folder.getItems()) {
             DefaultMutableTreeNode c = new DefaultMutableTreeNode(info);
             c.setAllowsChildren(false);
@@ -199,5 +219,13 @@ public class SessionTreePanel extends JPanel {
             node.add(getNode(folderItem));
         }
         return node;
+    }
+
+    public String getLastSelectedId() {
+        return lastSelectedId;
+    }
+
+    public void setLastSelectedId(String lastSelectedId) {
+        this.lastSelectedId = lastSelectedId;
     }
 }

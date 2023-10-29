@@ -1,7 +1,10 @@
 package muon.screens.sessionmgr;
 
+import muon.AppContext;
 import muon.constants.Orientation;
 import muon.dto.session.NamedItem;
+import muon.dto.session.SavedSessionTree;
+import muon.dto.session.SessionFolder;
 import muon.dto.session.SessionInfo;
 import muon.widgets.SplitPanel;
 
@@ -15,6 +18,7 @@ public class SessionManagerPanel extends JPanel {
 
     int diffX, diffY;
     private SessionEditor sessionEditor;
+    private SessionTreePanel sessionTreePanel;
     private boolean cancelled = true;
 
     public SessionManagerPanel() {
@@ -22,24 +26,36 @@ public class SessionManagerPanel extends JPanel {
 
         var splitPane = new SplitPanel(Orientation.Horizontal);
 
+        sessionTreePanel = new SessionTreePanel(this::handleTreeSelection);
+
         sessionEditor = new SessionEditor(e -> {
             this.cancelled = false;
+            try {
+                AppContext.saveSession();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
             var win = SwingUtilities.windowForComponent(this);
             win.dispose();
         }, e -> {
             this.cancelled = true;
+            try {
+                AppContext.saveSession();
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
             var win = SwingUtilities.windowForComponent(this);
             win.dispose();
         });
 
-        splitPane.setLeftComponent(new SessionTreePanel(e -> {
-            handleTreeSelection(e);
-        }));
+        splitPane.setLeftComponent(sessionTreePanel);
 
         splitPane.setRightComponent(sessionEditor);
         splitPane.setDividerLocation(250);
 
         add(splitPane);
+
+        sessionTreePanel.loadTree();
     }
 
     public boolean isCancelled() {
@@ -59,9 +75,28 @@ public class SessionManagerPanel extends JPanel {
         }
         var node = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
         var nodeInfo = (NamedItem) node.getUserObject();
-        this.sessionEditor.setValue(nodeInfo);
+
+        if (sessionTreePanel == null) return;
+
+        var model = sessionTreePanel.getTreeModel();
+
+        this.sessionEditor.setValue(nodeInfo, () -> {
+            model.nodeChanged(node);
+        });
         revalidate();
         repaint();
     }
 
+    public void saveSessionUpdates() {
+        try {
+            System.out.println("Encrypting and writing...");
+            var sessionTree = new SavedSessionTree();
+            sessionTree.setFolder(sessionTreePanel.getRootFolder());
+            sessionTree.setLastSelectionId(sessionTreePanel.getLastSelectedId());
+            AppContext.setSessionTree(sessionTree);
+            AppContext.saveSession();
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 }

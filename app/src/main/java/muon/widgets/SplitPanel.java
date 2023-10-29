@@ -101,7 +101,6 @@ public class SplitPanel extends JPanel {
     }
 
     private void updateGripLocation() {
-        System.out.println("splitPane.getDividerLocation() " + splitPane.getDividerLocation());
         if (orientation == Orientation.Horizontal) {
             dividerGrip.setBounds(splitPane.getDividerLocation(), 0, 10, getHeight());
         } else {

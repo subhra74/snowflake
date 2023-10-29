@@ -11,23 +11,29 @@ import muon.util.AppUtils;
 import muon.util.PathUtils;
 import muon.util.StringUtils;
 import org.apache.sshd.client.SshClient;
+import org.apache.sshd.client.auth.UserAuthFactory;
+import org.apache.sshd.client.auth.keyboard.UserAuthKeyboardInteractiveFactory;
 import org.apache.sshd.client.auth.keyboard.UserInteraction;
 import org.apache.sshd.client.auth.password.PasswordAuthenticationReporter;
 import org.apache.sshd.client.auth.password.PasswordIdentityProvider;
+import org.apache.sshd.client.auth.pubkey.UserAuthPublicKeyFactory;
 import org.apache.sshd.client.session.ClientSession;
 import org.apache.sshd.common.session.Session;
 import org.apache.sshd.common.session.SessionContext;
+import org.apache.sshd.common.session.SessionHeartbeatController;
 import org.apache.sshd.common.session.SessionListener;
 import org.apache.sshd.core.CoreModuleProperties;
 import org.apache.sshd.sftp.client.SftpClient;
 import org.apache.sshd.sftp.client.impl.DefaultSftpClientFactory;
 import org.apache.sshd.sftp.common.SftpConstants;
 import org.apache.sshd.sftp.common.SftpException;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
@@ -44,11 +50,13 @@ public class SftpFileSystem implements FileSystem {
     private ClientSession session;
     private SftpClient sftpClient;
     private String homePath;
+    private GuiUserAuthFactory passwordUserAuthFactory;
 
     public SftpFileSystem(SessionInfo sessionInfo, InputBlocker inputBlocker) {
         this.sessionInfo = sessionInfo;
         this.inputBlocker = inputBlocker;
-        this.callback = new SshCallback();
+        this.passwordUserAuthFactory = new GuiUserAuthFactory(inputBlocker, sessionInfo);
+        this.callback = new SshCallback(inputBlocker, sessionInfo);
     }
 
     private boolean exists(String path) throws FSAccessException, FSConnectException {
@@ -175,7 +183,7 @@ public class SftpFileSystem implements FileSystem {
         return homePath;
     }
 
-    private void ensureConnected() throws FSConnectException{
+    private void ensureConnected() throws FSConnectException {
         if (!(connected.get() && sftpClient.isOpen())) {
             connect();
         }
@@ -216,6 +224,13 @@ public class SftpFileSystem implements FileSystem {
         client.setUserInteraction(callback);
         client.setPasswordIdentityProvider(callback);
         client.setPasswordAuthenticationReporter(callback);
+        client.setSessionHeartbeat(SessionHeartbeatController.HeartbeatType.IGNORE, Duration.ofMinutes(1));
+
+        List<UserAuthFactory> userAuthFactories = List.of(UserAuthPublicKeyFactory.INSTANCE,
+                UserAuthKeyboardInteractiveFactory.INSTANCE,
+                passwordUserAuthFactory);
+        client.setUserAuthFactories(userAuthFactories);
+
         client.addSessionListener(new SessionListener() {
             @Override
             public void sessionDisconnect(Session session, int reason, String msg, String language, boolean initiator) {
@@ -257,69 +272,5 @@ public class SftpFileSystem implements FileSystem {
             client = null;
         }
         connected.set(false);
-    }
-
-    class SshCallback implements PasswordIdentityProvider,
-            PasswordAuthenticationReporter,
-            UserInteraction {
-        @Override
-        public void serverVersionInfo(ClientSession session, List<String> lines) {
-            System.out.println(String.join(" ", lines));
-        }
-
-        @Override
-        public void welcome(ClientSession session, String banner, String lang) {
-            inputBlocker.showBanner(banner);
-        }
-
-        @Override
-        public String[] interactive(ClientSession session, String name, String instruction, String lang, String[] prompt, boolean[] echo) {
-            return inputBlocker.getUserInput(sessionInfo.getName(), sessionInfo.getUser(), prompt, echo);
-        }
-
-        @Override
-        public boolean isInteractionAllowed(ClientSession session) {
-            return true;
-        }
-
-        @Override
-        public String getUpdatedPassword(ClientSession session, String prompt, String lang) {
-            return null;
-        }
-
-        @Override
-        public KeyPair resolveAuthPublicKeyIdentityAttempt(ClientSession session) throws Exception {
-            System.out.println("resolveAuthPublicKeyIdentityAttempt");
-            return null;
-        }
-
-        @Override
-        public Iterable<String> loadPasswords(SessionContext session) throws IOException, GeneralSecurityException {
-            var sessionPassword = new String(sessionInfo.getPassword());
-            if (!StringUtils.isEmpty(sessionPassword)) {
-                return List.of(sessionPassword);
-            }
-            return null;
-        }
-
-        @Override
-        public void signalAuthenticationAttempt(ClientSession session, String service, String oldPassword, boolean modified, String newPassword) throws Exception {
-            System.out.println("signalAuthenticationAttempt");
-        }
-
-        @Override
-        public void signalAuthenticationExhausted(ClientSession session, String service) throws Exception {
-            System.out.println("signalAuthenticationExhausted");
-        }
-
-        @Override
-        public void signalAuthenticationSuccess(ClientSession session, String service, String password) throws Exception {
-            System.out.println("signalAuthenticationSuccess");
-        }
-
-        @Override
-        public void signalAuthenticationFailure(ClientSession session, String service, String password, boolean partial, List<String> serverMethods) throws Exception {
-            System.out.println("signalAuthenticationFailure");
-        }
     }
 }

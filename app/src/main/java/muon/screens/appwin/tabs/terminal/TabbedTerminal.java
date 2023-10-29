@@ -1,16 +1,13 @@
 package muon.screens.appwin.tabs.terminal;
 
-import muon.screens.appwin.tabs.filebrowser.AbstractFileBrowserView;
-import muon.screens.appwin.tabs.filebrowser.FileBrowserHomePage;
-import muon.screens.appwin.tabs.filebrowser.local.LocalFileBrowserView;
+import muon.App;
+import muon.screens.sessionmgr.SessionManager;
 import muon.styles.AppTheme;
-import muon.util.AppUtils;
-import muon.util.IconCode;
-import muon.widgets.TabEvent;
-import muon.widgets.TabListener;
-import muon.widgets.TabbedPanel;
+import muon.util.*;
+import muon.widgets.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 public class TabbedTerminal extends JPanel {
@@ -26,16 +23,24 @@ public class TabbedTerminal extends JPanel {
 
     private TabbedPanel createTab() {
         var addTabComponent = AppUtils.createAddTabButton();
+        addTabComponent.setBorder(new EmptyBorder(2, 2, 2, 0));
         addTabComponent.putClientProperty("button.popup", addTabComponent);
         addTabComponent.addActionListener(e -> {
+            openTab();
         });
+
+        var moreComponent = AppUtils.createMoreButton();
+
+        var b1 = Box.createHorizontalBox();
+        b1.add(addTabComponent);
+        b1.add(moreComponent);
 
         var tabbedPanel = new TabbedPanel(
                 false,
                 false,
-                new Color(52, 117, 233),
+                AppTheme.INSTANCE.getSelectionColor(),
                 AppTheme.INSTANCE.getDarkControlBackground(),
-                new Color(52, 117, 233),
+                AppTheme.INSTANCE.getDarkForeground(),
                 AppTheme.INSTANCE.getDisabledForeground(),
                 AppTheme.INSTANCE.getBackground(),
                 AppTheme.INSTANCE.getDarkControlBackground(),
@@ -43,7 +48,7 @@ public class TabbedTerminal extends JPanel {
                 AppTheme.INSTANCE.getTitleForeground(),
                 IconCode.RI_CLOSE_LINE,
                 AppTheme.INSTANCE.getButtonBorderColor(),
-                addTabComponent,
+                b1,
                 false,
                 true
         );
@@ -61,9 +66,9 @@ public class TabbedTerminal extends JPanel {
             @Override
             public void tabClosed(TabEvent e) {
                 var c = e.getTabContent();
-//                if (c instanceof AbstractFileBrowserView) {
-//                    ((AbstractFileBrowserView) c).dispose();
-//                }
+                if (c instanceof TerminalContainer) {
+                    ((TerminalContainer) c).dispose();
+                }
                 handleTabClosure(tabbedPanel);
             }
         });
@@ -78,10 +83,14 @@ public class TabbedTerminal extends JPanel {
     }
 
     private void openTab() {
-        var terminal = new CustomTerminal();
-        leftTabs.addTab("Local", IconCode.RI_HARD_DRIVE_3_LINE,
-                terminal);
-        ((CardLayout) this.getLayout()).show(this, "TABS");
-        terminal.start();
+        var window = SwingUtilities.windowForComponent(this);
+        var sessionInfo = SessionManager.showDialog(window);
+        if (sessionInfo != null) {
+            var terminal = new TerminalContainer(sessionInfo);
+            leftTabs.addTab(sessionInfo.getName(), IconCode.RI_TERMINAL_BOX_LINE,
+                    terminal);
+            ((CardLayout) this.getLayout()).show(this, "TABS");
+            terminal.beginSession();
+        }
     }
 }

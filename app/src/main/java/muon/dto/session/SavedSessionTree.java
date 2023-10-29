@@ -1,8 +1,10 @@
 package muon.dto.session;
 
-public class SavedSessionTree {
+import java.io.Serializable;
+
+public class SavedSessionTree implements Serializable {
     private SessionFolder folder;
-    private String lastSelection;
+    private String lastSelectionId;
 
     public synchronized SessionFolder getFolder() {
         return folder;
@@ -12,11 +14,11 @@ public class SavedSessionTree {
         this.folder = folder;
     }
 
-    public synchronized String getLastSelection() {
-        return lastSelection;
+    public synchronized String getLastSelectionId() {
+        return lastSelectionId;
     }
 
-    public synchronized void setLastSelection(String lastSelection) {
-        this.lastSelection = lastSelection;
+    public synchronized void setLastSelectionId(String lastSelectionId) {
+        this.lastSelectionId = lastSelectionId;
     }
 }

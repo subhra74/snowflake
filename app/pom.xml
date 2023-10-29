@@ -87,6 +87,12 @@
             <artifactId>sshd-openpgp</artifactId>
             <version>2.10.0</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.apache.sshd/sshd-contrib -->
+        <dependency>
+            <groupId>org.apache.sshd</groupId>
+            <artifactId>sshd-contrib</artifactId>
+            <version>2.10.0</version>
+        </dependency>
         <!-- Dependency from local maven repo -->
         <dependency>
             <groupId>org.jetbrains.jediterm</groupId>

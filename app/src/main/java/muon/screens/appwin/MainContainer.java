@@ -1,5 +1,7 @@
 package muon.screens.appwin;
 
+import muon.AppContext;
+import muon.exceptions.AuthenticationException;
 import muon.screens.appwin.tabs.filebrowser.DualPaneFileBrowser;
 import muon.screens.appwin.tabs.terminal.TabbedTerminal;
 import muon.styles.AppTheme;
@@ -20,9 +22,11 @@ public class MainContainer extends JPanel implements AppWin {
     private TabbedTerminal tabbedTerminal;
     private AtomicBoolean init = new AtomicBoolean(false);
     private BottomTabItem tabs[];
+    private JPasswordField txtPassword;
+    private JButton btnPassword;
 
     public MainContainer() {
-        super(new BorderLayout());
+        super(new CardLayout());
 
         dualPaneFileBrowser = new DualPaneFileBrowser(this);
         tabbedTerminal = new TabbedTerminal();
@@ -31,18 +35,20 @@ public class MainContainer extends JPanel implements AppWin {
         contentPanel.add(dualPaneFileBrowser, "FILES");
         contentPanel.add(tabbedTerminal, "TERM");
 
-        add(contentPanel);
-        add(createBottomTabs(), BorderLayout.SOUTH);
+        var panel = new JPanel(new BorderLayout());
+        panel.add(contentPanel);
+        panel.add(createBottomTabs(), BorderLayout.SOUTH);
+
+        this.add(createProgressPanel(), "PROGRESS");
+        this.add(createPasswordPanel(), "PASSWORD");
+        this.add(panel, "CONTENT");
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 if (!init.get()) {
                     init.set(true);
-                    ((CardLayout) contentPanel.getLayout()).show(contentPanel, "FILES");
-                    revalidate();
-                    repaint();
-                    dualPaneFileBrowser.init();
+                    loadInitialSessionContext();
                 }
             }
 
@@ -53,6 +59,27 @@ public class MainContainer extends JPanel implements AppWin {
 //                revalidate();
 //                repaint();
 //            }
+        });
+    }
+
+    private void initContent() {
+        ((CardLayout) this.getLayout()).show(this, "CONTENT");
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "FILES");
+        revalidate();
+        repaint();
+        dualPaneFileBrowser.init();
+    }
+
+    private void loadInitialSessionContext() {
+        AppUtils.runAsync(() -> {
+            try {
+                AppContext.loadSessionTree();
+                SwingUtilities.invokeLater(this::initContent);
+            } catch (AuthenticationException ex) {
+                SwingUtilities.invokeLater(() -> {
+                    ((CardLayout) this.getLayout()).show(this, "PASSWORD");
+                });
+            }
         });
     }
 
@@ -79,7 +106,7 @@ public class MainContainer extends JPanel implements AppWin {
         tabs = new BottomTabItem[]{btnFiles, btnTerminal, btnPortFwd, btnKeyMgr};
 
         btnFiles.setBackground(AppTheme.INSTANCE.getBackground());
-        AppUtils.makeEqualSize(btnFiles, btnTerminal, btnPortFwd, btnKeyMgr);
+        //AppUtils.makeEqualSize(btnFiles, btnTerminal, btnPortFwd, btnKeyMgr);
 
         box.add(btnFiles);
         box.add(btnTerminal);
@@ -91,6 +118,59 @@ public class MainContainer extends JPanel implements AppWin {
         return box;
     }
 
+    private JPanel createPasswordPanel() {
+        var lbl = new JLabel("Unlock with master password");
+
+        txtPassword = new JPasswordField(10);
+        txtPassword.setEchoChar('*');
+
+        btnPassword = new JButton("Unlock");
+        btnPassword.addActionListener(e -> {
+            ((CardLayout) this.getLayout()).show(this, "PROGRESS");
+            AppUtils.runAsync(() -> {
+                try {
+                    AppContext.loadSessionTree(new String(txtPassword.getPassword()));
+                    SwingUtilities.invokeLater(this::initContent);
+                } catch (AuthenticationException ex) {
+                    SwingUtilities.invokeLater(() -> {
+                        ((CardLayout) this.getLayout()).show(this, "PASSWORD");
+                    });
+                }
+            });
+        });
+
+        var hbox2 = Box.createHorizontalBox();
+        hbox2.add(lbl);
+        hbox2.add(Box.createRigidArea(new Dimension(40, 10)));
+
+        var hbox1 = Box.createHorizontalBox();
+        hbox1.add(Box.createHorizontalGlue());
+        hbox1.add(btnPassword);
+
+        var box = Box.createVerticalBox();
+        box.add(hbox2);
+        box.add(Box.createRigidArea(new Dimension(5, 5)));
+        box.add(txtPassword);
+        box.add(Box.createRigidArea(new Dimension(5, 5)));
+        box.add(hbox1);
+
+        var panel = new JPanel(new GridBagLayout());
+        var gc = new GridBagConstraints();
+        panel.add(box, gc);
+
+        return panel;
+    }
+
+    private JPanel createProgressPanel() {
+        var panel = new JPanel(new GridBagLayout());
+        var gc = new GridBagConstraints();
+        var prg = new JProgressBar();
+        prg.setPreferredSize(new Dimension(200, 5));
+        prg.setIndeterminate(true);
+        panel.add(prg, gc);
+        return panel;
+    }
+
     class BottomTabItem extends JPanel {
         private Border b1 = new EmptyBorder(5, 15, 5, 15);
         private Border b2 = new CompoundBorder(
@@ -98,7 +178,8 @@ public class MainContainer extends JPanel implements AppWin {
                 new EmptyBorder(4, 15, 5, 15));
 
         public BottomTabItem(IconCode iconCode, String text, ActionListener a) {
-            super(new BorderLayout(10, 10));
+            var layout = new BoxLayout(this, BoxLayout.X_AXIS);
+            setLayout(layout);
             var lbl1 = new JLabel(text);
             var iconLbl = new JLabel();
             iconLbl.setHorizontalAlignment(JLabel.CENTER);
@@ -106,7 +187,8 @@ public class MainContainer extends JPanel implements AppWin {
             iconLbl.setFont(IconFont.getSharedInstance().getIconFont(18));
             iconLbl.setText(iconCode.getValue());
 
-            this.add(iconLbl, BorderLayout.WEST);
+            this.add(iconLbl);
+            this.add(Box.createRigidArea(new Dimension(10, 0)));
             this.add(lbl1);
 
             this.setBorder(b1);
@@ -123,7 +205,9 @@ public class MainContainer extends JPanel implements AppWin {
 
         public void setSelected(boolean selected) {
             setBorder(selected ? b2 : b1);
-            setBackground(selected ? AppTheme.INSTANCE.getBackground() : AppTheme.INSTANCE.getDarkControlBackground());
+            setBackground(selected ?
+                    AppTheme.INSTANCE.getBackground() :
+                    AppTheme.INSTANCE.getDarkControlBackground());
             revalidate();
             repaint();
         }

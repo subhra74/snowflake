@@ -1,6 +1,8 @@
 package muon.dto.session;
 
-public class NamedItem {
+import java.io.Serializable;
+
+public class NamedItem implements Serializable {
     protected String id, name;
 
     /**

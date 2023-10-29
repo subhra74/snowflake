@@ -1,12 +1,11 @@
 package muon.util;
 
 import muon.styles.AppTheme;
-import muon.widgets.AddTabButton;
+import muon.widgets.FlatButton;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
@@ -75,15 +74,20 @@ public class AppUtils {
         return button;
     }
 
-    public static AddTabButton createAddTabButton() {
-        return new AddTabButton();
-//        var btnAddTab = AppUtils.createIconButton(IconCode.RI_ADD_LINE);
-//        var b1 = Box.createHorizontalBox();
-//        b1.add(Box.createRigidArea(new Dimension(0, 30)));
-//        b1.setBorder(new EmptyBorder(2, 5, 2, 5));
-//        b1.add(btnAddTab);
-//        btnAddTab.addActionListener(actionListener);
-//        return b1;
+    public static FlatButton createAddTabButton() {
+        return new FlatButton(IconCode.RI_ADD_LINE);
+    }
+
+    public static FlatButton createViewButton() {
+        return new FlatButton(IconCode.RI_LAYOUT_GRID_LINE);
+    }
+
+    public static FlatButton createSnippetButton() {
+        return new FlatButton(IconCode.RI_CODE_BOX_LINE);
+    }
+
+    public static FlatButton createMoreButton() {
+        return new FlatButton(IconCode.RI_MORE_2_LINE);
     }
 
     public static void runAsync(Runnable r) {

@@ -3,7 +3,7 @@
   <groupId>org.jetbrains.jediterm</groupId>
   <artifactId>jediterm-ui</artifactId>
   <versioning>
-    <lastUpdated>20231008184708</lastUpdated>
+    <lastUpdated>20231015043227</lastUpdated>
     <snapshot>
       <localCopy>true</localCopy>
     </snapshot>
@@ -11,7 +11,7 @@
       <snapshotVersion>
         <extension>jar</extension>
         <value>3.26-SNAPSHOT</value>
-        <updated>20231008184708</updated>
+        <updated>20231015043227</updated>
       </snapshotVersion>
       <snapshotVersion>
         <extension>pom</extension>

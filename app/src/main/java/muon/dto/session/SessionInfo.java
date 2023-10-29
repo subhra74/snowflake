@@ -1,16 +1,20 @@
 package muon.dto.session;
 
+import muon.constants.AuthMode;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class SessionInfo extends NamedItem implements Serializable {
+public class SessionInfo extends NamedItem {
     private String host, user, localFolder, remoteFolder;
+    private AuthMode authMode;
     private int port = 22;
     private List<String> favouriteRemoteFolders = new ArrayList<>();
     private List<String> favouriteLocalFolders = new ArrayList<>();
     private String privateKeyFile;
+    private String keyFilePassword;
     private int proxyPort = 8080;
     private String proxyHost, proxyUser, proxyPassword;
     private int proxyType = 0;
@@ -18,10 +22,24 @@ public class SessionInfo extends NamedItem implements Serializable {
     private JumpType jumpType = JumpType.TcpForwarding;
     private List<HopEntry> jumpHosts = new ArrayList<>();
     private List<PortForwardingRule> portForwardingRules = new ArrayList<>();
-
     private transient String lastPassword;
+    private String password;
 
-    private char[] password;
+    public AuthMode getAuthMode() {
+        return authMode;
+    }
+
+    public void setAuthMode(AuthMode authMode) {
+        this.authMode = authMode;
+    }
+
+    public String getKeyFilePassword() {
+        return keyFilePassword;
+    }
+
+    public void setKeyFilePassword(String keyFilePassword) {
+        this.keyFilePassword = keyFilePassword;
+    }
 
     public enum JumpType {
         TcpForwarding, PortForwarding
@@ -91,14 +109,14 @@ public class SessionInfo extends NamedItem implements Serializable {
     /**
      * @return the password
      */
-    public char[] getPassword() {
+    public String getPassword() {
         return password;
     }
 
     /**
      * @param password the password to set
      */
-    public void setPassword(char[] password) {
+    public void setPassword(String password) {
         this.password = password;
     }
 

@@ -70,7 +70,10 @@ public class FileBrowserHomePage extends JPanel {
         vbox.add(subtitleLabel);
         vbox.add(Box.createRigidArea(new Dimension(10, 5)));
 
-        hbox.add(createIconLabel(icon, 42f));
+        var lbl = createIconLabel(icon, 42f);
+        lbl.setForeground(AppTheme.INSTANCE.getDisabledForeground());
+
+        hbox.add(lbl);
         hbox.add(Box.createRigidArea(new Dimension(5, 0)));
         hbox.add(vbox);
         hbox.add(Box.createRigidArea(new Dimension(10, 0)));

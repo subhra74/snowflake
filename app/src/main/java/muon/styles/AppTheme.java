@@ -1,5 +1,7 @@
 package muon.styles;
 
+import muon.util.IconCode;
+
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
@@ -137,17 +139,19 @@ public class AppTheme {
 
                 "Tree.background", getBackground(),
                 "Tree.foreground", getForeground(),
-//                "Tree.openIcon", new FontIcon(FontIconCodes.RI_FOLDER_OPEN_FILL,
+//                "Tree.openIcon", new FontIcon(IconCode.RI_FOLDER_OPEN_FILL,
 //                24, 24, 16.0f, getForeground()),
-//                "Tree.closedIcon", new FontIcon(FontIconCodes.RI_FOLDER_FILL,
+//                "Tree.closedIcon", new FontIcon(IconCode.RI_FOLDER_FILL,
 //                24, 24, 16.0f, getForeground()),
-//                "Tree.leafIcon", new FontIcon(FontIconCodes.RI_CLOSE_LINE,
+//                "Tree.leafIcon", new FontIcon(IconCode.RI_CLOSE_LINE,
 //                24, 24, 16.0f, getForeground()),
                 "Tree.selectionForeground", getSelectionForeground(),
                 "Tree.textForeground", getForeground(),
                 "Tree.selectionBackground", getListSelectionColor(),
                 "Tree.textBackground", getBackground(),
                 "Tree.rendererFillBackground", true,
+                "Tree.lineStyle", "None",
+                "Tree.rightChildIndent", 10,
                 //"Tree.rendererMargins", new Insets(25,25,5,5),
                 "Tree.selectionBorderColor", getListSelectionColor(),
 

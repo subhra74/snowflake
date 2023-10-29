@@ -87,6 +87,7 @@ public class FlatTreeRenderer implements TreeCellRenderer {
         leafIcon.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
         text.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
         panel.setBackground(selected ? AppTheme.INSTANCE.getListSelectionColor() : tree.getBackground());
+
         return panel;
     }
 

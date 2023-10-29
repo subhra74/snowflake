@@ -15,25 +15,28 @@ public class TerminalHomePage extends JPanel {
         super(new GridBagLayout());
         setBackground(AppTheme.INSTANCE.getDarkControlBackground());
 
-        var btn1 = createIconButton3(IconCode.RI_SERVER_FILL, "New Terminal session", "Open a Terminal session over SSH");
-        //btn1.addActionListener(remoteClicked);
+        var btn1 = createIconButton3(IconCode.RI_TERMINAL_BOX_FILL, "New Terminal session", "Open a Terminal session over SSH");
+        var btn2 = createIconButton3(IconCode.RI_CODE_BOX_FILL, "Manage Command Snippets", "Create snippet for useful commands");
+        AppUtils.makeEqualSize(btn1, btn2);
+        btn1.addActionListener(callback);
 
         var titleLabel = new JLabel("Remote Terminal");
         titleLabel.setBorder(new EmptyBorder(0, 0, 10, 0));
         titleLabel.setForeground(AppTheme.INSTANCE.getDarkForeground());
         titleLabel.setFont(new Font(Font.DIALOG, Font.PLAIN, 20));
 
-        var iconLabel = createIconLabel(IconCode.RI_TERMINAL_BOX_FILL, 150f);
-        iconLabel.setForeground(AppTheme.INSTANCE.getButtonRollOverBackground());
+        var iconLbl = createIconLabel(IconCode.RI_TERMINAL_BOX_LINE, 128f);
+        iconLbl.setForeground(AppTheme.INSTANCE.getButtonRollOverBackground());
 
         var i = 0;
         var gc = new GridBagConstraints();
         gc.gridy = i;
-        add(iconLabel, gc);
+        add(iconLbl, gc);
         //add(createIconGrid(), gc);
         i++;
         gc.gridy = i;
         add(titleLabel, gc);
+        //add(iconLabel, gc);
         i++;
         gc.gridy = i;
         add(Box.createRigidArea(new Dimension(10, 10)), gc);
@@ -45,7 +48,7 @@ public class TerminalHomePage extends JPanel {
         add(Box.createRigidArea(new Dimension(10, 10)), gc);
         i++;
         gc.gridy = i;
-        //add(btn2, gc);
+        add(btn2, gc);
 
     }
 
@@ -66,7 +69,10 @@ public class TerminalHomePage extends JPanel {
         vbox.add(subtitleLabel);
         vbox.add(Box.createRigidArea(new Dimension(10, 5)));
 
-        hbox.add(createIconLabel(icon, 42f));
+        var lbl = createIconLabel(icon, 42f);
+        lbl.setForeground(AppTheme.INSTANCE.getDisabledForeground());
+
+        hbox.add(lbl);
         hbox.add(Box.createRigidArea(new Dimension(5, 0)));
         hbox.add(vbox);
         hbox.add(Box.createRigidArea(new Dimension(10, 0)));

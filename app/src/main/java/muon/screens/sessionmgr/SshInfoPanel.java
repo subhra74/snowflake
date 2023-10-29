@@ -58,7 +58,7 @@ public class SshInfoPanel extends JPanel {
         attachTextListener(txtLocalFolder, text -> sessionInfo.setLocalFolder(text));
 
         attachPasswordListener(txtPass, password -> {
-            sessionInfo.setPassword(password);
+            sessionInfo.setPassword(new String(password));
         });
     }
 
@@ -67,15 +67,9 @@ public class SshInfoPanel extends JPanel {
         txtHost.setText(info.getHost());
         txtPort.setText(String.valueOf(info.getPort()));
         txtUser.setText(info.getUser());
-        txtPass.setText("*****************");
         txtKeyFile.setText(info.getPrivateKeyFile());
         txtRemoteFolder.setText(info.getRemoteFolder());
         txtLocalFolder.setText(info.getLocalFolder());
-
-
-
-        txtHost.setText("localhost");
-        txtUser.setText("subhro");
     }
 
     private void attachTextListener(JTextField txt, Consumer<String> consumer) {

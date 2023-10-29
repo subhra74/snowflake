@@ -1,7 +1,6 @@
 package muon.screens.appwin.tabs.terminal;
 
 import com.jediterm.terminal.ui.JediTermWidget;
-import com.jediterm.terminal.ui.settings.DefaultSettingsProvider;
 import com.jediterm.terminal.ui.settings.SettingsProvider;
 
 import javax.swing.*;
@@ -12,7 +11,7 @@ public class CustomTerminal extends JediTermWidget {
     private boolean started = false;
 
     public CustomTerminal() {
-        this(new DefaultSettingsProvider());
+        this(new CustomizedSettingsProvider());
     }
 
     public CustomTerminal(SettingsProvider settingsProvider) {

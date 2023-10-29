@@ -23,7 +23,7 @@ public class InteractivePromptPanel extends JPanel {
         loginButton = new JButton("Login");
         loginButton.addActionListener(e -> {
             inputs = this.txtInputs.stream().map(txt -> new String(txt.getPassword())).toList();
-            loginButton.addActionListener(loginClicked);
+            loginClicked.actionPerformed(e);
         });
 
         var iconLabel = new JLabel();

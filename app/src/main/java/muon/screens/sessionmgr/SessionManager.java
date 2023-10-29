@@ -1,11 +1,15 @@
 package muon.screens.sessionmgr;
 
+import muon.AppContext;
+import muon.dto.session.SavedSessionTree;
 import muon.dto.session.SessionInfo;
 import muon.widgets.CustomDialog;
 import muon.util.AppUtils;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 public class SessionManager {
     public static SessionInfo showDialog(Window window) {
@@ -17,6 +21,7 @@ public class SessionManager {
         dlg.setLocationRelativeTo(window);
         dlg.add(mgr);
         dlg.setVisible(true);
+        mgr.saveSessionUpdates();
         return mgr.getSelectedSession();
     }
 }

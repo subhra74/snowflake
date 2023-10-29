@@ -92,6 +92,11 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
     }
 
     @Override
+    public String getPassword(String host, String user) {
+        return getUserInput(host, user, new String[]{"Password"}, new boolean[]{true})[0];
+    }
+
+    @Override
     public void showBanner(String message) {
         SwingUtilities.invokeLater(() -> {
             txtBanner.setText(message);

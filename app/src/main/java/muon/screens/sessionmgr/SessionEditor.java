@@ -3,11 +3,16 @@ package muon.screens.sessionmgr;
 import muon.dto.session.NamedItem;
 import muon.dto.session.SessionInfo;
 import muon.styles.AppTheme;
+import muon.util.DocumentChangeAdapter;
 import muon.widgets.TabbedPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
+import java.util.function.Consumer;
 
 public class SessionEditor extends JPanel {
     private JLabel lblName;
@@ -17,6 +22,7 @@ public class SessionEditor extends JPanel {
     private SshInfoPanel sshInfoPanel;
     private ActionListener connectAction, cancelAction;
     private NamedItem selection;
+    private Runnable callback;
 
     public SessionEditor(ActionListener connectAction, ActionListener cancelAction) {
         super(new GridBagLayout());
@@ -25,8 +31,9 @@ public class SessionEditor extends JPanel {
         createUI();
     }
 
-    public void setValue(NamedItem value) {
+    public void setValue(NamedItem value, Runnable callback) {
         this.selection = value;
+        this.callback = callback;
         if (value instanceof SessionInfo) {
             tabbedPanel.setVisible(true);
             SessionInfo info = (SessionInfo) value;
@@ -48,6 +55,11 @@ public class SessionEditor extends JPanel {
         }
     }
 
+    private void updateName(String text) {
+        selection.setName(text);
+        callback.run();
+    }
+
     public NamedItem getSelection() {
         return selection;
     }
@@ -58,6 +70,8 @@ public class SessionEditor extends JPanel {
         lblName = new JLabel("Name");
         txtName = new JTextField();
         sshInfoPanel = new SshInfoPanel();
+
+        txtName.getDocument().addDocumentListener(new DocumentChangeAdapter(txtName, this::updateName));
 
         btnConnect = new JButton("Connect");
         btnCancel = new JButton("Cancel");

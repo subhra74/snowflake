@@ -58,7 +58,8 @@ public class AppTest
                 System.err.println("sessionException");
             }
         });
-        client.setUserInteraction(new UserInteraction() {
+
+        var ui=new UserInteraction() {
             @Override
             public KeyPair resolveAuthPublicKeyIdentityAttempt(ClientSession session) throws Exception {
                 System.out.println("resolveAuthPublicKeyIdentityAttempt");
@@ -68,7 +69,7 @@ public class AppTest
             @Override
             public String resolveAuthPasswordAttempt(ClientSession session) throws Exception {
                 System.out.println("resolveAuthPasswordAttempt");
-                return "null";
+                return "null1";
             }
 
             @Override
@@ -79,7 +80,7 @@ public class AppTest
             @Override
             public String getUpdatedPassword(ClientSession session, String prompt, String lang) {
                 System.out.println("getUpdatedPassword");
-                return null;
+                return "null2";
             }
 
             @Override
@@ -102,7 +103,9 @@ public class AppTest
                 System.out.println("prompt " + String.join(" ", prompt));
                 return new String[]{"sdfsdf"};
             }
-        });
+        };
+
+        client.setUserInteraction(ui);
         client.setPasswordAuthenticationReporter(new PasswordAuthenticationReporter() {
             @Override
             public void signalAuthenticationAttempt(ClientSession session, String service, String oldPassword, boolean modified, String newPassword) throws Exception {
