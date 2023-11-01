@@ -50,7 +50,8 @@ public class TabbedTerminal extends JPanel {
                 AppTheme.INSTANCE.getButtonBorderColor(),
                 b1,
                 false,
-                true
+                true,
+                false
         );
 
         tabbedPanel.addTabListener(new TabListener() {

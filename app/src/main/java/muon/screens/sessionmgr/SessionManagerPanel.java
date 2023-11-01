@@ -26,8 +26,6 @@ public class SessionManagerPanel extends JPanel {
 
         var splitPane = new SplitPanel(Orientation.Horizontal);
 
-        sessionTreePanel = new SessionTreePanel(this::handleTreeSelection);
-
         sessionEditor = new SessionEditor(e -> {
             this.cancelled = false;
             try {
@@ -48,6 +46,7 @@ public class SessionManagerPanel extends JPanel {
             win.dispose();
         });
 
+        sessionTreePanel = new SessionTreePanel(this::handleTreeSelection);
         splitPane.setLeftComponent(sessionTreePanel);
 
         splitPane.setRightComponent(sessionEditor);

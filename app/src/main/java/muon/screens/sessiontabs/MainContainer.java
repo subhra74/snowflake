@@ -43,7 +43,8 @@ public class MainContainer extends JPanel {
                 AppTheme.INSTANCE.getButtonBorderColor(),
                 addTabComponent,
                 false,
-                true
+                true,
+                false
         );
         return mainTab;
     }

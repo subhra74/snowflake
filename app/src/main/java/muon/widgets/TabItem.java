@@ -34,7 +34,8 @@ public class TabItem extends JComponent {
                    Color iconColor, Color closeButtonColor,
                    Color selectionBackground, Color titleColor,
                    Color selectedTitleColor, boolean isStretchable,
-                   ActionListener tabClicked, ActionListener closeClicked) {
+                   ActionListener tabClicked, ActionListener closeClicked,
+                   boolean isCentered) {
         super();
 
         this.titleIcon = titleIcon;
@@ -53,7 +54,7 @@ public class TabItem extends JComponent {
         this.unselectedBorder = createBorder(backgroundColor);
         if (Objects.nonNull(titleIcon)) {
             this.tabIconLabel = new JLabel();
-            this.tabIconLabel.setBorder(new EmptyBorder(1,0,0,0));
+            this.tabIconLabel.setBorder(new EmptyBorder(1, 0, 0, 0));
             this.tabIconLabel.setFont(IconFont.getSharedInstance().getIconFont(18.0f));
         }
         this.tabTitle = new JLabel();
@@ -64,7 +65,7 @@ public class TabItem extends JComponent {
             this.tabCloseButton = new JButton();
             this.tabCloseButton.setBorderPainted(false);
             this.tabCloseButton.setContentAreaFilled(false);
-            this.tabCloseButton.setBorder(new EmptyBorder(0,0,0,0));
+            this.tabCloseButton.setBorder(new EmptyBorder(0, 0, 0, 0));
             //this.tabCloseButton.setBorderPainted(false);
             this.tabCloseButton.setFont(IconFont.getSharedInstance().getIconFont(16.0f));
             this.tabCloseButton.addMouseListener(new MouseAdapter() {
@@ -81,22 +82,37 @@ public class TabItem extends JComponent {
 
         setOpaque(true);
         if (isStretchable) {
-            setLayout(new BorderLayout(0, 10));
-            if(Objects.nonNull(tabIconLabel)){
-                add(tabIconLabel, BorderLayout.WEST);
-            }
-            add(tabTitle);
-            if(Objects.nonNull(tabCloseButton)){
-                add(tabCloseButton, BorderLayout.EAST);
+            if (isCentered) {
+                setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+                add(Box.createHorizontalGlue());
+                if (Objects.nonNull(tabIconLabel)) {
+                    add(tabIconLabel);
+                    add(Box.createRigidArea(new Dimension(5,10)));
+                }
+                add(tabTitle);
+                if (Objects.nonNull(tabCloseButton)) {
+                    add(Box.createRigidArea(new Dimension(5,10)));
+                    add(tabCloseButton);
+                }
+                add(Box.createHorizontalGlue());
+            } else {
+                setLayout(new BorderLayout(0, 10));
+                if (Objects.nonNull(tabIconLabel)) {
+                    add(tabIconLabel, BorderLayout.WEST);
+                }
+                add(tabTitle);
+                if (Objects.nonNull(tabCloseButton)) {
+                    add(tabCloseButton, BorderLayout.EAST);
+                }
             }
         } else {
             setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
-            add(Box.createRigidArea(new Dimension(0,24)));
-            if(Objects.nonNull(tabIconLabel)){
+            add(Box.createRigidArea(new Dimension(0, 24)));
+            if (Objects.nonNull(tabIconLabel)) {
                 add(tabIconLabel);
             }
             add(tabTitle);
-            if(Objects.nonNull(tabCloseButton)){
+            if (Objects.nonNull(tabCloseButton)) {
                 add(tabCloseButton);
             }
         }

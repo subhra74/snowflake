@@ -114,7 +114,8 @@ public class SessionEditor extends JPanel {
                 AppTheme.INSTANCE.getSplitPaneBackground(),
                 null,
                 false,
-                true
+                true,
+                false
         );
 
         tabbedPanel.addTab("SSH", null, sshInfoPanel);

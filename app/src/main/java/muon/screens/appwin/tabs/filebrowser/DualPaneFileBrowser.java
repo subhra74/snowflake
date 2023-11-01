@@ -138,7 +138,8 @@ public class DualPaneFileBrowser extends JPanel implements FileBrowserViewParent
                 AppTheme.INSTANCE.getButtonBorderColor(),
                 addTabComponent,
                 false,
-                true
+                true,
+                false
         );
 
         tabbedPanel.addTabListener(new TabListener() {

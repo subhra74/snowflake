@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class TabbedPanel extends JPanel {
-    private boolean isStretchable, isCloseButtonHidden;
+    private boolean isStretchable, isCloseButtonHidden, centerAlign;
     private Color selectionColor, backgroundColor, iconColor,
             closeButtonColor, selectionBackground, titleColor,
             selectedTitleColor, inactiveColor;
@@ -36,7 +36,8 @@ public class TabbedPanel extends JPanel {
                        Color tabBorderColor,
                        Component rightComponent,
                        boolean showTabsAtBottom,
-                       boolean showBorder) {
+                       boolean showBorder,
+                       boolean isCentered) {
         super(new BorderLayout(), true);
         this.isStretchable = isStretchable;
         this.isCloseButtonHidden = isCloseButtonHidden;
@@ -49,6 +50,7 @@ public class TabbedPanel extends JPanel {
         this.titleColor = titleColor;
         this.selectedTitleColor = selectedTitleColor;
         this.closeIcon = closeIcon;
+        this.centerAlign = isCentered;
 
         this.tabListeners = Collections.synchronizedList(new ArrayList<>());
 
@@ -87,7 +89,7 @@ public class TabbedPanel extends JPanel {
         }, e -> {
             int index = getTabIndex((TabItem) e.getSource());
             closeTab(index);
-        });
+        }, centerAlign);
         tab.setTabTitle(tabTitle);
         tab.putClientProperty("tab.content", body);
         tabHolder.add(tab);

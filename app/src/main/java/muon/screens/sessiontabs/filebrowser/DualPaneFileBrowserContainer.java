@@ -41,7 +41,7 @@ public class DualPaneFileBrowserContainer extends JPanel implements Navigator {
         setLayout(cardLayout);
         this.sessionInfo = sessionInfo;
         this.clientInstance = initialInstance;
-        this.sftpClientInstance=new SftpClientInstance(initialInstance);
+        this.sftpClientInstance = new SftpClientInstance(initialInstance);
 
         splitPane = new SplitPanel(Orientation.Horizontal);
 
@@ -70,6 +70,7 @@ public class DualPaneFileBrowserContainer extends JPanel implements Navigator {
                 AppTheme.INSTANCE.getButtonBorderColor(),
                 addTabComponent,
                 true,
+                false,
                 false
         );
         splitPane.setLeftComponent(leftTabs);
@@ -92,6 +93,7 @@ public class DualPaneFileBrowserContainer extends JPanel implements Navigator {
                 AppTheme.INSTANCE.getButtonBorderColor(),
                 addTabComponent,
                 true,
+                false,
                 false
         );
         splitPane.setRightComponent(rightTabs);

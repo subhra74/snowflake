@@ -9,6 +9,7 @@ import muon.styles.FlatTreeRenderer;
 import muon.widgets.AutoScrollingJTree;
 import muon.util.IconCode;
 import muon.util.IconFont;
+import muon.widgets.TabbedPanel;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -25,7 +26,6 @@ public class SessionTreePanel extends JPanel {
     private DefaultTreeModel treeModel;
     private JTree tree;
     private DefaultMutableTreeNode rootNode;
-
     private String lastSelectedId;
 
     public SessionTreePanel(TreeSelectionListener selectionListener) {
@@ -101,10 +101,39 @@ public class SessionTreePanel extends JPanel {
     }
 
     private void createUI(TreeSelectionListener selectionListener) {
-        var treeScroll = new JScrollPane(createSessionTree(selectionListener));
-        treeScroll.setBorder(new EmptyBorder(0, 0, 0, 0));
-        add(treeScroll);
-        add(createTreeTools(), BorderLayout.NORTH);
+        var treeScroll1 = new JScrollPane(createSessionTree(selectionListener));
+        treeScroll1.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+        var tabbedPanel = new TabbedPanel(
+                true,
+                false,
+                new Color(52, 117, 233),
+                AppTheme.INSTANCE.getDarkControlBackground(),
+                new Color(52, 117, 233),
+                AppTheme.INSTANCE.getDisabledForeground(),
+                AppTheme.INSTANCE.getBackground(),
+                AppTheme.INSTANCE.getDarkControlBackground(),
+                AppTheme.INSTANCE.getForeground(),
+                AppTheme.INSTANCE.getTitleForeground(),
+                null,
+                AppTheme.INSTANCE.getButtonBorderColor(),
+                null,
+                true,
+                true,
+                true
+        );
+
+        var hostTreePanel = new JPanel(new BorderLayout());
+        hostTreePanel.add(createTreeTools(), BorderLayout.NORTH);
+        hostTreePanel.add(treeScroll1);
+
+        tabbedPanel.addTab("Hosts", IconCode.RI_DATABASE_2_LINE,
+                hostTreePanel);
+        tabbedPanel.addTab("Recent", IconCode.RI_HISTORY_LINE,
+                new JPanel());
+
+        add(tabbedPanel);
+
     }
 
     private JTree createSessionTree(TreeSelectionListener selectionListener) {
@@ -160,26 +189,46 @@ public class SessionTreePanel extends JPanel {
     }
 
     private Component createTreeTools() {
-        var btnAdd = createButton(IconCode.RI_ADD_LINE);
-        var btnMore = createButton(IconCode.RI_MORE_2_LINE);
+        var btnAddHost = createButton(IconCode.RI_FILE_ADD_LINE);
+        var btnAddFolder = createButton(IconCode.RI_FOLDER_ADD_LINE);
+        var btnDelete = createButton(IconCode.RI_DELETE_BIN_LINE);
+        var btnClone = createButton(IconCode.RI_FILE_COPY_2_LINE);
+        var btnImport = createButton(IconCode.RI_INSTALL_LINE);
+        var btnExport = createButton(IconCode.RI_UNINSTALL_LINE);
         var txtSearch = new JTextField();
 
+        btnDelete.setForeground(AppTheme.INSTANCE.getDisabledForeground());
+        btnClone.setForeground(AppTheme.INSTANCE.getDisabledForeground());
+
         var hbox1 = Box.createHorizontalBox();
-        hbox1.setBorder(
-                new EmptyBorder(10, 5, 10, 5)
+        hbox1.add(btnAddHost);
+        hbox1.add(btnAddFolder);
+        hbox1.add(btnDelete);
+        hbox1.add(btnClone);
+        hbox1.add(btnImport);
+        hbox1.add(btnExport);
+        hbox1.add(Box.createHorizontalGlue());
+
+        var hbox2 = Box.createHorizontalBox();
+        hbox2.add(Box.createRigidArea(new Dimension(2,2)));
+        hbox2.add(txtSearch);
+        hbox2.add(Box.createRigidArea(new Dimension(2,2)));
+
+        var vbox = Box.createVerticalBox();
+        vbox.setBorder(
+                new EmptyBorder(10, 10, 10, 10)
         );
-        hbox1.add(btnAdd);
-        hbox1.add(Box.createRigidArea(new Dimension(5, 0)));
-        hbox1.add(txtSearch);
-        hbox1.add(Box.createRigidArea(new Dimension(5, 0)));
-        hbox1.add(btnMore);
-        return hbox1;
+        vbox.add(hbox1);
+        vbox.add(Box.createRigidArea(new Dimension(10, 5)));
+        vbox.add(hbox2);
+        return vbox;
     }
 
     private JButton createButton(IconCode iconCode) {
         var button = new JButton();
         button.setContentAreaFilled(false);
         button.setBorderPainted(false);
+        button.setForeground(AppTheme.INSTANCE.getDarkForeground());
         button.setBorder(new EmptyBorder(2, 5, 2, 5));
         button.setFont(IconFont.getSharedInstance().getIconFont(18));
         button.setText(iconCode.getValue());

@@ -18,7 +18,7 @@ public class FlatTreeRenderer implements TreeCellRenderer {
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         expandArrow = createLabel(IconCode.RI_ARROW_DOWN_S_LINE);
         collapsedArrow = createLabel(IconCode.RI_ARROW_RIGHT_S_LINE);
-        nodeIcon = createLabel(IconCode.RI_FOLDER_LINE);
+        nodeIcon = createLabel(IconCode.RI_FOLDER_FILL);
         leafIcon = createLabel(IconCode.RI_INSTANCE_LINE);
 
         expandArrow.setBorder(new EmptyBorder(0,5,0,0));
@@ -83,8 +83,8 @@ public class FlatTreeRenderer implements TreeCellRenderer {
         }
         expandArrow.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
         collapsedArrow.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
-        nodeIcon.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
-        leafIcon.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
+        nodeIcon.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getDarkForeground());
+        leafIcon.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getDarkForeground());
         text.setForeground(selected ? AppTheme.INSTANCE.getSelectionForeground() : AppTheme.INSTANCE.getForeground());
         panel.setBackground(selected ? AppTheme.INSTANCE.getListSelectionColor() : tree.getBackground());
 
