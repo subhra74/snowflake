@@ -7,6 +7,7 @@ import muon.util.DocumentChangeAdapter;
 import muon.widgets.TabbedPanel;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -23,9 +24,10 @@ public class SessionEditor extends JPanel {
     private ActionListener connectAction, cancelAction;
     private NamedItem selection;
     private Runnable callback;
+    private int headerHeight;
 
     public SessionEditor(ActionListener connectAction, ActionListener cancelAction) {
-        super(new GridBagLayout());
+        super(new BorderLayout());
         this.connectAction = connectAction;
         this.cancelAction = cancelAction;
         createUI();
@@ -64,6 +66,10 @@ public class SessionEditor extends JPanel {
         return selection;
     }
 
+    public int getHeaderHeight() {
+        return headerHeight;
+    }
+
     private void createUI() {
         this.setBackground(AppTheme.INSTANCE.getBackground());
 
@@ -78,26 +84,6 @@ public class SessionEditor extends JPanel {
 
         btnConnect.addActionListener(this.connectAction);
         btnCancel.addActionListener(this.cancelAction);
-
-        var gc = new GridBagConstraints();
-        gc.insets = new Insets(10, 10, 10, 5);
-        this.add(lblName, gc);
-
-        gc = new GridBagConstraints();
-        gc.gridx = 1;
-        gc.fill = GridBagConstraints.HORIZONTAL;
-        gc.insets = new Insets(10, 5, 10, 10);
-        gc.weightx = 1;
-        gc.gridwidth = 3;
-        this.add(txtName, gc);
-
-        gc = new GridBagConstraints();
-        gc.gridy = 1;
-        gc.gridwidth = 4;
-        gc.fill = GridBagConstraints.BOTH;
-        gc.weightx = 1;
-        gc.weighty = 1;
-        gc.anchor = GridBagConstraints.PAGE_START;
 
         tabbedPanel = new TabbedPanel(
                 false,
@@ -124,40 +110,80 @@ public class SessionEditor extends JPanel {
         tabbedPanel.addTab("Port forwarding", null, new JPanel());
         tabbedPanel.setSelectedIndex(0);
 
-        this.add(tabbedPanel, gc);
+        var hbox1 = Box.createHorizontalBox();
+        hbox1.add(lblName);
+        hbox1.add(Box.createRigidArea(new Dimension(10, 10)));
+        hbox1.add(txtName);
+        hbox1.setBorder(new EmptyBorder(8, 10, 8, 10));
+        headerHeight = hbox1.getPreferredSize().height;
 
-        gc = new GridBagConstraints();
-        gc.gridy = 2;
-        gc.gridx = 1;
-        gc.gridwidth = 4;
-        gc.fill = GridBagConstraints.BOTH;
-        gc.weightx = 1;
-        gc.weighty = 1;
-        this.add(new JLabel(), gc);
+        var hbox2 = Box.createHorizontalBox();
+        hbox2.add(Box.createHorizontalGlue());
+        hbox2.add(btnConnect);
+        hbox2.add(Box.createRigidArea(new Dimension(10, 10)));
+        hbox2.add(btnCancel);
+        hbox2.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        gc = new GridBagConstraints();
-        gc.gridy = 3;
-        gc.gridx = 1;
-        gc.gridwidth = 1;
-        gc.weightx = 1;
-        this.add(new JLabel(), gc);
+        this.add(hbox1, BorderLayout.NORTH);
+        this.add(tabbedPanel);
+        this.add(hbox2, BorderLayout.SOUTH);
 
-        gc = new GridBagConstraints();
-        gc.insets = new Insets(10, 0, 10, 0);
-        gc.gridy = 3;
-        gc.gridx = 2;
-        gc.gridwidth = 1;
-        gc.weightx = 0;
-        gc.anchor = GridBagConstraints.LINE_END;
-        this.add(btnConnect, gc);
-
-        gc = new GridBagConstraints();
-        gc.gridy = 3;
-        gc.gridx = 3;
-        gc.gridwidth = 1;
-        gc.anchor = GridBagConstraints.LINE_END;
-        gc.insets = new Insets(10, 10, 10, 10);
-
-        this.add(btnCancel, gc);
+//        var gc = new GridBagConstraints();
+//        gc.insets = new Insets(10, 10, 10, 5);
+//        this.add(lblName, gc);
+//
+//        gc = new GridBagConstraints();
+//        gc.gridx = 1;
+//        gc.fill = GridBagConstraints.HORIZONTAL;
+//        gc.insets = new Insets(10, 5, 10, 10);
+//        gc.weightx = 1;
+//        gc.gridwidth = 3;
+//        this.add(txtName, gc);
+//
+//        gc = new GridBagConstraints();
+//        gc.gridy = 1;
+//        gc.gridwidth = 4;
+//        gc.fill = GridBagConstraints.BOTH;
+//        gc.weightx = 1;
+//        gc.weighty = 1;
+//        gc.anchor = GridBagConstraints.PAGE_START;
+//
+//
+//
+//        this.add(tabbedPanel, gc);
+//
+//        gc = new GridBagConstraints();
+//        gc.gridy = 2;
+//        gc.gridx = 1;
+//        gc.gridwidth = 4;
+//        gc.fill = GridBagConstraints.BOTH;
+//        gc.weightx = 1;
+//        gc.weighty = 1;
+//        this.add(new JLabel(), gc);
+//
+//        gc = new GridBagConstraints();
+//        gc.gridy = 3;
+//        gc.gridx = 1;
+//        gc.gridwidth = 1;
+//        gc.weightx = 1;
+//        this.add(new JLabel(), gc);
+//
+//        gc = new GridBagConstraints();
+//        gc.insets = new Insets(10, 0, 10, 0);
+//        gc.gridy = 3;
+//        gc.gridx = 2;
+//        gc.gridwidth = 1;
+//        gc.weightx = 0;
+//        gc.anchor = GridBagConstraints.LINE_END;
+//        this.add(btnConnect, gc);
+//
+//        gc = new GridBagConstraints();
+//        gc.gridy = 3;
+//        gc.gridx = 3;
+//        gc.gridwidth = 1;
+//        gc.anchor = GridBagConstraints.LINE_END;
+//        gc.insets = new Insets(10, 10, 10, 10);
+//
+//        this.add(btnCancel, gc);
     }
 }
