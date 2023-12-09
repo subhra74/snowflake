@@ -100,11 +100,11 @@ public class SshTerminalClient implements AutoCloseable {
         client.setUserInteraction(callback);
         client.setSessionHeartbeat(SessionHeartbeatController.HeartbeatType.IGNORE, Duration.ofMinutes(1));
 
-        List<UserAuthFactory> userAuthFactories = List.of(UserAuthPublicKeyFactory.INSTANCE,
-                UserAuthKeyboardInteractiveFactory.INSTANCE,
-                passwordUserAuthFactory);
+        List<UserAuthFactory> userAuthFactories = List.of(
+                passwordUserAuthFactory,
+                UserAuthPublicKeyFactory.INSTANCE,
+                UserAuthKeyboardInteractiveFactory.INSTANCE);
         client.setUserAuthFactories(userAuthFactories);
-
         client.setPasswordAuthenticationReporter(callback);
         client.addSessionListener(new SessionListener() {
             @Override

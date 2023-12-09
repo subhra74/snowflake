@@ -51,6 +51,7 @@ public class SshCallback implements PasswordIdentityProvider,
 
     @Override
     public String getUpdatedPassword(ClientSession session, String prompt, String lang) {
+        System.out.println("getUpdatedPassword");
         return null;
     }
 
@@ -63,8 +64,8 @@ public class SshCallback implements PasswordIdentityProvider,
     @Override
     public Iterable<String> loadPasswords(SessionContext session) throws IOException, GeneralSecurityException {
         System.out.println("loadPasswords");
-        if (!StringUtils.isEmpty(sessionInfo.getLastPassword())) {
-            return List.of(sessionInfo.getLastPassword());
+        if (!StringUtils.isEmpty(sessionInfo.getPassword())) {
+            return List.of(sessionInfo.getPassword());
         }
         return null;
     }

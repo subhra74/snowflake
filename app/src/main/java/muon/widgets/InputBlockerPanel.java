@@ -1,5 +1,6 @@
 package muon.widgets;
 
+import muon.dto.session.SessionInfo;
 import muon.service.InputBlocker;
 import muon.styles.AppTheme;
 import muon.util.IconCode;
@@ -14,6 +15,7 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -25,6 +27,7 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
     private Lock lock;
     private Condition signal;
     private InteractivePromptPanel interactivePromptPanel;
+    private AtomicBoolean firstAttempt = new AtomicBoolean(true);
 
     public InputBlockerPanel(ActionListener retryCallback) {
         super(new BorderLayout());

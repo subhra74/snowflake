@@ -51,7 +51,7 @@ public class GuiUserAuthFactory implements UserAuthFactory {
             System.out.println("resolveAttemptedPassword");
             if (initialAttempt.get()) {
                 initialAttempt.set(false);
-                var sessionPassword = sessionInfo.getLastPassword();
+                var sessionPassword = sessionInfo.getPassword();
                 if (!StringUtils.isEmpty(sessionPassword)) {
                     return sessionPassword;
                 }

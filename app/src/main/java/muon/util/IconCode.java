@@ -50,6 +50,7 @@ public enum IconCode {
     RI_UNINSTALL_LINE("\uF246"),
     RI_SEARCH_LINE("\uF0D1"),
     RI_USER_LINE("\uF264"),
+    RI_EDIT_2_FILL("\uEC7F"),
     RI_ACCOUNT_CIRCLE_LINE("\uEA09"),
     RI_ACCOUNT_CIRCLE_FILL("\uEA08"),
     RI_ACCOUNT_ALERT_FILL("\uEA20"),

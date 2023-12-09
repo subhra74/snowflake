@@ -16,7 +16,6 @@ public class FlatComboBoxUI extends BasicComboBoxUI {
 
     @Override
     public void paint(Graphics g, JComponent c) {
-
         Graphics2D g2 = (Graphics2D) g;
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
@@ -24,12 +23,10 @@ public class FlatComboBoxUI extends BasicComboBoxUI {
 
         super.paint(g2, c);
 
-
         g.setColor(c.isFocusOwner() ? AppTheme.INSTANCE.getSelectionColor() :
                 AppTheme.INSTANCE.getTextFieldBorderColor());
         g.drawRoundRect(0, 0, c.getWidth() - 1, c.getHeight() - 1,
                 AppTheme.INSTANCE.getButtonBorderArc(), AppTheme.INSTANCE.getButtonBorderArc());
-
     }
 
     @Override

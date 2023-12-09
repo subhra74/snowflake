@@ -1,5 +1,6 @@
 package muon.dto.session;
 
+import muon.constants.AppConstant;
 import muon.constants.AuthMode;
 
 import java.io.Serializable;
@@ -9,7 +10,7 @@ import java.util.UUID;
 
 public class SessionInfo extends NamedItem {
     private String host, user, localFolder, remoteFolder;
-    private AuthMode authMode;
+    private int authMode = AppConstant.PASSWORD;
     private int port = 22;
     private List<String> favouriteRemoteFolders = new ArrayList<>();
     private List<String> favouriteLocalFolders = new ArrayList<>();
@@ -25,11 +26,11 @@ public class SessionInfo extends NamedItem {
     private transient String lastPassword;
     private String password;
 
-    public AuthMode getAuthMode() {
+    public int getAuthMode() {
         return authMode;
     }
 
-    public void setAuthMode(AuthMode authMode) {
+    public void setAuthMode(int authMode) {
         this.authMode = authMode;
     }
 
