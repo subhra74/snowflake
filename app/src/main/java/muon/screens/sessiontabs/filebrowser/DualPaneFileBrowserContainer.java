@@ -182,6 +182,7 @@ public class DualPaneFileBrowserContainer extends JPanel implements Navigator {
 //    }
 
     public void navigate(FileBrowser fileBrowser, String path) {
+        System.out.println("123loadPasswords");
         splitPane.disableUi();
         AppUtils.runAsync(() -> {
             try {

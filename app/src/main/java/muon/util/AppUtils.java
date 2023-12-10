@@ -1,5 +1,7 @@
 package muon.util;
 
+import muon.constants.AppConstant;
+import muon.dto.session.SessionInfo;
 import muon.styles.AppTheme;
 import muon.widgets.FlatButton;
 
@@ -11,6 +13,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -126,5 +129,35 @@ public class AppUtils {
     public static LocalDateTime getModificationTime(BasicFileAttributes attrs) {
         return LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(),
                 ZoneId.systemDefault());
+    }
+
+    public static String getUser(SessionInfo sessionInfo) {
+        String user = null;
+        if (sessionInfo.getAuthMode() == AppConstant.IDENTITY) {
+            var identity = IdentityManager.getIdentity(sessionInfo);
+            if (Objects.nonNull(identity) && !StringUtils.isEmpty(identity.getUser())) {
+                user = identity.getUser();
+            }
+        }
+        if (!StringUtils.isEmpty(user)) {
+            return user;
+        }
+        if (!StringUtils.isEmpty(sessionInfo.getUser())) {
+            return sessionInfo.getUser();
+        }
+        return System.getProperty("user.name");
+    }
+
+    public static String getPassword(SessionInfo sessionInfo) {
+        if (sessionInfo.getAuthMode() == AppConstant.IDENTITY) {
+            var identity = IdentityManager.getIdentity(sessionInfo);
+            if (Objects.nonNull(identity) && identity.getMode() == AppConstant.PASSWORD) {
+                return identity.getPassword();
+            }
+        }
+        if (StringUtils.isEmpty(sessionInfo.getPassword())) {
+            return sessionInfo.getLastPassword();
+        }
+        return sessionInfo.getPassword();
     }
 }

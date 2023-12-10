@@ -1,5 +1,6 @@
 package muon.service;
 
+import muon.constants.AppConstant;
 import muon.dto.file.FileInfo;
 import muon.dto.file.FileList;
 import muon.dto.file.FileType;
@@ -8,6 +9,7 @@ import muon.exceptions.FSConnectException;
 import muon.exceptions.FSException;
 import muon.dto.session.SessionInfo;
 import muon.util.AppUtils;
+import muon.util.IdentityManager;
 import muon.util.PathUtils;
 import muon.util.StringUtils;
 import org.apache.sshd.client.SshClient;
@@ -203,7 +205,7 @@ public class SftpFileSystem implements FileSystem {
         System.out.println("Connecting...");
         try {
             session = client.connect(
-                            sessionInfo.getUser(),
+                            AppUtils.getUser(sessionInfo),
                             sessionInfo.getHost(),
                             sessionInfo.getPort())
                     .verify().getSession();
@@ -220,15 +222,17 @@ public class SftpFileSystem implements FileSystem {
 
     private void setupSshClient() {
         client = SshClient.setUpDefaultClient();
-        CoreModuleProperties.PASSWORD_PROMPTS.set(client, 10);
+        CoreModuleProperties.PASSWORD_PROMPTS.set(client, 3);
+        CoreModuleProperties.CHANNEL_OPEN_TIMEOUT.set(client, Duration.ZERO);
         client.setUserInteraction(callback);
         client.setPasswordIdentityProvider(callback);
         client.setPasswordAuthenticationReporter(callback);
         client.setSessionHeartbeat(SessionHeartbeatController.HeartbeatType.IGNORE, Duration.ofMinutes(1));
 
-        List<UserAuthFactory> userAuthFactories = List.of(UserAuthPublicKeyFactory.INSTANCE,
-                UserAuthKeyboardInteractiveFactory.INSTANCE,
-                passwordUserAuthFactory);
+        List<UserAuthFactory> userAuthFactories = List.of(
+                passwordUserAuthFactory,
+                UserAuthPublicKeyFactory.INSTANCE,
+                UserAuthKeyboardInteractiveFactory.INSTANCE);
         client.setUserAuthFactories(userAuthFactories);
 
         client.addSessionListener(new SessionListener() {

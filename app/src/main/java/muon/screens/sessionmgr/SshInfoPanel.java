@@ -105,7 +105,7 @@ public class SshInfoPanel extends JPanel {
         txtRemoteFolder.setText(info.getRemoteFolder());
         txtLocalFolder.setText(info.getLocalFolder());
         cmbAuthMethod.setSelectedIndex(info.getAuthMode());
-        txtPass.setText(Objects.nonNull(info.getLastPassword()) ? info.getLastPassword() : info.getPassword());
+        txtPass.setText(info.getPassword());
     }
 
     private void attachTextListener(JTextField txt, Consumer<String> consumer) {

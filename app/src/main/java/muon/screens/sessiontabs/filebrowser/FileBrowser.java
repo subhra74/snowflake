@@ -86,8 +86,10 @@ public class FileBrowser extends JPanel {
         table.setShowHorizontalLines(false);
         var header = table.getTableHeader();
         header.setBorder(new EmptyBorder(0, 0, 0, 0));
+        System.out.println("haha1");
         header.setDefaultRenderer((a, b, c, d, e, f) -> {
             var label = new JLabel(b.toString());
+            System.out.println("haha");
             label.setBorder(
                     new CompoundBorder(new EmptyBorder(0, 0, 5, 0),
                             new CompoundBorder(
@@ -115,7 +117,7 @@ public class FileBrowser extends JPanel {
         sp.setCorner(JScrollPane.UPPER_RIGHT_CORNER, createCorner(c1));
         sp.setBackground(c1);
         sp.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
-        sp.setBorder(new EmptyBorder(0, 0, 0, 0));
+        sp.setBorder(new EmptyBorder(0, 0, 5, 0));
         add(sp);
         add(toolbar, BorderLayout.NORTH);
         installMouseListener(table);

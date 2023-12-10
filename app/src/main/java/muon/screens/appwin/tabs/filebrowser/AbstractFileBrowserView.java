@@ -177,7 +177,7 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         sp.setBackground(c1);
         sp.getViewport().setBackground(c1);
         sp.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
-        sp.setBorder(new EmptyBorder(0, 0, 0, 0));
+        sp.setBorder(new EmptyBorder(0, 0, 5, 0));
 
         resizeColumnWidth(table);
 

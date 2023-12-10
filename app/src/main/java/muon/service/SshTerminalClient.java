@@ -2,6 +2,7 @@ package muon.service;
 
 import muon.dto.session.SessionInfo;
 import muon.exceptions.FSConnectException;
+import muon.util.AppUtils;
 import org.apache.sshd.client.SshClient;
 import org.apache.sshd.client.auth.UserAuthFactory;
 import org.apache.sshd.client.auth.keyboard.UserAuthKeyboardInteractive;
@@ -71,7 +72,7 @@ public class SshTerminalClient implements AutoCloseable {
         System.out.println("Connecting...");
         try {
             session = client.connect(
-                            sessionInfo.getUser(),
+                            AppUtils.getUser(sessionInfo),
                             sessionInfo.getHost(),
                             sessionInfo.getPort())
                     .verify().getSession();
@@ -95,9 +96,11 @@ public class SshTerminalClient implements AutoCloseable {
 
     private void setupSshClient() {
         client = SshClient.setUpDefaultClient();
-        CoreModuleProperties.PASSWORD_PROMPTS.set(client, 2);
+        CoreModuleProperties.PASSWORD_PROMPTS.set(client, 3);
         CoreModuleProperties.CHANNEL_OPEN_TIMEOUT.set(client, Duration.ZERO);
         client.setUserInteraction(callback);
+        client.setPasswordIdentityProvider(callback);
+        client.setPasswordAuthenticationReporter(callback);
         client.setSessionHeartbeat(SessionHeartbeatController.HeartbeatType.IGNORE, Duration.ofMinutes(1));
 
         List<UserAuthFactory> userAuthFactories = List.of(
@@ -105,7 +108,7 @@ public class SshTerminalClient implements AutoCloseable {
                 UserAuthPublicKeyFactory.INSTANCE,
                 UserAuthKeyboardInteractiveFactory.INSTANCE);
         client.setUserAuthFactories(userAuthFactories);
-        client.setPasswordAuthenticationReporter(callback);
+
         client.addSessionListener(new SessionListener() {
             @Override
             public void sessionDisconnect(Session session, int reason, String msg, String language, boolean initiator) {

@@ -1,6 +1,7 @@
 package muon.service;
 
 import muon.dto.session.SessionInfo;
+import muon.util.AppUtils;
 import muon.util.StringUtils;
 import org.apache.sshd.client.auth.keyboard.UserInteraction;
 import org.apache.sshd.client.auth.password.PasswordAuthenticationReporter;
@@ -64,8 +65,9 @@ public class SshCallback implements PasswordIdentityProvider,
     @Override
     public Iterable<String> loadPasswords(SessionContext session) throws IOException, GeneralSecurityException {
         System.out.println("loadPasswords");
-        if (!StringUtils.isEmpty(sessionInfo.getPassword())) {
-            return List.of(sessionInfo.getPassword());
+        var password = AppUtils.getPassword(sessionInfo);
+        if (!StringUtils.isEmpty(password)) {
+            return List.of(password);
         }
         return null;
     }
