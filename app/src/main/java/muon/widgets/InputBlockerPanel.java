@@ -56,7 +56,6 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
     public void showConnectionInProgress() {
         SwingUtilities.invokeLater(() -> {
             setOpaque(true);
-            connectionProgressPanel.setVisible(true);
             cardLayout.show(connectionProgressPanel, "ProgressPanel");
         });
     }
@@ -68,35 +67,6 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
             connectionProgressPanel.setVisible(true);
             cardLayout.show(connectionProgressPanel, "RetryPanel");
         });
-    }
-
-    public void blockInput() {
-        this.connectionProgressPanel.setVisible(false);
-        this.setVisible(true);
-    }
-
-    public void unblockInput() {
-        this.connectionProgressPanel.setVisible(false);
-        this.setVisible(false);
-        this.setOpaque(false);
-    }
-
-    @Override
-    public String[] getUserInput(String text1, String text2, String[] prompt, boolean[] echo) {
-        SwingUtilities.invokeLater(() -> {
-            interactivePromptPanel.showPrompt(text2 + "@" + text1, prompt, echo);
-            cardLayout.show(connectionProgressPanel, "PasswordPanel");
-            revalidate();
-            repaint();
-        });
-        await();
-        var inputs = interactivePromptPanel.getInputs();
-        return inputs.toArray(new String[inputs.size()]);
-    }
-
-    @Override
-    public String getPassword(String host, String user) {
-        return getUserInput(host, user, new String[]{"Password"}, new boolean[]{true})[0];
     }
 
     @Override
@@ -117,6 +87,34 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         });
     }
 
+    @Override
+    public void blockInput() {
+        cardLayout.show(connectionProgressPanel, "ProgressPanel");
+        this.setVisible(true);
+    }
+
+    public void unblockInput() {
+        this.setVisible(false);
+    }
+
+    @Override
+    public String[] getUserInput(String text1, String text2, String[] prompt, boolean[] echo) {
+        SwingUtilities.invokeLater(() -> {
+            interactivePromptPanel.showPrompt(text2 + "@" + text1, prompt, echo);
+            cardLayout.show(connectionProgressPanel, "PasswordPanel");
+            revalidate();
+            repaint();
+        });
+        await();
+        var inputs = interactivePromptPanel.getInputs();
+        return inputs.toArray(new String[inputs.size()]);
+    }
+
+    @Override
+    public String getPassword(String host, String user) {
+        return getUserInput(host, user, new String[]{"Password"}, new boolean[]{true})[0];
+    }
+
     private void createConnectionProgressPanel(ActionListener retryCallback) {
         cardLayout = new CardLayout();
         interactivePromptPanel = createPasswordPanel();
@@ -128,8 +126,6 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         connectionProgressPanel.add("PasswordPanel", interactivePromptPanel);
         connectionProgressPanel.add("ErrorPanel", createErrorPanel());
 
-        //var gc = new GridBagConstraints();
-        //add(connectionProgressPanel, gc);
         add(connectionProgressPanel);
     }
 
@@ -159,7 +155,6 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         var jsp = new JScrollPane(txtBanner);
         jsp.setBorder(new MatteBorder(0, 0, 1, 0, AppTheme.INSTANCE.getButtonBorderColor()));
         jsp.setBackground(getBackground());
-        //jsp.setBorder(new LineBorder(AppTheme.INSTANCE.getButtonBorderColor(), 0));
 
         var button = new JButton("Continue");
         button.addActionListener(e -> {

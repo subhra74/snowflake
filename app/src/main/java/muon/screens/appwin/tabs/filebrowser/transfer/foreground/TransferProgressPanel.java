@@ -19,7 +19,7 @@ public class TransferProgressPanel extends JPanel {
         lblFileDetails.setBorder(new EmptyBorder(0, 0, 10, 0));
         prgTransfer = new JProgressBar();
         prgTransfer.setAlignmentX(Component.LEFT_ALIGNMENT);
-        prgTransfer.setPreferredSize(new Dimension(300,5));
+        prgTransfer.setPreferredSize(new Dimension(300, 5));
         lblProgressInfo = new JLabel("-- KB of -- MB at 23K/s, ETA 01:23:04 s");
         lblProgressInfo.setAlignmentX(Component.LEFT_ALIGNMENT);
         lblProgressInfo.setBorder(new EmptyBorder(10, 0, 10, 0));
@@ -39,5 +39,9 @@ public class TransferProgressPanel extends JPanel {
         vbox.add(hb1);
 
         add(vbox);
+    }
+
+    public void setProgress(int progress) {
+        prgTransfer.setValue(progress);
     }
 }

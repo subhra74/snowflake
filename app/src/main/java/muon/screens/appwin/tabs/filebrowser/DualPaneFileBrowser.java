@@ -7,7 +7,8 @@ import muon.screens.appwin.tabs.filebrowser.local.LocalFileBrowserView;
 import muon.screens.appwin.tabs.filebrowser.sftp.SftpFileBrowserView;
 import muon.screens.appwin.tabs.filebrowser.transfer.foreground.ForegroundTransferProgressPanel;
 import muon.screens.sessionmgr.SessionManager;
-import muon.service.SftpFileSystem;
+import muon.service.SftpSession;
+import muon.service.SftpUploadTask;
 import muon.styles.AppTheme;
 import muon.util.AppUtils;
 import muon.util.IconCode;
@@ -32,7 +33,9 @@ public class DualPaneFileBrowser extends JPanel implements FileBrowserViewParent
     public DualPaneFileBrowser(AppWin appWin) {
         super(new CardLayout());
         this.appWin = appWin;
-        transferPanel = new ForegroundTransferProgressPanel();
+        transferPanel = new ForegroundTransferProgressPanel(b -> {
+            ((CardLayout) this.getLayout()).show(this, "FilePanel");
+        });
         splitPane = new SplitPanel(Orientation.Horizontal);
 
         leftTabHolder = new JPanel(new CardLayout());
@@ -175,9 +178,13 @@ public class DualPaneFileBrowser extends JPanel implements FileBrowserViewParent
     }
 
     public void beginSftpUpload(
+            String localFolder,
             List<FileInfo> localFiles,
             String remoteFolder,
-            SftpFileSystem remoteFs){
-        ((CardLayout)this.getLayout()).show(this, "TransferPanel");
+            List<FileInfo> remoteFiles,
+            SftpSession sftp) {
+        ((CardLayout) this.getLayout()).show(this, "TransferPanel");
+        transferPanel.setSftpUploadTask(new SftpUploadTask(sftp, localFolder, localFiles, remoteFolder, remoteFiles));
+        transferPanel.showConfirm();
     }
 }

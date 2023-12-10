@@ -1,19 +1,20 @@
 package muon.screens.appwin.tabs.filebrowser.sftp;
 
 import muon.dto.file.FileInfo;
+import muon.dto.file.FileList;
 import muon.dto.session.SessionInfo;
+import muon.exceptions.FSAccessException;
+import muon.exceptions.FSConnectException;
 import muon.screens.appwin.tabs.filebrowser.AbstractFileBrowserView;
 import muon.screens.appwin.tabs.filebrowser.DndTransferData;
 import muon.screens.appwin.tabs.filebrowser.DndTransferHandler;
 import muon.screens.appwin.tabs.filebrowser.FileBrowserViewParent;
-import muon.service.FileSystem;
-import muon.service.LocalFileSystem;
-import muon.service.SftpFileSystem;
+import muon.service.*;
 
 import java.util.List;
 
 public class SftpFileBrowserView extends AbstractFileBrowserView {
-    private SftpFileSystem sftpFileSystem;
+    private SftpSession session;
     private SessionInfo sessionInfo;
     private FileBrowserViewParent parent;
 
@@ -21,14 +22,9 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         super(parent);
         this.sessionInfo = sessionInfo;
         this.parent = parent;
-        this.sftpFileSystem = new SftpFileSystem(sessionInfo, getInputBlockerPanel());
+        this.session = new SftpSession(sessionInfo);
         setDnDTransferHandler(new DndTransferHandler(sessionInfo,
                 this, DndTransferData.DndSourceType.SFTP));
-    }
-
-    @Override
-    public FileSystem getFileSystem() {
-        return this.sftpFileSystem;
     }
 
     @Override
@@ -36,20 +32,48 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         super.navigate();
     }
 
+    @Override
+    public boolean isConnected() {
+        return this.session.isConnected();
+    }
+
+    @Override
+    public void connect() throws FSConnectException {
+        var passwordUserAuthFactory = new GuiUserAuthFactory(getInputBlockerPanel(), sessionInfo);
+        var callback = new SshCallback(getInputBlockerPanel(), sessionInfo);
+        this.session.connect(callback, passwordUserAuthFactory);
+    }
+
+    @Override
+    public String getHome() {
+        return this.session.getHomePath();
+    }
+
+    @Override
+    public FileList ls(String folder) throws FSConnectException, FSAccessException {
+        return this.session.list(folder);
+    }
+
+    @Override
+    public void cleanup() {
+        this.session.close();
+    }
+
+
     protected boolean handleDrop(DndTransferData transferData) {
         System.out.println(transferData);
         try {
             int sessionCode = transferData.getInfo();
             System.out.println("Session code: " + sessionCode);
 
-            FileSystem sourceFs = null;
+            //FileSystem sourceFs = null;
             if (sessionCode == 0 && transferData.getSourceType() == DndTransferData.DndSourceType.LOCAL) {
                 System.out.println("Source fs is local");
-                beginUpload(transferData.getFiles());
+                beginUpload(transferData.getCurrentDirectory(), transferData.getFiles());
             } else if (transferData.getSourceType() == DndTransferData.DndSourceType.SFTP
                     && sessionCode == this.sessionInfo.hashCode()) {
                 System.out.println("Source fs is remote this");
-                sourceFs = this.sftpFileSystem;
+                //sourceFs = this.session;
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -58,8 +82,9 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         return true;
     }
 
-    private void beginUpload(List<FileInfo> localFiles) {
+    private void beginUpload(String localFolder, List<FileInfo> localFiles) {
         var path = getPath();
-        parent.beginSftpUpload(localFiles, path, this.sftpFileSystem);
+        var files = folderViewTableModel.getFiles();
+        parent.beginSftpUpload(localFolder, localFiles, path, files, this.session);
     }
 }

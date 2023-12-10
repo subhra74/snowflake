@@ -1,7 +1,10 @@
 package muon.screens.appwin.tabs.filebrowser;
 
 import muon.dto.file.FileInfo;
+import muon.dto.file.FileList;
 import muon.exceptions.FSAccessException;
+import muon.exceptions.FSConnectException;
+import muon.service.InputBlocker;
 import muon.util.PathUtils;
 import muon.util.StringUtils;
 import muon.widgets.InputBlockerPanel;
@@ -28,13 +31,13 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
     private InputBlockerPanel inputBlockerPanel;
     private JPanel contentPanel;
     private JTextField txtAddress;
-    private FolderViewTableModel folderViewTableModel;
     private JTable table;
     private NavigationHistory history;
     private JButton btnBack, btnForward, btnUp, btnHome, btnSearch, btnRefresh;
     private JPopupMenu popup;
     private FileBrowserViewParent parent;
     private AtomicBoolean disposing = new AtomicBoolean(false);
+    protected FolderViewTableModel folderViewTableModel;
 
     public AbstractFileBrowserView(FileBrowserViewParent parent) {
         this.parent = parent;
@@ -73,9 +76,19 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         });
     }
 
-    public abstract FileSystem getFileSystem();
+    //public abstract FileSystem getFileSystem();
 
     public abstract void init();
+
+    public abstract String getHome();
+
+    public abstract FileList ls(String folder) throws FSConnectException, FSAccessException;
+
+    public abstract void cleanup();
+
+    public abstract boolean isConnected();
+
+    public abstract void connect() throws FSConnectException;
 
     protected InputBlockerPanel getInputBlockerPanel() {
         return inputBlockerPanel;
@@ -283,8 +296,11 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         inputBlockerPanel.blockInput();
         AppUtils.runAsync(() -> {
             try {
-                var folder = StringUtils.isEmpty(path) ? getFileSystem().getHome() : path;
-                var fileList = getFileSystem().list(folder);
+                if(!isConnected()){
+                    connect();
+                }
+                var folder = StringUtils.isEmpty(path) ? getHome() : path;
+                var fileList = ls(folder);
                 SwingUtilities.invokeAndWait(() -> {
                     txtAddress.setText(fileList.getCurrentPath());
                     folderViewTableModel.clear();
@@ -309,7 +325,7 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
             try {
                 disposing.set(true);
                 System.out.println("File browser disposing...");
-                this.getFileSystem().close();
+                this.cleanup();
                 this.inputBlockerPanel.close();
                 System.out.println("File browser Disposed");
             } catch (Exception ex) {

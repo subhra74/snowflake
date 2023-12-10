@@ -60,4 +60,8 @@ public class FolderViewTableModel extends AbstractTableModel {
         var ent = files.get(rowIndex);
         return ent;
     }
+
+    public List<FileInfo> getFiles() {
+        return files;
+    }
 }

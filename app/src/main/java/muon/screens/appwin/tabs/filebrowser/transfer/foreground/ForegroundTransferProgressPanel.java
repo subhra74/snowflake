@@ -1,43 +1,108 @@
 package muon.screens.appwin.tabs.filebrowser.transfer.foreground;
 
+import muon.exceptions.FSAccessException;
+import muon.service.GuiUserAuthFactory;
+import muon.service.SftpUploadTask;
+import muon.service.SshCallback;
+import muon.styles.AppTheme;
+import muon.util.AppUtils;
+import muon.widgets.InputBlockerPanel;
 import muon.widgets.InteractivePromptPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.util.function.Consumer;
 
-public class ForegroundTransferProgressPanel extends JPanel {
-    private InteractivePromptPanel interactivePromptPanel;
+public class ForegroundTransferProgressPanel extends JLayeredPane {
+    private InputBlockerPanel inputBlockerPanel;
+    private JPanel contentPanel;
     private TransferConfirmPanel transferConfirmPanel;
     private TransferProgressPanel transferProgressPanel;
     private TransferRetryPanel transferRetryPanel;
+    private SftpUploadTask sftpUploadTask;
+    private Consumer<Boolean> result;
 
-    public ForegroundTransferProgressPanel() {
-        super(new CardLayout());
-        interactivePromptPanel = new InteractivePromptPanel(e -> {
+    public ForegroundTransferProgressPanel(Consumer<Boolean> result) {
+        this.result = result;
+
+        inputBlockerPanel = new InputBlockerPanel(e -> {
         });
-        transferConfirmPanel = new TransferConfirmPanel(null, null);
+        inputBlockerPanel.setVisible(false);
+
+        createContentPanel();
+
+        this.add(contentPanel, Integer.valueOf(1));
+        this.add(inputBlockerPanel, Integer.valueOf(2));
+
+        setBackground(AppTheme.INSTANCE.getBackground());
+
+        this.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                contentPanel.setBounds(0, 0, getWidth(), getHeight());
+                inputBlockerPanel.setBounds(0, 0, getWidth(), getHeight());
+                revalidate();
+                repaint();
+            }
+        });
+    }
+
+    public void setSftpUploadTask(SftpUploadTask sftpUploadTask) {
+        this.sftpUploadTask = sftpUploadTask;
+    }
+
+    private void createContentPanel() {
+        contentPanel = new JPanel(new CardLayout());
+        transferConfirmPanel = new TransferConfirmPanel(e -> transfer(), null);
         transferRetryPanel = new TransferRetryPanel(null, null);
         transferProgressPanel = new TransferProgressPanel(null);
-        add(interactivePromptPanel, "InteractivePromptPanel");
-        add(transferConfirmPanel, "TransferConfirmPanel");
-        add(transferProgressPanel, "TransferProgressPanel");
-        add(transferRetryPanel, "TransferRetryPanel");
+        contentPanel.add(transferConfirmPanel, "TransferConfirmPanel");
+        contentPanel.add(transferProgressPanel, "TransferProgressPanel");
+        contentPanel.add(transferRetryPanel, "TransferRetryPanel");
     }
 
     public void showPrompt() {
-        ((CardLayout) getLayout()).show(this, "InteractivePromptPanel");
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "InteractivePromptPanel");
     }
 
     public void showConfirm() {
-        ((CardLayout) getLayout()).show(this, "TransferConfirmPanel");
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "TransferConfirmPanel");
         transferConfirmPanel.setFocus();
     }
 
     public void showProgress() {
-        ((CardLayout) getLayout()).show(this, "TransferProgressPanel");
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "TransferProgressPanel");
     }
 
     public void showRetry() {
-        ((CardLayout) getLayout()).show(this, "TransferRetryPanel");
+        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "TransferRetryPanel");
+    }
+
+    private void transfer() {
+        AppUtils.runAsync(() -> {
+            try {
+                if (!sftpUploadTask.isConnected()) {
+                    SwingUtilities.invokeAndWait(inputBlockerPanel::blockInput);
+                    sftpUploadTask.connect(inputBlockerPanel);
+                    SwingUtilities.invokeAndWait(inputBlockerPanel::unblockInput);
+                }
+                SwingUtilities.invokeAndWait(this::showProgress);
+                sftpUploadTask.start(prg -> {
+                    SwingUtilities.invokeLater(() -> {
+                        transferProgressPanel.setProgress(prg);
+                    });
+                });
+                result.accept(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                if (ex instanceof FSAccessException) {
+                    inputBlockerPanel.showError();
+                } else {
+                    inputBlockerPanel.showRetryOption();
+                }
+            }
+        });
     }
 }
