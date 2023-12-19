@@ -61,7 +61,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
 
     protected boolean handleDrop(DndTransferData transferData) {
-        System.out.println(transferData);
         try {
             int sessionCode = transferData.getInfo();
             System.out.println("Session code: " + sessionCode);
@@ -78,7 +77,6 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-
         return true;
     }
 

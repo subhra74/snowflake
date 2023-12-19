@@ -29,12 +29,12 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
     private InteractivePromptPanel interactivePromptPanel;
     private AtomicBoolean firstAttempt = new AtomicBoolean(true);
 
-    public InputBlockerPanel(ActionListener retryCallback) {
+    public InputBlockerPanel(ActionListener retryCallback, ActionListener cancelCallback) {
         super(new BorderLayout());
         lock = new ReentrantLock();
         signal = lock.newCondition();
 
-        createConnectionProgressPanel(retryCallback);
+        createConnectionProgressPanel(retryCallback, cancelCallback);
 
         addMouseListener(new MouseAdapter() {
         });
@@ -57,6 +57,7 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         SwingUtilities.invokeLater(() -> {
             setOpaque(true);
             cardLayout.show(connectionProgressPanel, "ProgressPanel");
+            this.setVisible(true);
         });
     }
 
@@ -66,6 +67,7 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
             setOpaque(true);
             connectionProgressPanel.setVisible(true);
             cardLayout.show(connectionProgressPanel, "RetryPanel");
+            this.setVisible(true);
         });
     }
 
@@ -75,6 +77,7 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
             txtBanner.setText(message);
             cardLayout.show(connectionProgressPanel, "BannerPanel");
             txtBanner.setCaretPosition(0);
+            this.setVisible(true);
         });
         await();
     }
@@ -84,6 +87,7 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         SwingUtilities.invokeLater(() -> {
             connectionProgressPanel.setVisible(true);
             cardLayout.show(connectionProgressPanel, "ErrorPanel");
+            this.setVisible(true);
         });
     }
 
@@ -115,14 +119,14 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         return getUserInput(host, user, new String[]{"Password"}, new boolean[]{true})[0];
     }
 
-    private void createConnectionProgressPanel(ActionListener retryCallback) {
+    private void createConnectionProgressPanel(ActionListener retryCallback, ActionListener cancelCallback) {
         cardLayout = new CardLayout();
         interactivePromptPanel = createPasswordPanel();
         connectionProgressPanel = new JPanel(cardLayout);
         connectionProgressPanel.setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         connectionProgressPanel.add("ProgressPanel", createProgressPanel());
         connectionProgressPanel.add("BannerPanel", createBannerPanel());
-        connectionProgressPanel.add("RetryPanel", createRetryPanel(retryCallback));
+        connectionProgressPanel.add("RetryPanel", createRetryPanel(retryCallback, cancelCallback));
         connectionProgressPanel.add("PasswordPanel", interactivePromptPanel);
         connectionProgressPanel.add("ErrorPanel", createErrorPanel());
 
@@ -173,7 +177,7 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         return panel;
     }
 
-    private Container createRetryPanel(ActionListener retryCallback) {
+    private Container createRetryPanel(ActionListener retryCallback, ActionListener cancelCallback) {
         var label = new JLabel();
         label.setFont(IconFont.getSharedInstance().getIconFont(48.0f));
         label.setText(IconCode.RI_ACCOUNT_ALERT_FILL.getValue());
@@ -183,15 +187,23 @@ public class InputBlockerPanel extends JPanel implements InputBlocker {
         lblError.setBorder(new EmptyBorder(10, 10, 10, 10));
         lblError.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        var button = new JButton("Try again");
-        button.setAlignmentX(Component.CENTER_ALIGNMENT);
-        button.addActionListener(retryCallback);
+        var btnRetry = new JButton("Try again");
+        btnRetry.addActionListener(retryCallback);
+        var btnCancel = new JButton("Cencel");
+        btnCancel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        btnCancel.addActionListener(cancelCallback);
+
+        var hb = Box.createHorizontalBox();
+        hb.add(btnRetry);
+        hb.add(Box.createRigidArea(new Dimension(10, 10)));
+        hb.add(btnCancel);
+        hb.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         var vbox = Box.createVerticalBox();
         vbox.add(Box.createVerticalGlue());
         vbox.add(label);
         vbox.add(lblError);
-        vbox.add(button);
+        vbox.add(hb);
         vbox.add(Box.createVerticalGlue());
 
         return vbox;

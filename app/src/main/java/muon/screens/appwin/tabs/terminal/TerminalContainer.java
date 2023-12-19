@@ -25,9 +25,13 @@ public class TerminalContainer extends JPanel {
     public TerminalContainer(SessionInfo sessionInfo) {
         super(new CardLayout());
         this.sessionInfo = sessionInfo;
-        this.inputBlockerPanel = new InputBlockerPanel(e -> {
-            beginSession();
-        });
+        this.inputBlockerPanel = new InputBlockerPanel(
+                e -> {
+                    beginSession();
+                },
+                e -> {
+                    inputBlockerPanel.unblockInput();
+                });
 
         ttyConnector = new SshTtyConnector(null, this.sessionInfo, this.inputBlockerPanel);
         customTerminal = new CustomTerminal();

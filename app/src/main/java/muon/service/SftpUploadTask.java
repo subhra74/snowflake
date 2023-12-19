@@ -77,6 +77,22 @@ public class SftpUploadTask {
         }
     }
 
+    public String getRemoteFolder() {
+        return remoteFolder;
+    }
+
+    public List<FileInfo> getRemoteFiles() {
+        return remoteFiles;
+    }
+
+    public String getLocalFolder() {
+        return localFolder;
+    }
+
+    public List<FileInfo> getLocalFiles() {
+        return localFiles;
+    }
+
     private void init() throws IOException {
         transferItems = new ArrayList<>();
         dirItems = new ArrayList<>();

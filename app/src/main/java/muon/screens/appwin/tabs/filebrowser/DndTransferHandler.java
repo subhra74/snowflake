@@ -42,9 +42,7 @@ public class DndTransferHandler extends TransferHandler
 
     @Override
     public boolean canImport(TransferSupport support) {
-        System.out.println("canImport");
         for (DataFlavor f : support.getDataFlavors()) {
-            System.out.println(f);
             if (f.isFlavorJavaFileListType()) {
                 return true;
             }
@@ -58,7 +56,6 @@ public class DndTransferHandler extends TransferHandler
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("drop not supported");
         return false;
     }
 

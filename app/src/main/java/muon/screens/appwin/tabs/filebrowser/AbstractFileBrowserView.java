@@ -46,9 +46,13 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         this.popup = new JPopupMenu();
 
         createContentPanel();
-        inputBlockerPanel = new InputBlockerPanel(e -> {
-            navigate();
-        });
+        inputBlockerPanel = new InputBlockerPanel(
+                e -> {
+                    navigate();
+                },
+                e -> {
+                    inputBlockerPanel.unblockInput();
+                });
         inputBlockerPanel.setVisible(false);
 
         this.add(contentPanel, Integer.valueOf(1));
@@ -296,7 +300,7 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         inputBlockerPanel.blockInput();
         AppUtils.runAsync(() -> {
             try {
-                if(!isConnected()){
+                if (!isConnected()) {
                     connect();
                 }
                 var folder = StringUtils.isEmpty(path) ? getHome() : path;

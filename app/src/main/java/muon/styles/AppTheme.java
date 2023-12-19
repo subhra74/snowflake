@@ -166,6 +166,16 @@ public class AppTheme {
                 "ComboBox.squareButton", Boolean.FALSE,
                 "ComboBox.Border", new EmptyBorder(3, 3, 3, 3),
 
+                "List.background", getBackground(),
+                "List.selectionBackground", getListSelectionColor(),
+                "List.selectionForeground", getSelectionForeground(),
+                "List.foreground", getForeground(),
+                "List.border", new EmptyBorder(0, 0, 0, 0),
+
+                "ScrollPane.background", getBackground(),
+                "ScrollPane.foreground", getForeground(),
+                "ScrollPane.border", new EmptyBorder(0, 0, 0, 0),
+
                 "Panel.background", getBackground(),
 
                 "ScrollBar.width", 12,

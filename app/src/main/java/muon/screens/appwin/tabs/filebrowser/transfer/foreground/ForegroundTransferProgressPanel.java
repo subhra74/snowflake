@@ -1,5 +1,6 @@
 package muon.screens.appwin.tabs.filebrowser.transfer.foreground;
 
+import muon.dto.file.FileInfo;
 import muon.exceptions.FSAccessException;
 import muon.service.GuiUserAuthFactory;
 import muon.service.SftpUploadTask;
@@ -13,7 +14,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.util.ArrayList;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ForegroundTransferProgressPanel extends JLayeredPane {
     private InputBlockerPanel inputBlockerPanel;
@@ -27,8 +30,13 @@ public class ForegroundTransferProgressPanel extends JLayeredPane {
     public ForegroundTransferProgressPanel(Consumer<Boolean> result) {
         this.result = result;
 
-        inputBlockerPanel = new InputBlockerPanel(e -> {
-        });
+        inputBlockerPanel = new InputBlockerPanel(
+                e -> {
+                },
+                e -> {
+                    inputBlockerPanel.unblockInput();
+                    result.accept(false);
+                });
         inputBlockerPanel.setVisible(false);
 
         createContentPanel();
@@ -51,11 +59,30 @@ public class ForegroundTransferProgressPanel extends JLayeredPane {
 
     public void setSftpUploadTask(SftpUploadTask sftpUploadTask) {
         this.sftpUploadTask = sftpUploadTask;
+        this.transferProgressPanel.setProgress(0);
+        var folderCount = this.sftpUploadTask.getLocalFiles().stream().filter(FileInfo::isDirectory).count();
+        var fileCount = this.sftpUploadTask.getLocalFiles().size() - folderCount;
+        var texts = new ArrayList<String>();
+        texts.add("Transfer");
+        if (folderCount > 0) {
+            texts.add(folderCount + " folder" + (folderCount > 1 ? "s" : ""));
+        }
+        if (fileCount > 0) {
+            if (folderCount > 0) {
+                texts.add("and");
+            }
+            texts.add(fileCount + " file" + (fileCount > 1 ? "s" : ""));
+        }
+        var remoteFileNames = sftpUploadTask.getRemoteFiles().stream().map(FileInfo::getName).collect(Collectors.toSet());
+        var conflictingFiles = sftpUploadTask.getLocalFiles().stream().filter(
+                f -> remoteFileNames.contains(f.getName())).toList();
+        this.transferConfirmPanel.setFileInfo(String.format(String.join(" ", texts)),
+                this.sftpUploadTask.getRemoteFolder(), conflictingFiles);
     }
 
     private void createContentPanel() {
         contentPanel = new JPanel(new CardLayout());
-        transferConfirmPanel = new TransferConfirmPanel(e -> transfer(), null);
+        transferConfirmPanel = new TransferConfirmPanel(e -> transfer(), e -> result.accept(false));
         transferRetryPanel = new TransferRetryPanel(null, null);
         transferProgressPanel = new TransferProgressPanel(null);
         contentPanel.add(transferConfirmPanel, "TransferConfirmPanel");
@@ -97,11 +124,7 @@ public class ForegroundTransferProgressPanel extends JLayeredPane {
                 result.accept(true);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                if (ex instanceof FSAccessException) {
-                    inputBlockerPanel.showError();
-                } else {
-                    inputBlockerPanel.showRetryOption();
-                }
+                inputBlockerPanel.showRetryOption();
             }
         });
     }

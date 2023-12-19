@@ -1,7 +1,10 @@
 package muon;
 
 import muon.screens.appwin.MainContainer;
+import muon.screens.appwin.UserInputDialog;
 import muon.screens.sessiontabs.InputBlockerDialog;
+import muon.service.UserInputService;
+import muon.service.UserInputServiceImpl;
 import muon.styles.AppTheme;
 import muon.styles.FlatLookAndFeel;
 import muon.util.AppUtils;
@@ -24,9 +27,14 @@ import java.lang.reflect.InvocationTargetException;
 public class App {
 
     private static InputBlockerDialog inputBlockerDialog;
+    private static UserInputService userInputService;
 
     public static InputBlockerDialog getInputBlockerDialog() {
         return inputBlockerDialog;
+    }
+
+    public static UserInputService getUserInputService() {
+        return userInputService;
     }
 
     public static void main(String[] args) throws InterruptedException, InvocationTargetException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -38,6 +46,7 @@ public class App {
 
         var f = isWindows ? new CustomFrame("Muon 1.0.23") : new JFrame("Muon 1.0.23");
         inputBlockerDialog = new InputBlockerDialog(f);
+        userInputService = new UserInputServiceImpl(new UserInputDialog(f));
 
         f.setSize(AppUtils.calculateDefaultWindowSize());
         f.setLocationRelativeTo(null);
