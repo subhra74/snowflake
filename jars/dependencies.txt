@@ -1,0 +1,10 @@
+#implementation 'org.slf4j:slf4j-api:1.7.32'
+#implementation 'org.jetbrains:annotations:20.1.0'
+
+clone latest https://github.com/JetBrains/jediterm
+run gradle build
+copy jediterm-core-<version>-SNAPSHOT.jar and jediterm-ui-<version>-SNAPSHOT.jar files from .gradlebuild/<project-name>/lib folder into jars folder
+
+#cd into Root project
+mvn org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file -Dfile=./jars/jediterm-core-3.26-SNAPSHOT.jar -DgroupId=org.jetbrains.jediterm -DartifactId=jediterm-core -Dversion=3.26-SNAPSHOT -Dpackaging=jar -DlocalRepositoryPath=local-maven-repo
+mvn org.apache.maven.plugins:maven-install-plugin:3.1.1:install-file -Dfile=./jars/jediterm-ui-3.26-SNAPSHOT.jar -DgroupId=org.jetbrains.jediterm -DartifactId=jediterm-ui -Dversion=3.26-SNAPSHOT -Dpackaging=jar -DlocalRepositoryPath=local-maven-repo

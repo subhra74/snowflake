@@ -105,7 +105,6 @@ public class FolderViewTableModel extends AbstractTableModel {
 		case 2:
 			return ent.getType().toString();
 		case 4:
-			// System.out.println(ent.getPermission() + "");
 			return ent.getPermission() + "";
 		case 5:
 			return ent.getExtra();

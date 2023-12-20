@@ -1,9 +1,26 @@
 package muon.util;
 
+import muon.constants.AppConstant;
+import muon.dto.session.SessionInfo;
+import muon.styles.AppTheme;
+import muon.widgets.FlatButton;
+
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class AppUtils {
+    private static ExecutorService cachedThreadPool = Executors.newCachedThreadPool();
+
     public static Dimension calculateDefaultWindowSize() {
         Insets inset = Toolkit.getDefaultToolkit().getScreenInsets(
                 GraphicsEnvironment.getLocalGraphicsEnvironment()
@@ -39,5 +56,108 @@ public class AppUtils {
             component.setPreferredSize(buttonSize);
             component.setMaximumSize(buttonSize);
         }
+    }
+
+    public static boolean isWindows() {
+        return "windows".equalsIgnoreCase(System.getProperty("os.name"));
+    }
+
+    public static JButton createIconButton(IconCode iconCode) {
+        return createIconButton(iconCode, 18.0f);
+    }
+
+    public static JButton createIconButton(IconCode iconCode, float iconSize) {
+        var button = new JButton();
+        button.setBorderPainted(false);
+        button.setContentAreaFilled(false);
+        button.setForeground(AppTheme.INSTANCE.getForeground());
+        button.setBorder(new EmptyBorder(1, 1, 1, 1));
+        button.setFont(IconFont.getSharedInstance().getIconFont(iconSize));
+        button.setText(iconCode.getValue());
+        return button;
+    }
+
+    public static FlatButton createAddTabButton() {
+        return new FlatButton(IconCode.RI_ADD_LINE);
+    }
+
+    public static FlatButton createViewButton() {
+        return new FlatButton(IconCode.RI_LAYOUT_GRID_LINE);
+    }
+
+    public static FlatButton createSnippetButton() {
+        return new FlatButton(IconCode.RI_CODE_BOX_LINE);
+    }
+
+    public static FlatButton createMoreButton() {
+        return new FlatButton(IconCode.RI_MORE_2_LINE);
+    }
+
+    public static void runAsync(Runnable r) {
+        cachedThreadPool.submit(r);
+    }
+
+    public static String formatSize(long bytes, boolean si) {
+        int unit = si ? 1000 : 1024;
+        if (bytes < unit)
+            return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(unit));
+        String pre = (si ? "kMGTPE" : "KMGTPE").charAt(exp - 1)
+                + (si ? "" : "i");
+        return String.format("%.1f %sB", bytes / Math.pow(unit, exp), pre);
+    }
+
+    public static final String formatDate(LocalDateTime dateTime) {
+        //return dateTime.format(DateTimeFormatter.ofPattern("MM/dd/yyyy hh:mm a"));
+        return dateTime.format(DateTimeFormatter.ofPattern("MM/dd/yyyy"));
+    }
+
+    public static boolean isPopupTrigger(MouseEvent e) {
+        if (e.isPopupTrigger()) {
+            return true;
+        }
+        if (isMacOSX()) {
+            return (e.getButton() == 1 && e.isControlDown());
+        }
+        return false;
+    }
+
+    public static boolean isMacOSX() {
+        return Optional.ofNullable(System.getProperty("os.name")).orElse("Linux").toLowerCase().contains("mac");
+    }
+
+    public static LocalDateTime getModificationTime(BasicFileAttributes attrs) {
+        return LocalDateTime.ofInstant(attrs.lastModifiedTime().toInstant(),
+                ZoneId.systemDefault());
+    }
+
+    public static String getUser(SessionInfo sessionInfo) {
+        String user = null;
+        if (sessionInfo.getAuthMode() == AppConstant.IDENTITY) {
+            var identity = IdentityManager.getIdentity(sessionInfo);
+            if (Objects.nonNull(identity) && !StringUtils.isEmpty(identity.getUser())) {
+                user = identity.getUser();
+            }
+        }
+        if (!StringUtils.isEmpty(user)) {
+            return user;
+        }
+        if (!StringUtils.isEmpty(sessionInfo.getUser())) {
+            return sessionInfo.getUser();
+        }
+        return System.getProperty("user.name");
+    }
+
+    public static String getPassword(SessionInfo sessionInfo) {
+        if (sessionInfo.getAuthMode() == AppConstant.IDENTITY) {
+            var identity = IdentityManager.getIdentity(sessionInfo);
+            if (Objects.nonNull(identity) && identity.getMode() == AppConstant.PASSWORD) {
+                return identity.getPassword();
+            }
+        }
+        if (StringUtils.isEmpty(sessionInfo.getPassword())) {
+            return sessionInfo.getLastPassword();
+        }
+        return sessionInfo.getPassword();
     }
 }
