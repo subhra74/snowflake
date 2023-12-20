@@ -1,4 +1,4 @@
-package muon.screens.appwin;
+package muon.screens.dialogs;
 
 import muon.util.IconCode;
 import muon.util.IconFont;
@@ -22,24 +22,32 @@ public class UserInputDialog extends JDialog {
 
     public UserInputDialog(Window window) {
         super(window);
+        setModal(true);
+        setTitle("Authentication required");
         initUi();
-        setContentPane(container);
+        getContentPane().setLayout(new BorderLayout());
         addWindowListener(new WindowAdapter() {
+
             @Override
             public void windowActivated(WindowEvent e) {
                 txtInputs.get(0).requestFocusInWindow();
             }
         });
+        getContentPane().add(container);
     }
 
-    public synchronized List<String> getInputs(String label, String[] prompt, boolean[] echo) {
+    public List<String> getInputs(String label, String[] prompt, boolean[] echo) {
         inputs = Collections.emptyList();
+        System.out.println(Thread.currentThread());
         try {
             SwingUtilities.invokeAndWait(() -> {
                 showPrompt(label, prompt, echo);
             });
+            System.out.println("Dialog closed");
         } catch (Exception ex) {
             ex.printStackTrace();
+            SwingUtilities.invokeLater(() -> this.setVisible(false));
+            throw new RuntimeException(ex);
         }
         return inputs;
     }
@@ -112,7 +120,7 @@ public class UserInputDialog extends JDialog {
             userInputContainer.add(txtInput);
         }
         this.pack();
-        this.setLocationRelativeTo(this.getOwner());
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 }

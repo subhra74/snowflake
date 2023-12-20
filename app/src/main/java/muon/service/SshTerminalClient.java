@@ -42,8 +42,8 @@ public class SshTerminalClient implements AutoCloseable {
     public SshTerminalClient(SessionInfo sessionInfo, InputBlocker inputBlocker, InputStream in, OutputStream out) {
         this.sessionInfo = sessionInfo;
         this.inputBlocker = inputBlocker;
-        this.passwordUserAuthFactory = new GuiUserAuthFactory(inputBlocker, sessionInfo);
-        this.callback = new SshCallback(inputBlocker, sessionInfo);
+        this.passwordUserAuthFactory = new GuiUserAuthFactory(sessionInfo);
+        this.callback = new SshCallback(sessionInfo);
         this.in = in;
         this.out = out;
     }

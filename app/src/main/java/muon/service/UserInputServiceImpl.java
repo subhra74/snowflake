@@ -1,16 +1,19 @@
 package muon.service;
 
-import muon.screens.appwin.UserInputDialog;
+import muon.screens.dialogs.BannerDialog;
+import muon.screens.dialogs.UserInputDialog;
 
 public class UserInputServiceImpl implements UserInputService {
     private UserInputDialog userInputDialog;
+    private BannerDialog bannerDialog;
 
-    public UserInputServiceImpl(UserInputDialog userInputDialog) {
+    public UserInputServiceImpl(UserInputDialog userInputDialog, BannerDialog bannerDialog) {
         this.userInputDialog = userInputDialog;
+        this.bannerDialog = bannerDialog;
     }
 
     @Override
-    public String[] getUserInput(String text1, String text2, String[] prompt, boolean[] echo) {
+    public synchronized String[] getUserInput(String text1, String text2, String[] prompt, boolean[] echo) {
         var userInputs = userInputDialog.getInputs(text2 + "@" + text1, prompt, echo);
         if (userInputs.size() > 0) {
             return userInputs.toArray(new String[0]);
@@ -24,7 +27,7 @@ public class UserInputServiceImpl implements UserInputService {
     }
 
     @Override
-    public void showBanner(String message) {
-
+    public synchronized void showBanner(String message) {
+        bannerDialog.showBanner(message);
     }
 }

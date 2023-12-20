@@ -1,5 +1,6 @@
 package muon.service;
 
+import muon.App;
 import muon.dto.session.SessionInfo;
 import muon.util.AppUtils;
 import muon.util.StringUtils;
@@ -14,12 +15,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class GuiUserAuthFactory implements UserAuthFactory {
     private GuiUserAuthPassword authPassword;
 
-    public GuiUserAuthFactory(InputBlocker inputBlocker, SessionInfo sessionInfo) {
-        authPassword = new GuiUserAuthPassword(inputBlocker, sessionInfo);
-    }
-
-    public void setInputBlocker(InputBlocker inputBlocker) {
-        authPassword.setInputBlocker(inputBlocker);
+    public GuiUserAuthFactory(SessionInfo sessionInfo) {
+        authPassword = new GuiUserAuthPassword(sessionInfo);
     }
 
     @Override
@@ -33,17 +30,11 @@ public class GuiUserAuthFactory implements UserAuthFactory {
     }
 
     class GuiUserAuthPassword extends UserAuthPassword {
-        private InputBlocker inputBlocker;
         private SessionInfo sessionInfo;
         private AtomicBoolean initialAttempt = new AtomicBoolean(true);
 
-        public GuiUserAuthPassword(InputBlocker inputBlocker, SessionInfo sessionInfo) {
-            this.inputBlocker = inputBlocker;
+        public GuiUserAuthPassword(SessionInfo sessionInfo) {
             this.sessionInfo = sessionInfo;
-        }
-
-        public void setInputBlocker(InputBlocker inputBlocker) {
-            this.setInputBlocker(inputBlocker);
         }
 
         @Override
@@ -57,7 +48,7 @@ public class GuiUserAuthFactory implements UserAuthFactory {
                     return sessionPassword;
                 }
             }
-            var password = inputBlocker.getPassword(sessionInfo.getHost(), sessionInfo.getUser());
+            var password = App.getUserInputService().getPassword(sessionInfo.getHost(), sessionInfo.getUser());
             sessionInfo.setLastPassword(password);
             return password;
         }

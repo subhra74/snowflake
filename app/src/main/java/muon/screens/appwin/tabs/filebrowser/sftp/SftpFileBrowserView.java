@@ -39,8 +39,8 @@ public class SftpFileBrowserView extends AbstractFileBrowserView {
 
     @Override
     public void connect() throws FSConnectException {
-        var passwordUserAuthFactory = new GuiUserAuthFactory(getInputBlockerPanel(), sessionInfo);
-        var callback = new SshCallback(getInputBlockerPanel(), sessionInfo);
+        var passwordUserAuthFactory = new GuiUserAuthFactory(sessionInfo);
+        var callback = new SshCallback(sessionInfo);
         this.session.connect(callback, passwordUserAuthFactory);
     }
 

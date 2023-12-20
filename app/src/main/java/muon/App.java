@@ -1,24 +1,16 @@
 package muon;
 
 import muon.screens.appwin.MainContainer;
-import muon.screens.appwin.UserInputDialog;
+import muon.screens.dialogs.BannerDialog;
+import muon.screens.dialogs.UserInputDialog;
 import muon.screens.sessiontabs.InputBlockerDialog;
 import muon.service.UserInputService;
 import muon.service.UserInputServiceImpl;
-import muon.styles.AppTheme;
 import muon.styles.FlatLookAndFeel;
 import muon.util.AppUtils;
-import muon.util.IconCode;
-import muon.util.IconFont;
 import muon.widgets.CustomFrame;
-import muon.widgets.TabbedPanel;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
-import javax.swing.table.TableCellRenderer;
-import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -28,13 +20,23 @@ public class App {
 
     private static InputBlockerDialog inputBlockerDialog;
     private static UserInputService userInputService;
+    private static JFrame appWindow;
 
     public static InputBlockerDialog getInputBlockerDialog() {
         return inputBlockerDialog;
     }
 
-    public static UserInputService getUserInputService() {
+    public static synchronized UserInputService getUserInputService() {
+        if (userInputService == null) {
+            userInputService = new UserInputServiceImpl(
+                    new UserInputDialog(appWindow),
+                    new BannerDialog(appWindow));
+        }
         return userInputService;
+    }
+
+    public static JFrame getAppWindow() {
+        return appWindow;
     }
 
     public static void main(String[] args) throws InterruptedException, InvocationTargetException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
@@ -45,8 +47,8 @@ public class App {
         var isWindows = "windows".equalsIgnoreCase(System.getProperty("os.name"));
 
         var f = isWindows ? new CustomFrame("Muon 1.0.23") : new JFrame("Muon 1.0.23");
+        appWindow = f;
         inputBlockerDialog = new InputBlockerDialog(f);
-        userInputService = new UserInputServiceImpl(new UserInputDialog(f));
 
         f.setSize(AppUtils.calculateDefaultWindowSize());
         f.setLocationRelativeTo(null);

@@ -1,5 +1,6 @@
 package muon.service;
 
+import muon.App;
 import muon.dto.session.SessionInfo;
 import muon.util.AppUtils;
 import muon.util.StringUtils;
@@ -22,11 +23,9 @@ import java.util.function.Consumer;
 public class SshCallback implements PasswordIdentityProvider,
         PasswordAuthenticationReporter,
         UserInteraction {
-    private InputBlocker inputBlocker;
     private SessionInfo sessionInfo;
 
-    public SshCallback(InputBlocker inputBlocker, SessionInfo sessionInfo) {
-        this.inputBlocker = inputBlocker;
+    public SshCallback(SessionInfo sessionInfo) {
         this.sessionInfo = sessionInfo;
     }
 
@@ -37,12 +36,12 @@ public class SshCallback implements PasswordIdentityProvider,
 
     @Override
     public void welcome(ClientSession session, String banner, String lang) {
-        inputBlocker.showBanner(banner);
+        App.getUserInputService().showBanner(banner);
     }
 
     @Override
     public String[] interactive(ClientSession session, String name, String instruction, String lang, String[] prompt, boolean[] echo) {
-        return inputBlocker.getUserInput(sessionInfo.getName(), sessionInfo.getUser(), prompt, echo);
+        return App.getUserInputService().getUserInput(sessionInfo.getName(), sessionInfo.getUser(), prompt, echo);
     }
 
     @Override

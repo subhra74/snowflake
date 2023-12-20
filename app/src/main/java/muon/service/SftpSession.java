@@ -201,6 +201,9 @@ public class SftpSession implements AutoCloseable {
         var client = SshClient.setUpDefaultClient();
         CoreModuleProperties.PASSWORD_PROMPTS.set(client, 3);
         CoreModuleProperties.CHANNEL_OPEN_TIMEOUT.set(client, Duration.ZERO);
+        CoreModuleProperties.AUTH_TIMEOUT.set(client, Duration.ZERO);
+        CoreModuleProperties.IDLE_TIMEOUT.set(client, Duration.ZERO);
+        CoreModuleProperties.NIO2_READ_TIMEOUT.set(client, Duration.ZERO);
         client.setUserInteraction(callback);
         client.setPasswordIdentityProvider(callback);
         client.setPasswordAuthenticationReporter(callback);
