@@ -14,7 +14,7 @@ public class UserInputServiceImpl implements UserInputService {
 
     @Override
     public synchronized String[] getUserInput(String text1, String text2, String[] prompt, boolean[] echo) {
-        var userInputs = userInputDialog.getInputs(text2 + "@" + text1, prompt, echo);
+        var userInputs = userInputDialog.getInputs(text1 + "\\" + text2, prompt, echo);
         if (userInputs.size() > 0) {
             return userInputs.toArray(new String[0]);
         }

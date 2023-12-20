@@ -1,5 +1,6 @@
 package muon.screens.dialogs;
 
+import muon.styles.AppTheme;
 import muon.util.IconCode;
 import muon.util.IconFont;
 
@@ -53,47 +54,63 @@ public class UserInputDialog extends JDialog {
     }
 
     private void initUi() {
-        container = new JPanel(new GridBagLayout());
+        container = new JPanel();
+        container.setLayout(new BoxLayout(container, BoxLayout.X_AXIS));
+
         loginButton = new JButton("Login");
         loginButton.addActionListener(e -> {
             inputs = this.txtInputs.stream().map(txt -> new String(txt.getPassword())).toList();
             setVisible(false);
         });
 
+        var cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(e -> {
+            setVisible(false);
+        });
+
         var iconLabel = new JLabel();
         iconLabel.setFont(IconFont.getSharedInstance().getIconFont(48.0f));
-        iconLabel.setText(IconCode.RI_ACCOUNT_CIRCLE_FILL.getValue());
+        iconLabel.setText(IconCode.RI_LOCK_PASSWORD_LINE.getValue());
+        iconLabel.setAlignmentY(Component.TOP_ALIGNMENT);
 
         lblUser = new JLabel();
-        lblUser.setText("user");
-        lblUser.setBorder(new EmptyBorder(0, 0, 8, 0));
-        lblUser.setFont(new Font(Font.DIALOG, Font.BOLD, 16));
+        lblUser.setText("server\\user");
+        lblUser.setBorder(new EmptyBorder(5, 0, 10, 0));
+        lblUser.setFont(new Font(Font.DIALOG, Font.PLAIN, 14));
+        lblUser.setForeground(AppTheme.INSTANCE.getDarkForeground());
         lblUser.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        var iconPanel = new JPanel(new BorderLayout(10, 0));
-        iconPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-        iconPanel.add(iconLabel, BorderLayout.WEST);
-        iconPanel.add(lblUser, BorderLayout.CENTER);
-
-        var hbox = Box.createHorizontalBox();
-        hbox.add(Box.createHorizontalGlue());
-        hbox.add(loginButton);
-        hbox.setMaximumSize(new Dimension(Short.MAX_VALUE, hbox.getPreferredSize().height));
-        hbox.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         userInputContainer = new JPanel();
         userInputContainer.setAlignmentX(Component.LEFT_ALIGNMENT);
         userInputContainer.setLayout(new BoxLayout(userInputContainer, BoxLayout.Y_AXIS));
 
+        var lblTitle = new JLabel("Authentication required");
+        lblTitle.setFont(new Font(Font.DIALOG, Font.PLAIN, 18));
+        lblTitle.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        var hbox2 = Box.createHorizontalBox();
+        hbox2.setAlignmentX(Component.LEFT_ALIGNMENT);
+        hbox2.add(Box.createHorizontalGlue());
+        hbox2.add(loginButton);
+        hbox2.add(Box.createRigidArea(new Dimension(10, 10)));
+        hbox2.add(cancelButton);
+
         var vbox = Box.createVerticalBox();
-        vbox.add(iconPanel);
+        vbox.add(lblTitle);
+        vbox.add(lblUser);
         vbox.add(Box.createRigidArea(new Dimension(10, 20)));
         vbox.add(userInputContainer);
-        vbox.add(Box.createRigidArea(new Dimension(10, 10)));
-        vbox.add(hbox);
+        vbox.add(Box.createRigidArea(new Dimension(10, 30)));
+        vbox.add(Box.createVerticalGlue());
+        vbox.add(hbox2);
+        vbox.setAlignmentY(Component.TOP_ALIGNMENT);
 
-        container.add(vbox, new GridBagConstraints());
+        container.add(iconLabel);
+        container.add(Box.createRigidArea(new Dimension(10, 10)));
+        container.add(vbox);
+        container.setBorder(new EmptyBorder(15, 15, 15, 15));
     }
+
 
     private void showPrompt(String label, String[] prompt, boolean[] echo) {
         var len = prompt.length;
@@ -111,6 +128,9 @@ public class UserInputDialog extends JDialog {
             if (echo[i]) {
                 txtInput.setEchoChar('*');
             }
+            var d = txtInput.getPreferredSize();
+            txtInput.setMaximumSize(new Dimension(Short.MAX_VALUE, d.height));
+            txtInput.setPreferredSize(d);
             txtInputs.add(txtInput);
             var lbl = new JLabel(prompt[i]);
             lbl.setBorder(new EmptyBorder(0, 0, 10, 0));
@@ -120,7 +140,8 @@ public class UserInputDialog extends JDialog {
             userInputContainer.add(txtInput);
         }
         this.pack();
-        this.setLocationRelativeTo(null);
+        this.setSize(Math.max(400, this.getWidth()), Math.max(300, this.getHeight()));
+        this.setLocationRelativeTo(this.getOwner());
         this.setVisible(true);
     }
 }
