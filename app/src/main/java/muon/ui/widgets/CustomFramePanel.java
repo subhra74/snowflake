@@ -12,8 +12,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
+import java.awt.geom.Area;
+import java.awt.geom.Rectangle2D;
+import java.awt.geom.RoundRectangle2D;
 
 public class CustomFramePanel extends JPanel {
+    public JPanel getContentPanel() {
+        return contentPanel;
+    }
+
     private JPanel contentPanel;
 
     private JLabel lblRightGrip, lblLeftGrip, lblTopGrip, lblBottomGrip;
@@ -26,6 +33,33 @@ public class CustomFramePanel extends JPanel {
         this.frame = frame;
         initUI();
     }
+
+
+
+
+//    @Override
+//    protected void paintChildren(Graphics g) {
+//        super.paintChildren(g);
+//        var rr=new RoundRectangle2D.Double(0,0,getWidth(),getHeight(), 50, 50);
+//        var cr=new Rectangle2D.Double(0,0,getWidth(),getHeight());
+//        Area a1=new Area(rr);
+//        Area a2=new Area(cr);
+//        //a1.subtract(a2);
+//        Graphics2D g2=(Graphics2D) g;
+//        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+//        g2.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
+//        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_LCD_HRGB);
+//        //g2.setColor(new Color(0,0,0,0));
+//        g2.setColor(Color.RED);
+//        g2.setClip(a1);
+//        //g2.setColor(new Color(0,0,0,0));
+//        //g2.fillRect(0,0,getWidth(),getHeight());
+//        //g2.setColor(Color.RED);
+//        //g2.fillRect(0,0,getWidth(), getHeight());
+//        //g2.setClip(a1);
+//        System.out.println("paintComponent");
+//        g2.setClip(null);
+//    }
 
     public Component addContent(Component c) {
         contentPanel.removeAll();
@@ -40,6 +74,8 @@ public class CustomFramePanel extends JPanel {
         int gripSize = 2;
         label.setMinimumSize(new Dimension(gripSize, gripSize));
         label.setPreferredSize(new Dimension(gripSize, gripSize));
+        label.setOpaque(true);
+        //label.setBackground(new Color(0,0,0,0));
         return label;
     }
 
@@ -222,17 +258,17 @@ public class CustomFramePanel extends JPanel {
     }
 
     private void initUI() {
+        //setBorder(new EmptyBorder(10,10,10,10));
+        //setBackground(new Color(0,0,0,0));
         if (frame instanceof JDialog dialog) {
             dialog.setUndecorated(true);
-            dialog.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
         } else if (frame instanceof JFrame jFrame) {
             jFrame.setUndecorated(true);
-            jFrame.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
             jFrame.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         }
-        frame.setBackground(AppTheme.INSTANCE.getBackground());
+        //frame.setBackground(new Color(0,0,0,0));
+        //frame.setBackground(AppTheme.INSTANCE.getBackground());
         this.setLayout(new GridBagLayout());
-        this.setBackground(AppTheme.INSTANCE.getDarkControlBackground());
 
         createTopGrip();
         createTitlePanel();

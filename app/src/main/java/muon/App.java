@@ -35,7 +35,7 @@ public class App {
         System.setProperty("apple.awt.application.appearance", "system");
         UIManager.setLookAndFeel(new FlatLookAndFeel());
         //JFrame.setDefaultLookAndFeelDecorated(false);
-
+        System.out.println(System.getProperty("os.version"));
         var f=new CustomFrame("Muon");
         //CustomFrame cf = new CustomFrame(f);//new JFrame();
 //        f.setUndecorated(true);
