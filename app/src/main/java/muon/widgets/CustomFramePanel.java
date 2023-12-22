@@ -27,13 +27,13 @@ public class CustomFramePanel extends JPanel {
         initUI();
     }
 
-    public Component addContent(Component c) {
-        contentPanel.removeAll();
-        contentPanel.validate();
-        var comp = contentPanel.add(c);
-        contentPanel.validate();
-        return comp;
-    }
+//    public Component addContent(Component c) {
+//        contentPanel.removeAll();
+//        contentPanel.validate();
+//        var comp = contentPanel.add(c);
+//        contentPanel.validate();
+//        return comp;
+//    }
 
     public Container getContentPanel() {
         return contentPanel;
@@ -227,14 +227,14 @@ public class CustomFramePanel extends JPanel {
 
     private void initUI() {
         if (frame instanceof JDialog dialog) {
-            dialog.setUndecorated(true);
-            dialog.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
+            //dialog.setUndecorated(true);
+            //dialog.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
         } else if (frame instanceof JFrame jFrame) {
-            jFrame.setUndecorated(true);
-            jFrame.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
+            //jFrame.setUndecorated(true);
+            //jFrame.getContentPane().setBackground(AppTheme.INSTANCE.getBackground());
             jFrame.setMaximizedBounds(GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds());
         }
-        frame.setBackground(AppTheme.INSTANCE.getBackground());
+        //frame.setBackground(AppTheme.INSTANCE.getBackground());
         this.setLayout(new GridBagLayout());
         this.setBackground(AppTheme.INSTANCE.getDarkControlBackground());
 

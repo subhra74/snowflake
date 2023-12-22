@@ -17,7 +17,8 @@ public class CustomDialog extends JDialog {
 
     @Override
     public Component add(Component comp) {
-        return panel.addContent(comp);
+        //return panel.addContent(comp);
+        throw new RuntimeException("Can't add to custom frame directly, use getContentPane()");
     }
 
     @Override
