@@ -14,8 +14,7 @@ import java.awt.event.WindowEvent;
 public class SessionManager {
     public static SessionInfo showDialog(Window window) {
         var mgr = new SessionManagerPanel();
-        var dlg = AppUtils.isWindows() ? new CustomDialog(window, "Session Manager")
-                : new JDialog(window, "Session Manager");
+        var dlg = new JDialog(window, "Session Manager");
         dlg.setModal(true);
         dlg.setSize(800, 600);
         dlg.setLocationRelativeTo(window);

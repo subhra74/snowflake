@@ -89,98 +89,98 @@ public class AppTheme {
         return new Color(0, 120, 212);
     }
 
-    public Object[] getDefaultStyles() {
-        Font widgetFont = new Font(Font.DIALOG, Font.PLAIN, 12);
-        return new Object[]{
-                "Button.font", widgetFont,
-                "Button.background", getButtonBackground(),
-                "Button.disabledForeground", getDisabledForeground(),
-                "Button.foreground", getForeground(),
-                "Button.light", getButtonRollOverBackground(),
-                "Button.highlight", getButtonPressedBackground(),
-                "Button.border", new EmptyBorder(new Insets(5, 15, 5, 15)),
-
-                "CheckBox.font", widgetFont,
-                "CheckBox.background", getBackground(),
-                "CheckBox.foreground", getForeground(),
-                "CheckBox.border", new EmptyBorder(new Insets(0, 0, 0, 0)),
-
-                "ProgressBar.foreground", getSelectionColor(),
-                "ProgressBar.selectionBackground", getButtonPressedBackground(),
-                "ProgressBar.border", null,
-
-                "Label.font", widgetFont,
-                "Label.background", getBackground(),
-                "Label.foreground", getForeground(),
-                "Label.disabledForeground", getForeground(),
-                "Label.disabledShadow", getForeground(),
-                "Label.border", null,
-
-                "TextField.background", getBackground(),
-                "TextField.border", new EmptyBorder(5, 5, 5, 5),
-                "TextField.foreground", getForeground(),
-                "TextField.selectionBackground", getSelectionColor(),
-                "TextField.selectionForeground", getSelectionForeground(),
-                "TextField.caretForeground", getForeground(),
-
-                "PasswordField.background", getBackground(),
-                "PasswordField.border", new EmptyBorder(5, 5, 5, 5),
-                "PasswordField.foreground", getForeground(),
-                "PasswordField.selectionBackground", getSelectionColor(),
-                "PasswordField.selectionForeground", getSelectionForeground(),
-                "PasswordField.caretForeground", getForeground(),
-
-                "TextArea.background", getBackground(),
-                "TextArea.border", new EmptyBorder(5, 5, 5, 5),
-                "TextArea.foreground", getForeground(),
-                "TextArea.selectionBackground", getSelectionColor(),
-                "TextArea.selectionForeground", getSelectionForeground(),
-                "TextArea.caretForeground", getForeground(),
-
-                "Tree.background", getBackground(),
-                "Tree.foreground", getForeground(),
-//                "Tree.openIcon", new FontIcon(IconCode.RI_FOLDER_OPEN_FILL,
-//                24, 24, 16.0f, getForeground()),
-//                "Tree.closedIcon", new FontIcon(IconCode.RI_FOLDER_FILL,
-//                24, 24, 16.0f, getForeground()),
-//                "Tree.leafIcon", new FontIcon(IconCode.RI_CLOSE_LINE,
-//                24, 24, 16.0f, getForeground()),
-                "Tree.selectionForeground", getSelectionForeground(),
-                "Tree.textForeground", getForeground(),
-                "Tree.selectionBackground", getListSelectionColor(),
-                "Tree.textBackground", getBackground(),
-                "Tree.rendererFillBackground", true,
-                "Tree.lineStyle", "None",
-                "Tree.rightChildIndent", 10,
-                //"Tree.rendererMargins", new Insets(25,25,5,5),
-                "Tree.selectionBorderColor", getListSelectionColor(),
-
-                "SplitPane.background", getButtonBorderColor(),
-                "SplitPane.border", new EmptyBorder(0, 0, 0, 0),
-                "SplitPaneDivider.border", new EmptyBorder(0, 0, 0, 0),
-
-                "ComboBox.background", getBackground(),
-                "ComboBox.foreground", getForeground(),
-                "ComboBox.border", new EmptyBorder(0, 0, 0, 0),
-                "ComboBox.padding", new Insets(5, 5, 5, 5),
-                "ComboBox.squareButton", Boolean.FALSE,
-                "ComboBox.Border", new EmptyBorder(3, 3, 3, 3),
-
-                "List.background", getBackground(),
-                "List.selectionBackground", getListSelectionColor(),
-                "List.selectionForeground", getSelectionForeground(),
-                "List.foreground", getForeground(),
-                "List.border", new EmptyBorder(0, 0, 0, 0),
-
-                "ScrollPane.background", getBackground(),
-                "ScrollPane.foreground", getForeground(),
-                "ScrollPane.border", new EmptyBorder(0, 0, 0, 0),
-
-                "Panel.background", getBackground(),
-
-                "ScrollBar.width", 12,
-//                "ScrollBar.maximumThumbSize", new Dimension(5, 5),
-                "ScrollBar.minimumThumbSize", new Dimension(12, 12),
-        };
-    }
+//    public Object[] getDefaultStyles() {
+//        Font widgetFont = new Font(Font.DIALOG, Font.PLAIN, 12);
+//        return new Object[]{
+//                "Button.font", widgetFont,
+//                "Button.background", getButtonBackground(),
+//                "Button.disabledForeground", getDisabledForeground(),
+//                "Button.foreground", getForeground(),
+//                "Button.light", getButtonRollOverBackground(),
+//                "Button.highlight", getButtonPressedBackground(),
+//                "Button.border", new EmptyBorder(new Insets(5, 15, 5, 15)),
+//
+//                "CheckBox.font", widgetFont,
+//                "CheckBox.background", getBackground(),
+//                "CheckBox.foreground", getForeground(),
+//                "CheckBox.border", new EmptyBorder(new Insets(0, 0, 0, 0)),
+//
+//                "ProgressBar.foreground", getSelectionColor(),
+//                "ProgressBar.selectionBackground", getButtonPressedBackground(),
+//                "ProgressBar.border", null,
+//
+//                "Label.font", widgetFont,
+//                "Label.background", getBackground(),
+//                "Label.foreground", getForeground(),
+//                "Label.disabledForeground", getForeground(),
+//                "Label.disabledShadow", getForeground(),
+//                "Label.border", null,
+//
+//                "TextField.background", getBackground(),
+//                "TextField.border", new EmptyBorder(5, 5, 5, 5),
+//                "TextField.foreground", getForeground(),
+//                "TextField.selectionBackground", getSelectionColor(),
+//                "TextField.selectionForeground", getSelectionForeground(),
+//                "TextField.caretForeground", getForeground(),
+//
+//                "PasswordField.background", getBackground(),
+//                "PasswordField.border", new EmptyBorder(5, 5, 5, 5),
+//                "PasswordField.foreground", getForeground(),
+//                "PasswordField.selectionBackground", getSelectionColor(),
+//                "PasswordField.selectionForeground", getSelectionForeground(),
+//                "PasswordField.caretForeground", getForeground(),
+//
+//                "TextArea.background", getBackground(),
+//                "TextArea.border", new EmptyBorder(5, 5, 5, 5),
+//                "TextArea.foreground", getForeground(),
+//                "TextArea.selectionBackground", getSelectionColor(),
+//                "TextArea.selectionForeground", getSelectionForeground(),
+//                "TextArea.caretForeground", getForeground(),
+//
+//                "Tree.background", getBackground(),
+//                "Tree.foreground", getForeground(),
+////                "Tree.openIcon", new FontIcon(IconCode.RI_FOLDER_OPEN_FILL,
+////                24, 24, 16.0f, getForeground()),
+////                "Tree.closedIcon", new FontIcon(IconCode.RI_FOLDER_FILL,
+////                24, 24, 16.0f, getForeground()),
+////                "Tree.leafIcon", new FontIcon(IconCode.RI_CLOSE_LINE,
+////                24, 24, 16.0f, getForeground()),
+//                "Tree.selectionForeground", getSelectionForeground(),
+//                "Tree.textForeground", getForeground(),
+//                "Tree.selectionBackground", getListSelectionColor(),
+//                "Tree.textBackground", getBackground(),
+//                "Tree.rendererFillBackground", true,
+//                "Tree.lineStyle", "None",
+//                "Tree.rightChildIndent", 10,
+//                //"Tree.rendererMargins", new Insets(25,25,5,5),
+//                "Tree.selectionBorderColor", getListSelectionColor(),
+//
+//                "SplitPane.background", getButtonBorderColor(),
+//                "SplitPane.border", new EmptyBorder(0, 0, 0, 0),
+//                "SplitPaneDivider.border", new EmptyBorder(0, 0, 0, 0),
+//
+//                "ComboBox.background", getBackground(),
+//                "ComboBox.foreground", getForeground(),
+//                "ComboBox.border", new EmptyBorder(0, 0, 0, 0),
+//                "ComboBox.padding", new Insets(5, 5, 5, 5),
+//                "ComboBox.squareButton", Boolean.FALSE,
+//                "ComboBox.Border", new EmptyBorder(3, 3, 3, 3),
+//
+//                "List.background", getBackground(),
+//                "List.selectionBackground", getListSelectionColor(),
+//                "List.selectionForeground", getSelectionForeground(),
+//                "List.foreground", getForeground(),
+//                "List.border", new EmptyBorder(0, 0, 0, 0),
+//
+//                "ScrollPane.background", getBackground(),
+//                "ScrollPane.foreground", getForeground(),
+//                "ScrollPane.border", new EmptyBorder(0, 0, 0, 0),
+//
+//                "Panel.background", getBackground(),
+//
+//                "ScrollBar.width", 12,
+////                "ScrollBar.maximumThumbSize", new Dimension(5, 5),
+//                "ScrollBar.minimumThumbSize", new Dimension(12, 12),
+//        };
+//    }
 }

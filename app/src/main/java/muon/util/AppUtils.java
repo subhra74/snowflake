@@ -1,5 +1,6 @@
 package muon.util;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import muon.constants.AppConstant;
 import muon.dto.session.SessionInfo;
 import muon.styles.AppTheme;
@@ -9,6 +10,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.io.IOException;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -64,6 +66,25 @@ public class AppUtils {
 
     public static JButton createIconButton(IconCode iconCode) {
         return createIconButton(iconCode, 18.0f);
+    }
+
+    public static FlatSVGIcon createSVGIcon(String name, int size, Color color) {
+        FlatSVGIcon.ColorFilter filter = new FlatSVGIcon.ColorFilter();
+        filter.add(Color.BLACK, color);
+        try {
+            var icon = new FlatSVGIcon(AppUtils.class.getResourceAsStream("/icons/" + name));
+            icon.setColorFilter(filter);
+            return icon.derive(size, size);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static JButton createIconToolbarButton(IconCode iconCode) {
+        var button = new JButton();
+        button.setFont(IconFont.getSharedInstance().getIconFont(18.0f));
+        button.setText(iconCode.getValue());
+        return button;
     }
 
     public static JButton createIconButton(IconCode iconCode, float iconSize) {

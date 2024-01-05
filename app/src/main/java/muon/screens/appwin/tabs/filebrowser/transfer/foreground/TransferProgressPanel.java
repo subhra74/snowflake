@@ -13,10 +13,11 @@ public class TransferProgressPanel extends JPanel {
     private JButton btnCancel;
 
     public TransferProgressPanel(ActionListener onCancel) {
-        super(new GridBagLayout());
-        lblFileDetails = new JLabel("Transferring abc.txt");
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        setBorder(new EmptyBorder(10, 10, 10, 10));
+        lblFileDetails = new JLabel("Transferring 5 files to");
         lblFileDetails.setAlignmentX(Component.LEFT_ALIGNMENT);
-        lblFileDetails.setBorder(new EmptyBorder(0, 0, 10, 0));
+        lblFileDetails.setBorder(new EmptyBorder(10, 0, 10, 0));
         prgTransfer = new JProgressBar();
         prgTransfer.setAlignmentX(Component.LEFT_ALIGNMENT);
         prgTransfer.setPreferredSize(new Dimension(300, 5));
@@ -29,16 +30,13 @@ public class TransferProgressPanel extends JPanel {
         var hb1 = Box.createHorizontalBox();
         hb1.setAlignmentX(Component.LEFT_ALIGNMENT);
         hb1.add(Box.createHorizontalGlue());
-        hb1.add(Box.createRigidArea(new Dimension(10, 10)));
         hb1.add(btnCancel);
 
-        var vbox = Box.createVerticalBox();
-        vbox.add(lblFileDetails);
-        vbox.add(prgTransfer);
-        vbox.add(lblProgressInfo);
-        vbox.add(hb1);
-
-        add(vbox);
+        this.add(lblFileDetails);
+        this.add(prgTransfer);
+        this.add(lblProgressInfo);
+        this.add(Box.createVerticalGlue());
+        this.add(hb1);
     }
 
     public void setProgress(int progress) {

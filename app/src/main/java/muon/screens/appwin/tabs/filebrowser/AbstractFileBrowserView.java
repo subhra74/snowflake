@@ -58,7 +58,7 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         this.add(contentPanel, Integer.valueOf(1));
         this.add(inputBlockerPanel, Integer.valueOf(2));
 
-        setBackground(AppTheme.INSTANCE.getBackground());
+        //setBackground(AppTheme.INSTANCE.getBackground());
         installMouseListener(table);
 
         this.addComponentListener(new ComponentAdapter() {
@@ -98,108 +98,124 @@ public abstract class AbstractFileBrowserView extends JLayeredPane {
         return inputBlockerPanel;
     }
 
-    private void createContentPanel() {
-        var c1 = AppTheme.INSTANCE.getBackground();
-        var toolbar = Box.createHorizontalBox();
-        toolbar.setOpaque(true);
-        toolbar.setBackground(c1);
+    private JToolBar createToolbar() {
+        var toolbar = new JToolBar();
+        toolbar.setBackground(UIManager.getColor("TextArea.background"));
 
-        btnBack = AppUtils.createIconButton(IconCode.RI_ARROW_LEFT_LINE);
+        btnBack =new JButton(AppUtils.createSVGIcon("arrow_back_black_24dp.svg", 20, Color.GRAY)); // AppUtils.createIconToolbarButton(IconCode.RI_ARROW_LEFT_LINE);
         btnBack.addActionListener(e -> onBack());
-        btnBack.setForeground(AppTheme.INSTANCE.getDarkForeground());
-        btnForward = AppUtils.createIconButton(IconCode.RI_ARROW_RIGHT_LINE);
+        //btnBack.setForeground(AppTheme.INSTANCE.getDarkForeground());
+        btnForward =new JButton(AppUtils.createSVGIcon("arrow_forward_black_24dp.svg", 20, Color.GRAY)); // AppUtils.createIconToolbarButton(IconCode.RI_ARROW_RIGHT_LINE);
         btnForward.addActionListener(e -> onNext());
-        btnForward.setForeground(AppTheme.INSTANCE.getDarkForeground());
-        btnUp = AppUtils.createIconButton(IconCode.RI_ARROW_UP_LINE);
+        //btnForward.setForeground(AppTheme.INSTANCE.getDarkForeground());
+        btnUp = new JButton(AppUtils.createSVGIcon("arrow_upward_black_24dp.svg", 20, Color.GRAY)); // AppUtils.createIconToolbarButton(IconCode.RI_ARROW_UP_LINE);
         btnUp.addActionListener(e -> onUp());
-        btnUp.setForeground(AppTheme.INSTANCE.getDarkForeground());
-        btnHome = AppUtils.createIconButton(IconCode.RI_HOME_4_LINE);
-        btnHome.setForeground(AppTheme.INSTANCE.getDarkForeground());
+        //btnUp.setForeground(AppTheme.INSTANCE.getDarkForeground());
+        btnHome = new JButton(AppUtils.createSVGIcon("home_black_24dp.svg", 20, Color.GRAY)); // AppUtils.createIconToolbarButton(IconCode.RI_HOME_4_LINE);
+        //btnHome.setForeground(AppTheme.INSTANCE.getDarkForeground());
         btnHome.addActionListener(e -> navigate(null));
 
-        toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
+        //toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
         toolbar.add(btnBack);
-        toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
+        //toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
         toolbar.add(btnForward);
-        toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
+        //toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
         toolbar.add(btnUp);
-        toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
+        //toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
         toolbar.add(btnHome);
-        toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
+        //toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
 
         txtAddress = new JTextField();
         txtAddress.putClientProperty("textField.noBorder", Boolean.TRUE);
-        txtAddress.setBackground(c1);
-        txtAddress.setForeground(AppTheme.INSTANCE.getForeground());
+        //txtAddress.setBackground(c1);
+        //txtAddress.setForeground(AppTheme.INSTANCE.getForeground());
         txtAddress.setBorder(new EmptyBorder(0, 5, 0, 0));
         txtAddress.setText("");
         txtAddress.addActionListener(e -> {
             navigate(txtAddress.getText());
         });
         toolbar.add(txtAddress);
-        btnSearch = AppUtils.createIconButton(IconCode.RI_SEARCH_LINE);
-        btnSearch.setForeground(AppTheme.INSTANCE.getDarkForeground());
-        toolbar.add(btnSearch);
-        toolbar.add(Box.createRigidArea(new Dimension(6, 30)));
-        btnRefresh = AppUtils.createIconButton(IconCode.RI_REFRESH_LINE);
+        btnRefresh = new JButton(AppUtils.createSVGIcon("autorenew_black_24dp.svg", 20, Color.GRAY));// AppUtils.createIconToolbarButton(IconCode.RI_REFRESH_LINE);
         btnRefresh.addActionListener(e -> onRefresh());
-        btnRefresh.setForeground(AppTheme.INSTANCE.getDarkForeground());
+        //btnRefresh.setForeground(AppTheme.INSTANCE.getDarkForeground());
         toolbar.add(btnRefresh);
-        toolbar.add(Box.createRigidArea(new Dimension(3, 30)));
-        toolbar.add(AppUtils.createIconButton(IconCode.RI_MORE_2_LINE));
-        toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
-        toolbar.setBorder(new EmptyBorder(2, 5, 0, 0));
+        //toolbar.add(Box.createRigidArea(new Dimension(3, 30)));
 
+        btnSearch = new JButton(AppUtils.createSVGIcon("search_black_24dp.svg", 20, Color.GRAY));// AppUtils.createIconToolbarButton(IconCode.RI_SEARCH_LINE);
+        //btnSearch.setForeground(AppTheme.INSTANCE.getDarkForeground());
+        toolbar.add(btnSearch);
+        //toolbar.add(Box.createRigidArea(new Dimension(6, 30)));
+
+        var btnMenu = new JButton(AppUtils.createSVGIcon("more_vert_black_24dp.svg", 20, Color.GRAY));
+        toolbar.add(btnMenu);
+        //toolbar.add(Box.createRigidArea(new Dimension(5, 30)));
+        toolbar.setBorder(new CompoundBorder(
+                new MatteBorder(0, 0, 1, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")),
+                toolbar.getBorder()));
+        //System.out.println(toolbar.getBorder());
+        //toolbar.setBorder(new EmptyBorder(2, 5, 0, 0));
+        System.out.println(UIManager.get("Component.borderColor"));
+        System.out.println(UIManager.get("TableHeader.bottomSeparatorColor"));
+        return toolbar;
+    }
+
+    private void createContentPanel() {
+
+        //UIManager.put("TableHeader.showTrailingVerticalLine", true);
+        //var c1 = AppTheme.INSTANCE.getBackground();
+        var toolbar = createToolbar();
         folderViewTableModel = new FolderViewTableModel(true);
         table = new JTable(folderViewTableModel);
         table.setIntercellSpacing(new Dimension(0, 0));
-        table.setBackground(c1);
-        table.setForeground(AppTheme.INSTANCE.getForeground());
+        //table.setBackground(c1);
+        //table.setForeground(AppTheme.INSTANCE.getForeground());
         table.setFillsViewportHeight(true);
         table.setShowGrid(false);
         table.setShowVerticalLines(false);
         table.setShowHorizontalLines(false);
         table.setDragEnabled(true);
         table.setDropMode(DropMode.ON);
-        var header = table.getTableHeader();
-        header.setBackground(c1);
-        header.setBorder(new EmptyBorder(0, 0, 0, 0));
-        header.setDefaultRenderer((a, b, c, d, e, f) -> {
-            var label = new JLabel(b.toString());
-            label.setBorder(
-                    new CompoundBorder(new EmptyBorder(0, 0, 5, 0),
-                            new CompoundBorder(
-                                    new MatteBorder(1, f == 0 ? 0 : 1, 1, 0, AppTheme.INSTANCE.getButtonBorderColor()),
-                                    new EmptyBorder(5, 10, 5, 10)
-                            )));
-            label.setOpaque(true);
-            label.setBackground(c1);
-            label.setForeground(AppTheme.INSTANCE.getDarkForeground());
-            label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
-            return label;
-        });
-        table.setRowHeight(30);
+        //var header = table.getTableHeader();
+        //header.setBackground(c1);
+        //header.setBorder(new EmptyBorder(0, 0, 0, 0));
+//        header.setDefaultRenderer((a, b, c, d, e, f) -> {
+//            var label = new JLabel(b.toString());
+//            label.setBorder(
+//                    new CompoundBorder(new EmptyBorder(0, 0, 0, 0),
+//                            new CompoundBorder(
+//                                    new MatteBorder(1, f == 0 ? 0 : 1, 1, 0, AppTheme.INSTANCE.getButtonBorderColor()),
+//                                    new EmptyBorder(5, 10, 5, 10)
+//                            )));
+//            label.setOpaque(true);
+//            label.setBackground(c1);
+//            label.setForeground(AppTheme.INSTANCE.getDarkForeground());
+//            label.setFont(new Font(Font.DIALOG, Font.PLAIN, 12));
+//            return label;
+//        });
+        var renderer = new FolderViewTableCellRenderer(
+                UIManager.getColor("Table.background"),
+                UIManager.getColor("Table.selectionBackground"),
+                AppTheme.INSTANCE.getListIconColor(),
+                UIManager.getColor("Table.selectionForeground"),
+                UIManager.getColor("Table.foreground"));
+        //table.setRowHeight(30);
+        table.setRowHeight(renderer.calculateRowHeight());
 
         table.setDefaultRenderer(Object.class,
-                new FolderViewTableCellRenderer(
-                        c1,
-                        AppTheme.INSTANCE.getListSelectionColor(),
-                        AppTheme.INSTANCE.getListIconColor(),
-                        AppTheme.INSTANCE.getSelectionForeground(),
-                        AppTheme.INSTANCE.getForeground()));
+                renderer);
         table.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         table.setComponentPopupMenu(this.popup);
         JScrollPane sp = new JScrollPane(table);
-        sp.setCorner(JScrollPane.UPPER_RIGHT_CORNER, createCorner(c1));
-        sp.setBackground(c1);
-        sp.getViewport().setBackground(c1);
+        //sp.setCorner(JScrollPane.UPPER_RIGHT_CORNER, createCorner(table.getTableHeader().getBackground()));
+        //sp.setBackground(c1);
+        //sp.getViewport().setBackground(c1);
         sp.setViewportBorder(new EmptyBorder(0, 0, 0, 0));
-        sp.setBorder(new EmptyBorder(0, 0, 5, 0));
+        sp.setBorder(new EmptyBorder(0, 0, 0, 0));
 
         resizeColumnWidth(table);
 
         contentPanel = new JPanel(new BorderLayout());
-        contentPanel.setBackground(c1);
+        //contentPanel.setBackground(c1);
         contentPanel.add(sp);
         contentPanel.add(toolbar, BorderLayout.NORTH);
     }

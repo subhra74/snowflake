@@ -18,7 +18,7 @@ import java.util.function.Consumer;
 public class SessionEditor extends JPanel {
     private JLabel lblName;
     private JTextField txtName;
-    private TabbedPanel tabbedPanel;
+    private JTabbedPane tabbedPanel;
     private JButton btnConnect, btnCancel;
     private SshInfoPanel sshInfoPanel;
     private ActionListener connectAction, cancelAction;
@@ -71,7 +71,7 @@ public class SessionEditor extends JPanel {
     }
 
     private void createUI() {
-        this.setBackground(AppTheme.INSTANCE.getBackground());
+        //this.setBackground(AppTheme.INSTANCE.getBackground());
 
         lblName = new JLabel("Name");
         txtName = new JTextField();
@@ -85,29 +85,12 @@ public class SessionEditor extends JPanel {
         btnConnect.addActionListener(this.connectAction);
         btnCancel.addActionListener(this.cancelAction);
 
-        tabbedPanel = new TabbedPanel(
-                false,
-                false,
-                new Color(52, 117, 233),
-                AppTheme.INSTANCE.getDarkControlBackground(),
-                new Color(52, 117, 233),
-                new Color(100, 100, 100),
-                AppTheme.INSTANCE.getBackground(),
-                AppTheme.INSTANCE.getDarkControlBackground(),
-                new Color(130, 130, 130),
-                new Color(180, 180, 180),
-                null,
-                AppTheme.INSTANCE.getSplitPaneBackground(),
-                null,
-                false,
-                true,
-                false
-        );
+        tabbedPanel = new JTabbedPane();
 
-        tabbedPanel.addTab("SSH", null, sshInfoPanel);
-        tabbedPanel.addTab("Proxy", null, new JPanel());
-        tabbedPanel.addTab("Jump hosts", null, new JPanel());
-        tabbedPanel.addTab("Port forwarding", null, new JPanel());
+        tabbedPanel.addTab("SSH", sshInfoPanel);
+        tabbedPanel.addTab("Proxy", new JPanel());
+        tabbedPanel.addTab("Jump hosts", new JPanel());
+        tabbedPanel.addTab("Port forwarding", new JPanel());
         tabbedPanel.setSelectedIndex(0);
 
         var hbox1 = Box.createHorizontalBox();

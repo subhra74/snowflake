@@ -14,9 +14,7 @@ public class TransferRetryPanel extends JPanel {
     private JLabel lblErrorDetails;
 
     public TransferRetryPanel(ActionListener retryAction, ActionListener cancelAction) {
-        super(new GridBagLayout());
-
-        var vbox = Box.createVerticalBox();
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         var lblIcon = new JLabel();
         lblIcon.setFont(IconFont.getSharedInstance().getIconFont(128.0f));
@@ -39,12 +37,13 @@ public class TransferRetryPanel extends JPanel {
         hb2.add(btnRetry);
         hb2.add(Box.createRigidArea(new Dimension(10, 10)));
         hb2.add(btnCancel);
+        hb2.add(Box.createHorizontalGlue());
         hb2.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        vbox.add(lblIcon);
-        vbox.add(lblErrorDetails);
-        vbox.add(hb2);
-
-        add(vbox);
+        this.add(Box.createVerticalGlue());
+        this.add(lblIcon);
+        this.add(lblErrorDetails);
+        this.add(hb2);
+        hb2.add(Box.createVerticalGlue());
     }
 }

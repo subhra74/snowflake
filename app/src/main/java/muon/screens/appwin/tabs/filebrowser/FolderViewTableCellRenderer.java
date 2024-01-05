@@ -1,6 +1,8 @@
 package muon.screens.appwin.tabs.filebrowser;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import muon.dto.file.FileInfo;
+import muon.styles.AppTheme;
 import muon.util.AppUtils;
 import muon.util.IconCode;
 import muon.util.IconFont;
@@ -9,12 +11,14 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.io.IOException;
 
 public class FolderViewTableCellRenderer implements TableCellRenderer {
     private JPanel p1;
     private JLabel iconLbl;
     private JLabel label1, label2;
     private Color background, selectionBackground, iconForeground, selectionForeground, foreground;
+    private ImageIcon folderIcon, fileIcon;
 
     public FolderViewTableCellRenderer(Color background,
                                        Color selectionBackground,
@@ -29,9 +33,25 @@ public class FolderViewTableCellRenderer implements TableCellRenderer {
         this.selectionForeground = selectionForeground;
         this.foreground = foreground;
 
+        FlatSVGIcon.ColorFilter filter = new FlatSVGIcon.ColorFilter();
+        filter.add(Color.BLACK, AppTheme.INSTANCE.getListIconColor());
+        try {
+            var icon1 = new FlatSVGIcon(getClass().getResourceAsStream("/icons/folder-fill.svg"));
+            icon1.setColorFilter(filter);
+            folderIcon = icon1.derive(24, 24);
+
+            var icon2 = new FlatSVGIcon(getClass().getResourceAsStream("/icons/file-2-fill.svg"));
+            icon2.setColorFilter(filter);
+            fileIcon = icon2.derive(24, 24);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         iconLbl = createIconLabel();
         label1 = createTextLabel();
+        label1.setBorder(new EmptyBorder(5, 7, 5, 10));
         label2 = createTextLabel();
+        label2.setBorder(new EmptyBorder(5, 10, 5, 10));
         label2.setOpaque(true);
 
         p1.add(iconLbl, BorderLayout.WEST);
@@ -42,7 +62,7 @@ public class FolderViewTableCellRenderer implements TableCellRenderer {
         var iconLbl = new JLabel();
         iconLbl.setVerticalAlignment(JLabel.CENTER);
         iconLbl.setVerticalTextPosition(JLabel.CENTER);
-        iconLbl.setBorder(new EmptyBorder(0, 10, 0, 0));
+        iconLbl.setBorder(new EmptyBorder(4, 10, 4, 0));
         iconLbl.setFont(IconFont.getSharedInstance().getIconFont(24.0f));
         iconLbl.setForeground(iconForeground);
         return iconLbl;
@@ -65,9 +85,9 @@ public class FolderViewTableCellRenderer implements TableCellRenderer {
         var fileInfo = (FileInfo) value;
         var col = table.convertColumnIndexToModel(column);
         if (col == 0) {
-            iconLbl.setText(fileInfo.isDirectory()
-                    ? IconCode.RI_FOLDER_FILL.getValue()
-                    : IconCode.RI_FILE_FILL.getValue());
+            iconLbl.setIcon(fileInfo.isDirectory()
+                    ? folderIcon
+                    : fileIcon);
             label1.setText(fileInfo.getName());
             p1.setBackground(isSelected ? selectionBackground : background);
             label1.setForeground(isSelected ? selectionForeground : foreground);
@@ -97,5 +117,11 @@ public class FolderViewTableCellRenderer implements TableCellRenderer {
             label2.setForeground(isSelected ? selectionForeground : foreground);
             return label2;
         }
+    }
+
+    public int calculateRowHeight() {
+        iconLbl.setIcon(folderIcon);
+        label1.setText("some text");
+        return p1.getPreferredSize().height;
     }
 }

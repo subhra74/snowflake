@@ -1,5 +1,6 @@
 package muon.screens.appwin;
 
+import com.formdev.flatlaf.extras.FlatSVGIcon;
 import muon.AppContext;
 import muon.exceptions.AuthenticationException;
 import muon.screens.appwin.tabs.filebrowser.DualPaneFileBrowser;
@@ -14,10 +15,11 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainContainer extends JPanel implements AppWin {
-    private JPanel contentPanel;
+    //private JPanel contentPanel;
     private DualPaneFileBrowser dualPaneFileBrowser;
     private TabbedTerminal tabbedTerminal;
     private AtomicBoolean init = new AtomicBoolean(false);
@@ -25,23 +27,44 @@ public class MainContainer extends JPanel implements AppWin {
     private JPasswordField txtPassword;
     private JButton btnPassword;
 
+    private ImageIcon createIcon(String name, int size) {
+        FlatSVGIcon.ColorFilter filter = new FlatSVGIcon.ColorFilter();
+        filter.add(Color.BLACK, Color.GRAY);
+        FlatSVGIcon icon = null;
+        try {
+            icon = new FlatSVGIcon(getClass().getResourceAsStream("/icons/" + name));
+            icon.setColorFilter(filter);
+            return icon.derive(size, size);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public MainContainer() {
         super(new CardLayout());
+        setBorder(new MatteBorder(1, 0, 0, 0, UIManager.getColor("TableHeader.bottomSeparatorColor")));
+        var tabs = new JTabbedPane();
+        tabs.setTabPlacement(JTabbedPane.BOTTOM);
 
         dualPaneFileBrowser = new DualPaneFileBrowser(this);
         tabbedTerminal = new TabbedTerminal();
 
-        contentPanel = new JPanel(new CardLayout());
-        contentPanel.add(dualPaneFileBrowser, "FILES");
-        contentPanel.add(tabbedTerminal, "TERM");
+        tabs.addTab("File Browser", createIcon("folder-fill.svg", 16), dualPaneFileBrowser);
+        tabs.addTab("Remote Terminal", createIcon("terminal-box-fill.svg", 16), tabbedTerminal);
+        tabs.addTab("Port Forwarding", createIcon("swap-box-fill.svg", 16), new JPanel());
+        tabs.addTab("Key Manager", createIcon("key-fill.svg", 16), new JPanel());
 
-        var panel = new JPanel(new BorderLayout());
-        panel.add(contentPanel);
-        panel.add(createBottomTabs(), BorderLayout.SOUTH);
+//        contentPanel = new JPanel(new CardLayout());
+//        contentPanel.add(dualPaneFileBrowser, "FILES");
+//        contentPanel.add(tabbedTerminal, "TERM");
+//
+//        var panel = new JPanel(new BorderLayout());
+//        panel.add(contentPanel);
+//        panel.add(createBottomTabs(), BorderLayout.SOUTH);
 
         this.add(createProgressPanel(), "PROGRESS");
         this.add(createPasswordPanel(), "PASSWORD");
-        this.add(panel, "CONTENT");
+        this.add(tabs, "CONTENT");
 
         this.addComponentListener(new ComponentAdapter() {
             @Override
@@ -64,7 +87,7 @@ public class MainContainer extends JPanel implements AppWin {
 
     private void initContent() {
         ((CardLayout) this.getLayout()).show(this, "CONTENT");
-        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "FILES");
+//        ((CardLayout) contentPanel.getLayout()).show(contentPanel, "FILES");
         revalidate();
         repaint();
         dualPaneFileBrowser.init();
@@ -83,40 +106,40 @@ public class MainContainer extends JPanel implements AppWin {
         });
     }
 
-    private Container createBottomTabs() {
-        String[] str = new String[]{"FILES", "TERM"};
-        ActionListener tabSelection = e -> {
-            for (var i = 0; i < tabs.length; i++) {
-                tabs[i].setSelected(e.getSource() == tabs[i]);
-                if (e.getSource() == tabs[i] && i < str.length) {
-                    ((CardLayout) contentPanel.getLayout()).show(contentPanel, str[i]);
-                }
-            }
-        };
-
-        var box = Box.createHorizontalBox();
-        box.setOpaque(true);
-        box.setBackground(AppTheme.INSTANCE.getDarkControlBackground());
-
-        var btnFiles = new BottomTabItem(IconCode.RI_FOLDER_FILL, "File Browser", tabSelection);
-        var btnTerminal = new BottomTabItem(IconCode.RI_TERMINAL_BOX_FILL, "Remote Terminal", tabSelection);
-        var btnPortFwd = new BottomTabItem(IconCode.RI_SWAP_BOX_FILL, "Port Forwarding", tabSelection);
-        var btnKeyMgr = new BottomTabItem(IconCode.RI_KEY_FILL, "Key Manager", tabSelection);
-
-        tabs = new BottomTabItem[]{btnFiles, btnTerminal, btnPortFwd, btnKeyMgr};
-
-        btnFiles.setBackground(AppTheme.INSTANCE.getBackground());
-        //AppUtils.makeEqualSize(btnFiles, btnTerminal, btnPortFwd, btnKeyMgr);
-
-        box.add(btnFiles);
-        box.add(btnTerminal);
-        box.add(btnPortFwd);
-        box.add(btnKeyMgr);
-        box.add(Box.createHorizontalGlue());
-
-        box.setBorder(new MatteBorder(1, 0, 0, 0, AppTheme.INSTANCE.getButtonBorderColor()));
-        return box;
-    }
+//    private Container createBottomTabs() {
+//        String[] str = new String[]{"FILES", "TERM"};
+//        ActionListener tabSelection = e -> {
+//            for (var i = 0; i < tabs.length; i++) {
+//                tabs[i].setSelected(e.getSource() == tabs[i]);
+//                if (e.getSource() == tabs[i] && i < str.length) {
+//                    ((CardLayout) contentPanel.getLayout()).show(contentPanel, str[i]);
+//                }
+//            }
+//        };
+//
+//        var box = Box.createHorizontalBox();
+//        box.setOpaque(true);
+//        box.setBackground(AppTheme.INSTANCE.getDarkControlBackground());
+//
+//        var btnFiles = new BottomTabItem(IconCode.RI_FOLDER_FILL, "File Browser", tabSelection);
+//        var btnTerminal = new BottomTabItem(IconCode.RI_TERMINAL_BOX_FILL, "Remote Terminal", tabSelection);
+//        var btnPortFwd = new BottomTabItem(IconCode.RI_SWAP_BOX_FILL, "Port Forwarding", tabSelection);
+//        var btnKeyMgr = new BottomTabItem(IconCode.RI_KEY_FILL, "Key Manager", tabSelection);
+//
+//        tabs = new BottomTabItem[]{btnFiles, btnTerminal, btnPortFwd, btnKeyMgr};
+//
+//        btnFiles.setBackground(AppTheme.INSTANCE.getBackground());
+//        //AppUtils.makeEqualSize(btnFiles, btnTerminal, btnPortFwd, btnKeyMgr);
+//
+//        box.add(btnFiles);
+//        box.add(btnTerminal);
+//        box.add(btnPortFwd);
+//        box.add(btnKeyMgr);
+//        box.add(Box.createHorizontalGlue());
+//
+//        box.setBorder(new MatteBorder(1, 0, 0, 0, AppTheme.INSTANCE.getButtonBorderColor()));
+//        return box;
+//    }
 
     private JPanel createPasswordPanel() {
         var lbl = new JLabel("Unlock with master password");

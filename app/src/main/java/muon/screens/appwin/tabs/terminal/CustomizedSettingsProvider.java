@@ -56,8 +56,8 @@ public class CustomizedSettingsProvider extends DefaultSettingsProvider {
 
     @Override
     public TextStyle getDefaultStyle() {
-        return new TextStyle(getTerminalColor(AppTheme.INSTANCE.getForeground().getRGB()),
-                getTerminalColor(AppTheme.INSTANCE.getBackground().getRGB()));
+        return new TextStyle(getTerminalColor(UIManager.getColor("TextArea.foreground").getRGB()),
+                getTerminalColor(UIManager.getColor("TabbedPane.background").getRGB()));
         // return terminalTheme.getDefaultStyle();
     }
 //

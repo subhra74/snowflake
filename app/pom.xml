@@ -40,7 +40,7 @@
             <version>1.7.30</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna -->
-        <dependency>
+        <!--<dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>5.12.1</version>
@@ -57,7 +57,7 @@
             <version>5.7.0</version>
             <scope>compile</scope>
         </dependency>
-
+-->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -136,6 +136,17 @@
             <groupId>org.jetbrains</groupId>
             <artifactId>annotations</artifactId>
             <version>20.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf</artifactId>
+            <version>3.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.formdev/flatlaf-extras -->
+        <dependency>
+            <groupId>com.formdev</groupId>
+            <artifactId>flatlaf-extras</artifactId>
+            <version>3.2</version>
         </dependency>
 
     </dependencies>

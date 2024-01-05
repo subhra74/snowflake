@@ -112,7 +112,7 @@ public class ForegroundTransferProgressPanel extends JLayeredPane {
             try {
                 if (!sftpUploadTask.isConnected()) {
                     SwingUtilities.invokeAndWait(inputBlockerPanel::blockInput);
-                    sftpUploadTask.connect(inputBlockerPanel);
+                    //sftpUploadTask.connect(inputBlockerPanel);
                     SwingUtilities.invokeAndWait(inputBlockerPanel::unblockInput);
                 }
                 SwingUtilities.invokeAndWait(this::showProgress);

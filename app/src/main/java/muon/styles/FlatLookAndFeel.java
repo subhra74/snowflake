@@ -25,7 +25,7 @@ public class FlatLookAndFeel extends MetalLookAndFeel {
 
     protected void initComponentDefaults(UIDefaults table) {
         super.initComponentDefaults(table);
-        table.putDefaults(AppTheme.INSTANCE.getDefaultStyles());
+        //table.putDefaults(AppTheme.INSTANCE.getDefaultStyles());
     }
 
     @Override

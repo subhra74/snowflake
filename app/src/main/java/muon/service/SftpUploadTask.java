@@ -49,7 +49,7 @@ public class SftpUploadTask {
         return this.sftp.isConnected();
     }
 
-    public void connect(InputBlocker inputBlocker) throws FSConnectException {
+    public void connect() throws FSConnectException {
         var passwordUserAuthFactory = new GuiUserAuthFactory(this.sftp.getSessionInfo());
         var callback = new SshCallback(this.sftp.getSessionInfo());
         this.sftp.connect(callback, passwordUserAuthFactory);

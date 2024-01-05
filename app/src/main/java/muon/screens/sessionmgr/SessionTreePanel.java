@@ -6,6 +6,7 @@ import muon.dto.session.SessionFolder;
 import muon.dto.session.SessionInfo;
 import muon.styles.AppTheme;
 import muon.styles.FlatTreeRenderer;
+import muon.util.AppUtils;
 import muon.widgets.AutoScrollingJTree;
 import muon.util.IconCode;
 import muon.util.IconFont;
@@ -32,7 +33,6 @@ public class SessionTreePanel extends JPanel {
 
     public SessionTreePanel(TreeSelectionListener selectionListener) {
         super(new BorderLayout());
-        setBackground(AppTheme.INSTANCE.getBackground());
         createUI(selectionListener);
     }
 
@@ -100,38 +100,18 @@ public class SessionTreePanel extends JPanel {
 
     private void createUI(TreeSelectionListener selectionListener) {
         var treeScroll1 = new JScrollPane(createSessionTree(selectionListener));
-        treeScroll1.setBorder(new EmptyBorder(0, 0, 0, 0));
-
-        var tabbedPanel = new TabbedPanel(
-                true,
-                false,
-                new Color(52, 117, 233),
-                AppTheme.INSTANCE.getDarkControlBackground(),
-                new Color(52, 117, 233),
-                AppTheme.INSTANCE.getDisabledForeground(),
-                AppTheme.INSTANCE.getBackground(),
-                AppTheme.INSTANCE.getDarkControlBackground(),
-                AppTheme.INSTANCE.getForeground(),
-                AppTheme.INSTANCE.getTitleForeground(),
-                null,
-                AppTheme.INSTANCE.getButtonBorderColor(),
-                null,
-                true,
-                true,
-                true
-        );
 
         var hostTreePanel = new JPanel(new BorderLayout());
+        hostTreePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         hostTreePanel.add(createTreeTools(), BorderLayout.NORTH);
         hostTreePanel.add(treeScroll1);
 
-        tabbedPanel.addTab("Hosts", IconCode.RI_DATABASE_2_LINE,
-                hostTreePanel);
-        tabbedPanel.addTab("Recent", IconCode.RI_HISTORY_LINE,
-                new JPanel());
-
-        add(tabbedPanel);
-
+        var tabs = new JTabbedPane();
+        tabs.putClientProperty("JTabbedPane.tabAreaAlignment", "fill");
+        tabs.setTabPlacement(JTabbedPane.BOTTOM);
+        tabs.addTab("Hosts", AppUtils.createSVGIcon("database-2-line.svg", 18, Color.GRAY), hostTreePanel);
+        tabs.addTab("Recent", AppUtils.createSVGIcon("history-line.svg", 18, Color.GRAY), new JPanel());
+        add(tabs);
     }
 
     private JTree createSessionTree(TreeSelectionListener selectionListener) {
@@ -140,31 +120,32 @@ public class SessionTreePanel extends JPanel {
 
         treeModel = new DefaultTreeModel(null, true);
         tree = new AutoScrollingJTree(treeModel);
-        tree.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (e.getButton() == MouseEvent.BUTTON1) {
-                    var row = tree.getClosestRowForLocation(e.getX(), e.getY());
-                    tree.setSelectionRow(row);
-                    if (row >= 0) {
-                        var bounds = tree.getRowBounds(row);
-                        if (bounds.contains(e.getX(), e.getY())) {
-                            if (e.getX() < bounds.x + 40) {
-                                if (tree.isExpanded(row)) {
-                                    tree.collapseRow(row);
-                                } else {
-                                    tree.expandRow(row);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        });
+//        tree.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                if (e.getButton() == MouseEvent.BUTTON1) {
+//                    var row = tree.getClosestRowForLocation(e.getX(), e.getY());
+//                    tree.setSelectionRow(row);
+//                    if (row >= 0) {
+//                        var bounds = tree.getRowBounds(row);
+//                        if (bounds.contains(e.getX(), e.getY())) {
+//                            if (e.getX() < bounds.x + 40) {
+//                                if (tree.isExpanded(row)) {
+//                                    tree.collapseRow(row);
+//                                } else {
+//                                    tree.expandRow(row);
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        });
         var renderer = new FlatTreeRenderer();
         tree.setCellRenderer(renderer);
-        tree.setShowsRootHandles(false);
-        tree.setRowHeight(renderer.getPreferredHeight());
+        //tree.setShowsRootHandles(false);
+        tree.setRowHeight(renderer.getPreferredSize().height);
+        tree.putClientProperty("JTree.showDefaultIcons", true);
         tree.setRootVisible(true);
         tree.setDragEnabled(true);
         tree.setEditable(false);
@@ -174,15 +155,16 @@ public class SessionTreePanel extends JPanel {
         tree.getSelectionModel().addTreeSelectionListener(selectionListener);
         tree.getSelectionModel().addTreeSelectionListener(e -> {
             var hasSelection = false;
+            if (Objects.isNull(e.getNewLeadSelectionPath())) {
+                return;
+            }
             if (Objects.nonNull(e.getNewLeadSelectionPath()) &&
                     Objects.nonNull(e.getNewLeadSelectionPath().getLastPathComponent())) {
                 hasSelection = true;
             }
+
             var node = (DefaultMutableTreeNode) e.getNewLeadSelectionPath().getLastPathComponent();
             btnDelete.setEnabled(hasSelection && node != rootNode);
-            btnDelete.setForeground(hasSelection && node != rootNode
-                    ? AppTheme.INSTANCE.getDarkForeground()
-                    : AppTheme.INSTANCE.getDisabledForeground());
             var nodeInfo = (NamedItem) node.getUserObject();
             if (Objects.nonNull(nodeInfo)) {
                 this.lastSelectedId = nodeInfo.getId();
@@ -221,16 +203,16 @@ public class SessionTreePanel extends JPanel {
     }
 
     private Component createTreeTools() {
-        btnAddHost = createButton(IconCode.RI_FILE_ADD_LINE);
-        btnAddFolder = createButton(IconCode.RI_FOLDER_ADD_LINE);
-        btnDelete = createButton(IconCode.RI_DELETE_BIN_LINE);
-        btnClone = createButton(IconCode.RI_FILE_COPY_2_LINE);
-        btnImport = createButton(IconCode.RI_INSTALL_LINE);
-        btnExport = createButton(IconCode.RI_UNINSTALL_LINE);
+        btnAddHost = new JButton(AppUtils.createSVGIcon("file-add-fill.svg", 16, Color.GRAY));//  createButton(IconCode.RI_FILE_ADD_LINE);
+        btnAddFolder = new JButton(AppUtils.createSVGIcon("folder-add-fill.svg", 16, Color.GRAY));//createButton(IconCode.RI_FOLDER_ADD_LINE);
+        btnDelete = new JButton(AppUtils.createSVGIcon("delete-bin-6-fill.svg", 16, Color.GRAY));//createButton(IconCode.RI_DELETE_BIN_LINE);
+        btnClone = new JButton(AppUtils.createSVGIcon("file-copy-2-fill.svg", 16, Color.GRAY));//createButton(IconCode.RI_FILE_COPY_2_LINE);
+        btnImport = new JButton(AppUtils.createSVGIcon("install-fill.svg", 16, Color.GRAY));//createButton(IconCode.RI_INSTALL_LINE);
+        btnExport = new JButton(AppUtils.createSVGIcon("uninstall-fill.svg", 16, Color.GRAY));//createButton(IconCode.RI_UNINSTALL_LINE);
         txtSearch = new JTextField();
 
-        btnDelete.setForeground(AppTheme.INSTANCE.getDisabledForeground());
-        btnClone.setForeground(AppTheme.INSTANCE.getDisabledForeground());
+        btnDelete.setEnabled(false);
+        btnClone.setEnabled(false);
 
         btnAddHost.addActionListener(e -> {
             DefaultMutableTreeNode node = getSelectedFolder();
@@ -269,27 +251,19 @@ public class SessionTreePanel extends JPanel {
             }
         });
 
-        var hbox1 = Box.createHorizontalBox();
-        hbox1.add(btnAddHost);
-        hbox1.add(btnAddFolder);
-        hbox1.add(btnDelete);
-        hbox1.add(btnClone);
-        hbox1.add(Box.createHorizontalGlue());
-        hbox1.add(btnImport);
-        hbox1.add(btnExport);
-
-        var hbox2 = Box.createHorizontalBox();
-        hbox2.add(Box.createRigidArea(new Dimension(3, 2)));
-        hbox2.add(txtSearch);
-        hbox2.add(Box.createRigidArea(new Dimension(3, 2)));
+        var toolbar = new JToolBar();
+        toolbar.add(btnAddHost);
+        toolbar.add(btnAddFolder);
+        toolbar.add(btnDelete);
+        toolbar.add(btnClone);
+        toolbar.add(Box.createHorizontalGlue());
+        toolbar.add(btnImport);
+        toolbar.add(btnExport);
 
         var vbox = Box.createVerticalBox();
-        vbox.setBorder(
-                new EmptyBorder(7, 10, 10, 10)
-        );
-        vbox.add(hbox1);
+        vbox.add(toolbar);
+        vbox.add(txtSearch);
         vbox.add(Box.createRigidArea(new Dimension(10, 5)));
-        vbox.add(hbox2);
         return vbox;
     }
 

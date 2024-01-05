@@ -1,5 +1,7 @@
 package muon;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.themes.FlatMacDarkLaf;
 import muon.screens.appwin.MainContainer;
 import muon.screens.dialogs.BannerDialog;
 import muon.screens.dialogs.UserInputDialog;
@@ -11,6 +13,7 @@ import muon.util.AppUtils;
 import muon.widgets.CustomFrame;
 
 import javax.swing.*;
+import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 
 /**
@@ -42,7 +45,17 @@ public class App {
     public static void main(String[] args) throws InterruptedException, InvocationTargetException, UnsupportedLookAndFeelException, ClassNotFoundException, InstantiationException, IllegalAccessException {
         System.setProperty("sun.java2d.metal", "false");
         System.setProperty("apple.awt.application.appearance", "system");
-        UIManager.setLookAndFeel(new FlatLookAndFeel());
+
+        FlatMacDarkLaf.setup();
+        //UIManager.setLookAndFeel(new FlatLookAndFeel());
+        UIManager.put("SplitPaneDivider.style","plain");
+        UIManager.put("Tree.showDefaultIcons",true);
+        UIManager.put("Tree.rendererMargins",5);
+        UIManager.put("Tree.showsRootHandles",true);
+        UIManager.put("Tree.rendererMargins",5);
+        UIManager.put("Tree.leftChildIndent",5);
+        UIManager.put("Tree.rightChildIndent",5);
+
 
         var isWindows = "windows".equalsIgnoreCase(System.getProperty("os.name"));
 
