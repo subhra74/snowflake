@@ -1,4 +1,4 @@
-
+target/icons/*
 target/*
 .idea/*
 *.iml
